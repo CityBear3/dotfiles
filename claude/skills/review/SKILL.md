@@ -76,7 +76,7 @@ Collect results from all agents and present a single report with this format:
 
 After the engineer reviews the report:
 
-- If issues need fixing → Return to `implement` to address them, then re-run `verify` → `review`
+- If issues need fixing → Return to `/execute-plan` to address them, then re-run `/verify` → `/review`
 - If review passes → Transition to `finish-branch`
 
 The engineer decides whether issues are blocking or acceptable.
@@ -128,3 +128,9 @@ file_path:line_number
 
 - The engineer's judgment overrides review findings. They decide what to fix and what to accept.
 - Human review gate: Claude Code's review does not replace the engineer's review. Both are required before merging.
+
+## Integration
+
+When the engineer (or Claude Code) reads this review report, apply `/receiving-code-review` discipline: verify before implementing, no performative agreement.
+
+Note: This skill uses 4 specialized parallel reviewers (`design-alignment`, `code-quality`, `test-coverage`, `scope`) defined in `skills/review/agents/`. These are distinct from the top-level `code-reviewer` agent used by `/agent-teams-driven-development`.

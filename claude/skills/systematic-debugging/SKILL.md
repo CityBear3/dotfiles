@@ -93,9 +93,8 @@ After root cause is found and fix scope is understood:
 
 | Fix Scope | Transition |
 |-----------|-----------|
-| Single file, straightforward | → `implement` → `verify` |
-| Multiple files | → `plan` → `implement-plan` → `implement` → `verify` |
-| Design change required | → `design-doc` → full flow |
+| Any fix | → `/create-plan` → `/execute-plan` → `/verify` |
+| Design change required | → `/design-discussion` → full flow |
 
 The engineer decides the transition.
 

@@ -1,10 +1,11 @@
 ---
 name: design-doc
 description: |
-  Support writing Design Docs. Provides context gathering, template expansion, sounding board,
+  Support writing formal Design Docs. Provides template expansion, sounding board,
   ambiguity detection, redundancy detection, and guideline compliance review.
   The user is the author; Claude Code acts as editor and sounding board.
-  Invoke with `/design-doc <topic>`.
+  Invoked from /design-discussion when the work warrants formal documentation,
+  or directly with `/design-doc <topic>` when an existing discussion has settled the design.
 ---
 
 # Design Doc Support
@@ -16,6 +17,14 @@ Support the user in writing Design Docs. Claude Code is the **editor and soundin
 ## Why Design Docs Matter
 
 Design Docs ensure that the intent, rationale, and architectural context behind the code are always recoverable. Code implemented from a Design Doc serves as its own detailed specification (see "Code as Specification" in CLAUDE.md).
+
+## When to Use
+
+This skill is invoked when the work warrants formal documentation: multiple components, cross-cutting concerns, significant architectural decisions, or future-reference value.
+
+Typical entry path is `/design-discussion → /design-doc → /create-plan`. The discussion phase establishes the design direction; this skill formalizes it into a Design Doc.
+
+Skip this skill for smaller work where a Design Doc would be ceremony — go directly from `/design-discussion` to `/create-plan`.
 
 ## Claude Code's Role
 
@@ -32,35 +41,18 @@ When the engineer asks Claude Code to help with a Design Doc, Claude Code should
 
 ## Flow
 
-### Step 1: Context Gathering
-
-Before presenting the template, gather information relevant to the design topic.
-
-- Search the codebase for existing architecture, dependencies, and patterns related to the topic
-- Identify constraints, related systems, and prior design decisions that may affect the design
-- Present the gathered context to the user and align on the premises before proceeding
-
-If `$ARGUMENTS` is empty, ask the user for the topic before gathering context.
-
-### Step 2: Template Expansion
+### Step 1: Template Expansion
 
 Set `$ARGUMENTS` as the title and present a skeleton based on the Design Doc Template below.
 
-### Step 3: Design Exploration
+If `$ARGUMENTS` is empty, ask the engineer for the topic before expanding the template.
 
-Before writing any prose, explore the design space with the user.
-
-1. **Research**: Investigate the topic in depth — relevant patterns, prior art in the codebase, external constraints, and technical feasibility. Present findings as input for the user's decisions.
-2. **Ideation**: Propose as many candidate approaches as practical. For each candidate, describe its merits, drawbacks, and whether it satisfies the requirements identified in Step 1.
-3. **Trade-off analysis**: Compare candidates across the dimensions that matter (complexity, performance, maintainability, migration cost, etc.). Make trade-offs explicit.
-4. **Selection**: The user selects the approach. Claude Code does not choose. If the user asks for a recommendation, state it with reasoning but make clear the decision is theirs.
-
-Do not proceed to Step 4 until the user has made a design decision.
-When sub-decisions arise during later writing (Step 4), return to this process for that sub-decision before drafting text.
-
-### Step 4: Writing
+### Step 2: Writing
 
 The engineer writes the Design Doc. Claude Code does not draft, rewrite, or ghostwrite prose.
+
+**Handling sub-decisions during writing:**
+If a sub-decision arises during writing that wasn't resolved in `/design-discussion`, pause writing and return to discussion mode for that sub-decision. Either invoke `/design-discussion` explicitly, or run a brief exploration in-place: research → propose 2–3 options → trade-offs → engineer selects. Do not draft text for an unresolved sub-decision.
 
 Claude Code supports the writing process by:
 
@@ -127,7 +119,7 @@ Supported event types:                      <- Bullet points: use only to enumer
 - InventoryAdjusted
 ~~~
 
-### Step 5: Guideline Review
+### Step 3: Guideline Review
 
 Once writing is complete, perform a final review against the writing guidelines.
 
@@ -138,11 +130,11 @@ Check for:
 - Focus on architecture and design decisions, not implementation steps
 - Final pass on ambiguity and redundancy
 
-### Step 6: Transition
+### Step 4: Transition
 
 After the Design Doc is complete and the engineer approves:
 
-→ Transition to `plan` skill to decompose the Design Doc into tasks.
+→ Transition to `/create-plan` to decompose the Design Doc into tasks.
 
 ## Design Doc Template
 
@@ -186,7 +178,7 @@ Reference: https://www.industrialempathy.com/posts/design-docs-at-google/
 | Claude Code proposes text "for the engineer to review" | This is ghostwriting. Discuss the content, let the engineer write. |
 | Claude Code makes a design decision during exploration | Present options with trade-offs. The engineer selects. |
 | "Let me draft this section for you" | Never. "What would you like to cover in this section?" instead. |
-| Proceeding to plan without engineer's approval of the Design Doc | Stop. Ask the engineer to review and approve before transitioning. |
+| Proceeding to /create-plan without engineer's approval of the Design Doc | Stop. Ask the engineer to review and approve before transitioning. |
 
 ## Rationalization Prevention
 
@@ -202,4 +194,4 @@ Reference: https://www.industrialempathy.com/posts/design-docs-at-google/
 
 - When codebase research is needed, provide context as input for the user's decisions. The user makes the design choices.
 - Design Docs are independent from code. Do not introduce implementation details or code review concerns.
-- The transition to `plan` requires the engineer's explicit approval of the Design Doc.
+- The transition to `/create-plan` requires the engineer's explicit approval of the Design Doc.
