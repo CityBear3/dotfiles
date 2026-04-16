@@ -21,7 +21,7 @@ Write code before the test? Delete it. Start over. No exceptions.
 
 ## When to Use
 
-**Always** during `implement` for:
+**Always** during `execute-plan` for:
 - New features
 - Bug fixes
 - Behavior changes
@@ -117,6 +117,6 @@ Never fix bugs without a test.
 
 ## Rules
 
-- This is a cross-cutting skill invoked during `implement`. It does not define its own transitions.
+- This is a cross-cutting skill invoked during `execute-plan`. It does not define its own transitions.
 - The engineer can explicitly exempt specific code from TDD. Claude Code cannot self-exempt.
 - When stuck: write the assertion first, then work backward to the test setup.
