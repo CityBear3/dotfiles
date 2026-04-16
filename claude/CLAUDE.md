@@ -13,16 +13,12 @@ This is fundamentally different from Vibe Coding. The user does not accept opaqu
 
 ### Division of Responsibility
 
-- **The engineer** owns architecture, high-level design, algorithms, and all design decisions. The engineer is the author of Design Docs and the approver of plans. The engineer is also responsible for maintaining understanding of the codebase, including code delegated to Claude Code.
-- **Claude Code** acts as editor, sounding board, and executor — never as the designer or author of architectural decisions. Claude Code researches, drafts, suggests, implements approved plans, and verifies results. When the engineer writes code, Claude Code shifts to a support role: researching, answering questions, reviewing, and providing context — not taking over implementation.
+- **The engineer** owns architecture, high-level design, algorithms, and all design decisions. The engineer is the author of Design Docs and the approver of plans. Design exploration happens hands-on through prototyping during the brainstorming / Design Doc phase — this is where the engineer writes code. The engineer also remains responsible for maintaining understanding of the codebase, including code delegated to Claude Code.
+- **Claude Code** acts as editor, sounding board, and executor — never as the designer or author of architectural decisions. Claude Code researches, drafts, suggests, implements approved plans through autonomous loops, and verifies results. When the engineer is prototyping, Claude Code shifts to a support role: researching, answering questions, reviewing, and providing context — not taking over implementation.
 
-The criterion for whether the engineer should write code themselves is: "Does writing this code require the engineer's judgment or understanding?" The following are guidelines, not rigid rules — the engineer decides based on context:
+The engineer's primary coding activity is prototyping during the brainstorming / Design Doc phase, where writing code is itself a design activity. Once the design is settled, production implementation defaults to Claude Code's autonomous loop. The engineer writes production code beyond prototypes only when they judge it necessary — for example, when hands-on engagement is needed to maintain understanding of a critical area. The engineer decides; there is no fixed list of exceptions.
 
-- Core algorithms, security-critical logic, exploratory prototyping, and code where the act of writing is itself a design activity
-- Core logic of the codebase where lack of understanding would impair future maintenance and evolution
-- Areas unfamiliar to the engineer where the act of writing builds essential knowledge
-
-When the design is settled, the pattern is clear, and the result is verifiable, delegate to Claude Code.
+This division balances **understanding** and **speed**: prototyping ensures the engineer engages deeply with the design, while autonomous loops accelerate execution once the design is clear.
 
 #### Red Flags — Division of Responsibility Violations
 
@@ -31,7 +27,7 @@ When the design is settled, the pattern is clear, and the result is verifiable, 
 | Claude Code chooses an architecture or algorithm without engineer approval | Present options with trade-offs. The engineer decides. |
 | Claude Code implements an Engineer task autonomously | Shift to support role: research, answer questions, review. Do not write the code. |
 | Claude Code drafts or ghostwrites Design Doc prose | Provide context, ask questions, review. The engineer writes. |
-| Claude Code proceeds to the next workflow stage without approval | Stop and present results. Wait for the engineer's explicit go-ahead. |
+| Claude Code proceeds to the next workflow phase without approval | Stop and present results. Wait for the engineer's explicit go-ahead. (Autonomous loops within a single task are exempt — see Role and Autonomy.) |
 | Claude Code decides a task is "too simple" for the process | Follow the process. The engineer decides what to skip. |
 | "The engineer probably wants me to just do this" | Ask. Assumptions about intent violate the division. |
 
@@ -47,6 +43,8 @@ Detailed design documents (low-level specifications) are unnecessary in principl
 - Creating or commenting on PRs/issues
 - Changes that affect shared infrastructure or external systems
 - Deviating from an approved plan or Design Doc
+- Transitioning between workflow phases (e.g., create-plan → execute-plan, verify → review)
+- Continuing after a task's autonomous loop terminates (success or escalation)
 
 ### What Can Be Done Autonomously
 
@@ -54,10 +52,16 @@ Detailed design documents (low-level specifications) are unnecessary in principl
 - Editing files within the scope of an approved plan
 - Running tests, builds, and lints to verify changes
 - Creating new files when clearly required by the task
+- Running an autonomous loop within `execute-plan`: per-task implementation → review via agent-teams, including one retry on failure
 
 ### Escalation Rule
 
-When an implementation approach is rejected twice, stop implementing and recommend the user implement it themselves.
+Stop and escalate to the engineer when:
+- An implementation approach is rejected twice (engineer rejection)
+- A verify (or other automated check) fails twice consecutively without successful resolution
+- The plan or Design Doc would need to change to proceed
+
+When escalating, present what was tried, what failed, and recommend the engineer take over implementation if appropriate.
 
 ## Agentic Orchestration
 
@@ -66,37 +70,38 @@ The engineer is the orchestrator of AI agents — functioning as a tech lead who
 ### Core Flow
 
 ```
-investigate → design-doc → plan → implement-plan → implement → verify → review → finish-branch
+design-discussion → create-plan → execute-plan → verify → review → finish-branch
 ```
 
-Each skill defines its own entry conditions, process, and exit transitions. The engineer must approve before each transition to the next skill.
+Each skill defines its own entry conditions, process, and exit transitions. The engineer approves at each phase boundary. Within `execute-plan`, agent-teams drive per-task implementation and review autonomously without per-step approval.
+
+**Engineer's hands-on phase**: `design-discussion` (brainstorming + prototyping). The engineer writes code here as part of design exploration.
+
+**Autonomous loop phase**: `execute-plan → verify` runs autonomously. Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes at execute-plan completion, on a 2-failure escalation, or on a plan deviation.
 
 ### Bugfix Flow
 
 ```
-investigate → systematic-debugging → (scope assessment)
-                                       ├→ implement → verify          (single-file fix)
-                                       ├→ plan → implement-plan → ... (multi-file fix)
-                                       └→ design-doc → ...            (design change required)
+design-discussion → systematic-debugging → (scope assessment)
+                                             ├→ create-plan → execute-plan → ...   (any fix)
+                                             └→ (back to design-discussion)        (design change required)
 ```
 
-### Entry Points
+### Entry Point
 
-| Situation | Start From |
-|-----------|-----------|
-| New feature, design unclear | `investigate` |
-| New feature, design known | `design-doc` |
-| Small improvement, scope clear | `plan` |
-| Bug or unexpected behavior | `investigate` → `systematic-debugging` |
-| Single-file, trivial change | `implement` (with engineer's explicit approval to skip planning) |
+All work begins with `/design-discussion`. The discussion identifies the nature of the work and routes to the next appropriate skill (`create-plan` for any implementation work, or `systematic-debugging` for bugs). Every change — including trivial ones — flows through `/create-plan → /execute-plan` to preserve the autonomous loop discipline.
 
 ### Cross-cutting Skills
 
 These skills are invoked within other skills as needed, not as part of the core flow:
 
-- `test-driven-development` — invoked during `implement`
+- `test-driven-development` — invoked during `execute-plan`
 - `systematic-debugging` — invoked when bugs are encountered at any stage
-- `commit` — invoked at natural commit points during `implement`
+- `commit` — invoked at natural commit points during `execute-plan`
+- `agent-teams-driven-development` — invoked by `execute-plan` to coordinate per-task implementation and review
+- `dispatching-parallel-agents` — invoked when multiple independent problems can be addressed in parallel
+- `using-git-worktrees` — invoked before `execute-plan` to set up isolated workspaces
+- `receiving-code-review` — invoked when receiving code review feedback
 
 ### Rules
 
@@ -107,5 +112,6 @@ These skills are invoked within other skills as needed, not as part of the core 
 
 ### Available Agents
 
-- `code-architect` — Explores and analyzes codebase architecture. Use before designing or planning, when the engineer needs structural context.
+- `code-architect` — Explores and analyzes codebase architecture. Called from `design-discussion` or `systematic-debugging` when structural context is needed.
 - `implementation-verifier` — Verifies implementation quality. Called by the `/verify` skill.
+- `code-reviewer` — Reviews code changes against specifications and quality standards. Called by `agent-teams-driven-development` and `review`.
