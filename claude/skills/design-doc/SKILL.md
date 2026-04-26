@@ -162,9 +162,48 @@ Reference for template details: https://www.industrialempathy.com/posts/design-d
 - Design Docs are not code specifications, but high-level descriptions of design and architecture
 - Must describe trade-offs, alternatives considered, and rationale behind design decisions
 - Should include diagrams or visual aids to enhance understanding, but the primary medium is text-based explanations
-- Do not include code snippets unless strictly necessary to explain a newly introduced algorithm or a critically important implementation detail
 - Do not structure prose as bullet points. Bullet points should be used only to enumerate items of the same nature
 - Design documents must focus on architecture, decision rationale, constraints, and trade-offs — not on implementation instructions or step-by-step coding guidance
+
+### Technical Detail in Design Docs
+
+Design Docs may include technical detail when it materially clarifies the
+design or pins down a contract that downstream readers must agree on. The
+test is whether the detail is **part of the design** (something the engineer
+decided and others must conform to) or **part of the implementation** (how
+the code happens to do it). Include the former; omit the latter.
+
+**Include when relevant:**
+
+- **Public interfaces and API signatures** — function/method signatures,
+  endpoint shapes, CLI surfaces. These are contracts; the design fixes
+  them, so they belong in the doc.
+- **Protocol message formats** — request/response schemas, event payload
+  structures, wire formats. The shape of what flows between components is
+  a design decision.
+- **Data structures and schemas** — table schemas, persisted formats,
+  in-memory shapes that other components rely on. Anything readers need
+  to reason about coupling.
+- **Algorithm sketches** — when a non-obvious algorithm is core to the
+  design, a short pseudocode or formula clarifies it better than prose.
+- **State machines and lifecycles** — explicit states, transitions, and
+  invariants for stateful components.
+- **Error model** — what failure modes are exposed, expected handling,
+  retry/idempotency semantics.
+
+**Omit (belongs in code, not the doc):**
+
+- Step-by-step implementation procedures or coding instructions
+- Internal helper functions, private types, or implementation-only structures
+- Boilerplate (error wrapping, logging, simple getters/setters)
+- Full file contents or large code blocks that duplicate what the code itself will say
+
+**Format guidance:**
+
+Prefer the smallest form that conveys the contract. Type signatures or a
+schema sketch are usually enough — full implementations are not. When
+including a code-like artifact, treat it as a specification fragment, not
+sample code: it should describe *what* must be true, not *how* to build it.
 
 Reference: https://www.industrialempathy.com/posts/design-docs-at-google/
 
@@ -193,5 +232,5 @@ Reference: https://www.industrialempathy.com/posts/design-docs-at-google/
 ## Important Rules
 
 - When codebase research is needed, provide context as input for the user's decisions. The user makes the design choices.
-- Design Docs are independent from code. Do not introduce implementation details or code review concerns.
+- Design Docs describe design, not implementation procedure. Technical contracts (interfaces, protocols, data structures, error models) belong in the doc when they are part of the design — see "Technical Detail in Design Docs". Internal implementation steps and code review concerns do not.
 - The transition to `/create-plan` requires the engineer's explicit approval of the Design Doc.

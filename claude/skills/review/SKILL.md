@@ -40,7 +40,7 @@ Launch 4 agents in parallel using the Agent tool, one per review aspect. Each ag
 The four agents are defined in `skills/review/agents/`:
 
 1. **Design Alignment** (`design-alignment-reviewer`) — Does the implementation match the design doc?
-2. **Code Quality** (`code-quality-reviewer`) — Naming, patterns, error handling, complexity
+2. **Code Quality** (`code-quality-reviewer`) — Naming, patterns, error handling, complexity, performance
 3. **Test Coverage** (`test-coverage-reviewer`) — Are all use cases covered? Edge cases?
 4. **Scope Completeness** (`scope-reviewer`) — Does the implementation cover the plan's scope?
 
@@ -48,6 +48,11 @@ For each agent, provide:
 - The list of files to review
 - The content of the relevant design doc (for design-alignment-reviewer)
 - The content of the plan (for scope-reviewer)
+
+When invoking `code-quality-reviewer`, include `ultrathink` in the prompt so the
+agent uses extended thinking to dig into non-obvious problems and performance
+implications. This reviewer runs on a deeper-reasoning model and is the place
+where subtle issues should be surfaced.
 
 ### Step 3: Unified Report
 
