@@ -35,6 +35,8 @@ This division balances **understanding** and **speed**: prototyping ensures the 
 
 Detailed design documents (low-level specifications) are unnecessary in principle. Code implemented from a Design Doc serves as its own detailed specification. This means the code must be well-organized enough to be read as a design document itself. If code cannot be understood by a reader who has read the Design Doc, the code needs restructuring — not more documentation.
 
+Technical contracts that consumers must conform to — public interfaces, protocol message formats, data schemas, error models — are part of the design itself and belong in the Design Doc. The boundary is between **what is decided** (contracts, in the doc) and **how it is implemented** (internals, in the code).
+
 ## Role and Autonomy
 
 ### What Requires Confirmation

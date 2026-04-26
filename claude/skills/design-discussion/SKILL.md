@@ -56,6 +56,12 @@ For non-trivial work, propose 2–3 candidate approaches with trade-offs. Presen
 
 For trivial work where the approach is obvious, this step may be skipped — but state explicitly that you're skipping it.
 
+**Think deeply at this step.** Use extended thinking (ultrathink) to reason
+about edge cases, failure modes, second-order effects, and long-term
+implications of each candidate approach. Surface non-obvious trade-offs and
+constraints the engineer may not have considered. The quality of design
+judgment downstream depends on the quality of the options presented here.
+
 ### Step 4: Prototype (Optional, Engineer-Driven)
 
 When the engineer chooses to validate an approach through code, support the process. The engineer writes the prototype; Claude Code may:
