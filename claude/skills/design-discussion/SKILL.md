@@ -36,101 +36,63 @@ Claude Code does NOT:
 
 ## Process
 
-### Step 1: Understand the Topic
+**Operating Procedure (mandatory).** The engineer should never have to
+prompt for "ultrathink" or "grill harder" — both are baked into this
+skill.
 
-If `$ARGUMENTS` is empty or unclear, ask the engineer what they want to discuss.
+1. **Investigate first.** Once the topic is understood, your next
+   response uses extended thinking (ultrathink) to investigate the
+   codebase, existing Design Docs, and relevant specs. Ground the
+   discussion in current state before posing questions or solutions.
+   For deeper architectural analysis, invoke the `code-architect` agent.
+   If a question can be answered by code or specs, **investigate
+   instead of asking**.
 
-Explore relevant codebase context: existing architecture, related modules, constraints, recent changes. Present findings concisely and align on premises.
+2. **Reason deeply when proposing.** Use extended thinking (ultrathink)
+   whenever reasoning about solutions or proposing alternatives. Surface
+   edge cases, failure modes, second-order effects, and non-obvious
+   trade-offs. Every recommendation is paired with a trade-off or
+   alternative. For decisions with multiple full architectural
+   alternatives, present **2–3 candidates with trade-offs** so the
+   engineer compares whole approaches.
 
-For deeper architectural analysis, call the `code-architect` agent.
+3. **Grill the engineer through the decision tree relentlessly.** One
+   question at a time; multiple-choice or recommend-an-answer formats
+   preferred. Walk branch by branch, surfacing dependencies between
+   decisions. Cover both **problem-space decisions** (what must be
+   required, guaranteed, or exposed — consistency, failure tolerance,
+   integration boundaries, performance budgets) and **solution-space
+   decisions** (which architecture, which structural alternative).
+   Continue until the engineer and Claude Code share complete
+   understanding of every critical-path decision. **Do not exit
+   grilling on surface answers or perceived simplicity.** Non-blocking
+   branches may be deferred with an explicit note.
 
-### Step 2: Clarify and Grill
+4. **Close when design decisions are clear enough to feed `/create-plan`
+   or `/design-doc`.** Route explicitly (see Closing) and wait for
+   engineer's confirmation.
 
-Walk the engineer through the problem space relentlessly until intent and
-constraints are fully resolved. This is not surface-level clarification — it
-is a guided interrogation of the decision tree, branch by branch, that
-produces a complete picture of *what* must be true.
+Scale the depth to the work, but **do not skip ultrathink and do not
+exit grilling early**.
 
-**Process:**
+### Prototyping (optional, engineer-driven)
 
-- Ask **one question at a time**. Multiple-choice or recommend-an-answer
-  formats are preferred over open-ended.
-- For each question, provide **your recommended answer paired with a short
-  trade-off or alternative**, so the engineer reacts to a concrete proposal
-  rather than generating from scratch.
-- **Walk the decision tree branch by branch.** When one decision constrains
-  the next, surface the dependency and resolve them in order.
-- Cover purpose, constraints, success criteria, scope boundaries, failure
-  tolerance, integration scope, and other intent-level concerns. Continue
-  until shared understanding is reached on every critical-path branch.
-- If a question can be answered by **exploring the codebase, explore instead
-  of asking**.
-
-**Scope (problem space):** decisions about user-facing requirements and
-contracts — what the system must guarantee, tolerate, or expose. Examples:
-consistency requirements, load profile, failure tolerance, integration
-boundaries, performance budgets.
-
-**Out of scope (defer to Step 3):** decisions about internal structure or
-implementation strategy — *how* the system is built. These are explored as
-full alternatives in Step 3.
-
-**Termination:** Stop when the engineer signals shared understanding
-("let's move on") or when all critical-path branches are resolved.
-Non-blocking branches may be deferred with an explicit note.
-
-**Recommendation discipline:** Recommendations are reactions, not answers.
-Always pair a recommendation with its trade-off or an alternative so the
-engineer engages with the rationale, not the answer alone. The engineer
-decides.
-
-**Scale to work:** the depth of grilling matches the work. Trivial tasks
-may resolve in two or three exchanges; complex designs walk a deeper tree.
-Do not over-question simple work.
-
-### Step 3: Explore Approaches
-
-Once the problem space is settled in Step 2, explore the **solution space**:
-how to build something that satisfies the constraints established there.
-
-For non-trivial work, propose 2–3 candidate architectures or implementation
-strategies with trade-offs. Present your recommendation and reasoning, but
-make clear the decision is the engineer's.
-
-For trivial work where the approach is obvious, this step may be skipped —
-but state explicitly that you're skipping it.
-
-**Distinguishing Step 3 from Step 2:**
-
-- Step 2 asks discrete questions about *what is required*; each question
-  has a single answer that constrains the design.
-- Step 3 presents *whole alternatives for how to build it*; each candidate
-  is a complete approach to be compared against the others.
-
-A question that asks the engineer to choose between full structural
-alternatives belongs here. A question with a single discrete answer that
-constrains the design belongs in Step 2.
-
-**Think deeply at this step.** Use extended thinking (ultrathink) to reason
-about edge cases, failure modes, second-order effects, and long-term
-implications of each candidate approach. Surface non-obvious trade-offs and
-constraints the engineer may not have considered. The quality of design
-judgment downstream depends on the quality of the options presented here.
-
-### Step 4: Prototype (Optional, Engineer-Driven)
-
-When the engineer chooses to validate an approach through code, support the process. The engineer writes the prototype; Claude Code may:
+When the engineer chooses to validate an approach through code, support
+the process. The engineer writes the prototype; Claude Code may:
 
 - Set up a scratch directory or branch for the prototype
 - Run the prototype and report results
 - Gather data the engineer requests (performance, behavior observations)
 - Answer questions about libraries, APIs, or existing code
 
-Claude Code does not autonomously write the prototype. Prototypes are throwaway by default — their purpose is to inform the design, not become production code.
+Claude Code does not autonomously write prototype code. Prototypes are
+throwaway by default — their purpose is to inform the design, not become
+production code.
 
-### Step 5: Route to Next Skill
+### Closing
 
-Once the design direction is clear, route to the next skill:
+Once design decisions are clear enough to feed downstream, route to the
+next skill:
 
 | Situation | Next Skill |
 |---|---|
@@ -139,7 +101,8 @@ Once the design direction is clear, route to the next skill:
 | Bug or unexpected behavior | `/systematic-debugging` |
 | Trivial single-file change with clear approach | `/execute-plan` (only with engineer's explicit approval to skip planning) |
 
-State the next step explicitly and wait for engineer's confirmation before invoking.
+State the next step explicitly and wait for engineer's confirmation
+before invoking.
 
 ## When to Invoke /design-doc
 
@@ -172,6 +135,7 @@ For smaller work where a Design Doc would be ceremony (handful of files, no cros
 | Claude Code asks a question and accepts the engineer's first reply without checking dependent branches | Walk the decision tree. If the answer constrains a downstream decision, surface the dependency. |
 | Claude Code recommends an answer without a trade-off, and the engineer rubber-stamps it | Always pair recommendation with trade-off or alternative. Recommendations are reactions to engage with, not defaults to accept. |
 | Claude Code asks the engineer something the codebase already answers | Explore the codebase first. Ask only if code can't answer. |
+| Claude Code waits for the engineer to prompt "ultrathink" or "grill harder" | Both are mandatory by default per Operating Procedure. Apply them without prompting. |
 
 ## Rationalization Prevention
 
