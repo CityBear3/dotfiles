@@ -24,7 +24,7 @@ The discussion scales to the work: brief for trivial, extensive for complex.
 The engineer drives design decisions. Claude Code's role is to:
 
 - Gather and present codebase context to inform decisions
-- Ask clarifying questions to surface assumptions and constraints
+- Grill through the decision tree with recommended answers and trade-offs to surface assumptions, constraints, and non-obvious dependencies
 - Present multiple approaches with trade-offs (when applicable)
 - Act as sounding board — challenge assumptions, surface alternatives
 - Support engineer's prototyping by gathering context, running experiments, or executing prototype code at the engineer's request
@@ -44,17 +44,72 @@ Explore relevant codebase context: existing architecture, related modules, const
 
 For deeper architectural analysis, call the `code-architect` agent.
 
-### Step 2: Clarify
+### Step 2: Clarify and Grill
 
-Ask clarifying questions **one at a time**. Focus on: purpose, constraints, success criteria, scope boundaries.
+Walk the engineer through the problem space relentlessly until intent and
+constraints are fully resolved. This is not surface-level clarification — it
+is a guided interrogation of the decision tree, branch by branch, that
+produces a complete picture of *what* must be true.
 
-Prefer multiple-choice questions — easier to answer than open-ended.
+**Process:**
+
+- Ask **one question at a time**. Multiple-choice or recommend-an-answer
+  formats are preferred over open-ended.
+- For each question, provide **your recommended answer paired with a short
+  trade-off or alternative**, so the engineer reacts to a concrete proposal
+  rather than generating from scratch.
+- **Walk the decision tree branch by branch.** When one decision constrains
+  the next, surface the dependency and resolve them in order.
+- Cover purpose, constraints, success criteria, scope boundaries, failure
+  tolerance, integration scope, and other intent-level concerns. Continue
+  until shared understanding is reached on every critical-path branch.
+- If a question can be answered by **exploring the codebase, explore instead
+  of asking**.
+
+**Scope (problem space):** decisions about user-facing requirements and
+contracts — what the system must guarantee, tolerate, or expose. Examples:
+consistency requirements, load profile, failure tolerance, integration
+boundaries, performance budgets.
+
+**Out of scope (defer to Step 3):** decisions about internal structure or
+implementation strategy — *how* the system is built. These are explored as
+full alternatives in Step 3.
+
+**Termination:** Stop when the engineer signals shared understanding
+("let's move on") or when all critical-path branches are resolved.
+Non-blocking branches may be deferred with an explicit note.
+
+**Recommendation discipline:** Recommendations are reactions, not answers.
+Always pair a recommendation with its trade-off or an alternative so the
+engineer engages with the rationale, not the answer alone. The engineer
+decides.
+
+**Scale to work:** the depth of grilling matches the work. Trivial tasks
+may resolve in two or three exchanges; complex designs walk a deeper tree.
+Do not over-question simple work.
 
 ### Step 3: Explore Approaches
 
-For non-trivial work, propose 2–3 candidate approaches with trade-offs. Present your recommendation and reasoning, but make clear the decision is the engineer's.
+Once the problem space is settled in Step 2, explore the **solution space**:
+how to build something that satisfies the constraints established there.
 
-For trivial work where the approach is obvious, this step may be skipped — but state explicitly that you're skipping it.
+For non-trivial work, propose 2–3 candidate architectures or implementation
+strategies with trade-offs. Present your recommendation and reasoning, but
+make clear the decision is the engineer's.
+
+For trivial work where the approach is obvious, this step may be skipped —
+but state explicitly that you're skipping it.
+
+**Distinguishing Step 3 from Step 2:**
+
+- Step 2 asks discrete questions about *what is required*; each question
+  has a single answer that constrains the design.
+- Step 3 presents *whole alternatives for how to build it*; each candidate
+  is a complete approach to be compared against the others.
+
+A question that asks the engineer to choose between full structural
+alternatives belongs here. A question with a single discrete answer that
+constrains the design belongs in Step 2.
 
 **Think deeply at this step.** Use extended thinking (ultrathink) to reason
 about edge cases, failure modes, second-order effects, and long-term
@@ -100,6 +155,9 @@ For smaller work where a Design Doc would be ceremony (handful of files, no cros
 - **Scale to the work** — Brief for trivial, extensive for complex.
 - **YAGNI** — Strip unnecessary scope from any design.
 - **Routing is mandatory** — The discussion concludes with a clear next step.
+- **Walk the decision tree** — Branch by branch, until critical-path decisions are resolved. Don't accept surface answers when a deeper branch matters.
+- **Recommend with trade-off** — Pair every recommended answer with the cost or alternative. Recommendations are reactions, not answers.
+- **Codebase before questions** — If code can answer, read code instead of asking.
 
 ## Red Flags
 
@@ -111,6 +169,9 @@ For smaller work where a Design Doc would be ceremony (handful of files, no cros
 | Claude Code asks multiple questions in one message | One question at a time. Wait for the answer. |
 | "This is too simple to discuss" | Every task starts here. Trivial discussions are still discussions. |
 | Claude Code transitions to the next skill without engineer's approval | Wait for explicit confirmation before invoking. |
+| Claude Code asks a question and accepts the engineer's first reply without checking dependent branches | Walk the decision tree. If the answer constrains a downstream decision, surface the dependency. |
+| Claude Code recommends an answer without a trade-off, and the engineer rubber-stamps it | Always pair recommendation with trade-off or alternative. Recommendations are reactions to engage with, not defaults to accept. |
+| Claude Code asks the engineer something the codebase already answers | Explore the codebase first. Ask only if code can't answer. |
 
 ## Rationalization Prevention
 
