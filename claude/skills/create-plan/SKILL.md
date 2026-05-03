@@ -89,76 +89,110 @@ A complete real-world example lives next to this skill at `example-plan.md` — 
 
 Each task includes:
 - **Why** — 1-3 sentence motivation (what problem this addresses, why now)
+- **Behavior change** — `yes (...)` or `no (pure refactor)`. Determines Discipline.
+- **Discipline** — `TDD` (apply `/test-driven-development`: red → green → refactor) when behavior changes; `refactor` (existing tests are the green-bar) when no behavior changes.
 - **Files** — Create / Modify (with line ranges where applicable) / Test
 - **Migration table** (optional) — used when 5+ similar sites are migrated; lists per-site parameters in tabular form
 - **Helper / pattern code** (optional) — full code shown once at the top of the task, referenced by steps
-- **Steps** — checkboxes; bite-sized (2-5 min each); concrete code or commands
+- **Steps** — checkboxes; bite-sized (2-5 min each); concrete code or commands. Step shape depends on Discipline (see below).
+
+The plan **specifies WHAT** (which tests, which behaviors, which sites). The TDD skill **drives HOW** (red → green → refactor cadence). Do not enumerate the full TDD cycle inside Steps — let the skill do its job.
+
+**Task with `Discipline: TDD` (behavior change):**
 
 `````markdown
 ### Task N: [Component Name]
 
-**Why:** [Motivation — what problem this task addresses, why now.]
+**Why:** [Motivation.]
 
-**Files:**
-- Create: `exact/path/to/file.rs`
-- Modify: `exact/path/to/existing.rs:123-145`
-- Test: `tests/exact/path/to/test.rs`
+**Behavior change:** yes ([what changes — bug fix / liberalization / new feature])
+**Discipline:** TDD — pin the new behavior with a failing test first, then implement.
 
-[Optional — only if 5+ similar sites:]
+**Files:** ...
 
-| Site (file:line) | Param 1 | Param 2 | ... |
-|---|---|---|---|
-| ... | ... | ... | ... |
-
-[Optional — helper or migration template, shown once:]
-
-```rust
-// Helper definition or before/after migration template
-```
+[Optional helper code or migration table]
 
 ### Steps
 
-- [ ] **Step 1: [Concrete action]**
+- [ ] **Step 1: Write failing pin test(s) (red phase)**
 
-[Code or instructions]
-
-- [ ] **Step 2: Write the failing test**
-
+Add to `tests/foo_test.rs` (or `mod tests` in source):
 ```rust
 #[test]
-fn test_specific_behavior() {
+fn pinned_behavior() {
     let result = function(input);
-    assert_eq!(result, expected);
+    assert_eq!(result, expected_post_change);
 }
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [ ] **Step 2: Verify red phase**
 
-Run: `cargo test test_specific_behavior -- --nocapture`
-Expected: FAIL with "function not defined"
+Run: `cargo test pinned_behavior`
+Expected: FAIL with [specific error / wrong assertion].
 
-- [ ] **Step 4: Write minimal implementation**
+- [ ] **Step 3: Implement the change**
 
-```rust
-fn function(input: T) -> U { expected }
-```
+[Concrete code: helper definition, modified call sites, etc.]
 
-- [ ] **Step N-1: Verify**
+- [ ] **Step 4: Verify green phase**
 
 ```sh
 [per-task verification command from header]
 ```
 
-Expected: [N tests pass, lint clean, fmt clean].
+Expected: [N tests pass — including the new pin(s)]; lint clean; fmt clean.
 
-- [ ] **Step N: Commit**
+- [ ] **Step 5: Commit**
 
 ```sh
 git add -A
 git commit -m "$(cat <<'EOF'
 [Subject line, ≤72 chars, imperative voice]
 
-[Body explaining why, not what — 2-5 sentences]
+[Body explaining why, not what]
+EOF
+)"
+```
+`````
+
+**Task with `Discipline: refactor` (no behavior change):**
+
+`````markdown
+### Task N: [Component Name]
+
+**Why:** [Motivation.]
+
+**Behavior change:** no (pure refactor)
+**Discipline:** refactor — [N] existing tests are the green-bar safety net; preserve all current pass results.
+
+**Files:** ...
+
+### Steps
+
+- [ ] **Step 1: [Mechanical change A]**
+
+[Concrete code or instruction]
+
+- [ ] **Step 2: [Mechanical change B]**
+
+[Concrete code or instruction]
+
+- [ ] **Step 3: Verify**
+
+```sh
+[per-task verification command from header]
+```
+
+Expected: [N existing tests still pass]; lint clean; fmt clean.
+
+- [ ] **Step 4: Commit**
+
+```sh
+git add -A
+git commit -m "$(cat <<'EOF'
+[Subject line]
+
+[Body — explicitly state "No behavior change"]
 EOF
 )"
 ```
@@ -188,6 +222,13 @@ PR description should explain [what each commit does, any behavior changes, link
 
 - [Explicitly deferred items — list them so they aren't forgotten and so the PR's scope is clear]
 - [Forward references to future PRs / stages]
+
+## Alternative Solutions Considered
+
+[Approaches considered during /design-discussion but not chosen, with reason for rejection. Useful when no Design Doc exists (refactor PRs / small features). Prevents re-litigation later and helps future readers understand the design space.]
+
+- **[Alternative 1 name]**: [What it was — 1 sentence]. **Rejected because**: [reason].
+- **[Alternative 2 name]**: [What it was]. **Rejected because**: [reason].
 `````
 
 ### Step 5: Self-Review
@@ -239,6 +280,10 @@ Every step must contain the actual content an executor needs. These are **plan f
 | Proceeding to /execute-plan without engineer approval | Stop. The engineer must approve the plan first. |
 | Tasks too large ("Implement the entire auth system") | Decompose until each task fits in one execution session. |
 | Tasks too granular ("Add import statement on line 5") | Tasks should be meaningful, verifiable units. |
+| Pin-only task (separate task that adds tests for behavior introduced in another task) | Embed pin tests in the same task that introduces the behavior. TDD means the test exists at the moment of change, not after. |
+| Behavior-change task without `Discipline: TDD` | Mark as TDD. The change must be preceded by a red test (Step 1). |
+| Refactor task that adds new tests | If new tests are needed, the task isn't a pure refactor — re-tag as `Behavior change: yes` and `Discipline: TDD`. |
+| Steps that enumerate the full red-green-refactor cycle | Plan specifies WHAT (which tests, which behaviors); the TDD skill drives HOW. Don't duplicate the skill into Steps. |
 
 ## Rationalization Prevention
 
@@ -248,6 +293,9 @@ Every step must contain the actual content an executor needs. These are **plan f
 | "The executor will figure out the details" | That's what create-plan prevents. Details belong in the plan. |
 | "The engineer will catch issues in review" | Review is not a substitute for self-review. Catch issues before review. |
 | "The Design Doc covers this, tasks are obvious" | Obvious to you ≠ obvious to the executor. Make tasks explicit. |
+| "Pin tests in a follow-up task keeps commits smaller" | Anti-TDD. The behavior change at its commit has no failing test proving correctness. Embed the pin in the change. |
+| "TDD steps duplicate the test-driven-development skill" | Plan marks discipline; skill drives the cycle. The plan only specifies WHAT (which tests / which behaviors); HOW (red→green→refactor) is the skill's job. |
+| "Alternative Solutions section is for Design Docs" | When a Design Doc exists, refer to it. When the work skips Design Doc (refactor / small features), the alternatives belong in the plan — otherwise they're lost. |
 
 ## Rules
 
