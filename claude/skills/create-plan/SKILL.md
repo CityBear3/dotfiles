@@ -60,62 +60,135 @@ Steps must include:
 
 Write the plan to `docs/plans/YYYY-MM-DD-<feature-name>.md` using the format below.
 
+A complete real-world example lives next to this skill at `example-plan.md` — refer to it whenever the format is ambiguous.
+
 **Plan Header:**
 
-```markdown
+`````markdown
 # [Feature Name] Implementation Plan
 
 > **Execution:** Use `/execute-plan` to dispatch this plan to agent-teams. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence]
-**Architecture:** [2-3 sentences]
-**Tech Stack:** [Key technologies/libraries]
+**Architecture:** [2-3 sentences explaining the overall approach and how the tasks compose]
+**Tech Stack:** [Key technologies / libraries / language version]
+
+**Working directory:** `[absolute or repo-relative path]` (run all build/test commands from there).
+**Branch:** `[branch-name]`.
+**Baseline before Task 1:** [N tests passing, lint clean, fmt clean — engineer must verify before starting].
+
+**Per-task verification command** (mandatory before each commit):
+```sh
+[exact command, e.g. `cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check`]
+```
 
 ---
-```
+`````
 
 **Task Format:**
 
-````markdown
+Each task includes:
+- **Why** — 1-3 sentence motivation (what problem this addresses, why now)
+- **Files** — Create / Modify (with line ranges where applicable) / Test
+- **Migration table** (optional) — used when 5+ similar sites are migrated; lists per-site parameters in tabular form
+- **Helper / pattern code** (optional) — full code shown once at the top of the task, referenced by steps
+- **Steps** — checkboxes; bite-sized (2-5 min each); concrete code or commands
+
+`````markdown
 ### Task N: [Component Name]
 
+**Why:** [Motivation — what problem this task addresses, why now.]
+
 **Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/exact/path/to/test.py`
+- Create: `exact/path/to/file.rs`
+- Modify: `exact/path/to/existing.rs:123-145`
+- Test: `tests/exact/path/to/test.rs`
 
-- [ ] **Step 1: Write the failing test**
+[Optional — only if 5+ similar sites:]
 
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
+| Site (file:line) | Param 1 | Param 2 | ... |
+|---|---|---|---|
+| ... | ... | ... | ... |
+
+[Optional — helper or migration template, shown once:]
+
+```rust
+// Helper definition or before/after migration template
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+### Steps
 
-Run: `pytest tests/path/test.py::test_name -v`
+- [ ] **Step 1: [Concrete action]**
+
+[Code or instructions]
+
+- [ ] **Step 2: Write the failing test**
+
+```rust
+#[test]
+fn test_specific_behavior() {
+    let result = function(input);
+    assert_eq!(result, expected);
+}
+```
+
+- [ ] **Step 3: Run test to verify it fails**
+
+Run: `cargo test test_specific_behavior -- --nocapture`
 Expected: FAIL with "function not defined"
 
-- [ ] **Step 3: Write minimal implementation**
+- [ ] **Step 4: Write minimal implementation**
 
-```python
-def function(input):
-    return expected
+```rust
+fn function(input: T) -> U { expected }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **Step N-1: Verify**
 
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
+```sh
+[per-task verification command from header]
 ```
-````
+
+Expected: [N tests pass, lint clean, fmt clean].
+
+- [ ] **Step N: Commit**
+
+```sh
+git add -A
+git commit -m "$(cat <<'EOF'
+[Subject line, ≤72 chars, imperative voice]
+
+[Body explaining why, not what — 2-5 sentences]
+EOF
+)"
+```
+`````
+
+**Final sections** (after all task definitions):
+
+`````markdown
+## Final verification (after all tasks)
+
+```sh
+[full test/lint/fmt suite + smoke test, e.g. CLI run on a sample input]
+```
+
+Expected: [total test count, all passing; lint clean; fmt clean; smoke test specific output].
+
+## Push and PR
+
+```sh
+git push -u origin [branch-name]
+gh pr create --base main --title "[PR title]" --body "..."
+```
+
+PR description should explain [what each commit does, any behavior changes, links to design doc / issue].
+
+## Out of scope
+
+- [Explicitly deferred items — list them so they aren't forgotten and so the PR's scope is clear]
+- [Forward references to future PRs / stages]
+`````
 
 ### Step 5: Self-Review
 
