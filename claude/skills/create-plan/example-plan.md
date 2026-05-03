@@ -1,8 +1,11 @@
 <!--
 This file is a real plan from the Dyne compiler project, illustrating the
-standard plan format described in SKILL.md. It is referenced as an example
-only — do not edit unless updating the format itself. To regenerate, copy
-a fresh plan from a real project and adjust this header.
+standard plan format described in SKILL.md. Each task uses one of two Discipline
+forms (TDD or refactor), and pin tests are embedded in the task that introduces
+the behavior — not split into a separate "tests-only" task.
+
+Reference only. To regenerate, copy a fresh plan from a real project and
+adjust this header.
 -->
 
 # Cross-cutting Parser Refactor (PR-A) Implementation Plan
@@ -11,13 +14,13 @@ a fresh plan from a real project and adjust this header.
 
 **Goal:** Reduce duplication and noise across the Stage 1+2 parser without changing the language's accepted surface form, except for fixing the Stage 1 `parse_block_until` span overshoot bug as a side effect of helper unification.
 
-**Architecture:** 5 commits (one per task). Items: (3) aggregate `use` statements, (2) replace `peek().clone()` idiom site-by-site, (1) introduce `parse_comma_list` helper + migrate 11 sites, (4) introduce `parse_block_body` helper + migrate `parse_block_until` and `parse_match_arm_body` to wrap it (this fixes Stage 1 span bug), (5) pin Stage 1 block span behavior with new tests.
+**Architecture:** 4 commits (one per task). Items: (1) aggregate `use` statements, (2) replace `peek().clone()` idiom site-by-site, (3) introduce `parse_comma_list` helper + migrate 11 sites + pin newline-acceptance liberalization, (4) introduce `parse_block_body` helper + fix Stage 1 span overshoot bug + pin corrected span behavior.
 
 **Tech Stack:** Rust 2024 edition. Zero runtime deps. Cargo for build/test/lint/fmt.
 
-**Working directory:** `.claude/worktrees/refactor-cross-cutting/compiler/` (run all `cargo` commands from there).
+**Working directory:** `.claude/worktrees/refactor-cross-cutting/compiler/` (run all build/test commands from there).
 **Branch:** `refactor-cross-cutting`.
-**Baseline before Task 1:** 183 tests passing, clippy `-D warnings` clean, `cargo fmt --check` clean.
+**Baseline before Task 1:** 183 tests passing, clippy `-D warnings` clean, `cargo fmt -- --check` clean — engineer must verify before starting.
 
 **Per-task verification command** (mandatory before each commit):
 ```sh
@@ -26,102 +29,73 @@ cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings &
 
 ---
 
-## Task 1: Aggregate function-internal `use` statements to top-of-file
+## Task 1: Aggregate function-internal use statements to top-of-file
 
 **Why:** During Stage 2 agent-teams execution, several `use` statements were added inside functions where the imported items were used. They are now scattered. Aggregating to top-of-file improves readability.
+
+**Behavior change:** no (pure refactor)
+**Discipline:** refactor — 183 existing tests are the green-bar safety net.
 
 **Files:**
 - Modify: `compiler/src/parser/stmt.rs`
 - Modify: `compiler/src/parser/expr.rs`
 
-**Internal-`use` statements to remove and add to top-of-file:**
+**Internal-`use` statements to remove and re-add at top-of-file:**
 
-`stmt.rs` — remove function-local `use` lines:
-- Line 54: `use crate::ast::{StructDef, StructField};` (inside `parse_struct_def`)
-- Line 106: `use crate::ast::EnumDef;` (inside `parse_enum_def`)
-- Line 146: `use crate::ast::EnumVariant;` (inside `parse_variant_decl`)
+`stmt.rs`: function-local `use` lines inside `parse_struct_def`, `parse_enum_def`, `parse_variant_decl` (3 lines).
 
-`expr.rs` — remove function-local `use` lines:
-- Line 127: `use crate::ast::IfExpr;` (inside `parse_if_expr`)
-- Line 128: `use crate::parser::stmt::{TokenKindKind, parse_block_until};` (inside `parse_if_expr`)
-- Line 484: `use crate::ast::MatchArm;` (inside `parse_match_expr`)
-- Line 529: `use crate::ast::Block;` (inside `parse_match_arm_body`)
-- Line 530: `use crate::parser::stmt::parse_stmt;` (inside `parse_match_arm_body`)
-- Line 371: `use crate::ast::{Pattern, PatternKind};` (mid-file module-level — also move to top-of-file)
+`expr.rs`: function-local `use` lines inside `parse_if_expr` (2 lines), `parse_match_expr`, `parse_match_arm_body` (2 lines), plus a mid-file `use crate::ast::{Pattern, PatternKind};` near `parse_pattern`.
 
 ### Steps
 
-- [ ] **Step 1: Update top-of-file `use` block in `compiler/src/parser/stmt.rs`**
+- [ ] **Step 1: Identify and remove all function-internal / mid-file `use` lines in stmt.rs and expr.rs**
 
-Replace the existing `use` block at the top (lines 3-11) with:
+For each file, grep for `use` lines that appear after the top-of-file group. Verify each is inside (or near) a function. Remove them.
 
-```rust
-use crate::ast::{
-    Block, EnumDef, EnumVariant, ExprKind, FunctionDef, Param, Program, Stmt, StmtKind,
-    StructDef, StructField,
-};
-use crate::error::CompileError;
-use crate::lexer::TokenKind;
-use crate::parser::Parser;
-use crate::parser::expr::parse_expr;
-use crate::parser::types::parse_type;
-use crate::source::Span;
-```
+- [ ] **Step 2: Update top-of-file `use crate::ast::{...}` block to include the previously-local imports**
 
-Verify the existing top-of-file `use crate::ast::{ ... }` already imports the original Stage 1 names (Block, ExprKind, FunctionDef, Param, Program, Stmt, StmtKind). Only add the three new imports (StructDef, StructField, EnumDef, EnumVariant) to that single `use crate::ast::{...}` group.
+Read the actual current top-of-file block first (do NOT assume the plan's literal snippet is correct — Tasks 1+ may shift it). Add the new names alphabetically into the existing group.
 
-- [ ] **Step 2: Remove function-local `use` lines in `compiler/src/parser/stmt.rs`**
+- [ ] **Step 3: Update top-of-file `use crate::parser::stmt::{...}` block in expr.rs**
 
-Delete lines 54, 106, 146 (the three `use crate::ast::...;` lines inside `parse_struct_def`, `parse_enum_def`, `parse_variant_decl`).
+Add `parse_block_until`, `parse_stmt`, `TokenKindKind` (the names previously imported function-locally).
 
-- [ ] **Step 3: Update top-of-file `use` block in `compiler/src/parser/expr.rs`**
-
-Replace lines 3-7 with:
-
-```rust
-use crate::ast::{BinOp, Block, Expr, ExprKind, IfExpr, MatchArm, Pattern, PatternKind, UnaryOp};
-use crate::error::CompileError;
-use crate::lexer::TokenKind;
-use crate::parser::Parser;
-use crate::parser::stmt::{TokenKindKind, parse_block_until, parse_stmt};
-use crate::source::Span;
-```
-
-- [ ] **Step 4: Remove function-local and mid-file `use` lines in `compiler/src/parser/expr.rs`**
-
-Delete:
-- Lines 127, 128 (inside `parse_if_expr`)
-- Line 371 (mid-file `use crate::ast::{Pattern, PatternKind};`)
-- Line 484 (inside `parse_match_expr`)
-- Lines 529, 530 (inside `parse_match_arm_body`)
-
-After deletion, line numbers will shift; re-locate by content if needed.
-
-- [ ] **Step 5: Verify**
+- [ ] **Step 4: Verify**
 
 ```sh
 cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
 ```
 
-Expected: 183 tests pass, clippy clean, fmt clean.
+Expected: 183 existing tests still pass; clippy clean; fmt clean.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```sh
 git add -A
-git commit -m "Refactor: aggregate parser use statements to top-of-file
+git commit -m "$(cat <<'EOF'
+Refactor: aggregate parser use statements to top-of-file
 
 Move function-local and mid-file use statements in parser/stmt.rs and
-parser/expr.rs to the top-of-file use block. No behavior change."
+parser/expr.rs to the top-of-file use block. No behavior change.
+EOF
+)"
 ```
 
 ---
 
-## Task 2: Replace `peek().clone()` idiom with span+kind pattern
+## Task 2: Replace peek().clone() with peek_kind() + span idiom
 
-**Why:** `let tok = p.peek().clone(); match &tok.kind { ... }` is a borrow-checker workaround that obscures intent. Since `Parser::peek_kind()` returns `&'t TokenKind` (lifetime tied to the token slice, not `&self`), we can match directly on `peek_kind()` without cloning the entire `Token`. We clone only the inner String when we need to keep it across the `advance` call.
+**Why:** `let tok = p.peek().clone(); match &tok.kind { ... }` is a borrow-checker workaround that obscures intent. `Parser::peek_kind()` returns `&'t TokenKind` (lifetime tied to the token slice, not `&self`), so we can match directly on `peek_kind()` without cloning the entire `Token`. We clone only the inner String when we need to keep it across `advance`.
 
-**Pattern to apply at every site:**
+**Behavior change:** no (pure refactor)
+**Discipline:** refactor — 183 existing tests are the green-bar safety net.
+
+**Files:**
+- Modify: `compiler/src/parser/types.rs` (5 sites)
+- Modify: `compiler/src/parser/stmt.rs` (9 sites)
+- Modify: `compiler/src/parser/expr.rs` (5 sites)
+
+**Pattern (apply at every site):**
 
 Old:
 ```rust
@@ -143,99 +117,72 @@ match p.peek_kind() {
         let span = p.advance().span;
         // use n, span
     }
-    _ => {
+    other => {
         let span = p.current_span();
-        return Err(CompileError::parse(span, "expected ..."));
+        return Err(CompileError::parse(
+            span,
+            format!("expected ..., found {other:?}"),
+        ));
     }
 }
 ```
 
-**Where the original code captured `tok.span` for error formatting with `format!(... {:?} ..., tok.kind)`**, change to use `p.peek().span` and `p.peek_kind()` (or capture both before generating the format) — borrow-checker permits because format! call evaluates before any subsequent `&mut p` use:
-
-```rust
-_ => {
-    let span = p.current_span();
-    return Err(CompileError::parse(
-        span,
-        format!("expected ..., found {:?}", p.peek_kind()),
-    ));
-}
-```
-
-**19 sites to update** (do them in this order; commit once at end):
-
-`compiler/src/parser/types.rs`:
-- Line 36: `let ident_tok = p.peek().clone();` (in `parse_type`)
-- Line 53: `let end_tok = p.peek().clone();` (in `parse_type`) — used only for `end_tok.span`. Replace with `let end_span = p.current_span();` before `expect`.
-- Line 87: `let tok = p.peek().clone();` (in `parse_type_param_name`)
-- Line 156: `let tok = p.peek().clone();` (in `parse_unit_factor`)
-- Line 172: `let exp_tok = p.peek().clone();` (in `parse_unit_factor`)
-
-`compiler/src/parser/stmt.rs`:
-- Line 57: `let name_tok = p.peek().clone();` (in `parse_struct_def` for struct name)
-- Line 67: `let fname_tok = p.peek().clone();` (in `parse_struct_def` for field name)
-- Line 109: `let name_tok = p.peek().clone();` (in `parse_enum_def`)
-- Line 148: `let name_tok = p.peek().clone();` (in `parse_variant_decl`)
-- Line 202: `let name_tok = p.peek().clone();`
-- Line 285: `let name_tok = p.peek().clone();`
-- Line 319: `let second_tok = p.peek().clone();`
-- Line 367: `let name_tok = p.peek().clone();`
-- Line 406: `let name_tok = p.peek().clone();`
-
-`compiler/src/parser/expr.rs`:
-- Line 14: `let tok = p.peek().clone();` (in `parse_primary`)
-- Line 220: `let field_tok = p.peek().clone();`
-- Line 273: `let name_tok = p.peek().clone();` (in `parse_struct_lit_field`)
-- Line 377: `let tok = p.peek().clone();` (in `parse_pattern`)
-- Line 431: `let next = p.peek().clone();`
-
 ### Steps
 
-- [ ] **Step 1: Apply the pattern site-by-site to all 19 sites listed above**
+- [ ] **Step 1: Migrate the 5 sites in types.rs (parse_type ident, end-tok, parse_type_param_name, parse_unit_factor atom + exponent)**
 
-For each site:
-1. Read the surrounding ~15 lines to understand what the cloned token is used for.
-2. Replace `let tok = p.peek().clone();` and the subsequent `match &tok.kind { ... }` with the new pattern.
-3. If `tok.span` is used post-`advance`, capture it via `let span = p.advance().span;` (the advance returns the consumed token by reference; `.span` is `Copy`).
-4. If `tok.kind` is used in an error format string and the error path doesn't advance, use `p.peek_kind()` directly in `format!`.
-5. If only `tok.span` is needed for an error and `tok.kind` is dead, simplify: `let span = p.current_span(); return Err(CompileError::parse(span, "..."));`.
+Apply the pattern at each site. After this file is fully migrated, run `cargo build` to catch type errors early.
 
-After each file is fully migrated, run `cargo build` to catch type errors early. Don't commit yet.
+- [ ] **Step 2: Migrate the 9 sites in stmt.rs (parse_struct_def name + field, parse_enum_def, parse_variant_decl, parse_let_stmt, parse_for_stmt × 2, parse_function_def, parse_param)**
 
-- [ ] **Step 2: Verify**
+Same pattern. Run `cargo build`.
+
+- [ ] **Step 3: Migrate the 5 sites in expr.rs (parse_primary, parse_postfix field-name, parse_struct_lit_field, parse_pattern × 2)**
+
+Same pattern.
+
+- [ ] **Step 4: Verify**
 
 ```sh
 cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
 ```
 
-Expected: 183 tests pass, clippy clean, fmt clean.
+Sanity check: `grep -n "p\.peek\(\)\.clone\(\)" src/parser/*.rs` should return zero matches.
 
-- [ ] **Step 3: Commit**
+Expected: 183 existing tests still pass; clippy clean; fmt clean.
+
+- [ ] **Step 5: Commit**
 
 ```sh
 git add -A
-git commit -m "Refactor: replace peek().clone() with peek_kind() + span idiom
+git commit -m "$(cat <<'EOF'
+Refactor: replace peek().clone() with peek_kind() + span idiom
 
 Token cloning at peek sites was a borrow-checker workaround. Since
 peek_kind() returns a reference with lifetime tied to the token slice
 (not &self), we can match directly on it and clone only the inner
 String when needed. 19 sites simplified across types.rs, stmt.rs,
-expr.rs. No behavior change."
+expr.rs. No behavior change.
+EOF
+)"
 ```
 
 ---
 
-## Task 3: Introduce `parse_comma_list` helper
+## Task 3: Introduce parse_comma_list helper, migrate 11 sites
 
-**Why:** 11 sites implement the same pattern: optional newlines around comma-separated items inside a closing delimiter, with optional trailing comma. After Stage 2's empty-list-rejection commits, three of these sites also share a "reject empty with custom message" branch. Centralize.
+**Why:** 11 comma-separated-list sites share the same loop pattern. After Stage 2's empty-list-rejection commits, three of these sites also share a "reject empty with custom message" branch. Centralize via a generic helper. Side effect: newlines around items in `Fn(...)` types and `<T, U>` type-param lists become accepted (consistent with Stage 2 §5.1 multi-line / trailing-comma conventions; existing valid code is unaffected).
+
+**Behavior change:** yes (newline acceptance liberalized in `Fn(...)` types and `<T, U>` type-param lists)
+**Discipline:** TDD — pin the new newline-acceptance with failing tests first, then introduce the helper and migrate sites.
 
 **Files:**
 - Modify: `compiler/src/parser/stmt.rs` (add helper + enum near `parse_block_until`)
-- Modify: `compiler/src/parser/types.rs` (3 site migrations)
+- Modify: `compiler/src/parser/types.rs` (3 site migrations + 1 pin test)
 - Modify: `compiler/src/parser/expr.rs` (6 site migrations)
-- Modify: `compiler/src/parser/stmt.rs` (2 site migrations)
+- Modify: `compiler/src/parser/stmt.rs` (2 site migrations + 1 pin test)
 
-**Helper definition** (add to `compiler/src/parser/stmt.rs`, near the other block helpers around line 420):
+**Helper definition** (insert into `compiler/src/parser/stmt.rs` near `parse_block_until`):
 
 ```rust
 /// How `parse_comma_list` should treat an empty list (closing token immediately
@@ -243,16 +190,16 @@ expr.rs. No behavior change."
 pub(crate) enum EmptyHandling {
     /// Empty list is allowed; return `Vec::new()`.
     Allow,
-    /// Empty list is rejected; emit `CompileError::parse` with this message.
+    /// Empty list is rejected with the given message.
     Reject(&'static str),
-    /// Don't pre-check; let `parse_one` produce its own error if it fails.
+    /// Don't pre-check; let `parse_one` produce its own error if invoked at the close.
     /// Use when the original code did not have an explicit empty check.
     RequireOne,
 }
 
 /// Parse a comma-separated list of items terminated by `close`, with optional
 /// newlines around items and an optional trailing comma. Caller is responsible
-/// for consuming the opening delimiter and the closing delimiter.
+/// for consuming the opening and closing delimiters.
 pub(crate) fn parse_comma_list<T, F>(
     p: &mut Parser,
     close: &TokenKind,
@@ -267,12 +214,7 @@ where
         return match empty {
             EmptyHandling::Allow => Ok(Vec::new()),
             EmptyHandling::Reject(msg) => Err(CompileError::parse(p.current_span(), msg)),
-            EmptyHandling::RequireOne => {
-                // Fall through to parse_one which will produce its own error.
-                let mut items = Vec::new();
-                items.push(parse_one(p)?);
-                Ok(items)
-            }
+            EmptyHandling::RequireOne => Ok(vec![parse_one(p)?]),
         };
     }
     let mut items = vec![parse_one(p)?];
@@ -289,123 +231,117 @@ where
 }
 ```
 
-Note: the `RequireOne` branch's "fall through to parse_one" runs when the close is already at position; it intentionally calls `parse_one` to surface the natural error from that function (e.g. "expected type name, found Gt"). This preserves the pre-refactor behavior at types.rs:50 (generic type-arg list).
-
 **Per-site migration table:**
 
-| Site (file:line) | Caller | `close` | `empty` | `parse_one` |
+| Site | Caller | `close` | `empty` | `parse_one` |
 |---|---|---|---|---|
-| types.rs:21 | `parse_type` (Fn) | `&TokenKind::RParen` | `Allow` | `parse_type` |
-| types.rs:50 | `parse_type` (generic args) | `&TokenKind::Gt` | `RequireOne` | `parse_type_arg` |
-| types.rs:79 | `parse_type_param_list` | `&TokenKind::Gt` | `Reject("empty type parameter list `<>` is not allowed; omit the brackets entirely")` | `parse_type_param_name` |
-| stmt.rs:167 | `parse_variant_decl` | `&TokenKind::RParen` | `Reject("empty payload list `()` is not allowed; omit the parentheses for a no-payload variant")` | `crate::parser::types::parse_type` |
-| stmt.rs:381 | `parse_param_list` | `&TokenKind::RParen` | `Allow` | `parse_param` |
-| expr.rs:89 | `parse_postfix` (call) | `&TokenKind::RParen` | `Allow` | `parse_expr` |
-| expr.rs:109 | `parse_vec_or_mat_lit` | `&TokenKind::RBracket` | `Allow` | `parse_expr` |
-| expr.rs:190 | `parse_postfix` (index) | `&TokenKind::RBracket` | `RequireOne` | `parse_expr` |
-| expr.rs:249 | `parse_postfix` (struct lit) | `&TokenKind::RBrace` | `Allow` | `parse_struct_lit_field` |
-| expr.rs:291 | `parse_row` (matrix row) | `&TokenKind::RBracket` | `Allow` | `parse_expr` |
-| expr.rs:400 | `parse_pattern` (variant payload) | `&TokenKind::RParen` | `Reject("empty payload list `()` is not allowed; use the variant name without parentheses")` | `parse_pattern` |
-
-**Migration template** (apply at each site):
-
-Old (representative):
-```rust
-if p.eat(&TokenKind::LParen) {
-    p.consume_newlines();
-    if p.at(&TokenKind::RParen) {
-        return Err(CompileError::parse(
-            p.current_span(),
-            "empty payload list `()` is not allowed; ...",
-        ));
-    }
-    let mut payload = Vec::new();
-    payload.push(parse_type(p)?);
-    p.consume_newlines();
-    while p.eat(&TokenKind::Comma) {
-        p.consume_newlines();
-        if p.at(&TokenKind::RParen) { break; }
-        payload.push(parse_type(p)?);
-        p.consume_newlines();
-    }
-    end_span = p.current_span();
-    p.expect(&TokenKind::RParen, "')'")?;
-}
-```
-
-New:
-```rust
-if p.eat(&TokenKind::LParen) {
-    let payload = parse_comma_list(
-        p,
-        &TokenKind::RParen,
-        EmptyHandling::Reject("empty payload list `()` is not allowed; ..."),
-        crate::parser::types::parse_type,
-    )?;
-    end_span = p.current_span();
-    p.expect(&TokenKind::RParen, "')'")?;
-    payload  // assign to outer variable as appropriate
-}
-```
-
-For caller-side `parse_one` that is a free function pointer (e.g. `parse_type`), pass it directly. For closures over `parse_pattern` (recursive call) or methods needing path qualification, use `|p| parse_pattern(p)` or `crate::parser::types::parse_type`.
+| types.rs Fn type | parse_type (Fn) | RParen | Allow | parse_type |
+| types.rs generic args | parse_type (Generic) | Gt | RequireOne | parse_type_arg |
+| types.rs type-param list | parse_type_param_list | Gt | Reject("empty type parameter list `<>` is not allowed; omit the brackets entirely") | parse_type_param_name |
+| stmt.rs variant payload | parse_variant_decl | RParen | Reject("empty payload list `()` is not allowed; omit the parentheses for a no-payload variant") | parse_type |
+| stmt.rs param list | parse_param_list | RParen | Allow | parse_param |
+| expr.rs matrix outer | parse_vec_or_mat_lit | RBracket | Allow | parse_row |
+| expr.rs vec elements | parse_vec_or_mat_lit | RBracket | Allow | parse_expr |
+| expr.rs call args | parse_postfix (LParen) | RParen | Allow | parse_expr |
+| expr.rs struct lit | parse_postfix (LBrace) | RBrace | Allow | parse_struct_lit_field |
+| expr.rs matrix row | parse_row | RBracket | Allow | parse_expr |
+| expr.rs variant pattern payload | parse_pattern | RParen | Reject("empty payload list `()` is not allowed; use the variant name without parentheses") | parse_pattern |
 
 ### Steps
 
-- [ ] **Step 1: Add `EmptyHandling` enum and `parse_comma_list` helper to `compiler/src/parser/stmt.rs`**
+- [ ] **Step 1: Write failing pin tests for newline-liberalization (red phase)**
 
-Insert the helper code (shown above) just before `parse_block_until` (currently around line 423). Both `EmptyHandling` and `parse_comma_list` should be `pub(crate)` so they are reachable from `parser/expr.rs` and `parser/types.rs`.
+Add to `compiler/src/parser/types.rs::tests`:
 
-- [ ] **Step 2: Add `use` lines for `EmptyHandling` and `parse_comma_list` to `parser/types.rs` and `parser/expr.rs`**
+```rust
+#[test]
+fn fn_type_params_accept_newlines_around_items() {
+    let toks = tokenize("Fn(\n  Scalar,\n  Scalar,\n) -> Scalar").unwrap();
+    let mut p = Parser::new(&toks);
+    let t = parse_type(&mut p).unwrap();
+    if let TypeKind::Function(params, _) = t.kind {
+        assert_eq!(params.len(), 2);
+    } else {
+        panic!("expected Function");
+    }
+}
+```
 
-Update top-of-file `use crate::parser::stmt::...` lines to include `EmptyHandling` and `parse_comma_list` (alongside `TokenKindKind`, `parse_block_until`, `parse_stmt` already there from Task 1).
+Add to `compiler/src/parser/stmt.rs::tests`:
 
-- [ ] **Step 3: Migrate all 11 call sites per the table above**
+```rust
+#[test]
+fn enum_def_type_params_accept_newlines() {
+    let toks = tokenize("enum Foo<\n  T,\n  U,\n>\n  V\nend").unwrap();
+    let mut p = Parser::new(&toks);
+    let prog = parse_program(&mut p).unwrap();
+    let Item::Enum(ref e) = prog.items[0] else {
+        panic!("expected Enum");
+    };
+    assert_eq!(e.type_params, vec!["T".to_string(), "U".to_string()]);
+}
+```
+
+- [ ] **Step 2: Verify red phase**
+
+Run: `cargo test fn_type_params_accept_newlines enum_def_type_params_accept_newlines`
+Expected: both FAIL (current parser rejects newlines in these positions).
+
+- [ ] **Step 3: Add EmptyHandling enum + parse_comma_list helper**
+
+Insert the helper code (above) into `compiler/src/parser/stmt.rs` near `parse_block_until`. Both `pub(crate)`. Update the top-of-file `use crate::parser::stmt::{...}` lines in expr.rs and types.rs to include the new names.
+
+- [ ] **Step 4: Migrate all 11 call sites per the table**
 
 For each site:
 1. Read the existing comma-loop block.
 2. Replace it with a single `parse_comma_list(...)` call producing the items vector.
-3. The opening delimiter consumption (`p.eat(&TokenKind::LParen)` etc.) and the closing delimiter consumption (`p.expect(...)`) stay at the call site — the helper does NOT touch them.
-4. Preserve any `end_span = p.current_span();` capture immediately before `p.expect` (used by callers that compute the construct's span).
+3. The opening + closing delimiter consumption (`p.eat(...)`, `p.expect(...)`) stay at the call site.
+4. Preserve any `end_span = p.current_span();` capture immediately before `p.expect`.
 
-After each file (types.rs, then stmt.rs, then expr.rs) is migrated, run `cargo build`. Don't commit yet.
-
-- [ ] **Step 4: Verify**
+- [ ] **Step 5: Verify green phase**
 
 ```sh
 cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
 ```
 
-Expected: 183 tests pass, clippy clean, fmt clean. Particular tests to watch:
-- `enum_def_empty_type_params_rejected`, `enum_def_empty_payload_rejected`, `pattern_variant_empty_payload_rejected` — confirm error messages preserved exactly.
+Expected: 185 tests pass (183 baseline + 2 new pins). All 5 pre-existing diagnostic tests pass with same error wording (the empty-`<>` and empty-`()` rejection messages should be preserved verbatim by the helper's `Reject` branch).
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```sh
 git add -A
-git commit -m "Refactor: introduce parse_comma_list helper
+git commit -m "$(cat <<'EOF'
+Refactor: introduce parse_comma_list helper
 
 Eleven comma-separated-list parse sites across types.rs, stmt.rs, and
 expr.rs implemented the same loop with subtle variants in empty
 handling and trailing-comma support. Centralize via parse_comma_list
 helper with an EmptyHandling enum (Allow / Reject(msg) / RequireOne).
-Empty-rejection error messages are preserved verbatim. No behavior
-change."
+Empty-rejection error messages are preserved verbatim.
+
+Newlines around items in Fn(...) types and <T, U> type-parameter lists
+are now accepted as a side effect of using parse_comma_list, consistent
+with Stage 2 §5.1 multi-line / trailing-comma conventions. Pin tests
+anchor this benign expansion. Existing valid code is unaffected.
+EOF
+)"
 ```
 
 ---
 
-## Task 4: Introduce `parse_block_body` helper, fix Stage 1 span overshoot
+## Task 4: Introduce parse_block_body helper, fix Stage 1 span overshoot
 
-**Why:** `parse_block_until` (used by `if`/`while`/`for`/`function`) and `parse_match_arm_body` share the same loop algorithm. They differ only in (a) terminator predicate, (b) error-message context, and (c) how the body's end span is computed. The Stage 2 M1 fix corrected the end-span computation in `parse_match_arm_body` only; `parse_block_until` still has the same overshoot bug. Unifying via a generic `parse_block_body` helper fixes both at once and prevents future drift.
+**Why:** `parse_block_until` (Stage 1 control flow) and `parse_match_arm_body` (Stage 2 match arms) share the same loop algorithm. They differ only in (a) terminator predicate, (b) error-message context, and (c) end-span computation. Stage 2's M1 fix corrected the end-span computation in `parse_match_arm_body` only; `parse_block_until` still has the same bug. Unifying via `parse_block_body` fixes both at once and prevents future drift as more block-form constructs land.
 
-**Behavior change:** After this task, `Block.span` for Stage 1 constructs (function bodies, if/elseif/else branches, while body, for body) will end at the last consumed statement's span (rather than at the closing keyword). This is a bug fix — the previous span included trailing newlines and the terminator keyword.
+**Behavior change:** yes (Stage 1 `Block.span` for function/while/for/if branches no longer overshoots into the closing keyword)
+**Discipline:** TDD — pin the corrected span first (red), then introduce the helper to satisfy the pins (green), then refactor the existing wrappers.
 
 **Files:**
-- Modify: `compiler/src/parser/stmt.rs` (add `parse_block_body`; rewrite `parse_block_until` as a wrapper; remove now-unused `require_stmt_terminator`)
-- Modify: `compiler/src/parser/expr.rs` (rewrite `parse_match_arm_body` as a wrapper)
+- Modify: `compiler/src/parser/stmt.rs` (add `parse_block_body`; rewrite `parse_block_until` as wrapper; remove `require_stmt_terminator`; inline its logic into `parse_program`; add 3 pin tests)
+- Modify: `compiler/src/parser/expr.rs` (rewrite `parse_match_arm_body` as wrapper)
 
-**Helper definition** (place in `compiler/src/parser/stmt.rs`, replacing the existing `parse_block_until` function and `require_stmt_terminator` helper around lines 423-463):
+**Helper definition** (replaces existing `parse_block_until` body and `require_stmt_terminator` function):
 
 ```rust
 /// Parse a block body: leading newlines, then statements separated by
@@ -413,8 +349,7 @@ change."
 /// terminator is at the parser's position.
 ///
 /// The returned Block's span ends at the last consumed statement's span,
-/// not at the terminator. Callers compute their own outer span (incl.
-/// the terminating keyword) at the call site if needed.
+/// not at the terminator.
 pub(crate) fn parse_block_body<F>(
     p: &mut Parser,
     is_terminator: F,
@@ -449,8 +384,6 @@ where
     })
 }
 
-/// Parse a block that ends at any of the supplied block terminators
-/// (End, Else, Elseif). Used by Stage 1 control-flow forms.
 pub(crate) fn parse_block_until(
     p: &mut Parser,
     terminators: &[TokenKindKind],
@@ -464,7 +397,7 @@ pub(crate) fn parse_block_until(
 }
 ```
 
-**`parse_match_arm_body` rewrite** (in `compiler/src/parser/expr.rs`, replacing the existing function around lines 528-562):
+`parse_match_arm_body` becomes a 7-line wrapper:
 
 ```rust
 fn parse_match_arm_body(p: &mut Parser) -> Result<Block, CompileError> {
@@ -477,91 +410,11 @@ fn parse_match_arm_body(p: &mut Parser) -> Result<Block, CompileError> {
 }
 ```
 
-**`require_stmt_terminator` removal:** the existing function at `parser/stmt.rs:452-463` is now dead code (its logic is inlined into `parse_block_body`). Verify no other caller via `grep require_stmt_terminator` and delete it.
-
-`is_at_terminator` (around line 473) is still used by the new `parse_block_until` wrapper — keep it.
-
 ### Steps
 
-- [ ] **Step 1: Confirm no other callers of `require_stmt_terminator`**
+- [ ] **Step 1: Write failing pin tests for Stage 1 block span (red phase)**
 
-```sh
-cd compiler && grep -n require_stmt_terminator src/parser/*.rs
-```
-
-Expected: only the definition (at stmt.rs:452 area) and the call in `parse_block_until`. After this task, both go away.
-
-- [ ] **Step 2: Replace `parse_block_until` and remove `require_stmt_terminator` in `compiler/src/parser/stmt.rs`**
-
-Replace the existing `parse_block_until` (lines 423-448), the doc comment above it, and the `require_stmt_terminator` function (lines 452-463) with the new code shown above (`parse_block_body` + new wrapper `parse_block_until`).
-
-`is_at_terminator` (line 473) and `TokenKindKind` enum stay unchanged.
-
-- [ ] **Step 3: Replace `parse_match_arm_body` in `compiler/src/parser/expr.rs`**
-
-Replace the existing `parse_match_arm_body` function (lines 528-562) with the new 7-line wrapper shown above.
-
-- [ ] **Step 4: Verify build**
-
-```sh
-cd compiler && cargo build 2>&1 | tail -10
-```
-
-Expected: build succeeds. No new warnings.
-
-- [ ] **Step 5: Run tests, expect some span-related test breakage and fix**
-
-```sh
-cd compiler && cargo test 2>&1 | tail -30
-```
-
-Most existing tests pass. Some may fail because they assert on `Block.span` ranges that previously included the closing keyword. For each failing test:
-1. Read the assertion.
-2. If it asserts on a span end position that included the closing keyword (`end`/`else`/`elseif`), update the assertion to the new (correct) end position — the last consumed statement's end.
-3. If it asserts on body content (statements vector, expressions inside), it should still pass.
-
-Tests likely affected (to check first):
-- Any test that does `let body_text = &src[block.span.start..block.span.end]; assert!(body_text.contains("end"))`.
-- Tests in `parser/stmt.rs::tests` and `parser/expr.rs::tests` referencing function/if/while/for body spans.
-
-Update tests to reflect the new (correct) span behavior. The goal is to eliminate assertions of the buggy span — not to preserve the bug.
-
-- [ ] **Step 6: Verify**
-
-```sh
-cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
-```
-
-Expected: 183 tests pass (or 183 minus any genuinely-removed assertions, plus zero new failures), clippy clean, fmt clean.
-
-- [ ] **Step 7: Commit**
-
-```sh
-git add -A
-git commit -m "Refactor: unify block-body parsing via parse_block_body helper
-
-parse_block_until (Stage 1 control flow) and parse_match_arm_body
-(Stage 2 match arms) shared the same loop algorithm with three deltas:
-terminator predicate, error-message context, and end-span computation.
-The Stage 2 M1 fix corrected the end-span overshoot in
-parse_match_arm_body; parse_block_until still had the same bug. This
-commit extracts the shared algorithm into parse_block_body, with
-caller-supplied terminator and error labels. The Stage 1 span overshoot
-is fixed as a side effect: block spans now end at the last consumed
-statement, not at the closing keyword. require_stmt_terminator is
-removed (its logic is inlined into the helper)."
-```
-
----
-
-## Task 5: Pin Stage 1 block span behavior
-
-**Why:** Task 4 changed the span of all Stage 1 block constructs as a bug fix. Add pin tests so the corrected behavior is anchored against future regressions and so the contract is visible.
-
-**Files:**
-- Modify: `compiler/src/parser/stmt.rs` (add tests inside `mod tests`)
-
-**Tests to add** (insert at end of `mod tests` in `parser/stmt.rs`, before the closing `}`):
+Add to `compiler/src/parser/stmt.rs::tests`:
 
 ```rust
 #[test]
@@ -570,7 +423,7 @@ fn function_body_span_does_not_include_end() {
     let toks = tokenize(src).unwrap();
     let mut p = Parser::new(&toks);
     let prog = parse_program(&mut p).unwrap();
-    let crate::ast::ItemKind::Function(ref func) = prog.items[0].kind else {
+    let Item::Function(ref func) = prog.items[0] else {
         panic!("expected Function");
     };
     let body_text = &src[func.body.span.start..func.body.span.end];
@@ -582,22 +435,19 @@ fn function_body_span_does_not_include_end() {
 
 #[test]
 fn while_body_span_does_not_include_end() {
-    let src = "function f(): Int\n  while true\n    return 1\n  end\n  return 0\nend\n";
+    let src = "function f(): Int\n  while true do\n    return 1\n  end\n  return 0\nend\n";
     let toks = tokenize(src).unwrap();
     let mut p = Parser::new(&toks);
     let prog = parse_program(&mut p).unwrap();
-    let crate::ast::ItemKind::Function(ref func) = prog.items[0].kind else {
-        panic!("expected Function");
-    };
-    // Find the While statement inside the function body
+    let Item::Function(ref func) = prog.items[0] else { panic!("expected Function") };
     let while_stmt = func
         .body
         .stmts
         .iter()
-        .find(|s| matches!(s.kind, crate::ast::StmtKind::While(_, _)))
+        .find(|s| matches!(s.kind, StmtKind::While(_)))
         .expect("expected While stmt");
-    let crate::ast::StmtKind::While(_, ref body) = while_stmt.kind else { unreachable!() };
-    let body_text = &src[body.span.start..body.span.end];
+    let StmtKind::While(ref ws) = while_stmt.kind else { unreachable!() };
+    let body_text = &src[ws.body.span.start..ws.body.span.end];
     assert!(
         !body_text.contains("end"),
         "while body span overshoots into 'end': {body_text:?}"
@@ -606,78 +456,86 @@ fn while_body_span_does_not_include_end() {
 
 #[test]
 fn if_then_branch_span_does_not_include_else() {
-    let src = "function f(): Int\n  if true\n    return 1\n  else\n    return 2\n  end\nend\n";
+    let src = "function f(): Int\n  if true then\n    return 1\n  else\n    return 2\n  end\nend\n";
     let toks = tokenize(src).unwrap();
     let mut p = Parser::new(&toks);
     let prog = parse_program(&mut p).unwrap();
-    let crate::ast::ItemKind::Function(ref func) = prog.items[0].kind else {
-        panic!("expected Function");
-    };
-    // Find the If expression in the body's first stmt (should be ExprStmt(If(...)))
-    let first_stmt = &func.body.stmts[0];
-    let crate::ast::StmtKind::Expr(ref e) = first_stmt.kind else {
-        panic!("expected ExprStmt");
-    };
-    let crate::ast::ExprKind::If(ref ifx) = e.kind else {
-        panic!("expected If expression");
-    };
-    let then_text = &src[ifx.then_branch.span.start..ifx.then_branch.span.end];
-    assert!(
-        !then_text.contains("else"),
-        "if then-branch span overshoots into 'else': {then_text:?}"
-    );
-    assert!(
-        !then_text.contains("end"),
-        "if then-branch span overshoots into 'end': {then_text:?}"
-    );
+    let Item::Function(ref func) = prog.items[0] else { panic!("expected Function") };
+    let StmtKind::Expr(ref e) = func.body.stmts[0].kind else { panic!("expected ExprStmt") };
+    let ExprKind::If(ref ifx) = e.kind else { panic!("expected If expression") };
+    let then_text = &src[ifx.then_block.span.start..ifx.then_block.span.end];
+    assert!(!then_text.contains("else"), "if then-branch overshoots into 'else': {then_text:?}");
+    assert!(!then_text.contains("end"),  "if then-branch overshoots into 'end': {then_text:?}");
 }
 ```
 
-**Note:** Adjust struct/enum field paths if the AST exposes them differently. The `IfExpr` struct (from `crate::ast::IfExpr`) is expected to have `then_branch: Block`, `else_branch: Option<Block>` (verify by reading `compiler/src/ast/expr.rs`).
+Read `compiler/src/ast/{item,expr,stmt}.rs` first to confirm field names (e.g. `then_block` vs `then_branch`, `Item::Function` vs `ItemKind::Function`).
 
-### Steps
+- [ ] **Step 2: Verify red phase**
 
-- [ ] **Step 1: Add the three pin tests to `compiler/src/parser/stmt.rs::tests`**
+Run: `cargo test function_body_span while_body_span if_then_branch_span`
+Expected: all 3 FAIL — current `parse_block_until` overshoots into the closing keyword.
 
-Insert the test code shown above before the closing `}` of the `mod tests` block. Adjust AST field accessors if needed (read `compiler/src/ast/expr.rs::IfExpr` and `compiler/src/ast/stmt.rs::FunctionDef` first to confirm field names).
+- [ ] **Step 3: Add `parse_block_body` helper to stmt.rs**
 
-- [ ] **Step 2: Run new tests to verify they pass under the post-Task-4 behavior**
+Insert the helper code (above) above `parse_block_until`.
 
-```sh
-cd compiler && cargo test --quiet function_body_span while_body_span if_then_branch_span 2>&1 | tail -10
-```
+- [ ] **Step 4: Rewrite `parse_block_until` as a thin wrapper**
 
-Expected: 3 new tests pass.
+Replace its body with the wrapper code (above). `is_at_terminator` and `TokenKindKind` enum stay unchanged (still used by the wrapper).
 
-- [ ] **Step 3: Verify**
+- [ ] **Step 5: Rewrite `parse_match_arm_body` in expr.rs as a thin wrapper**
 
-```sh
-cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
-```
+7 lines, calling `parse_block_body` with the `End | Case` predicate.
 
-Expected: 186 tests pass, clippy clean, fmt clean.
+- [ ] **Step 6: Inline `require_stmt_terminator` into `parse_program`, delete the standalone helper**
 
-- [ ] **Step 4: Commit**
+`require_stmt_terminator` had two callers: `parse_block_until` (now via the helper) AND `parse_program` (top-level item terminator). Inline the equivalent Newline/Eof check into `parse_program` (where `terminators` was always `&[]`), then delete the helper function.
 
-```sh
-git add -A
-git commit -m "Test: pin Stage 1 block span (function/while/if branches)
-
-Anchors the Task-4 bug fix: Block.span for Stage 1 constructs ends at
-the last consumed statement, not at the closing keyword. Without these
-tests the corrected behavior could regress unnoticed."
-```
-
----
-
-## Final verification (after all 5 tasks)
+- [ ] **Step 7: Verify green phase**
 
 ```sh
 cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
 cargo run --quiet -- ../samples/option_match.dy
 ```
 
-Expected: 186 tests pass, clippy clean, fmt clean, smoke test "parsed 5 item(s)".
+Expected: 188 tests pass (185 + 3 new pins). All earlier pin tests preserved. Smoke test prints `parsed 5 item(s)`.
+
+- [ ] **Step 8: Commit**
+
+```sh
+git add -A
+git commit -m "$(cat <<'EOF'
+Refactor: unify block-body parsing via parse_block_body helper
+
+parse_block_until (Stage 1 control flow) and parse_match_arm_body
+(Stage 2 match arms) shared the same loop algorithm with three deltas:
+terminator predicate, error-message context, and end-span computation.
+The Stage 2 M1 fix corrected the end-span overshoot in
+parse_match_arm_body; parse_block_until still had the same bug. This
+commit extracts the shared algorithm into parse_block_body, with
+caller-supplied terminator and error labels. The Stage 1 span overshoot
+is fixed as a side effect: block spans now end at the last consumed
+statement, not at the closing keyword. Three pin tests anchor the
+corrected behavior.
+
+require_stmt_terminator is removed; its logic is inlined into the
+helper for parse_block_until's call site, and inlined directly into
+parse_program (the only other caller).
+EOF
+)"
+```
+
+---
+
+## Final verification (after all tasks)
+
+```sh
+cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
+cargo run --quiet -- ../samples/option_match.dy
+```
+
+Expected: 188 tests pass (183 baseline + 5 new pins across Tasks 3, 4); clippy clean; fmt clean; smoke test `parsed 5 item(s)`.
 
 ## Push and PR
 
@@ -686,9 +544,29 @@ git push -u origin refactor-cross-cutting
 gh pr create --base main --title "Refactor: cross-cutting parser cleanup (PR-A)" --body "..."
 ```
 
-PR description should explain the 5 commits, note the Stage 1 span behavior change as a bug fix (with link to Task 4 commit), and confirm no surface-language behavior change.
+PR description should explain the 4 commits, note the Stage 1 span behavior change as a bug fix (with link to Task 4 commit), note the newline-acceptance liberalization in Fn types and type-param lists (with link to Task 3 commit and a pointer to the pin tests), and confirm no other surface-language behavior change.
 
 ## Out of scope (PR-B)
 
-- AST-wide span pin tests across all Expr/Stmt/Type/Pattern/Item variants — separate PR.
-- `parse_pattern` recursion-depth limit (Stage 3 timing).
+- AST-wide span pin tests across all Expr/Stmt/Type/Pattern/Item variants (full-coverage extension).
+- `parse_pattern` recursion-depth limit (Stage 3 timing — DoS hardening).
+
+## Alternative Solutions Considered
+
+Choices made during `/design-discussion` that shape this plan, with the alternatives that were rejected:
+
+- **Block-body unification approach (Task 4): full enum extension (`α`)**: Add `Case` to `TokenKindKind` and merge into one `parse_block` function. **Rejected because**: `End/Else/Elseif` are surrounding-control-structure terminators, while `Case` is a next-arm marker — different semantic categories. Forcing them through the same enum + a single function with a string-context arg conflates concepts. β (loop-body extraction with caller-supplied predicate) keeps the call-site context naturally and is more extensible.
+
+- **Block-body unification approach (Task 4): span fix only, no unification (`γ`)**: Just change `let end = p.current_span();` to track `stmt.span` in `parse_block_until`. **Rejected because**: doesn't address the duplication. The next block-helper (Stage 3) would copy whatever shape `parse_block_until` has and inherit any new bug. β extracts the invariant once.
+
+- **Comma-list helper signature (Task 3): generic `is_done` predicate (`B`)**: Pass a `Fn(&Parser) -> bool` for the close detection. **Rejected because**: all 11 actual sites end at a single close token; predicate-form is overkill (premature generalization). Single-token form (`A`, chosen) is simpler and adequate.
+
+- **Comma-list helper signature (Task 3): specialized helpers per close-token (`C`)**: One helper per `)`, `]`, `}`, `>`. **Rejected because**: 4× the helper definitions, duplicated empty-handling logic. The `EmptyHandling` enum + close parameter (`A`, chosen) achieves the same with one helper.
+
+- **Helper placement (Task 3, 4): new `parser/block.rs` module (`b`)**: Move `parse_block_body` and friends into a dedicated module. **Rejected because**: only 1-2 helpers in scope; module split is premature. Reconsider when block-related helpers exceed 4-5.
+
+- **Helper placement (Task 3, 4): method on `Parser` impl (`c`)**: Add `p.parse_block_body(...)` etc. **Rejected because**: `Parser` impl is currently a thin token-cursor abstraction. Adding parser-grammar logic to `impl Parser` would conflate the layers. Free functions in `parser/stmt.rs` keep responsibilities separate.
+
+- **PR scope: single PR for all refactor + span tests + pattern depth limit**: Bundle everything. **Rejected because**: Tier C (AST-wide span pins) is purely additive and may surface new bugs that need their own focused PR; mixing with refactor would diffuse review attention. Pattern depth limit is Stage 3 timing. Splitting into PR-A (refactor, this plan) + PR-B (span pin coverage) is cleaner.
+
+- **Index-arm migration (Task 3, expr.rs)**: Migrate the `parse_postfix` index arm via `parse_comma_list(.., RequireOne, parse_expr)`. **Rejected because**: the index AST is `Index(Box<Expr>, Box<Expr>)` — single expression. The current code parses one expr; forcing through `parse_comma_list` would either silently accept multi-arg `arr[i, j]` (surface change) or require post-helper length checks (worse error messages). Skipped intentionally; documented in Task 3 commit body.
