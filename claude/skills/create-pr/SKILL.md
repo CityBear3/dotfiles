@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create a GitHub pull request with a structured description derived from the design doc, plan, and changes. Invoke with `/create-pr`.
+description: Create a GitHub pull request with a structured description derived from the design decisions, plan, and changes. Invoke with `/create-pr`.
 argument-hint: "[base branch (optional, defaults to main)]"
 ---
 
@@ -19,7 +19,7 @@ Create a GitHub pull request with a well-structured description.
 1. Run `git status` to check for uncommitted changes. If there are uncommitted changes, warn the user and stop.
 2. Run `git log <base>..HEAD --oneline` to list all commits on this branch.
 3. Run `git diff <base>...HEAD` to see the full diff.
-4. Identify the relevant design doc and integration plan if they exist.
+4. Identify the relevant Design Doc, plan, or `/design-discussion` outcome if it exists. If a plan exists with an "Alternative Solutions Considered" section, lift the key decisions for the PR's Design Decisions section.
 
 ### Step 2: Draft PR Description
 
@@ -33,9 +33,9 @@ Based on the commits, diff, and design context, draft:
 
 <1-3 sentences describing what this PR does and why>
 
-## Design Doc
+## Design Decisions
 
-<Link to design doc if applicable, or "N/A">
+<EITHER a link to the Design Doc (if one exists) — one line — OR an inline summary of the key design choices and the alternatives that were considered and rejected. Include this section even when no Design Doc exists; it is the durable record of why this approach was chosen.>
 
 ## Changes
 
@@ -47,6 +47,8 @@ Based on the commits, diff, and design context, draft:
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
+
+The **Design Decisions** section is the most-often-skimped part of PR descriptions. For refactor / small-feature PRs that skipped Design Doc, this is where the "why this shape, not the alternatives" lives — otherwise that context dies in chat history. Lift content from the plan's "Alternative Solutions Considered" section verbatim if it exists.
 
 ### Step 3: Confirm with User
 
