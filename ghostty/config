@@ -84,4 +84,4 @@ clipboard-write = allow
 macos-titlebar-style = transparent
 macos-window-shadow = true
 mouse-hide-while-typing = true
-
+macos-option-as-alt = left
