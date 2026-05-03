@@ -114,7 +114,7 @@ The plan **specifies WHAT** (which tests, which behaviors, which sites). The TDD
 
 ### Steps
 
-- [ ] **Step 1: Write failing pin test(s) (red phase)**
+- [ ] **Step 1: Write failing regression test(s) for the new behavior (red phase)**
 
 Add to `tests/foo_test.rs` (or `mod tests` in source):
 ```rust
@@ -280,7 +280,7 @@ Every step must contain the actual content an executor needs. These are **plan f
 | Proceeding to /execute-plan without engineer approval | Stop. The engineer must approve the plan first. |
 | Tasks too large ("Implement the entire auth system") | Decompose until each task fits in one execution session. |
 | Tasks too granular ("Add import statement on line 5") | Tasks should be meaningful, verifiable units. |
-| Pin-only task (separate task that adds tests for behavior introduced in another task) | Embed pin tests in the same task that introduces the behavior. TDD means the test exists at the moment of change, not after. |
+| Test-only follow-up task (separate task that adds regression tests for behavior introduced in another task) | Embed the regression tests in the same task that introduces the behavior. TDD means the test exists at the moment of change, not after. |
 | Behavior-change task without `Discipline: TDD` | Mark as TDD. The change must be preceded by a red test (Step 1). |
 | Refactor task that adds new tests | If new tests are needed, the task isn't a pure refactor — re-tag as `Behavior change: yes` and `Discipline: TDD`. |
 | Steps that enumerate the full red-green-refactor cycle | Plan specifies WHAT (which tests, which behaviors); the TDD skill drives HOW. Don't duplicate the skill into Steps. |
@@ -293,7 +293,7 @@ Every step must contain the actual content an executor needs. These are **plan f
 | "The executor will figure out the details" | That's what create-plan prevents. Details belong in the plan. |
 | "The engineer will catch issues in review" | Review is not a substitute for self-review. Catch issues before review. |
 | "The Design Doc covers this, tasks are obvious" | Obvious to you ≠ obvious to the executor. Make tasks explicit. |
-| "Pin tests in a follow-up task keeps commits smaller" | Anti-TDD. The behavior change at its commit has no failing test proving correctness. Embed the pin in the change. |
+| "Regression tests in a follow-up task keep commits smaller" | Anti-TDD. The behavior change at its commit has no failing test proving correctness. Embed the regression test in the change. |
 | "TDD steps duplicate the test-driven-development skill" | Plan marks discipline; skill drives the cycle. The plan only specifies WHAT (which tests / which behaviors); HOW (red→green→refactor) is the skill's job. |
 | "Alternative Solutions section is for Design Docs" | When a Design Doc exists, refer to it. When the work skips Design Doc (refactor / small features), the alternatives belong in the plan — otherwise they're lost. |
 

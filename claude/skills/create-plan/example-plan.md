@@ -1,7 +1,7 @@
 <!--
 This file is a real plan from the Dyne compiler project, illustrating the
 standard plan format described in SKILL.md. Each task uses one of two Discipline
-forms (TDD or refactor), and pin tests are embedded in the task that introduces
+forms (TDD or refactor), and regression tests are embedded in the task that introduces
 the behavior — not split into a separate "tests-only" task.
 
 Reference only. To regenerate, copy a fresh plan from a real project and
@@ -178,9 +178,9 @@ EOF
 
 **Files:**
 - Modify: `compiler/src/parser/stmt.rs` (add helper + enum near `parse_block_until`)
-- Modify: `compiler/src/parser/types.rs` (3 site migrations + 1 pin test)
+- Modify: `compiler/src/parser/types.rs` (3 site migrations + 1 regression test)
 - Modify: `compiler/src/parser/expr.rs` (6 site migrations)
-- Modify: `compiler/src/parser/stmt.rs` (2 site migrations + 1 pin test)
+- Modify: `compiler/src/parser/stmt.rs` (2 site migrations + 1 regression test)
 
 **Helper definition** (insert into `compiler/src/parser/stmt.rs` near `parse_block_until`):
 
@@ -249,7 +249,7 @@ where
 
 ### Steps
 
-- [ ] **Step 1: Write failing pin tests for newline-liberalization (red phase)**
+- [ ] **Step 1: Write failing regression tests for newline-liberalization (red phase)**
 
 Add to `compiler/src/parser/types.rs::tests`:
 
@@ -305,7 +305,7 @@ For each site:
 cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check
 ```
 
-Expected: 185 tests pass (183 baseline + 2 new pins). All 5 pre-existing diagnostic tests pass with same error wording (the empty-`<>` and empty-`()` rejection messages should be preserved verbatim by the helper's `Reject` branch).
+Expected: 185 tests pass (183 baseline + 2 new regression tests). All 5 pre-existing diagnostic tests pass with same error wording (the empty-`<>` and empty-`()` rejection messages should be preserved verbatim by the helper's `Reject` branch).
 
 - [ ] **Step 6: Commit**
 
@@ -322,7 +322,7 @@ Empty-rejection error messages are preserved verbatim.
 
 Newlines around items in Fn(...) types and <T, U> type-parameter lists
 are now accepted as a side effect of using parse_comma_list, consistent
-with Stage 2 §5.1 multi-line / trailing-comma conventions. Pin tests
+with Stage 2 §5.1 multi-line / trailing-comma conventions. Regression tests
 anchor this benign expansion. Existing valid code is unaffected.
 EOF
 )"
@@ -335,10 +335,10 @@ EOF
 **Why:** `parse_block_until` (Stage 1 control flow) and `parse_match_arm_body` (Stage 2 match arms) share the same loop algorithm. They differ only in (a) terminator predicate, (b) error-message context, and (c) end-span computation. Stage 2's M1 fix corrected the end-span computation in `parse_match_arm_body` only; `parse_block_until` still has the same bug. Unifying via `parse_block_body` fixes both at once and prevents future drift as more block-form constructs land.
 
 **Behavior change:** yes (Stage 1 `Block.span` for function/while/for/if branches no longer overshoots into the closing keyword)
-**Discipline:** TDD — pin the corrected span first (red), then introduce the helper to satisfy the pins (green), then refactor the existing wrappers.
+**Discipline:** TDD — write regression tests that pin the corrected span first (red), then introduce the helper to satisfy them (green), then refactor the existing wrappers.
 
 **Files:**
-- Modify: `compiler/src/parser/stmt.rs` (add `parse_block_body`; rewrite `parse_block_until` as wrapper; remove `require_stmt_terminator`; inline its logic into `parse_program`; add 3 pin tests)
+- Modify: `compiler/src/parser/stmt.rs` (add `parse_block_body`; rewrite `parse_block_until` as wrapper; remove `require_stmt_terminator`; inline its logic into `parse_program`; add 3 regression tests)
 - Modify: `compiler/src/parser/expr.rs` (rewrite `parse_match_arm_body` as wrapper)
 
 **Helper definition** (replaces existing `parse_block_until` body and `require_stmt_terminator` function):
@@ -412,7 +412,7 @@ fn parse_match_arm_body(p: &mut Parser) -> Result<Block, CompileError> {
 
 ### Steps
 
-- [ ] **Step 1: Write failing pin tests for Stage 1 block span (red phase)**
+- [ ] **Step 1: Write failing regression tests for Stage 1 block span (red phase)**
 
 Add to `compiler/src/parser/stmt.rs::tests`:
 
@@ -499,7 +499,7 @@ cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings &
 cargo run --quiet -- ../samples/option_match.dy
 ```
 
-Expected: 188 tests pass (185 + 3 new pins). All earlier pin tests preserved. Smoke test prints `parsed 5 item(s)`.
+Expected: 188 tests pass (185 + 3 new regression tests). All earlier regression tests preserved. Smoke test prints `parsed 5 item(s)`.
 
 - [ ] **Step 8: Commit**
 
@@ -516,7 +516,7 @@ parse_match_arm_body; parse_block_until still had the same bug. This
 commit extracts the shared algorithm into parse_block_body, with
 caller-supplied terminator and error labels. The Stage 1 span overshoot
 is fixed as a side effect: block spans now end at the last consumed
-statement, not at the closing keyword. Three pin tests anchor the
+statement, not at the closing keyword. Three regression tests anchor the
 corrected behavior.
 
 require_stmt_terminator is removed; its logic is inlined into the
@@ -535,7 +535,7 @@ cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings &
 cargo run --quiet -- ../samples/option_match.dy
 ```
 
-Expected: 188 tests pass (183 baseline + 5 new pins across Tasks 3, 4); clippy clean; fmt clean; smoke test `parsed 5 item(s)`.
+Expected: 188 tests pass (183 baseline + 5 new regression tests across Tasks 3, 4); clippy clean; fmt clean; smoke test `parsed 5 item(s)`.
 
 ## Push and PR
 
@@ -544,11 +544,11 @@ git push -u origin refactor-cross-cutting
 gh pr create --base main --title "Refactor: cross-cutting parser cleanup (PR-A)" --body "..."
 ```
 
-PR description should explain the 4 commits, note the Stage 1 span behavior change as a bug fix (with link to Task 4 commit), note the newline-acceptance liberalization in Fn types and type-param lists (with link to Task 3 commit and a pointer to the pin tests), and confirm no other surface-language behavior change.
+PR description should explain the 4 commits, note the Stage 1 span behavior change as a bug fix (with link to Task 4 commit), note the newline-acceptance liberalization in Fn types and type-param lists (with link to Task 3 commit and a pointer to the regression tests), and confirm no other surface-language behavior change.
 
 ## Out of scope (PR-B)
 
-- AST-wide span pin tests across all Expr/Stmt/Type/Pattern/Item variants (full-coverage extension).
+- AST-wide span regression tests across all Expr/Stmt/Type/Pattern/Item variants (full-coverage extension).
 - `parse_pattern` recursion-depth limit (Stage 3 timing — DoS hardening).
 
 ## Alternative Solutions Considered
@@ -567,6 +567,6 @@ Choices made during `/design-discussion` that shape this plan, with the alternat
 
 - **Helper placement (Task 3, 4): method on `Parser` impl (`c`)**: Add `p.parse_block_body(...)` etc. **Rejected because**: `Parser` impl is currently a thin token-cursor abstraction. Adding parser-grammar logic to `impl Parser` would conflate the layers. Free functions in `parser/stmt.rs` keep responsibilities separate.
 
-- **PR scope: single PR for all refactor + span tests + pattern depth limit**: Bundle everything. **Rejected because**: Tier C (AST-wide span pins) is purely additive and may surface new bugs that need their own focused PR; mixing with refactor would diffuse review attention. Pattern depth limit is Stage 3 timing. Splitting into PR-A (refactor, this plan) + PR-B (span pin coverage) is cleaner.
+- **PR scope: single PR for all refactor + span tests + pattern depth limit**: Bundle everything. **Rejected because**: Tier C (AST-wide span regression tests) is purely additive and may surface new bugs that need their own focused PR; mixing with refactor would diffuse review attention. Pattern depth limit is Stage 3 timing. Splitting into PR-A (refactor, this plan) + PR-B (span regression-test coverage) is cleaner.
 
 - **Index-arm migration (Task 3, expr.rs)**: Migrate the `parse_postfix` index arm via `parse_comma_list(.., RequireOne, parse_expr)`. **Rejected because**: the index AST is `Index(Box<Expr>, Box<Expr>)` — single expression. The current code parses one expr; forcing through `parse_comma_list` would either silently accept multi-arg `arr[i, j]` (surface change) or require post-helper length checks (worse error messages). Skipped intentionally; documented in Task 3 commit body.
