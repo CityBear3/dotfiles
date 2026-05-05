@@ -205,7 +205,18 @@ schema sketch are usually enough — full implementations are not. When
 including a code-like artifact, treat it as a specification fragment, not
 sample code: it should describe *what* must be true, not *how* to build it.
 
-Reference: https://www.industrialempathy.com/posts/design-docs-at-google/
+For gRPC-based APIs, the API portion of the Detailed Design section can
+adopt a structured format with Resource model + per-method
+"Design decisions / Guidance / Examples" subsections + a central Errors
+block (with hybrid per-method "Possible errors" listing). The format
+borrows the prominence of "Guidance" from Google's AIPs and adapts the
+rest to Design Doc conventions. See `references/api-section-format.md`
+for the format specification and a worked example.
+
+References:
+- General Design Doc style — https://www.industrialempathy.com/posts/design-docs-at-google/
+- Detailed Design section — `references/detailed-design-guide.md`
+- API section format (gRPC) — `references/api-section-format.md`
 
 ## Red Flags
 
