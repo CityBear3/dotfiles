@@ -71,8 +71,16 @@ The engineer is the orchestrator of AI agents — functioning as a tech lead who
 
 ### Core Flow
 
-```
-design-discussion → create-plan → execute-plan → verify → review → finish-branch
+```mermaid
+flowchart LR
+    A[design-discussion] --> B[create-plan]
+    B --> C[execute-plan]
+    C --> D[verify]
+    D --> E[review]
+    E --> G{Must Fix /<br/>Should Improve?}
+    G -->|あり| H[プランに<br/>修正タスク追記]
+    H --> C
+    G -->|なし| F[finish-branch]
 ```
 
 Each skill defines its own entry conditions, process, and exit transitions. The engineer approves at each phase boundary. Within `execute-plan`, agent-teams drive per-task implementation and review autonomously without per-step approval.
@@ -80,6 +88,8 @@ Each skill defines its own entry conditions, process, and exit transitions. The 
 **Engineer's hands-on phase**: `design-discussion` (brainstorming + prototyping). The engineer writes code here as part of design exploration.
 
 **Autonomous loop phase**: `execute-plan → verify` runs autonomously. Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes at execute-plan completion, on a 2-failure escalation, or on a plan deviation.
+
+**Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, append corresponding fix tasks to the plan and return to `execute-plan`. The loop continues until `review` reports no remaining Must Fix / Should Improve items, at which point the flow proceeds to `finish-branch`.
 
 ### Bugfix Flow
 
