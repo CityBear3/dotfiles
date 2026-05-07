@@ -78,9 +78,11 @@ flowchart LR
     C --> D[verify]
     D --> E[review]
     E --> G{Must Fix /<br/>Should Improve?}
-    G -->|あり| J[エンジニアと<br/>修正タスクを議論]
-    J --> H[プランに<br/>修正タスク追記]
+    G -->|あり| J[Claude Code が triage<br/>receiving-code-review]
+    J --> K{設計変更<br/>が必要?}
+    K -->|不要| H[プランに<br/>修正タスク追記]
     H --> C
+    K -->|必要| L[エンジニアに<br/>エスカレ]
     G -->|なし| F[finish-branch]
 ```
 
@@ -90,7 +92,7 @@ Each skill defines its own entry conditions, process, and exit transitions. The 
 
 **Autonomous loop phase**: `execute-plan → verify` runs autonomously. Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes at execute-plan completion, on a 2-failure escalation, or on a plan deviation.
 
-**Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, the engineer and Claude Code discuss what each fix task should look like (scope, approach), then those tasks are appended to the plan and the flow returns to `execute-plan`. The loop continues until `review` reports no remaining Must Fix / Should Improve items, at which point the flow proceeds to `finish-branch`.
+**Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, Claude Code applies `receiving-code-review` discipline (verify, push back, YAGNI) to triage them. Items that do not require design changes are appended to the plan as fix tasks and the flow returns to `execute-plan` autonomously. If any surviving item requires a design change — architecture, contracts in the Design Doc, or scope expansion beyond the plan — Claude Code escalates to the engineer instead of appending. The loop continues until `review` reports no remaining Must Fix / Should Improve items, at which point the flow proceeds to `finish-branch`.
 
 ### Bugfix Flow
 
