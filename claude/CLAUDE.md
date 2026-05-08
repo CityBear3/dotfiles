@@ -45,7 +45,7 @@ Technical contracts that consumers must conform to — public interfaces, protoc
 - Creating or commenting on PRs/issues
 - Changes that affect shared infrastructure or external systems
 - Deviating from an approved plan or Design Doc
-- Transitioning between workflow phases (e.g., create-plan → execute-plan, verify → review)
+- Transitioning between workflow phases (e.g., create-plan → execute-plan, review → finish-branch)
 - Continuing after a task's autonomous loop terminates (success or escalation)
 
 ### What Can Be Done Autonomously
@@ -90,7 +90,7 @@ Each skill defines its own entry conditions, process, and exit transitions. The 
 
 **Engineer's hands-on phase**: `design-discussion` (brainstorming + prototyping). The engineer writes code here as part of design exploration.
 
-**Autonomous loop phase**: `execute-plan → verify` runs autonomously. Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes at execute-plan completion, on a 2-failure escalation, or on a plan deviation.
+**Autonomous loop phase**: `execute-plan → verify → review` runs autonomously, including the review feedback loop (triage → append fix tasks → back to `execute-plan`). Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes only when the loop exits — on successful completion (no Must Fix / Should Improve), on a 2-failure escalation, on a plan deviation, or when triage surfaces an item that requires a design change.
 
 **Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, Claude Code applies `receiving-code-review` discipline (verify, push back, YAGNI) to triage them. Items that do not require design changes are appended to the plan as fix tasks and the flow returns to `execute-plan` autonomously. If any surviving item requires a design change — architecture, contracts in the Design Doc, or scope expansion beyond the plan — Claude Code escalates to the engineer instead of appending. The loop continues until `review` reports no remaining Must Fix / Should Improve items, at which point the flow proceeds to `finish-branch`.
 
