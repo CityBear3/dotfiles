@@ -209,6 +209,12 @@ EOF
 
 Expected: [total test count, all passing; lint clean; fmt clean; smoke test specific output].
 
+## Post-/review iteration
+
+Reserved for fix tasks appended by Claude Code after `/review` produces actionable items. Empty until `/review` runs.
+
+(See CLAUDE.md "Core Flow" for the autonomous review feedback loop.)
+
 ## Push and PR
 
 ```sh
