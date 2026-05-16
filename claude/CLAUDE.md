@@ -78,12 +78,14 @@ flowchart LR
     C --> D[verify]
     D --> E[review]
     E --> G{Must Fix /<br/>Should Improve?}
-    G -->|あり| J[Claude Code が triage<br/>receiving-code-review]
-    J --> K{設計変更<br/>が必要?}
-    K -->|不要| H[プランに<br/>修正タスク追記]
-    H --> C
-    K -->|必要| L[エンジニアに<br/>エスカレ]
     G -->|なし| F[finish-branch]
+    G -->|あり| J[Claude Code が triage<br/>receiving-code-review]
+    J --> M{各 item の<br/>分類}
+    M -->|Push back<br/>既決/YAGNI/誤り| N[却下<br/>loop 内で完結]
+    M -->|Fix<br/>軽微/scope 内| H[プランに<br/>修正タスク追記]
+    M -->|Escalate<br/>設計変更/scope 拡張| L[エンジニアに<br/>エスカレ]
+    H --> C
+    N --> G
 ```
 
 Each skill defines its own entry conditions, process, and exit transitions. The engineer approves at each phase boundary. Within `execute-plan`, agent-teams drive per-task implementation and review autonomously without per-step approval.
@@ -92,7 +94,12 @@ Each skill defines its own entry conditions, process, and exit transitions. The 
 
 **Autonomous loop phase**: `execute-plan → verify → review` runs autonomously, including the review feedback loop (triage → append fix tasks → back to `execute-plan`). Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes only when the loop exits — on successful completion (no Must Fix / Should Improve), on a 2-failure escalation, on a plan deviation, or when triage surfaces an item that requires a design change.
 
-**Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, Claude Code applies `receiving-code-review` discipline (verify, push back, YAGNI) to triage them. Items that do not require design changes are appended to the plan as fix tasks and the flow returns to `execute-plan` autonomously. If any surviving item requires a design change — architecture, contracts in the Design Doc, or scope expansion beyond the plan — Claude Code escalates to the engineer instead of appending. The loop continues until `review` reports no remaining Must Fix / Should Improve items, at which point the flow proceeds to `finish-branch`.
+**Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, Claude Code applies `receiving-code-review` discipline to triage each item into one of three outcomes:
+- **Push back** — the item is already decided (Design Doc, Design Discussion record, plan's "Alternative Solutions", plan's "Out of scope"), violates YAGNI, is technically incorrect, or reviewer lacks context. Rejected within the loop; cite the decision source.
+- **Fix** — minor improvements, bugs, or quality items within the existing design (log message grammar, naming, missing edge-case test, etc.). Appended to the plan's "Post-/review iteration" and the flow returns to `execute-plan` autonomously.
+- **Escalate** — items requiring architecture changes, Design Doc contract changes, scope expansion beyond the plan, or substantive new evidence that overturns a prior decision. Reported to the engineer; loop stops.
+
+Already-decided items are never escalated; minor fixes never trigger escalation. The loop continues until `review` reports no remaining items, at which point the flow proceeds to `finish-branch`.
 
 ### Bugfix Flow
 
