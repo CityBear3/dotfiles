@@ -37,7 +37,7 @@ Also identify the relevant design doc and plan for context.
 
 Launch 4 agents in parallel using the Agent tool, one per review aspect. Each agent receives the list of files to review and relevant context.
 
-The four agents are defined in `skills/review/agents/`:
+The four agents are defined at the top-level `agents/` directory (discovered by Claude Code's standard agent discovery):
 
 1. **Design Alignment** (`design-alignment-reviewer`) — Does the implementation match the design doc?
 2. **Code Quality** (`code-quality-reviewer`) — Naming, patterns, error handling, complexity, performance
@@ -138,4 +138,4 @@ file_path:line_number
 
 When the engineer (or Claude Code) reads this review report, apply `/receiving-code-review` discipline: verify before implementing, no performative agreement.
 
-Note: This skill uses 4 specialized parallel reviewers (`design-alignment`, `code-quality`, `test-coverage`, `scope`) defined in `skills/review/agents/`. These are distinct from the top-level `code-reviewer` agent used by `/agent-teams-driven-development`.
+Note: This skill uses 4 specialized parallel reviewers (`design-alignment-reviewer`, `code-quality-reviewer`, `test-coverage-reviewer`, `scope-reviewer`) defined at the top-level `agents/` directory. These are distinct from the `code-reviewer` agent used by `/agent-teams-driven-development` for lightweight per-task gates.

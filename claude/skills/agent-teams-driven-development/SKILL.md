@@ -53,10 +53,16 @@ For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "
 
 ### Step 4: Spawn Team Members
 
+Specify the `model` parameter explicitly for each teammate. The role-to-model mapping is:
+
+- **Implementer** → `opus` — production-ready code with minimal oversight; suited for multi-file refactors and complex logic
+- **Spec Reviewer** → `haiku` — lightweight gate that matches diff against spec text (mechanical comparison)
+- **Code Quality Reviewer** → `sonnet` — nuanced judgment on naming/patterns/complexity; deep dive is delegated to `/review`
+
 ```
-Agent({ team_name, name: "implementer", subagent_type: "general-purpose", prompt: <see ./implementer-prompt.md> })
-Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", prompt: <see ./spec-reviewer-prompt.md> })
-Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", prompt: <see ./code-quality-reviewer-prompt.md> })
+Agent({ team_name, name: "implementer", subagent_type: "general-purpose", model: "opus", prompt: <see ./implementer-prompt.md> })
+Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", model: "haiku", prompt: <see ./spec-reviewer-prompt.md> })
+Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", model: "sonnet", prompt: <see ./code-quality-reviewer-prompt.md> })
 ```
 
 ## Per-Task Loop
@@ -78,25 +84,20 @@ If implementer asks questions, answer clearly and completely before they proceed
 
 Implementer reports one of four statuses (see Handling Status below).
 
-### 4. Spec Compliance Review
+### 4. Parallel Review (Spec Compliance + Code Quality)
+
+Spec compliance and code quality are independent review aspects — send both reviewers in parallel:
 
 ```
 SendMessage({ to: "spec-reviewer", message: "Review task <N>. Diff: <BASE_SHA>..<HEAD_SHA>. Spec: <task text>" })
-```
-
-If issues: send fix request to implementer → re-review. Loop until approved.
-
-### 5. Code Quality Review
-
-(Only after spec review passes.)
-
-```
 SendMessage({ to: "code-quality-reviewer", message: "Review task <N>. Diff: <BASE_SHA>..<HEAD_SHA>" })
 ```
 
-If issues: send fix request to implementer → re-review. Loop until approved.
+Wait for both responses, then aggregate issues from both reviewers.
 
-### 6. Mark Task Complete
+If issues from either: send **a single combined fix request** to implementer that covers all issues from both reviewers → re-trigger both reviewers in parallel against the fixed diff. Loop until both approve.
+
+### 5. Mark Task Complete
 
 ```
 TaskUpdate({ taskId, status: "completed" })
@@ -104,15 +105,9 @@ TaskUpdate({ taskId, status: "completed" })
 
 Move to next task.
 
-## Final Review
+## Completion
 
-After all tasks complete:
-
-```
-SendMessage({ to: "code-quality-reviewer", message: "Final review: entire implementation. Diff: <BASE_SHA>..<HEAD_SHA>" })
-```
-
-If issues, fix and re-review. Once approved, transition to `/finish-branch`.
+After all tasks complete, proceed to Teardown. **Do not run a final whole-implementation review here** — the parent flow (`/execute-plan`) transitions to `/verify` then `/review`, where the 4 specialized reviewers (`design-alignment-reviewer`, `code-quality-reviewer`, `scope-reviewer`, `test-coverage-reviewer`) run the deep-dive review with extended thinking. Duplicating that review here adds latency without catching additional issues.
 
 ## Teardown
 
