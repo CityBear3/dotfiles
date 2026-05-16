@@ -86,11 +86,57 @@ IF suggestion seems wrong:
 IF can't easily verify:
   Say so: "I can't verify this without [X]. Should I [investigate/ask/proceed]?"
 
-IF conflicts with engineer's prior decisions:
-  Stop and discuss with engineer first
+IF conflicts with engineer's prior decisions (Design Doc / Design Discussion / plan's Alternative Solutions / plan's Out of scope):
+  Push back, citing the source of the decision. Do NOT escalate unless substantive new evidence challenges the decision itself.
 ```
 
 External feedback is suggestions to evaluate, not orders to follow. Be skeptical, but check carefully.
+
+## Triage Decision (for `/review` feedback)
+
+When `/review` produces a report, every Must Fix / Should Improve item maps to exactly one of three outcomes. **Do not default to escalating.** Most items are push-back or fix.
+
+### Push back (no fix, no escalation)
+
+Reject the suggestion within the autonomous loop. Use when:
+
+- The item is **already decided** — covered by Design Doc, settled in `/design-discussion` (recorded in plan's "Alternative Solutions Considered"), or explicitly listed in plan's "Out of scope". The reviewer is unaware of the prior decision.
+- The item suggests **adding unused functionality** (YAGNI) — grep confirms no caller.
+- The item is **technically wrong for this codebase** — verified against existing code or tests.
+- The reviewer **lacks full context** — the suggestion is reasonable in isolation but breaks something they didn't see.
+
+Push-back form: cite the source of the decision (e.g., "Design Doc §3.2 chose path A over path B because X"). Do not escalate to the engineer.
+
+### Fix (append to plan, autonomous loop)
+
+Add a fix task to the plan's "Post-/review iteration" section and re-enter `/execute-plan`. Use when:
+
+- The item is a **minor improvement** within the existing design — typos, log message grammar, naming consistency, missing edge-case test, idiomatic code adjustment.
+- The item is a **bug in the new code** — not a design issue.
+- The item is **code quality** within the task's scope — refactor or simplification.
+
+Most review items fall here. Minor fixes never trigger escalation.
+
+### Escalate (stop the loop, report to the engineer)
+
+Stop the autonomous loop and report. Use **only** when:
+
+- The item requires a **change to architecture** — module boundaries, data flow, layering.
+- The item requires a **change to Design Doc contracts** — public APIs, protocol formats, data schemas, error models.
+- The item requires **scope expansion beyond the plan** — new feature, additional subsystem, work warranting a new plan.
+- A prior decision is being challenged with **substantive new evidence** and the engineer should reconsider.
+
+If unsure between "fix" and "escalate", lean toward **fix** — the engineer can override during the next plan review.
+
+### Common misclassifications
+
+| Item | Wrong outcome | Right outcome |
+|---|---|---|
+| "Use library X instead of hand-rolled Y" when Design Doc chose Y | Escalate (treating as design change) | **Push back** (already decided in Design Doc) |
+| "Log message grammar / typos" | Escalate (treating as engineer's call) | **Fix** (append minor task) |
+| "Add metric tracking for endpoint Z" when out of scope | Escalate | **Push back** (Out of scope; YAGNI unless grep shows demand) |
+| "Restructure module boundary" | Fix (treating as refactor) | **Escalate** (architecture change) |
+| "Hand-rolled retry — use library X" when Design Doc decided to defer external deps | Escalate | **Push back** (deferred dependency is a recorded decision) |
 
 ## YAGNI Check for "Professional" Features
 
@@ -123,7 +169,7 @@ Push back when:
 - Violates YAGNI (unused feature)
 - Technically incorrect for this stack
 - Legacy/compatibility reasons exist
-- Conflicts with engineer's architectural decisions
+- Conflicts with prior decisions documented in Design Doc, Design Discussion record, plan's "Alternative Solutions Considered", or plan's "Out of scope"
 
 **How to push back:**
 - Use technical reasoning, not defensiveness
