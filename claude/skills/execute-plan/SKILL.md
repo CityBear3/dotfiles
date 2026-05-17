@@ -37,6 +37,8 @@ When agent-teams reports completion, verify all TaskList entries are marked comp
 
 → Transition to `/verify` for formal verification (build, test, lint via implementation-verifier agent).
 
+**Note**: After `/verify`, the flow transitions to `/review`. The review feedback loop may re-invoke `/execute-plan` (this skill) autonomously to execute fix tasks appended to the plan's "Post-/review iteration" section. This re-entry is part of the autonomous loop and does **not** require engineer confirmation — proceed directly with the new tasks. The loop terminates either by clean review (→ `/finish-branch`) or by escalation (→ engineer report).
+
 ## Discipline
 
 - The plan must be followed faithfully. No ad-hoc design changes during execution.
