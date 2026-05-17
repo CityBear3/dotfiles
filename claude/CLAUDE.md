@@ -45,7 +45,7 @@ Technical contracts that consumers must conform to — public interfaces, protoc
 - Creating or commenting on PRs/issues
 - Changes that affect shared infrastructure or external systems
 - Deviating from an approved plan or Design Doc
-- Transitioning between workflow phases (e.g., create-plan → execute-plan, review → finish-branch)
+- Transitioning between workflow phases (e.g., create-plan → execute-plan, review → finish-branch). The autonomous review feedback loop (review → triage → execute-plan re-entry for fix tasks) is **not** a phase transition and does NOT require confirmation — it is part of the autonomous loop phase per "Agentic Orchestration > Core Flow".
 - Continuing after a task's autonomous loop terminates (success or escalation)
 
 ### What Can Be Done Autonomously

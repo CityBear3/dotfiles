@@ -77,14 +77,40 @@ Collect results from all agents and present a single report with this format:
 [overall assessment and prioritized action items]
 ```
 
-### Step 4: Transition
+### Step 4: Autonomous Triage + Transition
 
-After the engineer reviews the report:
+After producing the report, Claude Code applies `/receiving-code-review` discipline to **triage each Must Fix / Should Improve item** into one of three outcomes (per CLAUDE.md Core Flow):
 
-- If issues need fixing → Return to `/execute-plan` to address them, then re-run `/verify` → `/review`
-- If review passes → Transition to `finish-branch`
+**Push back** — already decided (Design Doc / Design Discussion / plan's "Alternative Solutions" / plan's "Out of scope"), violates YAGNI, technically wrong, or reviewer lacks context.
+→ Annotate the item in the report as "pushed back" with the decision source cited. No fix task is created. No engineer prompt.
 
-The engineer decides whether issues are blocking or acceptable.
+**Fix** — minor improvements, bugs, or quality items within the existing design.
+→ Append a fix task to the plan's "Post-/review iteration" section with concrete steps. Then re-invoke `/execute-plan` autonomously. The loop continues: /execute-plan → /verify → /review → (triage again). No engineer prompt.
+
+**Escalate** — architecture / Design Doc contract change / scope expansion beyond the plan / substantive new evidence overturning a prior decision.
+→ Stop the loop. Present to the engineer: the item, the triage reasoning, what design change appears necessary, the recommended next step.
+
+**Engineer involvement at this step**:
+
+The engineer is **NOT prompted** for triage decisions, for choosing what to fix, or for confirmation to re-enter `/execute-plan`. The loop runs autonomously per CLAUDE.md's Autonomous loop phase.
+
+The engineer is surfaced only when:
+- An item is **escalated** (above), OR
+- All items are resolved (any combination of push back / fix / no items at all) and the report has no remaining Must Fix / Should Improve. In this case, present the final clean report with the triage summary and **transition to `/finish-branch`** — this is a phase transition and DOES require engineer confirmation per CLAUDE.md Role and Autonomy.
+
+**Triage summary format** (appended to the report when surfacing to the engineer):
+
+```
+## Triage Summary
+
+- Pushed back: <N> items (sources: <decision sources>)
+- Fixed: <N> fix tasks appended and executed across <K> loop iterations
+- Escalated: <N> items (see escalation section above)
+```
+
+**Loop termination guard**: if the same item recurs across 2 consecutive review iterations after a Fix attempt, escalate it instead — the fix is not working and may require a design change.
+
+If unsure between Fix and Escalate for an item, lean toward **Fix**. The engineer can override during the next plan review.
 
 ## Finding Format
 
@@ -128,10 +154,13 @@ file_path:line_number
 | Running review before verify passes | Fix build/test/lint issues first. Don't waste review effort on broken code. |
 | Proceeding to finish-branch with unaddressed Must Fix items | Must Fix items are blocking. Address them first. |
 | Review without design doc context | If a design doc exists, include it. Otherwise note the gap. |
+| Asking the engineer how to handle each review item | Triage autonomously (push back / fix / escalate) per `/receiving-code-review`. Engineer involvement is restricted to escalations and the final `/finish-branch` transition. |
+| Treating "review → execute-plan" as a phase transition requiring confirmation | The review feedback loop is part of the autonomous loop phase per CLAUDE.md. Phase transition only applies to "review → finish-branch" (loop exit on clean review). |
+| Re-prompting "shall I proceed with fixes?" after producing the report | The plan already authorized autonomous execution. Append fix tasks and re-invoke `/execute-plan` directly. |
 
 ## Important Rules
 
-- The engineer's judgment overrides review findings. They decide what to fix and what to accept.
+- The engineer's judgment overrides review findings during escalation or at the final transition to `/finish-branch`. Per-item triage (push back / fix / escalate) is Claude Code's responsibility, executed autonomously per `/receiving-code-review` without prompting the engineer.
 - Human review gate: Claude Code's review does not replace the engineer's review. Both are required before merging.
 
 ## Integration
