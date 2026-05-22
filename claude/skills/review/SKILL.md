@@ -1,7 +1,7 @@
 ---
 name: review
 description: |
-  Run a comprehensive code review using aspect-specific review agents in parallel.
+  Run a comprehensive code review using verification and adversarial reviewer agents in parallel.
   Use after verification passes, or when the user requests a review.
   Invoke with `/review`.
 argument-hint: "[file paths or branch name (optional)]"
@@ -9,7 +9,7 @@ argument-hint: "[file paths or branch name (optional)]"
 
 # Code Review
 
-Run a comprehensive review by launching aspect-specific review agents in parallel, then present a unified report.
+Run a comprehensive review by launching verification and adversarial reviewer agents in parallel, integrating adversarial findings, then presenting a unified report.
 
 **Announce at start:** "I'm using the review skill to run a comprehensive code review."
 
@@ -24,57 +24,140 @@ Run a comprehensive review by launching aspect-specific review agents in paralle
 
 ## Execution
 
-### Step 1: Determine Scope
+### Step 1: Determine Scope and Build Context Bundle
+
+#### Scope
 
 Identify the files to review:
+
 - If file paths are given, use those
 - If a branch is given, diff against the base branch
 - If nothing is given, use `git diff` to find changed files
 
-Also identify the relevant design doc and plan for context.
+#### Context Bundle
 
-### Step 2: Launch Review Agents
+Build a context bundle to pass to every reviewer. Each source is read **fail-safe**: if absent, skip and continue with that field empty. Record what was loaded for the report's Context section.
 
-Launch 4 agents in parallel using the Agent tool, one per review aspect. Each agent receives the list of files to review and relevant context.
+1. **Design Doc** — Identify and read relevant sections.
+2. **Plan** — Identify and read, especially "Alternative Solutions Considered" and "Out of scope" (used by adversarial personas for `already_decided_check`).
+3. **Project rules**:
+   - `CLAUDE.md` at the project root
+   - All `*.md` files under `.claude/rules/` (glob)
+4. **Language detection**: inspect manifest files in this priority order and stop at the first match:
+   - `Cargo.toml` → `rust`
+   - `go.mod` → `go`
+   - `package.json` → `typescript` (treat both TS and JS projects as `typescript`)
+   - `pyproject.toml` or `requirements.txt` → `python`
+   - none → `unknown`
+5. **Language hints**: read `~/.claude/skills/review/hints/<primary_language>.md` if it exists. Skip if `primary_language` is `unknown` or the file does not exist.
 
-The four agents are defined at the top-level `agents/` directory (discovered by Claude Code's standard agent discovery):
+The bundle is structured as:
 
-1. **Design Alignment** (`design-alignment-reviewer`) — Does the implementation match the design doc?
-2. **Code Quality** (`code-quality-reviewer`) — Naming, patterns, error handling, complexity, performance
-3. **Test Coverage** (`test-coverage-reviewer`) — Are all use cases covered? Edge cases?
-4. **Scope Completeness** (`scope-reviewer`) — Does the implementation cover the plan's scope?
+```
+context_bundle:
+  scope:
+    diff: <branch vs base diff>
+    changed_files: [<path>...]
+  intent:
+    design_doc: <relevant sections | empty>
+    plan:
+      alternative_solutions: <... | empty>
+      out_of_scope: <... | empty>
+      tasks: <... | empty>
+  conventions:
+    claude_md: <project CLAUDE.md content | empty>
+    rules: [{name: <filename>, content: <...>}]  # all .claude/rules/*.md
+  language_hints:
+    primary_language: <rust|go|typescript|python|unknown>
+    hints: <content of ~/.claude/skills/review/hints/<lang>.md | empty>
+```
 
-For each agent, provide:
-- The list of files to review
-- The content of the relevant design doc (for design-alignment-reviewer)
-- The content of the plan (for scope-reviewer)
+### Step 2: Launch Reviewer Agents in Parallel
 
-When invoking `code-quality-reviewer`, include `ultrathink` in the prompt so the
-agent uses extended thinking to dig into non-obvious problems and performance
-implications. This reviewer runs on a deeper-reasoning model and is the place
-where subtle issues should be surfaced.
+Launch 7 reviewer agents in parallel using the Agent tool. Each agent receives the file list and the context bundle.
+
+**Wall-clock measurement**: Record Step 2 start time and each agent's completion time. After all 7 agents complete (before Step 2.5), append the timings to:
+
+```
+~/.claude/usage-data/review-timings/<ISO-8601-timestamp>.json
+```
+
+with structure:
+
+```json
+{
+  "started_at": "<ISO-8601>",
+  "scope": {"changed_files": <N>, "primary_language": "<lang>"},
+  "agents": [
+    {"name": "design-alignment-reviewer", "started_at": "...", "completed_at": "...", "duration_ms": <int>},
+    ...
+  ]
+}
+```
+
+If `~/.claude/usage-data/review-timings/` does not exist, create it.
+
+#### Verification Layer (3 agents, no extended thinking)
+
+1. **design-alignment-reviewer** — Does the implementation match the design doc?
+2. **scope-reviewer** — Does the implementation cover the plan's scope?
+3. **test-coverage-reviewer** — Are all use cases covered? Edge cases?
+
+#### Adversarial Layer (4 agents, all with extended thinking)
+
+Include `ultrathink` in each adversarial agent's prompt so they use extended thinking. These reviewers run on a deeper-reasoning model and are the place where subtle, hypothesis-driven issues should be surfaced.
+
+4. **adversarial-robustness-reviewer** — Hunt for failure modes: uncontrolled termination, swallowed errors, boundary violations, exhaustiveness gaps, invariant breaks.
+5. **adversarial-api-reviewer** — Hunt for misuse-prone APIs: naming pitfalls, signature instability, error model gaps, backward-incompatibility risk.
+6. **adversarial-performance-reviewer** — Hunt for measurable cost on hot paths: allocations, unnecessary copies, hidden complexity, N+1 I/O.
+7. **adversarial-tests-reviewer** — Hunt for tests that don't prove behavior: weak assertions, mock lies, missing edge cases, fragile interdependence.
+
+Each adversarial persona must:
+
+- Use the context bundle's Design Doc / Plan / rules / hints to inform its hunt.
+- Produce findings in the structured YAML schema (see "Adversarial Output Schema" below), including an `already_decided_check` field that records consultation of Design Doc and Plan.
+- Return `findings: []` (with a `considered:` list of what was examined) when no genuine concerns were found. **Null-finding is acceptable** — speculative or "just in case" findings are forbidden.
+
+### Step 2.5: Integrate Adversarial Findings
+
+After all 4 adversarial agents complete, launch the `adversarial-integrator` agent with:
+
+- The 4 adversarial findings as input
+- Design Doc / Plan / CLAUDE.md / rules from the context bundle (for already-decided filtering)
+
+The integrator returns a single deduplicated, severity-normalized markdown section. Verification findings are NOT passed to the integrator — they flow directly to Step 3.
 
 ### Step 3: Unified Report
 
-Collect results from all agents and present a single report with this format:
+Present a single report:
 
 ```
-## Review Report
+## Context
+
+- Scope: <N> files changed in <branch> vs <base>
+- Language: <primary_language> (hints: <loaded | not found>)
+- Project rules: CLAUDE.md <loaded | not found> / .claude/rules/ (<N> files: <names>)
+- Design Doc: <name> §<sections> | not found
+- Plan: <name> | not found
+
+## Verification Layer
 
 ### Design Alignment
-[findings]
-
-### Code Quality
-[findings]
-
-### Test Coverage
-[findings]
+[findings from design-alignment-reviewer]
 
 ### Scope Completeness
-[findings]
+[findings from scope-reviewer]
 
-### Summary
-[overall assessment and prioritized action items]
+### Test Coverage
+[findings from test-coverage-reviewer]
+
+## Adversarial Layer
+
+[integrated findings from adversarial-integrator]
+
+## Summary
+
+[Must Fix / Should Improve counts, prioritized action items]
 ```
 
 ### Step 4: Autonomous Triage + Transition
@@ -95,6 +178,7 @@ After producing the report, Claude Code applies `/receiving-code-review` discipl
 The engineer is **NOT prompted** for triage decisions, for choosing what to fix, or for confirmation to re-enter `/execute-plan`. The loop runs autonomously per CLAUDE.md's Autonomous loop phase.
 
 The engineer is surfaced only when:
+
 - An item is **escalated** (above), OR
 - All items are resolved (any combination of push back / fix / no items at all) and the report has no remaining Must Fix / Should Improve. In this case, present the final clean report with the triage summary and **transition to `/finish-branch`** — this is a phase transition and DOES require engineer confirmation per CLAUDE.md Role and Autonomy.
 
@@ -116,19 +200,21 @@ If unsure between Fix and Escalate for an item, lean toward **Fix**. The enginee
 
 ### Icons
 
-- **Must Fix** — Bugs, incorrect behavior, security issues, design violations
-- **Should Improve** — Code smell, suboptimal patterns, missing edge cases, maintainability concerns
-- **Good** — Well-implemented aspects worth noting (use sparingly, only for genuinely notable decisions)
+- 🔴 **Must Fix** — Bugs, incorrect behavior, security issues, design violations
+- 🟡 **Should Improve** — Code smell, suboptimal patterns, missing edge cases, maintainability concerns
+- 🟢 **Good** — Well-implemented aspects worth noting (use sparingly, only for genuinely notable decisions)
 
 ### Structure
 
 For each finding:
 
 ```
-<severity> **<short title>**
+<icon> **<short title>**
 
-file_path:line_number
+📄 `<file_path>:<line_number>`
+```<language>
 <relevant code snippet (3-10 lines, focused on the issue)>
+```
 
 **Issue**: <what is wrong or could be improved>
 
@@ -142,9 +228,32 @@ file_path:line_number
 - Always include the file path and line number
 - Always include a code snippet showing the relevant code
 - Always include a trade-off analysis, even if it's "None"
-- Group findings by aspect, not by severity
-- At the end, provide a prioritized summary: Must Fix items first, then Should Improve, with count per category
+- Group findings by aspect (sub-section), not by severity
+- At the end of the report, provide a prioritized summary: Must Fix items first, then Should Improve, with count per category
 - Do NOT mark things as "Good" that are merely adequate — reserve it for genuinely good design decisions
+
+## Adversarial Output Schema
+
+Each adversarial persona must produce findings in this YAML structure (the integrator parses these and emits the markdown Finding Format above):
+
+```yaml
+findings:
+  - title: <短い見出し>
+    hypothesis: "X が起きうる。なぜなら Y"
+    evidence:
+      - file: <path>
+        lines: <range>
+        observation: <観察された事実>
+    reproduction: "入力 / 操作 Z で再現可能"
+    already_decided_check: "Design Doc §X / Plan Alternative Solutions / Out of scope を確認: <該当なし | 該当あり: 出典>"
+    severity_suggestion: Critical | Important | Minor
+    rationale: <severity の根拠 1 行>
+considered:
+  - <レビューした観点 1>
+  - <レビューした観点 2>
+```
+
+When no genuine concerns are found, return `findings: []` with `considered:` populated.
 
 ## Red Flags
 
@@ -153,18 +262,27 @@ file_path:line_number
 | Skipping review because "verify passed" | Verify checks mechanics. Review checks design alignment and quality. Both are needed. |
 | Running review before verify passes | Fix build/test/lint issues first. Don't waste review effort on broken code. |
 | Proceeding to finish-branch with unaddressed Must Fix items | Must Fix items are blocking. Address them first. |
-| Review without design doc context | If a design doc exists, include it. Otherwise note the gap. |
+| Review without design doc context | If a design doc exists, include it. Otherwise note the gap in the Context section. |
 | Asking the engineer how to handle each review item | Triage autonomously (push back / fix / escalate) per `/receiving-code-review`. Engineer involvement is restricted to escalations and the final `/finish-branch` transition. |
 | Treating "review → execute-plan" as a phase transition requiring confirmation | The review feedback loop is part of the autonomous loop phase per CLAUDE.md. Phase transition only applies to "review → finish-branch" (loop exit on clean review). |
 | Re-prompting "shall I proceed with fixes?" after producing the report | The plan already authorized autonomous execution. Append fix tasks and re-invoke `/execute-plan` directly. |
+| Adversarial persona inventing speculative findings to "find something" | Null-finding is acceptable. Return `findings: []` with `considered:` when no genuine concern with concrete reproduction can be constructed. |
+| Skipping language hint loading because the file is missing | Each context source is read fail-safe. Empty fields are normal; record them in the Context section. |
 
 ## Important Rules
 
 - The engineer's judgment overrides review findings during escalation or at the final transition to `/finish-branch`. Per-item triage (push back / fix / escalate) is Claude Code's responsibility, executed autonomously per `/receiving-code-review` without prompting the engineer.
 - Human review gate: Claude Code's review does not replace the engineer's review. Both are required before merging.
+- Adding support for a new language is done by dropping a new `hints/<lang>.md` file in this skill's `hints/` directory. The skill auto-loads any file matching `<detected_language>.md` — no code change required.
 
 ## Integration
 
 When the engineer (or Claude Code) reads this review report, apply `/receiving-code-review` discipline: verify before implementing, no performative agreement.
 
-Note: This skill uses 4 specialized parallel reviewers (`design-alignment-reviewer`, `code-quality-reviewer`, `test-coverage-reviewer`, `scope-reviewer`) defined at the top-level `agents/` directory. These are distinct from the `code-reviewer` agent used by `/agent-teams-driven-development` for lightweight per-task gates.
+This skill uses 8 agents defined at the top-level `agents/` directory:
+
+- **Verification reviewers (3, no extended thinking)**: `design-alignment-reviewer`, `scope-reviewer`, `test-coverage-reviewer`
+- **Adversarial personas (4, with extended thinking)**: `adversarial-robustness-reviewer`, `adversarial-api-reviewer`, `adversarial-performance-reviewer`, `adversarial-tests-reviewer`
+- **Integrator (1, lightweight)**: `adversarial-integrator`
+
+These are distinct from the `code-reviewer` agent used by `/agent-teams-driven-development` for lightweight per-task gates.
