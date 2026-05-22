@@ -107,7 +107,7 @@ Move to next task.
 
 ## Completion
 
-After all tasks complete, proceed to Teardown. **Do not run a final whole-implementation review here** — the parent flow (`/execute-plan`) transitions to `/verify` then `/review`, where the 4 specialized reviewers (`design-alignment-reviewer`, `code-quality-reviewer`, `scope-reviewer`, `test-coverage-reviewer`) run the deep-dive review with extended thinking. Duplicating that review here adds latency without catching additional issues.
+After all tasks complete, proceed to Teardown. **Do not run a final whole-implementation review here** — the parent flow (`/execute-plan`) transitions to `/verify` then `/review`, where the verification reviewers (`design-alignment-reviewer`, `scope-reviewer`, `test-coverage-reviewer`) and adversarial personas (`adversarial-robustness-reviewer`, `adversarial-api-reviewer`, `adversarial-performance-reviewer`, `adversarial-tests-reviewer`) run the deep-dive review with extended thinking, integrated via `adversarial-integrator`. Duplicating that review here adds latency without catching additional issues.
 
 ## Teardown
 
