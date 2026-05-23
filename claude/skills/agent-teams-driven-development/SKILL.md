@@ -156,7 +156,6 @@ Present what was tried, what failed, teammate's analysis, recommended next step.
 | Skip spec OR code quality review | Both required for every task. |
 | Move to next task while either review has open issues | Loop until both approve. |
 | Self-review replaces actual review | Both needed — different scopes. |
-| Start code quality review before spec compliance approved | Wrong order. Spec first. |
 | Fix implementer issues manually in lead session | Send to implementer (avoids context pollution). |
 | Dispatch multiple implementers in parallel for same files | Sequential per file. |
 | Ignore implementer questions | Answer fully before they proceed. |

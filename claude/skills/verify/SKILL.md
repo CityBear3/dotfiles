@@ -75,9 +75,9 @@ If deviations from the plan or readability suggestions are found, ask the engine
 
 ### Step 4: Transition
 
-After verification passes and the engineer reviews the report:
+After verification passes:
 
-→ Transition to `/review` for comprehensive code review.
+→ Transition to `/review` **autonomously** — this is part of the autonomous loop phase per CLAUDE.md (`execute-plan → verify → review`). Do NOT pause to ask the engineer for approval before entering `/review`. Engineer involvement happens at `/finish-branch` (phase transition) or on escalation, not here.
 
 If verification fails:
 
@@ -170,7 +170,7 @@ The /verify skill is the formal application of this principle for post-implement
 - Always gather context before launching the agent — the agent runs in isolation and cannot access the current conversation history.
 - If no plan or Design Doc exists in the current conversation, tell the agent to skip the diff review and readability check steps.
 - Do not re-run the agent unless the engineer requests it after making fixes.
-- The engineer's review is a mandatory gate. Verification passing does not mean the work is done — the engineer must review.
+- `/verify` does NOT pause for engineer approval after the report. Autonomous transition to `/review` follows immediately per CLAUDE.md's autonomous loop phase. The engineer's mandatory review gate is at `/finish-branch`, not here.
 
 ## The Bottom Line
 
