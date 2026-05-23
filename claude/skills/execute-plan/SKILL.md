@@ -74,7 +74,7 @@ When agent-teams reports completion, verify all TaskList entries are marked comp
 
 - Never start execution on main/master without explicit engineer consent
 - Agent-teams is the execution mechanism — do not bypass
-- The engineer's review is a mandatory gate before any change is merged or shared
+- Engineer's mandatory review gate is at `/finish-branch` (before merge / PR / share). The autonomous loop (`/execute-plan` → `/verify` → `/review` → fix tasks) runs **without** engineer approval prompts; engineer involvement happens only on escalation or at `/finish-branch`
 - If verification reveals issues not covered by the plan, stop and consult the engineer
 
 ## Integration
