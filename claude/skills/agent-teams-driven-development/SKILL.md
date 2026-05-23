@@ -61,8 +61,8 @@ Specify the `model` parameter explicitly for each teammate. The role-to-model ma
 
 ```
 Agent({ team_name, name: "implementer", subagent_type: "general-purpose", model: "opus", prompt: <see ./implementer-prompt.md> })
-Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", model: "sonnet", prompt: <see ./spec-reviewer-prompt.md> })
-Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", model: "sonnet", prompt: <see ./code-quality-reviewer-prompt.md> })
+Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", model: "opus", prompt: <see ./spec-reviewer-prompt.md> })
+Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", model: "opus", prompt: <see ./code-quality-reviewer-prompt.md> })
 ```
 
 ## Per-Task Loop
