@@ -72,11 +72,23 @@ context_bundle:
     hints: <content of ~/.claude/skills/review/hints/<lang>.md | empty>
 ```
 
-### Step 2: Launch Reviewer Agents in Parallel
+### Step 2: Dispatch All 7 Reviewer Agents Simultaneously
 
-Launch 7 reviewer agents in parallel using the Agent tool. Each agent receives the file list and the context bundle.
+**Dispatch all 7 agents in a single batch via parallel Agent tool calls in ONE message.** Do NOT launch verification agents first, wait for them, then launch adversarial agents. Both layers run **concurrently**. The "Verification" / "Adversarial" labels below are categorical (model tier, output schema, depth of reasoning), **not** execution phases.
 
-**Wall-clock measurement**: Record Step 2 start time and each agent's completion time. After all 7 agents complete (before Step 2.5), append the timings to:
+| # | Agent | Layer | Model | Extended Thinking | Purpose |
+|---|---|---|---|---|---|
+| 1 | `design-alignment-reviewer` | Verification | sonnet | no | Does the implementation match the design doc? |
+| 2 | `scope-reviewer` | Verification | sonnet | no | Does the implementation cover the plan's scope? |
+| 3 | `test-coverage-reviewer` | Verification | sonnet | no | Are all use cases covered? Edge cases? |
+| 4 | `adversarial-robustness-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for failure modes |
+| 5 | `adversarial-api-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for misuse-prone APIs |
+| 6 | `adversarial-performance-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for measurable cost on hot paths |
+| 7 | `adversarial-tests-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for tests that don't prove behavior |
+
+Each agent receives the file list and the context bundle in its prompt.
+
+**Wall-clock measurement**: Record dispatch time and each agent's completion time. After all 7 agents complete (before Step 2.5), append the timings to:
 
 ```
 ~/.claude/usage-data/review-timings/<ISO-8601-timestamp>.json
@@ -97,35 +109,25 @@ with structure:
 
 If `~/.claude/usage-data/review-timings/` does not exist, create it.
 
-#### Verification Layer (3 agents, no extended thinking)
-
-1. **design-alignment-reviewer** — Does the implementation match the design doc?
-2. **scope-reviewer** — Does the implementation cover the plan's scope?
-3. **test-coverage-reviewer** — Are all use cases covered? Edge cases?
-
-#### Adversarial Layer (4 agents, all with extended thinking)
-
-Include `ultrathink` in each adversarial agent's prompt so they use extended thinking. These reviewers run on a deeper-reasoning model and are the place where subtle, hypothesis-driven issues should be surfaced.
-
-4. **adversarial-robustness-reviewer** — Hunt for failure modes: uncontrolled termination, swallowed errors, boundary violations, exhaustiveness gaps, invariant breaks.
-5. **adversarial-api-reviewer** — Hunt for misuse-prone APIs: naming pitfalls, signature instability, error model gaps, backward-incompatibility risk.
-6. **adversarial-performance-reviewer** — Hunt for measurable cost on hot paths: allocations, unnecessary copies, hidden complexity, N+1 I/O.
-7. **adversarial-tests-reviewer** — Hunt for tests that don't prove behavior: weak assertions, mock lies, missing edge cases, fragile interdependence.
+#### Adversarial-layer requirements (agents 4–7)
 
 Each adversarial persona must:
 
-- Use the context bundle's Design Doc / Plan / rules / hints to inform its hunt.
-- Produce findings in the structured YAML schema (see "Adversarial Output Schema" below), including an `already_decided_check` field that records consultation of Design Doc and Plan.
-- Return `findings: []` (with a `considered:` list of what was examined) when no genuine concerns were found. **Null-finding is acceptable** — speculative or "just in case" findings are forbidden.
+- Include `ultrathink` in the prompt so they use extended thinking; deeper-reasoning model surfaces subtle, hypothesis-driven issues
+- Use the context bundle's Design Doc / Plan / rules / hints to inform the hunt
+- Produce findings in the structured YAML schema (see "Adversarial Output Schema" below), including an `already_decided_check` field that records consultation of Design Doc and Plan
+- Return `findings: []` (with a `considered:` list of what was examined) when no genuine concerns were found. **Null-finding is acceptable** — speculative or "just in case" findings are forbidden
 
-### Step 2.5: Integrate Adversarial Findings
+### Step 2.5: Integrate Adversarial Findings (depends on agents 4–7 only)
 
-After all 4 adversarial agents complete, launch the `adversarial-integrator` agent with:
+When the 4 adversarial agents (4–7) complete, launch the `adversarial-integrator` agent. **This step does NOT wait for verification agents (1–3)** — verification findings flow directly to Step 3 in parallel.
 
-- The 4 adversarial findings as input
+Inputs to the integrator:
+
+- The 4 adversarial findings
 - Design Doc / Plan / CLAUDE.md / rules from the context bundle (for already-decided filtering)
 
-The integrator returns a single deduplicated, severity-normalized markdown section. Verification findings are NOT passed to the integrator — they flow directly to Step 3.
+The integrator returns a single deduplicated, severity-normalized markdown section. Verification findings are NOT passed to the integrator.
 
 ### Step 3: Unified Report
 
@@ -268,6 +270,7 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Re-prompting "shall I proceed with fixes?" after producing the report | The plan already authorized autonomous execution. Append fix tasks and re-invoke `/execute-plan` directly. |
 | Adversarial persona inventing speculative findings to "find something" | Null-finding is acceptable. Return `findings: []` with `considered:` when no genuine concern with concrete reproduction can be constructed. |
 | Skipping language hint loading because the file is missing | Each context source is read fail-safe. Empty fields are normal; record them in the Context section. |
+| Dispatching verification agents (1–3) first, waiting for completion, then dispatching adversarial agents (4–7) | All 7 agents launch in a single batch via parallel Agent tool calls in ONE message. The Verification / Adversarial labels are categorical, not phasal. Two-wave dispatch defeats the wall-clock benefit and is forbidden. |
 
 ## Important Rules
 
