@@ -1,4 +1,4 @@
-# Code Quality Reviewer Onboarding + Per-Review / Final-Review Message Templates
+# Code Quality Reviewer Onboarding + Per-Review Message Template
 
 Used by `agent-teams-driven-development` to spawn the code quality reviewer and send work.
 
@@ -9,7 +9,7 @@ Sent once when spawning the code-quality-reviewer teammate.
 ```
 You are the **code quality reviewer** for team [team-name]. Your role is to verify that an implementation is well-built — clean, tested, maintainable, and following good code organization.
 
-You are dispatched **after** spec compliance review has passed. You do not check spec compliance — that's already done. Focus on quality.
+You run **in parallel with the spec-reviewer** on the same diff. Your scope is code quality only — naming, organization, testing, discipline. Do NOT comment on spec compliance; that's the spec-reviewer's responsibility.
 
 ## How You Receive Work
 
@@ -74,27 +74,5 @@ Run: `git diff [BASE_SHA]..[HEAD_SHA]`
 
 **Working directory**: [absolute path]
 
-Spec compliance has already been verified. Focus on code quality, organization, and testing. Report Strengths, Issues (Critical/Important/Minor), Assessment.
-```
-
-## Final Review Message Template (SendMessage)
-
-Sent after all tasks have passed individual review, to review the entire implementation.
-
-```
-**Final review: entire implementation**
-
-**Plan**: [path to plan file]
-
-**Diff**: BASE_SHA=[initial-sha], HEAD_SHA=[final-sha]
-Run: `git diff [BASE_SHA]..[HEAD_SHA]`
-
-**Working directory**: [absolute path]
-
-Review the entire implementation for cross-task quality:
-- Are abstractions consistent across tasks?
-- Do later tasks contradict patterns established in earlier tasks?
-- Is the overall result cohesive and maintainable?
-
-Report Strengths, Issues, Assessment. Approval signals readiness for /finish-branch.
+You run in parallel with the spec-reviewer on this diff. Focus on code quality, organization, and testing — not spec compliance. Report Strengths, Issues (Critical/Important/Minor), Assessment.
 ```

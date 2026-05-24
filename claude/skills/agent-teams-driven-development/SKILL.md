@@ -189,4 +189,4 @@ Present what was tried, what failed, teammate's analysis, recommended next step.
 Sub-files in this skill directory:
 - `./implementer-prompt.md` — Implementer onboarding + per-task / per-fix message templates
 - `./spec-reviewer-prompt.md` — Spec compliance reviewer onboarding + per-review message template
-- `./code-quality-reviewer-prompt.md` — Code quality reviewer onboarding + per-review / final-review message templates
+- `./code-quality-reviewer-prompt.md` — Code quality reviewer onboarding + per-review message template
