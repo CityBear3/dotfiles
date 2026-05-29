@@ -56,8 +56,10 @@ For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "
 Specify the `model` parameter explicitly for each teammate. The role-to-model mapping is:
 
 - **Implementer** → `opus` — production-ready code with minimal oversight; suited for multi-file refactors and complex logic
-- **Spec Reviewer** → `sonnet` — matches diff against spec text (mechanical comparison). Sonnet is the multi-agent research system's recommended subagent model; Haiku previously caused agent-teams SendMessage to hang (reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request).
-- **Code Quality Reviewer** → `sonnet` — nuanced judgment on naming/patterns/complexity; deep dive is delegated to `/review`
+- **Spec Reviewer** → `opus` — matches diff against spec text. (Do NOT use Haiku — it previously caused agent-teams SendMessage to hang: reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request.)
+- **Code Quality Reviewer** → `opus` — nuanced judgment on naming/patterns/complexity; deep dive is delegated to `/review`
+
+All three roles run on `opus`: reviewers were promoted from sonnet (commit 7464841) because the cost/latency trade-off didn't hold in practice — unifying agent-teams on the same depth-tier as `/review` v2 to reduce missed subtle issues (span overrun / arm ordering / type-inference edges).
 
 ```
 Agent({ team_name, name: "implementer", subagent_type: "general-purpose", model: "opus", prompt: <see ./implementer-prompt.md> })
