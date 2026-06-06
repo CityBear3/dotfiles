@@ -105,3 +105,32 @@ Every explanation traces to a source. The chain of custody:
 ## Handling change requests
 
 If the engineer spots something to change during the walkthrough, **do not edit the plan**. Record the request (task number + what + why) in a running list. At Step 4 (Close), present the list and recommend: if changes are needed, re-enter `/create-plan` to revise the plan. Plan authoring and its self-review / consistency checks belong to `create-plan`, not here.
+
+## Key Principles
+
+- **Read-only** — never edit the plan, never execute tasks.
+- **Grounded** — every explanation traces to the plan or Design Doc; label Claude's own commentary; never invent rationale.
+- **Engineer-paced** — advance only on "次へ". Questions don't advance.
+- **Not a gate** — completing the walkthrough is not approval; only offer a pointer to `/execute-plan`.
+- **Scale to the work** — optional; skip for trivial plans.
+
+## Red Flags
+
+| Violation | Correct Behavior |
+|-----------|-----------------|
+| Inventing a "why not" the plan never recorded | Say "プランに記載なし". Only cite recorded rationale; label any Claude commentary. |
+| Presenting Claude's own opinion as the plan's decision | Prefix it "補足(Claude の解説)". |
+| Editing the plan to apply a change request | Capture it as a note; recommend `/create-plan`. This skill is read-only. |
+| Auto-advancing to the next task without "次へ" | Stop after each task. Wait for the engineer. |
+| Treating completion as approval / auto-invoking `execute-plan` | Offer a pointer only. The engineer decides and invokes. |
+| Dumping the plan's raw checkboxes verbatim | Re-frame into the teaching format (概要/why, コード/差分, 説明/why-not, テスト, TDD flow). |
+| Fabricating a diff that doesn't match the real file | Read the file for a real diff, or fall back to the plan's stated change and say so. Label reconstructed diffs. |
+
+## Rationalization Prevention
+
+| Excuse | Reality |
+|--------|---------|
+| "The plan doesn't say why, but the reason is obvious" | If it's your inference, label it "補足(Claude の解説)". Don't present it as the plan's decision. |
+| "The engineer probably approves — let's jump to execute-plan" | Completion is not approval. Offer the pointer; the engineer decides. |
+| "This change is small, I'll just fix the plan inline" | Read-only. Capture it; revision goes through `create-plan`. |
+| "Reading the file for a real diff is slow, I'll paste the plan code as a diff" | Then it's not a diff. Label it as the planned new code, or read the file. |
