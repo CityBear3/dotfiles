@@ -53,18 +53,21 @@ For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "
 
 ### Step 4: Spawn Team Members
 
-Specify the `model` parameter explicitly for each teammate. The role-to-model mapping is:
+**Model rule: omit the `model` parameter** — teammates inherit the lead's session model. This tracks the most capable model the engineer is currently running without hardcoding a model name in this skill. Omission resolves to the session model via two distinct mechanisms (verified 2026-06-10):
 
-- **Implementer** → `opus` — production-ready code with minimal oversight; suited for multi-file refactors and complex logic
-- **Spec Reviewer** → `opus` — matches diff against spec text. (Do NOT use Haiku — it previously caused agent-teams SendMessage to hang: reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request.)
-- **Code Quality Reviewer** → `opus` — nuanced judgment on naming/patterns/complexity; deep dive is delegated to `/review`
+- `code-reviewer` (both reviewers): the agent definition has `model: inherit`.
+- `general-purpose` (implementer): teammates do NOT inherit the lead's model by default — inheritance requires `/config` → "Default teammate model" = "Default (leader's model)" (`teammateDefaultModel: null` in `~/.claude.json`). This is a device-local setting not synced by install.sh; on a machine without it, the implementer silently resolves to opus, which equals the floor below — a safe failure mode.
 
-All three roles run on `opus`: reviewers were promoted from sonnet (commit 7464841) because the cost/latency trade-off didn't hold in practice — unifying agent-teams on the same depth-tier as `/review` v2 to reduce missed subtle issues (span overrun / arm ordering / type-inference edges).
+**Floor: if the lead session is running below opus tier (sonnet / haiku), specify `model: "opus"` explicitly on all three spawns.** Rationale:
+
+- Reviewers were once on sonnet and were promoted to opus (commit 7464841) because the cost/latency trade-off didn't hold — subtle issues (span overrun / arm ordering / type-inference edges) were missed. Inheriting a sonnet session would silently undo that decision.
+- Haiku previously caused agent-teams SendMessage to hang: reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request. Teammates must never run on haiku.
 
 ```
-Agent({ team_name, name: "implementer", subagent_type: "general-purpose", model: "opus", prompt: <see ./implementer-prompt.md> })
-Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", model: "opus", prompt: <see ./spec-reviewer-prompt.md> })
-Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", model: "opus", prompt: <see ./code-quality-reviewer-prompt.md> })
+Agent({ team_name, name: "implementer", subagent_type: "general-purpose", prompt: <see ./implementer-prompt.md> })
+Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", prompt: <see ./spec-reviewer-prompt.md> })
+Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", prompt: <see ./code-quality-reviewer-prompt.md> })
+// Lead on sonnet/haiku → add model: "opus" to each call
 ```
 
 ## Per-Task Loop
@@ -134,11 +137,7 @@ Implementer reports one of four statuses:
 
 ## Model Selection
 
-- **Mechanical** (1-2 files, complete spec) → cheap model
-- **Integration** (multi-file, patterns) → standard model
-- **Architecture / design / review** → most capable model
-
-Replace teammates with appropriate models based on task complexity.
+Default is the Step 4 rule: inherit the lead's session model, floored at opus. The only deviation is upward — when handling a BLOCKED escalation that needs more reasoning, spawn a replacement on a more capable model. Never downgrade teammates below opus based on task simplicity; that trade-off was already rejected in practice (commit 7464841).
 
 ## Escalation
 
