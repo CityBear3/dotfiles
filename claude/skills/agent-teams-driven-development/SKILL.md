@@ -70,6 +70,19 @@ Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer"
 // Lead on sonnet/haiku → add model: "opus" to each call
 ```
 
+### Step 5: Report Spawned Models
+
+Immediately after the three spawns, display each teammate's resolved model to the engineer — the resolution above depends on device-local settings (`teammateDefaultModel`) and agent definitions, so an unintended configuration must surface before any task runs:
+
+```
+Team spawned (lead session: <model>):
+- implementer:           <model>
+- spec-reviewer:         <model>
+- code-quality-reviewer: <model>
+```
+
+Take each model from the spawn's tool result. If a result does not state the model, derive it from the Step 4 resolution rules and mark it `(derived)`. If any teammate resolved to haiku or below the opus floor unexpectedly, do not proceed — shut it down and respawn with `model: "opus"` per the floor rule, then report the corrected lineup.
+
 ## Per-Task Loop
 
 For each task in TaskList order:
