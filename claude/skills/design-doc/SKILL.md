@@ -28,16 +28,39 @@ Skip this skill for smaller work where a Design Doc would be ceremony — go dir
 
 ## Claude Code's Role
 
-The engineer is the author and writer of Design Docs. Writing is thinking — letting AI draft prose anchors the engineer's thought and undermines the design process itself. The act of writing forces the engineer to clarify their own reasoning, confront trade-offs, and internalize design decisions. If Claude Code writes the prose, the engineer loses this benefit and cannot confidently explain the design to others.
+The engineer is the author and writer of Design Docs. The governing principle is
+**ideation primacy**: the engineer's own thinking must reach the page before any
+AI-generated prose touches it. Writing is thinking — the act of writing forces the
+engineer to clarify reasoning, confront trade-offs, and internalize decisions. If AI
+prose arrives first it *anchors* the engineer's thought: people converge on a fluent
+draft they are shown, adopt framings they do not fully hold, and lose the ideation
+initiative — all while still feeling in control. The cost is not a worse document; it
+is an engineer who cannot confidently explain a design they never actually thought
+through.
 
-Claude Code must not draft, rewrite, or ghostwrite Design Doc prose. Claude Code supports the engineer by:
-- Gathering relevant codebase context to inform the engineer's decisions
-- Answering questions about existing code, dependencies, or constraints
-- Pointing out missing sections, overlooked considerations, or logical gaps
-- Reviewing what the engineer has written for adherence to the guidelines below
-- Acting as a sounding board during discussion — challenging assumptions, surfacing trade-offs, and asking clarifying questions
+**Ideation primacy — the one rule:** AI prose must never precede the engineer's own
+first draft of a section. Claude Code does not draft, fill in, or ghostwrite Design
+Doc prose, and does not offer "a draft to react to" before the engineer has written.
 
-When the engineer asks Claude Code to help with a Design Doc, Claude Code should engage in discussion and provide information — not produce text for the document. If the engineer explicitly asks Claude Code to edit specific passages (e.g., for clarity or conciseness), Claude Code may make targeted edits to existing text the engineer has written, but must not expand or fill in sections on the engineer's behalf.
+"Prose" here means the reasoning content — the paragraphs where the design is
+argued. Structural scaffolding is treated separately: Claude Code may lay out the
+**fixed template skeleton** (the canonical headings in the Design Doc Template), since
+that is convention, not design thinking. But it must not propose the **design-specific
+subsection decomposition** — how this particular design is carved into components and
+what they are named. How a design is decomposed is itself an architectural decision;
+proposing it anchors the engineer's structure. The subsection breakdown is the
+engineer's.
+
+Within that rule, Claude Code collaborates in two modes:
+
+- **Thinking collaboration (unbounded, encouraged).** Before and during writing:
+  challenge assumptions, surface trade-offs, ask clarifying questions, gather codebase
+  context, and point out missing sections or logical gaps. This shapes the engineer's
+  thinking but never produces document prose.
+- **Post-draft critique (permitted).** *After* the engineer has written a passage,
+  Claude Code may critique it, name specific weaknesses, and — only when explicitly
+  asked — make targeted edits to text the engineer already wrote. It must not expand
+  or fill in sections on the engineer's behalf.
 
 ## Flow
 
@@ -226,6 +249,7 @@ References:
 | Claude Code rewrites the engineer's prose without being asked | Discuss what should change first. Only edit when explicitly asked. |
 | Claude Code fills in a blank section | Point out the blank section. Ask the engineer what they want to cover there. |
 | Claude Code proposes text "for the engineer to review" | This is ghostwriting. Discuss the content, let the engineer write. |
+| Claude Code offers a draft "for the engineer to react to" | Ideation-primacy violation. AI prose must not precede the engineer's draft. Ask what they want to write; critique only after they've written. |
 | Claude Code makes a design decision during exploration | Present options with trade-offs. The engineer selects. |
 | "Let me draft this section for you" | Never. "What would you like to cover in this section?" instead. |
 | Proceeding to /create-plan without engineer's approval of the Design Doc | Stop. Ask the engineer to review and approve before transitioning. |
@@ -242,6 +266,7 @@ References:
 
 ## Important Rules
 
+- **Ideation primacy.** AI prose must never precede the engineer's first draft of a section. Thinking collaboration (dialogue, challenge, context-gathering) is unbounded; prose collaboration is limited to critiquing — and, only when asked, editing — text the engineer has already written.
 - When codebase research is needed, provide context as input for the user's decisions. The user makes the design choices.
 - Design Docs describe design, not implementation procedure. Technical contracts (interfaces, protocols, data structures, error models) belong in the doc when they are part of the design — see "Technical Detail in Design Docs". Internal implementation steps and code review concerns do not.
 - The transition to `/create-plan` requires the engineer's explicit approval of the Design Doc.
