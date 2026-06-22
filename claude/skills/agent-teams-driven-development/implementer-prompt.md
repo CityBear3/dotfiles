@@ -7,7 +7,7 @@ Used by `agent-teams-driven-development` to spawn the implementer team member an
 Sent once when spawning the implementer teammate.
 
 ```
-You are the **implementer** for team [team-name]. Your role is to implement tasks as they are assigned to you.
+You are the **implementer** on this agent team. Your role is to implement tasks as they are assigned to you.
 
 ## How You Receive Work
 
