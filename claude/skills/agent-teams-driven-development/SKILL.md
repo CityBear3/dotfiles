@@ -49,6 +49,8 @@ For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "
 
 ### Step 3: Spawn Team Members
 
+**Reuse before spawning.** If you already spawned the team earlier in this session (e.g. the review feedback loop re-entered `/execute-plan`) and have not shut it down, the implementer and reviewers are still alive — skip this step and reuse them. Spawn only members that are not already present. Re-spawning a name that is still alive splits it into `implementer-2` and orphans messages sent to the original.
+
 **Model rule: omit the `model` parameter** — teammates inherit the lead's session model. This tracks the most capable model the engineer is currently running without hardcoding a model name in this skill. Omission resolves to the session model via two distinct mechanisms (verified 2026-06-10):
 
 - `code-reviewer` (both reviewers): the agent definition has `model: inherit`.
@@ -121,14 +123,16 @@ Move to next task.
 
 ## Completion
 
-After all tasks complete, proceed to Teardown. **Do not run a final whole-implementation review here** — the parent flow (`/execute-plan`) transitions to `/verify` then `/review`, where the verification reviewers (`design-alignment-reviewer`, `scope-reviewer`, `test-coverage-reviewer`) and adversarial personas (`adversarial-robustness-reviewer`, `adversarial-api-reviewer`, `adversarial-performance-reviewer`, `adversarial-tests-reviewer`) run the deep-dive review with extended thinking, integrated via `adversarial-integrator`. Duplicating that review here adds latency without catching additional issues.
+After all tasks complete, hand control back to the parent flow. **Proceed directly to the `/execute-plan` → `/verify` transition and do not wait for any teammate acknowledgement or shutdown** — waiting on a teammate reply (such as a `shutdown_response`) blocks the lead and stalls the autonomous loop before `/verify` ever runs (observed failure). **Do not run a final whole-implementation review here** — the parent flow (`/execute-plan`) transitions to `/verify` then `/review`, where the verification reviewers (`design-alignment-reviewer`, `scope-reviewer`, `test-coverage-reviewer`) and adversarial personas (`adversarial-robustness-reviewer`, `adversarial-api-reviewer`, `adversarial-performance-reviewer`, `adversarial-tests-reviewer`) run the deep-dive review with extended thinking, integrated via `adversarial-integrator`. Duplicating that review here adds latency without catching additional issues.
 
-## Teardown
+## Teammate Lifecycle
 
-1. Send a graceful shutdown to each teammate: `SendMessage({ to: <name>, message: { type: "shutdown_request" } })`. (A plain-text "shut down" request also works; `shutdown_request` is the explicit form and is still accepted.)
-2. Wait for each teammate's `shutdown_response`.
+Teammates are **persistent across the autonomous loop** — leave them alive and idle after each `/execute-plan` pass. Do **not** tear the team down per pass:
 
-There is no `TeamDelete` (removed in v2.1.178) and no manual team/TaskList teardown — the implicit team and its TaskList are cleaned up automatically when the session exits. **Still shut the teammates down explicitly here**: implicit teams are not cleaned up between skills, so in the autonomous loop they would otherwise linger into `/verify` and `/review`.
+- **No explicit shutdown, no waiting.** Do not originate a `shutdown_request` and wait for the `shutdown_response` — that blocks the lead and the loop never reaches `/verify` (observed failure). The `shutdown_request` protocol is legacy (per the SendMessage tool's own note, "don't originate unless asked"); the lead must not use it as a gate.
+- **Reuse on re-entry.** The review feedback loop may re-enter `/execute-plan` with fix tasks. Reuse the existing implementer + reviewers (Step 3's "Reuse before spawning") — re-spawning a live name risks an `implementer-2` split or an orphaned inbox.
+- **Cleanup is automatic.** The implicit team is reclaimed when the session exits (`TeamDelete` was removed in v2.1.178; there is nothing to delete manually).
+- **If you must free a teammate mid-session** (e.g. the model-floor correction in Step 4), send a plain-text shutdown request fire-and-forget and continue immediately — never block on the reply.
 
 ## Handling Status
 
@@ -173,6 +177,8 @@ Present what was tried, what failed, teammate's analysis, recommended next step.
 | Accept "close enough" on spec compliance | Reviewer found issues = not done. |
 | Skip re-review after fixes | Verify fixes actually work. |
 | Continue after escalation without engineer | Stop. Wait. |
+| Block the loop waiting for a teammate `shutdown_response` | Never wait on shutdown. Proceed to `/verify`; teammates persist and auto-clean at session exit. |
+| Re-spawn a teammate name that is still alive | Reuse the existing teammate (Step 3). Re-spawning splits into `implementer-2` / orphans messages. |
 
 ## Rationalization Prevention
 
