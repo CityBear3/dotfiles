@@ -27,7 +27,7 @@ Confirm an isolated workspace (worktree or feature branch) is set up. If not, in
 
 Invoke `/agent-teams-driven-development`. Pass the plan file path as context.
 
-The agent-teams skill takes over: creates the team, populates TaskList, spawns implementer + 2 reviewers, runs per-task loops, tears down team.
+The agent-teams skill takes over: populates TaskList, spawns (or reuses) implementer + 2 reviewers, and runs per-task loops. Teammates persist across loop re-entries and are reclaimed automatically at session exit — there is no per-pass teardown.
 
 ### Step 3: Receive Completion Signal
 
