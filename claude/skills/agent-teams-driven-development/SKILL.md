@@ -35,23 +35,19 @@ Invoked by `/execute-plan`. Not invoked directly by the engineer.
 
 ## Setup
 
+**No explicit team creation (v2.1.178+).** Teammates implicitly form a team on the first `Agent()` spawn — there is no `TeamCreate` step, and `Agent()` no longer takes a `team_name`. Cleanup is automatic on session exit; `TeamDelete` no longer exists. The lead still coordinates via TaskList (work tracking) and SendMessage (review coordination).
+
 ### Step 1: Verify Prerequisites
 
 - Plan file exists and approved
 - Workspace is isolated (worktree, not main)
 - Read the plan once, extract all tasks with full text and context
 
-### Step 2: Create Team
-
-```
-TeamCreate({ team_name: "<feature-name>", description: "Executing <plan-file>" })
-```
-
-### Step 3: Populate TaskList
+### Step 2: Populate TaskList
 
 For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "<full task text from plan>" })`
 
-### Step 4: Spawn Team Members
+### Step 3: Spawn Team Members
 
 **Model rule: omit the `model` parameter** — teammates inherit the lead's session model. This tracks the most capable model the engineer is currently running without hardcoding a model name in this skill. Omission resolves to the session model via two distinct mechanisms (verified 2026-06-10):
 
@@ -64,13 +60,13 @@ For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "
 - Haiku previously caused agent-teams SendMessage to hang: reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request. Teammates must never run on haiku.
 
 ```
-Agent({ team_name, name: "implementer", subagent_type: "general-purpose", prompt: <see ./implementer-prompt.md> })
-Agent({ team_name, name: "spec-reviewer", subagent_type: "code-reviewer", prompt: <see ./spec-reviewer-prompt.md> })
-Agent({ team_name, name: "code-quality-reviewer", subagent_type: "code-reviewer", prompt: <see ./code-quality-reviewer-prompt.md> })
+Agent({ name: "implementer", subagent_type: "general-purpose", prompt: <see ./implementer-prompt.md> })
+Agent({ name: "spec-reviewer", subagent_type: "code-reviewer", prompt: <see ./spec-reviewer-prompt.md> })
+Agent({ name: "code-quality-reviewer", subagent_type: "code-reviewer", prompt: <see ./code-quality-reviewer-prompt.md> })
 // Lead on sonnet/haiku → add model: "opus" to each call
 ```
 
-### Step 5: Report Spawned Models
+### Step 4: Report Spawned Models
 
 Immediately after the three spawns, display each teammate's resolved model to the engineer — the resolution above depends on device-local settings (`teammateDefaultModel`) and agent definitions, so an unintended configuration must surface before any task runs:
 
@@ -81,7 +77,7 @@ Team spawned (lead session: <model>):
 - code-quality-reviewer: <model>
 ```
 
-Take each model from the spawn's tool result. If a result does not state the model, derive it from the Step 4 resolution rules and mark it `(derived)`. If any teammate resolved to haiku or below the opus floor unexpectedly, do not proceed — shut it down and respawn with `model: "opus"` per the floor rule, then report the corrected lineup.
+Take each model from the spawn's tool result. If a result does not state the model, derive it from the Step 3 resolution rules and mark it `(derived)`. If any teammate resolved to haiku or below the opus floor unexpectedly, do not proceed — shut it down and respawn with `model: "opus"` per the floor rule, then report the corrected lineup.
 
 ## Per-Task Loop
 
@@ -129,9 +125,10 @@ After all tasks complete, proceed to Teardown. **Do not run a final whole-implem
 
 ## Teardown
 
-1. Send `{type: "shutdown_request"}` to each teammate
-2. Wait for shutdowns
-3. `TeamDelete` to remove team and TaskList
+1. Send a graceful shutdown to each teammate: `SendMessage({ to: <name>, message: { type: "shutdown_request" } })`. (A plain-text "shut down" request also works; `shutdown_request` is the explicit form and is still accepted.)
+2. Wait for each teammate's `shutdown_response`.
+
+There is no `TeamDelete` (removed in v2.1.178) and no manual team/TaskList teardown — the implicit team and its TaskList are cleaned up automatically when the session exits. **Still shut the teammates down explicitly here**: implicit teams are not cleaned up between skills, so in the autonomous loop they would otherwise linger into `/verify` and `/review`.
 
 ## Handling Status
 
@@ -150,7 +147,7 @@ Implementer reports one of four statuses:
 
 ## Model Selection
 
-Default is the Step 4 rule: inherit the lead's session model, floored at opus. The only deviation is upward — when handling a BLOCKED escalation that needs more reasoning, spawn a replacement on a more capable model. Never downgrade teammates below opus based on task simplicity; that trade-off was already rejected in practice (commit 7464841).
+Default is the Step 3 rule: inherit the lead's session model, floored at opus. The only deviation is upward — when handling a BLOCKED escalation that needs more reasoning, spawn a replacement on a more capable model. Never downgrade teammates below opus based on task simplicity; that trade-off was already rejected in practice (commit 7464841).
 
 ## Escalation
 
