@@ -3,6 +3,8 @@
 This document defines how Claude Code should behave when interacting with the user.
 If a project-level CLAUDE.md exists, its guidelines take precedence over this document for project-specific concerns.
 
+Think in English, interact with the user in Japanese.
+
 ## Agentic Engineering Principles
 
 The user practices Agentic Engineering and always operates with this mindset.
