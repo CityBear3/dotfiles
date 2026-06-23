@@ -74,7 +74,7 @@ context_bundle:
 
 ### Step 2: Dispatch All 7 Reviewer Agents Simultaneously
 
-**Dispatch all 7 agents in a single batch via parallel Agent tool calls in ONE message.** Do NOT launch verification agents first, wait for them, then launch adversarial agents. Both layers run **concurrently**. The "Verification" / "Adversarial" labels below are categorical (model tier, output schema, depth of reasoning), **not** execution phases.
+**Dispatch all 7 agents in a single batch via parallel Agent tool calls in ONE message.** **Do NOT pass a `name` parameter to these Agent calls.** A named spawn becomes a persistent *teammate* (its own tmux pane, mailbox, and agent-teams lifecycle); a name-less spawn is a one-shot *subagent* that returns its findings directly as the tool result. Review is fan-out → aggregate, so the reviewers must be name-less subagents — passing `name` triggers the agent-teams pane / zombie / shutdown problems. Do NOT launch verification agents first, wait for them, then launch adversarial agents. Both layers run **concurrently**. The "Verification" / "Adversarial" labels below are categorical (model tier, output schema, depth of reasoning), **not** execution phases.
 
 | # | Agent | Layer | Model | Extended Thinking | Purpose |
 |---|---|---|---|---|---|
@@ -271,6 +271,7 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Adversarial persona inventing speculative findings to "find something" | Null-finding is acceptable. Return `findings: []` with `considered:` when no genuine concern with concrete reproduction can be constructed. |
 | Skipping language hint loading because the file is missing | Each context source is read fail-safe. Empty fields are normal; record them in the Context section. |
 | Dispatching verification agents (1–3) first, waiting for completion, then dispatching adversarial agents (4–7) | All 7 agents launch in a single batch via parallel Agent tool calls in ONE message. The Verification / Adversarial labels are categorical, not phasal. Two-wave dispatch defeats the wall-clock benefit and is forbidden. |
+| Passing a `name` to a reviewer Agent call | Dispatch name-less. A named spawn becomes a teammate (tmux pane + agent-teams lifecycle bugs); reviewers must be one-shot subagents that return findings directly. |
 
 ## Important Rules
 
