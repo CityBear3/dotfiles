@@ -133,6 +133,7 @@ Teammates are **persistent across the autonomous loop** — leave them alive and
 - **Reuse on re-entry.** The review feedback loop may re-enter `/execute-plan` with fix tasks. Reuse the existing implementer + reviewers (Step 3's "Reuse before spawning") — re-spawning a live name risks an `implementer-2` split or an orphaned inbox.
 - **Cleanup is automatic.** The implicit team is reclaimed when the session exits (`TeamDelete` was removed in v2.1.178; there is nothing to delete manually).
 - **If you must free a teammate mid-session** (e.g. the model-floor correction in Step 4), send a plain-text shutdown request fire-and-forget and continue immediately — never block on the reply.
+- **End-of-session teardown is `/session-teardown`'s job** (invoked from `/finish-branch`): the one sanctioned point for a best-effort, fire-and-forget team shutdown — at session end, when the loop is over. The mid-loop rules above (never originate a blocking shutdown; never tear down per pass) still hold.
 
 ## Handling Status
 

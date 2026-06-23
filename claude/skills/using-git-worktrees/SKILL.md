@@ -183,3 +183,4 @@ Ready to implement <feature-name>
 
 **Pairs with:**
 - `/finish-branch` — REQUIRED for cleanup after work complete
+- `/session-teardown` — runs after `/finish-branch` to release the agent-teams team at session end
