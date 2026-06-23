@@ -60,7 +60,7 @@ Before launching the agent, collect from the current conversation:
 
 ### Step 2: Launch Agent
 
-Use the Agent tool to launch the `implementation-verifier` agent with the gathered context. Include in the prompt:
+Use the Agent tool to launch the `implementation-verifier` agent with the gathered context. **Run it in the foreground — do NOT set `run_in_background: true`** — so the agent's verification report returns inline as the tool result (Step 3 reads it directly). Include in the prompt:
 - The plan or Design Doc content (or note that none exists)
 - The scope of changes (changed files, relevant modules)
 - The project root path

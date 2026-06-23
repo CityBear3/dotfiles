@@ -74,7 +74,7 @@ context_bundle:
 
 ### Step 2: Dispatch All 7 Reviewer Agents Simultaneously
 
-**Dispatch all 7 agents in a single batch via parallel Agent tool calls in ONE message.** **Do NOT pass a `name` parameter to these Agent calls.** A named spawn becomes a persistent *teammate* (its own tmux pane, mailbox, and agent-teams lifecycle); a name-less spawn is a one-shot *subagent* that returns its findings directly as the tool result. Review is fan-out → aggregate, so the reviewers must be name-less subagents — passing `name` triggers the agent-teams pane / zombie / shutdown problems. Do NOT launch verification agents first, wait for them, then launch adversarial agents. Both layers run **concurrently**. The "Verification" / "Adversarial" labels below are categorical (model tier, output schema, depth of reasoning), **not** execution phases.
+**Dispatch all 7 agents in a single batch via parallel Agent tool calls in ONE message.** **Do NOT pass a `name` parameter to these Agent calls.** A named spawn becomes a persistent *teammate* (its own tmux pane, mailbox, and agent-teams lifecycle); a name-less spawn is a one-shot *subagent* that returns its findings directly as the tool result. Review is fan-out → aggregate, so the reviewers must be name-less subagents — passing `name` triggers the agent-teams pane / zombie / shutdown problems. **Run them in the foreground — do NOT set `run_in_background: true`** — so each reviewer's findings return inline as the tool result; backgrounding switches retrieval to async notifications and complicates the Step 2.5 / Step 3 aggregation. Do NOT launch verification agents first, wait for them, then launch adversarial agents. Both layers run **concurrently**. The "Verification" / "Adversarial" labels below are categorical (model tier, output schema, depth of reasoning), **not** execution phases.
 
 | # | Agent | Layer | Model | Extended Thinking | Purpose |
 |---|---|---|---|---|---|
@@ -272,6 +272,7 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Skipping language hint loading because the file is missing | Each context source is read fail-safe. Empty fields are normal; record them in the Context section. |
 | Dispatching verification agents (1–3) first, waiting for completion, then dispatching adversarial agents (4–7) | All 7 agents launch in a single batch via parallel Agent tool calls in ONE message. The Verification / Adversarial labels are categorical, not phasal. Two-wave dispatch defeats the wall-clock benefit and is forbidden. |
 | Passing a `name` to a reviewer Agent call | Dispatch name-less. A named spawn becomes a teammate (tmux pane + agent-teams lifecycle bugs); reviewers must be one-shot subagents that return findings directly. |
+| Setting `run_in_background: true` on a reviewer Agent call | Run foreground. Findings must return inline as the tool result for Step 2.5 / Step 3 aggregation. |
 
 ## Important Rules
 
