@@ -118,3 +118,11 @@ git branch -D <feature-branch>
 - Get typed confirmation for discard (Option 4)
 - For Option 1, delegate to `create-pr` skill — do not duplicate its logic
 - For Option 2, verify tests pass on the merged result before deleting the feature branch
+
+## Transition
+
+After the chosen option (1–4) completes — including after `create-pr` returns for Option 1 — hand off to wrap up the session:
+
+→ Transition to `/session-teardown` to best-effort shut down the agent-teams team and prompt the engineer to end the session.
+
+This runs after the option's git cleanup; it does not add a 5th menu option.

@@ -182,7 +182,7 @@ The engineer is **NOT prompted** for triage decisions, for choosing what to fix,
 The engineer is surfaced only when:
 
 - An item is **escalated** (above), OR
-- All items are resolved (any combination of push back / fix / no items at all) and the report has no remaining Must Fix / Should Improve. In this case, present the final clean report with the triage summary and **transition to `/finish-branch`** — this is a phase transition and DOES require engineer confirmation per CLAUDE.md Role and Autonomy.
+- All items are resolved (any combination of push back / fix / no items at all) and the report has no remaining Must Fix / Should Improve. In this case, present the final clean report with the triage summary and **transition to `/finish-branch`** — this is a phase transition and DOES require engineer confirmation per CLAUDE.md Role and Autonomy. (`/finish-branch` is in turn followed by the terminal `/session-teardown` wrap-up.)
 
 **Triage summary format** (appended to the report when surfacing to the engineer):
 

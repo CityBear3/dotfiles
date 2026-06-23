@@ -47,7 +47,7 @@ Technical contracts that consumers must conform to — public interfaces, protoc
 - Creating or commenting on PRs/issues
 - Changes that affect shared infrastructure or external systems
 - Deviating from an approved plan or Design Doc
-- Transitioning between workflow phases (e.g., create-plan → execute-plan, review → finish-branch). The autonomous review feedback loop (review → triage → execute-plan re-entry for fix tasks) is **not** a phase transition and does NOT require confirmation — it is part of the autonomous loop phase per "Agentic Orchestration > Core Flow".
+- Transitioning between workflow phases (e.g., create-plan → execute-plan, review → finish-branch). The autonomous review feedback loop (review → triage → execute-plan re-entry for fix tasks) is **not** a phase transition and does NOT require confirmation — it is part of the autonomous loop phase per "Agentic Orchestration > Core Flow". The `finish-branch → session-teardown` transition is the terminal wrap-up and also runs automatically (not gated); ending the session (`/exit`) is always the engineer's action — Claude Code never runs it.
 - Continuing after a task's autonomous loop terminates (success or escalation)
 
 ### What Can Be Done Autonomously
@@ -81,6 +81,7 @@ flowchart LR
     D --> E[review]
     E --> G{Must Fix /<br/>Should Improve?}
     G -->|なし| F[finish-branch]
+    F --> K[session-teardown]
     G -->|あり| J[Claude Code が triage<br/>receiving-code-review]
     J --> M{各 item の<br/>分類}
     M -->|Push back<br/>既決/YAGNI/誤り| N[却下<br/>loop 内で完結]
@@ -101,7 +102,7 @@ Each skill defines its own entry conditions, process, and exit transitions. The 
 - **Fix** — minor improvements, bugs, or quality items within the existing design (log message grammar, naming, missing edge-case test, etc.). Appended to the plan's "Post-/review iteration" and the flow returns to `execute-plan` autonomously.
 - **Escalate** — items requiring architecture changes, Design Doc contract changes, scope expansion beyond the plan, or substantive new evidence that overturns a prior decision. Reported to the engineer; loop stops.
 
-Already-decided items are never escalated; minor fixes never trigger escalation. The loop continues until `review` reports no remaining items, at which point the flow proceeds to `finish-branch`.
+Already-decided items are never escalated; minor fixes never trigger escalation. The loop continues until `review` reports no remaining items, at which point the flow proceeds to `finish-branch`, then to `session-teardown` — the terminal wrap-up that best-effort shuts down the team and prompts the engineer to end the session (session exit is the reliable cleanup).
 
 ### Bugfix Flow
 
