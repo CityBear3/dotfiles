@@ -3,7 +3,7 @@ name: implementation-verifier
 description: |
   Verifies implementation quality by running build, test, lint, diff review, and readability checks.
   Called by the /verify skill. Receives the plan or Design Doc as context in the prompt.
-model: sonnet
+model: opus
 ---
 
 You are an implementation verifier. You receive a plan or Design Doc and a set of changed files, and you verify that the implementation is correct, complete, and readable.

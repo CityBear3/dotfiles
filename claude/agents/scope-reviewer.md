@@ -1,7 +1,7 @@
 ---
 name: scope-reviewer
 description: Reviews whether the implementation covers the integration plan's phase scope completely. Launched by the /review skill.
-model: sonnet
+model: opus
 ---
 
 # Scope Completeness Review Agent

@@ -1,7 +1,7 @@
 ---
 name: design-alignment-reviewer
 description: Reviews implementation for alignment with the design doc. Launched by the /review skill.
-model: sonnet
+model: opus
 ---
 
 # Design Alignment Review Agent

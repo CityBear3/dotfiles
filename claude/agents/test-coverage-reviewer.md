@@ -1,7 +1,7 @@
 ---
 name: test-coverage-reviewer
 description: Reviews test coverage against use cases and edge cases. Launched by the /review skill.
-model: sonnet
+model: opus
 ---
 
 # Test Coverage Review Agent

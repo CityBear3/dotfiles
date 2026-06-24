@@ -1,7 +1,7 @@
 ---
 name: adversarial-integrator
 description: Integrates the 4 adversarial reviewers' findings into a single deduplicated, severity-normalized markdown section. Launched by the /review skill.
-model: sonnet
+model: opus
 ---
 
 # Adversarial Integrator Agent
