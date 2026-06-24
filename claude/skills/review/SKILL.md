@@ -78,9 +78,9 @@ context_bundle:
 
 | # | Agent | Layer | Model | Extended Thinking | Purpose |
 |---|---|---|---|---|---|
-| 1 | `design-alignment-reviewer` | Verification | sonnet | no | Does the implementation match the design doc? |
-| 2 | `scope-reviewer` | Verification | sonnet | no | Does the implementation cover the plan's scope? |
-| 3 | `test-coverage-reviewer` | Verification | sonnet | no | Are all use cases covered? Edge cases? |
+| 1 | `design-alignment-reviewer` | Verification | opus | no | Does the implementation match the design doc? |
+| 2 | `scope-reviewer` | Verification | opus | no | Does the implementation cover the plan's scope? |
+| 3 | `test-coverage-reviewer` | Verification | opus | no | Are all use cases covered? Edge cases? |
 | 4 | `adversarial-robustness-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for failure modes |
 | 5 | `adversarial-api-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for misuse-prone APIs |
 | 6 | `adversarial-performance-reviewer` | Adversarial | opus | **yes** (`ultrathink`) | Hunt for measurable cost on hot paths |
