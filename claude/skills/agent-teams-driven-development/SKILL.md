@@ -37,6 +37,8 @@ Invoked by `/execute-plan`. Not invoked directly by the engineer.
 
 **No explicit team creation (v2.1.178+).** Teammates implicitly form a team on the first `Agent()` spawn — there is no `TeamCreate` step, and `Agent()` no longer takes a `team_name`. Cleanup is automatic on session exit; `TeamDelete` no longer exists. The lead still coordinates via TaskList (work tracking) and SendMessage (review coordination).
 
+**`SendMessage` requires a `summary` for text messages.** Every `SendMessage` whose `message` is a string MUST also pass a `summary` (a 5–10 word preview shown in the UI). The tool rejects a string message with no summary (error: `summary is required when message is a string`), which surfaces as a failed send / `My acknowledgment failed`. This applies to the lead AND every teammate (the teammate onboarding prompts repeat the rule). All examples below include it.
+
 ### Step 1: Verify Prerequisites
 
 - Plan file exists and approved
@@ -89,7 +91,7 @@ For each task in TaskList order:
 
 ```
 TaskUpdate({ taskId, owner: "implementer", status: "in_progress" })
-SendMessage({ to: "implementer", message: <full task text + context> })
+SendMessage({ to: "implementer", summary: "assign Task <N> to implementer", message: <full task text + context> })
 ```
 
 ### 2. Handle Questions
@@ -105,8 +107,8 @@ Implementer reports one of four statuses (see Handling Status below).
 Spec compliance and code quality are independent review aspects — send both reviewers in parallel:
 
 ```
-SendMessage({ to: "spec-reviewer", message: "Review task <N>. Diff: <BASE_SHA>..<HEAD_SHA>. Spec: <task text>" })
-SendMessage({ to: "code-quality-reviewer", message: "Review task <N>. Diff: <BASE_SHA>..<HEAD_SHA>" })
+SendMessage({ to: "spec-reviewer", summary: "review task <N> spec compliance", message: "Review task <N>. Diff: <BASE_SHA>..<HEAD_SHA>. Spec: <task text>" })
+SendMessage({ to: "code-quality-reviewer", summary: "review task <N> code quality", message: "Review task <N>. Diff: <BASE_SHA>..<HEAD_SHA>" })
 ```
 
 Wait for both responses, then aggregate issues from both reviewers.
