@@ -77,7 +77,7 @@ If deviations from the plan or readability suggestions are found, ask the engine
 
 After verification passes:
 
-→ Transition to `/review` **autonomously** — this is part of the autonomous loop phase per CLAUDE.md (`execute-plan → verify → review`). Do NOT pause to ask the engineer for approval before entering `/review`. Engineer involvement happens at `/finish-branch` (phase transition) or on escalation, not here.
+→ Transition to `/review` **autonomously** — this is part of the autonomous loop phase per CLAUDE.md (`execute-plan → verify → review`). Do NOT pause to ask the engineer for approval before entering `/review`. Engineer involvement happens at `/finish-branch`'s options menu or on escalation, not here.
 
 If verification fails:
 

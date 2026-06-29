@@ -47,8 +47,8 @@ Technical contracts that consumers must conform to — public interfaces, protoc
 - Creating or commenting on PRs/issues
 - Changes that affect shared infrastructure or external systems
 - Deviating from an approved plan or Design Doc
-- Transitioning between workflow phases (e.g., create-plan → execute-plan, review → finish-branch). The autonomous review feedback loop (review → triage → execute-plan re-entry for fix tasks) is **not** a phase transition and does NOT require confirmation — it is part of the autonomous loop phase per "Agentic Orchestration > Core Flow". The `finish-branch → session-teardown` transition is the terminal wrap-up and also runs automatically (not gated); ending the session (`/exit`) is always the engineer's action — Claude Code never runs it.
-- Continuing after a task's autonomous loop terminates (success or escalation)
+- Transitioning between workflow phases (e.g., `create-plan → execute-plan`). The following transitions are **exceptions that run automatically (not gated)**: the autonomous review feedback loop (review → triage → execute-plan re-entry for fix tasks); the `review → finish-branch` transition on a clean review (no Must Fix / Should Improve) — the engineer's control point moves to `/finish-branch`'s own options menu (PR / merge / keep / discard), which always stops for the engineer's choice; and the terminal `finish-branch → session-teardown` wrap-up. Ending the session (`/exit`) is always the engineer's action — Claude Code never runs it.
+- Continuing after a task's autonomous loop **escalates** (a 2-failure stop, a plan deviation, or a triage item that needs a design change). A clean/success exit is **not** gated — it proceeds to `/finish-branch` automatically per the transition exception above.
 
 ### What Can Be Done Autonomously
 
@@ -66,6 +66,14 @@ Stop and escalate to the engineer when:
 - The plan or Design Doc would need to change to proceed
 
 When escalating, present what was tried, what failed, and recommend the engineer take over implementation if appropriate.
+
+## Reporting Completion — Evidence Before Claims
+
+When you tell the engineer something is done, working, passing, or fixed, that statement must rest on a tool result you actually observed in this session. If you have not observed such evidence, say so and label the statement as 推測 (speculation) — never present an assumption as fact.
+
+This is a **reporting-honesty** rule, not a mandate to run more checks. It does NOT ask you to re-verify what others already verified or to duplicate `/verify`. In delegation contexts (agent-teams), the lead's evidence is the teammates' reported tool results (status messages, review approvals); the lead reports completion from those observed messages and does not re-run the work itself.
+
+The formal instance of this rule is `/verify`'s Iron Law (no completion claims without fresh verification evidence), which governs post-implementation verification specifically.
 
 ## Agentic Orchestration
 
@@ -95,7 +103,7 @@ Each skill defines its own entry conditions, process, and exit transitions. The 
 
 **Engineer's hands-on phase**: `design-discussion` (brainstorming + prototyping). The engineer writes code here as part of design exploration.
 
-**Autonomous loop phase**: `execute-plan → verify → review` runs autonomously, including the review feedback loop (triage → append fix tasks → back to `execute-plan`). Within `execute-plan`, agent-teams iterate per-task implementation and review. The engineer intervenes only when the loop exits — on successful completion (no Must Fix / Should Improve), on a 2-failure escalation, on a plan deviation, or when triage surfaces an item that requires a design change.
+**Autonomous loop phase**: `execute-plan → verify → review` runs autonomously, including the review feedback loop (triage → append fix tasks → back to `execute-plan`). Within `execute-plan`, agent-teams iterate per-task implementation and review. On a clean review (no Must Fix / Should Improve), the flow transitions to `/finish-branch` automatically — this transition is **not** gated. The engineer's control point on a clean exit is `/finish-branch`'s own options menu (PR / merge / keep / discard), which always stops for the engineer's choice. The engineer intervenes earlier only on a 2-failure escalation, on a plan deviation, or when triage surfaces an item that requires a design change.
 
 **Review feedback loop**: When `review` surfaces Must Fix or Should Improve items, Claude Code applies `receiving-code-review` discipline to triage each item into one of three outcomes:
 - **Push back** — the item is already decided (Design Doc, Design Discussion record, plan's "Alternative Solutions", plan's "Out of scope"), violates YAGNI, is technically incorrect, or reviewer lacks context. Rejected within the loop; cite the decision source.
@@ -133,7 +141,7 @@ These skills are invoked within other skills as needed, not as part of the core 
 - Do not launch agents or invoke skills speculatively. Only when the engineer requests it or when a skill's transition explicitly calls for it.
 - When multiple skills or agents could be useful, present the options and let the engineer decide.
 - Each agent operates in isolation. Pass necessary context explicitly — agents cannot read the current conversation.
-- Do not skip skills in the core flow without the engineer's explicit approval.
+- Do not skip core-flow phases or take shortcuts. At each phase boundary, **actually invoke the corresponding skill via the Skill tool** (`/design-discussion`, `/create-plan`, `/execute-plan`, `/verify`, `/review`, `/finish-branch`, `/session-teardown`) — do not perform a phase's work inline while pretending to be in it, and do not collapse multiple phases into one. The only exception is an explicit engineer instruction to skip a specific phase.
 
 ### Available Agents
 
