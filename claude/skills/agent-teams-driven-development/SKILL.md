@@ -113,7 +113,7 @@ SendMessage({ to: "code-quality-reviewer", summary: "review task <N> code qualit
 
 Wait for both responses, then aggregate issues from both reviewers.
 
-If issues from either: send **a single combined fix request** to implementer that covers all issues from both reviewers → re-trigger both reviewers in parallel against the fixed diff. Loop until both approve.
+If issues from either: send **a single combined fix request** to implementer that covers all issues from both reviewers. **Then WAIT for the implementer's status response** (DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT) confirming the fix is committed. Until that response arrives, do NOT edit, commit, or run any git operation in the lead session, and do NOT re-trigger the reviewers — the lead never starts fixing on its own. Only after the implementer reports the fix complete, re-trigger both reviewers in parallel against the fixed diff. Loop until both approve.
 
 ### 5. Mark Task Complete
 
@@ -174,7 +174,8 @@ Present what was tried, what failed, teammate's analysis, recommended next step.
 | Skip spec OR code quality review | Both required for every task. |
 | Move to next task while either review has open issues | Loop until both approve. |
 | Self-review replaces actual review | Both needed — different scopes. |
-| Fix implementer issues manually in lead session | Send to implementer (avoids context pollution). |
+| Fix implementer issues — or make any edit / commit / git operation — in the lead session | All implementation, commit, and git work belongs to the implementer. Send the fix request; the lead never edits or commits (avoids context pollution and keeps one owner of the working tree). |
+| Re-trigger reviewers, mark a task complete, or move on before the implementer's fix response arrives | After a fix request, WAIT for the implementer's status response confirming the fix is committed. Do not re-review or proceed on assumption. |
 | Dispatch multiple implementers in parallel for same files | Sequential per file. |
 | Ignore implementer questions | Answer fully before they proceed. |
 | Accept "close enough" on spec compliance | Reviewer found issues = not done. |

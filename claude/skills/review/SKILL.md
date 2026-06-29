@@ -182,7 +182,7 @@ The engineer is **NOT prompted** for triage decisions, for choosing what to fix,
 The engineer is surfaced only when:
 
 - An item is **escalated** (above), OR
-- All items are resolved (any combination of push back / fix / no items at all) and the report has no remaining Must Fix / Should Improve. In this case, present the final clean report with the triage summary and **transition to `/finish-branch`** — this is a phase transition and DOES require engineer confirmation per CLAUDE.md Role and Autonomy. (`/finish-branch` is in turn followed by the terminal `/session-teardown` wrap-up.)
+- All items are resolved (any combination of push back / fix / no items at all) and the report has no remaining Must Fix / Should Improve. In this case, present the final clean report with the triage summary and **transition to `/finish-branch` automatically** — on a clean review this transition is **NOT** gated (per CLAUDE.md Role and Autonomy). Do NOT pause to ask the engineer for approval to proceed; the engineer's control point is `/finish-branch`'s own options menu (PR / merge / keep / discard), which always stops for the engineer's choice. (`/finish-branch` is in turn followed by the terminal `/session-teardown` wrap-up.)
 
 **Triage summary format** (appended to the report when surfacing to the engineer):
 
@@ -266,7 +266,8 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Proceeding to finish-branch with unaddressed Must Fix items | Must Fix items are blocking. Address them first. |
 | Review without design doc context | If a design doc exists, include it. Otherwise note the gap in the Context section. |
 | Asking the engineer how to handle each review item | Triage autonomously (push back / fix / escalate) per `/receiving-code-review`. Engineer involvement is restricted to escalations and the final `/finish-branch` transition. |
-| Treating "review → execute-plan" as a phase transition requiring confirmation | The review feedback loop is part of the autonomous loop phase per CLAUDE.md. Phase transition only applies to "review → finish-branch" (loop exit on clean review). |
+| Treating "review → execute-plan" or "review → finish-branch" as a transition requiring confirmation | Both run autonomously per CLAUDE.md. The review feedback loop and the clean-review `review → finish-branch` transition are NOT gated — neither requires engineer confirmation. The engineer's control point is `/finish-branch`'s own options menu. |
+| Pausing to ask the engineer before transitioning `review → finish-branch` on a clean review | The transition is automatic (not gated). Invoke `/finish-branch` directly; it stops at its own options menu for the engineer's choice. |
 | Re-prompting "shall I proceed with fixes?" after producing the report | The plan already authorized autonomous execution. Append fix tasks and re-invoke `/execute-plan` directly. |
 | Adversarial persona inventing speculative findings to "find something" | Null-finding is acceptable. Return `findings: []` with `considered:` when no genuine concern with concrete reproduction can be constructed. |
 | Skipping language hint loading because the file is missing | Each context source is read fail-safe. Empty fields are normal; record them in the Context section. |
@@ -276,7 +277,7 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 
 ## Important Rules
 
-- The engineer's judgment overrides review findings during escalation or at the final transition to `/finish-branch`. Per-item triage (push back / fix / escalate) is Claude Code's responsibility, executed autonomously per `/receiving-code-review` without prompting the engineer.
+- The engineer's judgment overrides review findings during escalation or at `/finish-branch`'s options menu. The `review → finish-branch` transition on a clean review is automatic (not gated); per-item triage (push back / fix / escalate) is Claude Code's responsibility, executed autonomously per `/receiving-code-review` without prompting the engineer.
 - Human review gate: Claude Code's review does not replace the engineer's review. Both are required before merging.
 - Adding support for a new language is done by dropping a new `hints/<lang>.md` file in this skill's `hints/` directory. The skill auto-loads any file matching `<detected_language>.md` — no code change required.
 
