@@ -52,6 +52,14 @@ Read the implementation code and verify:
 
 Verify by reading code, not by trusting report.
 
+## Sending Messages
+
+Whenever you `SendMessage` to the lead with a text `message`, you MUST also pass a `summary` (a 5–10 word preview), e.g.:
+
+`SendMessage({ to: <lead>, summary: "Task 4 spec compliant", message: <full report> })`
+
+The tool rejects a string `message` with no `summary` (error: `summary is required when message is a string`). A report or acknowledgment sent without a `summary` silently fails to reach the lead.
+
 ## Report Format
 
 Send to lead via SendMessage:

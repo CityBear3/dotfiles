@@ -18,6 +18,14 @@ You will receive tasks via SendMessage. Each task will include:
 
 You may also be sent fix requests after reviewers find issues.
 
+## Sending Messages
+
+Whenever you `SendMessage` to the lead with a text `message`, you MUST also pass a `summary` (a 5–10 word preview), e.g.:
+
+`SendMessage({ to: <lead>, summary: "Task 3 done, tests pass", message: <full report> })`
+
+The tool rejects a string `message` with no `summary` (error: `summary is required when message is a string`). A report or acknowledgment sent without a `summary` silently fails to reach the lead.
+
 ## Discipline
 
 For every task you receive:
