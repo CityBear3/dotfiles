@@ -53,26 +53,22 @@ For each plan task: `TaskCreate({ subject: "Task N: <component>", description: "
 
 **Reuse before spawning.** If you already spawned the team earlier in this session (e.g. the review feedback loop re-entered `/execute-plan`) and have not shut it down, the implementer and reviewers are still alive — skip this step and reuse them. Spawn only members that are not already present. Re-spawning a name that is still alive splits it into `implementer-2` and orphans messages sent to the original.
 
-**Model rule: omit the `model` parameter** — teammates inherit the lead's session model. This tracks the most capable model the engineer is currently running without hardcoding a model name in this skill. Omission resolves to the session model via two distinct mechanisms (verified 2026-06-10):
+**Model rule: pass `model: "opus"` explicitly on all three spawns.** Opus is both the floor and the ceiling — teammates never inherit the lead's session model. Rationale:
 
-- `code-reviewer` (both reviewers): the agent definition has `model: inherit`.
-- `general-purpose` (implementer): teammates do NOT inherit the lead's model by default — inheritance requires `/config` → "Default teammate model" = "Default (leader's model)" (`teammateDefaultModel: null` in `~/.claude.json`). This is a device-local setting not synced by install.sh; on a machine without it, the implementer silently resolves to opus, which equals the floor below — a safe failure mode.
+- **Ceiling** (why not inherit upward): the lead may run on a tier above opus (e.g. Fable 5), whose per-token cost is too high for teammate volume. The earlier "omit `model` to track the lead's session model" rule predates those tiers and is retired.
+- **Floor** (why not below opus): reviewers were once on sonnet and were promoted to opus (commit 7464841) because the cost/latency trade-off didn't hold — subtle issues (span overrun / arm ordering / type-inference edges) were missed. Haiku previously caused agent-teams SendMessage to hang: reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request. Teammates must never run on haiku.
 
-**Floor: if the lead session is running below opus tier (sonnet / haiku), specify `model: "opus"` explicitly on all three spawns.** Rationale:
-
-- Reviewers were once on sonnet and were promoted to opus (commit 7464841) because the cost/latency trade-off didn't hold — subtle issues (span overrun / arm ordering / type-inference edges) were missed. Inheriting a sonnet session would silently undo that decision.
-- Haiku previously caused agent-teams SendMessage to hang: reviewer reported "sent" but Leader never received, and the agent stopped responding to shutdown_request. Teammates must never run on haiku.
+Explicit specification also removes dependence on device-local resolution (`teammateDefaultModel` in `~/.claude.json`, not synced by install.sh) and on agent-definition frontmatter — the launch call itself is the single auditable source of the model.
 
 ```
-Agent({ name: "implementer", subagent_type: "general-purpose", prompt: <see ./implementer-prompt.md> })
-Agent({ name: "spec-reviewer", subagent_type: "code-reviewer", prompt: <see ./spec-reviewer-prompt.md> })
-Agent({ name: "code-quality-reviewer", subagent_type: "code-reviewer", prompt: <see ./code-quality-reviewer-prompt.md> })
-// Lead on sonnet/haiku → add model: "opus" to each call
+Agent({ name: "implementer", subagent_type: "general-purpose", model: "opus", prompt: <see ./implementer-prompt.md> })
+Agent({ name: "spec-reviewer", subagent_type: "code-reviewer", model: "opus", prompt: <see ./spec-reviewer-prompt.md> })
+Agent({ name: "code-quality-reviewer", subagent_type: "code-reviewer", model: "opus", prompt: <see ./code-quality-reviewer-prompt.md> })
 ```
 
 ### Step 4: Report Spawned Models
 
-Immediately after the three spawns, display each teammate's resolved model to the engineer — the resolution above depends on device-local settings (`teammateDefaultModel`) and agent definitions, so an unintended configuration must surface before any task runs:
+Immediately after the three spawns, display each teammate's resolved model to the engineer as a sanity check — every spawn passes `model: "opus"` explicitly, so anything else indicates a misconfiguration that must surface before any task runs:
 
 ```
 Team spawned (lead session: <model>):
@@ -81,7 +77,7 @@ Team spawned (lead session: <model>):
 - code-quality-reviewer: <model>
 ```
 
-Take each model from the spawn's tool result. If a result does not state the model, derive it from the Step 3 resolution rules and mark it `(derived)`. If any teammate resolved to haiku or below the opus floor unexpectedly, do not proceed — shut it down and respawn with `model: "opus"` per the floor rule, then report the corrected lineup.
+Take each model from the spawn's tool result. If a result does not state the model, report `opus (specified)`. If any teammate resolved to a model other than opus, do not proceed — shut it down and respawn with `model: "opus"`, then report the corrected lineup.
 
 ## Per-Task Loop
 
@@ -134,7 +130,7 @@ Teammates are **persistent across the autonomous loop** — leave them alive and
 - **No explicit shutdown, no waiting.** Do not originate a `shutdown_request` and wait for the `shutdown_response` — that blocks the lead and the loop never reaches `/verify` (observed failure). The `shutdown_request` protocol is legacy (per the SendMessage tool's own note, "don't originate unless asked"); the lead must not use it as a gate.
 - **Reuse on re-entry.** The review feedback loop may re-enter `/execute-plan` with fix tasks. Reuse the existing implementer + reviewers (Step 3's "Reuse before spawning") — re-spawning a live name risks an `implementer-2` split or an orphaned inbox.
 - **Cleanup is automatic.** The implicit team is reclaimed when the session exits (`TeamDelete` was removed in v2.1.178; there is nothing to delete manually).
-- **If you must free a teammate mid-session** (e.g. the model-floor correction in Step 4), send a plain-text shutdown request fire-and-forget and continue immediately — never block on the reply.
+- **If you must free a teammate mid-session** (e.g. the model correction in Step 4), send a plain-text shutdown request fire-and-forget and continue immediately — never block on the reply.
 - **End-of-session teardown is `/session-teardown`'s job** (invoked from `/finish-branch`): the one sanctioned point for a best-effort, fire-and-forget team shutdown — at session end, when the loop is over. The mid-loop rules above (never originate a blocking shutdown; never tear down per pass) still hold.
 
 ## Handling Status
@@ -146,7 +142,7 @@ Implementer reports one of four statuses:
 - **NEEDS_CONTEXT**: Provide missing context, re-prompt
 - **BLOCKED**: Assess:
   1. Context problem → more context, same model
-  2. Needs more reasoning → spawn replacement with more capable model
+  2. Needs more reasoning → escalate to the engineer (no model upgrade — see Model Selection)
   3. Too large → escalate (break down)
   4. Plan flawed → escalate
 
@@ -154,7 +150,7 @@ Implementer reports one of four statuses:
 
 ## Model Selection
 
-Default is the Step 3 rule: inherit the lead's session model, floored at opus. The only deviation is upward — when handling a BLOCKED escalation that needs more reasoning, spawn a replacement on a more capable model. Never downgrade teammates below opus based on task simplicity; that trade-off was already rejected in practice (commit 7464841).
+Teammates run on opus, fixed — specified explicitly at spawn per the Step 3 rule, with no deviation in either direction. Never downgrade below opus based on task simplicity; that trade-off was already rejected in practice (commit 7464841). Never upgrade above opus either — a BLOCKED escalation that needs more reasoning goes to the engineer instead of a more capable (and more expensive) model.
 
 ## Escalation
 

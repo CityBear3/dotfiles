@@ -60,7 +60,7 @@ Before launching the agent, collect from the current conversation:
 
 ### Step 2: Launch Agent
 
-Use the Agent tool to launch the `implementation-verifier` agent with the gathered context. **Run it in the foreground — do NOT set `run_in_background: true`** — so the agent's verification report returns inline as the tool result (Step 3 reads it directly). Include in the prompt:
+Use the Agent tool to launch the `implementation-verifier` agent with the gathered context. **Pass `model: "opus"` explicitly.** The agent definition's frontmatter already pins opus, but the explicit parameter keeps the cost policy auditable at the call site and guards against frontmatter drift — the verifier must never inherit the lead's session model (e.g. Fable 5, whose per-token cost is too high). **Run it in the foreground — do NOT set `run_in_background: true`** — so the agent's verification report returns inline as the tool result (Step 3 reads it directly). Include in the prompt:
 - The plan or Design Doc content (or note that none exists)
 - The scope of changes (changed files, relevant modules)
 - The project root path
