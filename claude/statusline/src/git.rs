@@ -80,4 +80,10 @@ mod tests {
         fs::write(wt.join(".git"), format!("gitdir: {}\n", real.display())).unwrap();
         assert_eq!(current_branch(&wt).as_deref(), Some("wt-branch"));
     }
+
+    #[test]
+    fn outside_repo_returns_none() {
+        let root = tmp("norepo");
+        assert!(current_branch(&root).is_none());
+    }
 }

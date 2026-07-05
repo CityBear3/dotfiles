@@ -98,6 +98,9 @@ fn survives_empty_stdin() {
     let home = std::env::temp_dir().join(format!("cs-e2e-empty-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&home);
     std::fs::create_dir_all(&home).unwrap();
-    let out = run_binary(&home, "");
-    assert!(!out.trim().is_empty());
+    let out = strip_ansi(&run_binary(&home, ""));
+    let lines: Vec<&str> = out.lines().collect();
+    assert_eq!(lines.len(), 2, "expected degraded 2-line output: {out}");
+    assert!(lines[0].contains("ctx \u{2013}"));
+    assert!(lines[1].contains("S $0.00"));
 }

@@ -301,4 +301,43 @@ mod tests {
         assert_eq!(fmt_usd(45.6), "$45.6");
         assert_eq!(fmt_usd(123.4), "$123");
     }
+
+    #[test]
+    fn threshold_colors_are_applied() {
+        let pricing = PricingTable::embedded();
+        let input = StatusInput::parse(
+            r#"{
+            "context_window": {"remaining_percentage": 25.0},
+            "rate_limits": {"five_hour": {"used_percentage": 95.0, "resets_at": 1751700600}}
+        }"#,
+        )
+        .unwrap();
+        let d = RenderData {
+            input: &input,
+            branch: None,
+            session_models: HashMap::new(),
+            month_models: HashMap::new(),
+            pricing: &pricing,
+        };
+        let raw = render(&d);
+        // ctx free < 30% → ORANGE、5h >= 90% → ORANGE+BOLD(strip しない生出力で検証)
+        assert!(raw.contains("\u{1b}[38;5;208m"));
+        assert!(raw.contains("\u{1b}[38;5;208m\u{1b}[1m"));
+    }
+
+    #[test]
+    fn context_window_with_null_percentage_degrades() {
+        let pricing = PricingTable::embedded();
+        let input =
+            StatusInput::parse(r#"{"context_window":{"remaining_percentage":null}}"#).unwrap();
+        let d = RenderData {
+            input: &input,
+            branch: None,
+            session_models: HashMap::new(),
+            month_models: HashMap::new(),
+            pricing: &pricing,
+        };
+        let out = strip_ansi(&render(&d));
+        assert!(out.lines().next().unwrap().contains("ctx \u{2013}"));
+    }
 }

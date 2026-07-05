@@ -248,4 +248,45 @@ mod tests {
         assert_eq!(sums.cache_5m, 40);
         assert_eq!(sums.cache_1h, 0);
     }
+
+    fn assistant_line_at(ts: &str, msg_id: &str, model: &str, output: u64) -> String {
+        format!(
+            r#"{{"type":"assistant","timestamp":"{ts}","requestId":"req-{msg_id}","message":{{"id":"{msg_id}","model":"{model}","usage":{{"input_tokens":0,"output_tokens":{output},"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}}}}"#
+        )
+    }
+
+    #[test]
+    fn separates_months_into_buckets() {
+        // 月中央の時刻はどのローカル TZ でも月が変わらない
+        let chunk = format!(
+            "{}\n{}\n",
+            assistant_line_at("2026-06-15T12:00:00+09:00", "m1", "claude-opus-4-8", 10),
+            assistant_line_at("2026-07-15T12:00:00+09:00", "m2", "claude-opus-4-8", 20),
+        );
+        let d = parse_chunk(chunk.as_bytes(), &HashSet::new());
+        assert_eq!(d.by_month_model.len(), 2);
+        let june: u64 = d
+            .by_month_model
+            .iter()
+            .filter(|(k, _)| k.ends_with("-06"))
+            .flat_map(|(_, m)| m.values())
+            .map(|s| s.output)
+            .sum();
+        assert_eq!(june, 10);
+    }
+
+    #[test]
+    fn unparseable_timestamp_falls_into_unknown_bucket() {
+        let line = r#"{"type":"assistant","timestamp":"garbage","requestId":"r1","message":{"id":"m1","model":"claude-opus-4-8","usage":{"input_tokens":0,"output_tokens":5,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}"#;
+        let d = parse_chunk(format!("{line}\n").as_bytes(), &HashSet::new());
+        assert_eq!(
+            d.by_month_model
+                .get("unknown")
+                .unwrap()
+                .get("claude-opus-4-8")
+                .unwrap()
+                .output,
+            5
+        );
+    }
 }

@@ -51,6 +51,7 @@ cd claude/statusline && cargo fmt && cargo test --quiet && cargo clippy --all-ta
   5h 41% ↻21:00  wk 23% ↻Mon 09:00  S $1.23 (fable-5 $0.90 | haiku-4-5 $0.33)  M $45.6
   ```
   データ欠落時: ctx → `ctx –`、rate_limits 無し → セグメント自体を省略、単価不明モデル → `名前 ?`(月次には `+?` マーカー)。
+  注記: S の総額は stdin の `cost.total_cost_usd`(Claude Code の権威値)、括弧内のモデル別内訳は transcript からの自前計算のため、算出方式の違いにより両者は必ずしも一致しない(総額は権威値を優先する設計)。
 
 ---
 
@@ -2006,9 +2007,319 @@ Expected: 28 tests all pass; clippy/fmt clean; release build 成功; スモー�
 
 ## Post-/review iteration
 
-Reserved for fix tasks appended by Claude Code after `/review` produces actionable items. Empty until `/review` runs.
+/review(2026-07-05)の Should Improve 9 件(統合後 8 件)を triage した結果の Fix タスク。Must Fix 0 件、Escalate 0 件。Push back: stdin all-or-nothing パース(将来の上流型変更依存の推測)、並行起動テスト・prune テスト・fmt_usd 境界値(YAGNI)。
 
-(See CLAUDE.md "Core Flow" for the autonomous review feedback loop.)
+### Task 9: pricing TOML をエントリ単位の縮退に修正(契約と実装の一致)
+
+**Why:** 配布 statusline.toml の契約コメント「欠けると**そのエントリは**無視される」に対し、実装は 1 エントリのフィールド欠損で `toml::from_str` 全体が Err になりファイル丸ごと破棄する。正しく書けた上書きまで無警告で失効し、コスト表示ツールとして「静かに間違った金額を出す」故障モードになる(/review API Important、Tests レビュアーも独立指摘)。
+
+**Behavior change:** yes(部分的に壊れた TOML の挙動がファイル単位無視 → エントリ単位無視に変わる)
+**Discipline:** TDD
+
+**Files:**
+- Modify: `claude/statusline/src/pricing.rs`
+
+### Steps
+
+- [ ] **Step 1: 失敗するテストを追加する(red)**
+
+`pricing.rs` の `mod tests` に追加:
+```rust
+    #[test]
+    fn partial_entry_is_ignored_but_complete_entries_apply() {
+        let path =
+            std::env::temp_dir().join(format!("cs-partial-{}.toml", std::process::id()));
+        std::fs::write(
+            &path,
+            r#"
+[pricing."claude-opus-4-8"]
+input = 1.0
+output = 2.0
+cache_write_5m = 1.25
+cache_write_1h = 2.0
+cache_read = 0.1
+
+[pricing."claude-haiku-4-5"]
+input = 9.0
+output = 9.0
+cache_write_5m = 9.0
+cache_write_1h = 9.0
+"#,
+        )
+        .unwrap();
+        let mut t = PricingTable::embedded();
+        t.load_overrides(&path);
+        // 完備エントリは適用される
+        assert_eq!(t.lookup("claude-opus-4-8").unwrap().input, 1.0);
+        // cache_read 欠損エントリはそのエントリのみ無視(埋め込み価格のまま)
+        assert_eq!(t.lookup("claude-haiku-4-5").unwrap().input, 1.0);
+        let _ = std::fs::remove_file(&path);
+    }
+```
+
+Run: `cd claude/statusline && cargo test partial_entry`
+Expected: FAIL(現実装は opus 側も 5.0 のまま = ファイル全破棄)。
+
+- [ ] **Step 2: load_overrides をエントリ単位パースに変更する(green)**
+
+`pricing.rs` の `OverrideFile` struct と `use std::collections::HashMap;` を削除し、`load_overrides` を置き換える:
+```rust
+    /// TOML(全 5 フィールド必須)で追加・上書き。フィールド欠損・型違いの
+    /// エントリはそのエントリのみ無視する(statusline.toml 記載の契約)。
+    /// ファイル自体が読めない・TOML 構文が壊れている場合は全体を無視する。
+    pub fn load_overrides(&mut self, path: &Path) {
+        let Ok(text) = std::fs::read_to_string(path) else {
+            return;
+        };
+        let Ok(table) = text.parse::<toml::Table>() else {
+            return;
+        };
+        let Some(pricing) = table.get("pricing").and_then(|v| v.as_table()) else {
+            return;
+        };
+        for (id, entry) in pricing {
+            let Ok(price) = entry.clone().try_into::<ModelPrice>() else {
+                continue;
+            };
+            if let Some(e) = self.entries.iter_mut().find(|(k, _)| k == id) {
+                e.1 = price;
+            } else {
+                self.entries.push((id.clone(), price));
+            }
+        }
+    }
+```
+
+既存テスト(`overrides_replace_and_extend` / `missing_or_broken_override_is_ignored`)はそのまま green を維持すること。
+
+- [ ] **Step 3: Verify** — `cd claude/statusline && cargo fmt && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check`(累計 29 テスト)
+
+- [ ] **Step 4: Commit**
+```sh
+git add claude/statusline
+git commit -m "$(cat <<'EOF'
+Make pricing TOML overrides degrade per entry
+
+フィールド欠損・型違いのエントリはそのエントリのみ無視し、正しく
+書けた他の上書きは適用する。従来は 1 エントリの欠損でファイル全体が
+黙って破棄され、statusline.toml に記載した契約(そのエントリは無視)と
+実挙動が矛盾していた。
+EOF
+)"
+```
+
+### Task 10: テスト強化パック + 設計注記(/review テストギャップ対応)
+
+**Why:** 実装に専用分岐があるのにテスト 0 本の経路(seen 永続化・truncate・月跨ぎ・git 外・閾値色・ctx null・空 stdin 結線)を固定する。いずれも「壊れると stale/水増し/縮退ミス」で 28 テストが検出できない passthrough が /review で具体的に構成された。あわせて S 総額(stdin 権威値)と内訳(自前計算)の出典差異をプランに 1 行注記する。
+
+**Behavior change:** no(テスト追加とドキュメント注記のみ。既存挙動の pin)
+**Discipline:** 既存実装が green-bar。追加テストはすべて現挙動を固定するリグレッションガード。
+
+**Files:**
+- Modify: `claude/statusline/src/cache.rs`(tests のみ)
+- Modify: `claude/statusline/src/transcript.rs`(tests のみ)
+- Modify: `claude/statusline/src/git.rs`(tests のみ)
+- Modify: `claude/statusline/src/render.rs`(tests のみ)
+- Modify: `claude/statusline/tests/integration.rs`
+- Modify: `claude/docs/plans/2026-07-05-claude-statusline.md`(注記 1 行)
+
+### Steps
+
+- [ ] **Step 1: cache.rs — seen 往復と truncate のテストを追加**
+
+`save_load_roundtrip_and_version_check` の `assert_eq!(c2.files.get("/x.jsonl").unwrap().offset, 42);` の直後に追加:
+```rust
+        assert_eq!(c2.files.get("/x.jsonl").unwrap().seen, vec![1, 2]);
+```
+
+`mod tests` に 2 テスト追加:
+```rust
+    #[test]
+    fn dedup_survives_serialize_roundtrip() {
+        let home = tmp("rt-dedup");
+        let proj = home.join("projects/p1");
+        fs::create_dir_all(&proj).unwrap();
+        let file = proj.join("sess.jsonl");
+        let line = assistant_line("m1", "claude-opus-4-8", 100);
+        fs::write(&file, format!("{line}\n")).unwrap();
+
+        let cache_path = home.join("cache.json");
+        let mut cache = load(&cache_path);
+        update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
+        save(&cache_path, &cache);
+
+        // 別プロセス相当: ディスクから読み直した cache で、同じ message.id の行を追記後に update
+        let mut cache2 = load(&cache_path);
+        let mut content = fs::read_to_string(&file).unwrap();
+        content.push_str(&format!("{line}\n"));
+        fs::write(&file, content).unwrap();
+        update(&mut cache2, &home.join("projects"), None, UNIX_EPOCH);
+        let sums = month_model_sums(&cache2, &current_month());
+        assert_eq!(sums.get("claude-opus-4-8").unwrap().output, 100);
+    }
+
+    #[test]
+    fn truncated_file_is_rescanned_from_scratch() {
+        let home = tmp("truncate");
+        let proj = home.join("projects/p1");
+        fs::create_dir_all(&proj).unwrap();
+        let file = proj.join("sess.jsonl");
+        let long = format!(
+            "{}\n{}\n",
+            assistant_line("m1", "claude-opus-4-8", 100),
+            assistant_line("m2", "claude-opus-4-8", 50)
+        );
+        fs::write(&file, &long).unwrap();
+        let mut cache = load(&home.join("cache.json"));
+        update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
+        assert_eq!(
+            month_model_sums(&cache, &current_month())
+                .get("claude-opus-4-8")
+                .unwrap()
+                .output,
+            150
+        );
+
+        // より短い別内容で差し替え → 全再走査され新内容のみ反映される
+        let short = format!("{}\n", assistant_line("m3", "claude-haiku-4-5", 7));
+        fs::write(&file, &short).unwrap();
+        update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
+        let sums = month_model_sums(&cache, &current_month());
+        assert_eq!(sums.get("claude-haiku-4-5").unwrap().output, 7);
+        assert!(sums.get("claude-opus-4-8").is_none());
+    }
+```
+
+- [ ] **Step 2: transcript.rs — 月跨ぎバケットと timestamp 不正のテストを追加**
+
+`mod tests` に helper と 2 テスト追加:
+```rust
+    fn assistant_line_at(ts: &str, msg_id: &str, model: &str, output: u64) -> String {
+        format!(
+            r#"{{"type":"assistant","timestamp":"{ts}","requestId":"req-{msg_id}","message":{{"id":"{msg_id}","model":"{model}","usage":{{"input_tokens":0,"output_tokens":{output},"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}}}}"#
+        )
+    }
+
+    #[test]
+    fn separates_months_into_buckets() {
+        // 月中央の時刻はどのローカル TZ でも月が変わらない
+        let chunk = format!(
+            "{}\n{}\n",
+            assistant_line_at("2026-06-15T12:00:00+09:00", "m1", "claude-opus-4-8", 10),
+            assistant_line_at("2026-07-15T12:00:00+09:00", "m2", "claude-opus-4-8", 20),
+        );
+        let d = parse_chunk(chunk.as_bytes(), &HashSet::new());
+        assert_eq!(d.by_month_model.len(), 2);
+        let june: u64 = d
+            .by_month_model
+            .iter()
+            .filter(|(k, _)| k.ends_with("-06"))
+            .flat_map(|(_, m)| m.values())
+            .map(|s| s.output)
+            .sum();
+        assert_eq!(june, 10);
+    }
+
+    #[test]
+    fn unparseable_timestamp_falls_into_unknown_bucket() {
+        let line = r#"{"type":"assistant","timestamp":"garbage","requestId":"r1","message":{"id":"m1","model":"claude-opus-4-8","usage":{"input_tokens":0,"output_tokens":5,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}"#;
+        let d = parse_chunk(format!("{line}\n").as_bytes(), &HashSet::new());
+        assert_eq!(
+            d.by_month_model
+                .get("unknown")
+                .unwrap()
+                .get("claude-opus-4-8")
+                .unwrap()
+                .output,
+            5
+        );
+    }
+```
+
+- [ ] **Step 3: git.rs — リポジトリ外 None のテストを追加**
+
+```rust
+    #[test]
+    fn outside_repo_returns_none() {
+        let root = tmp("norepo");
+        assert!(current_branch(&root).is_none());
+    }
+```
+
+- [ ] **Step 4: render.rs — 閾値色と ctx null 縮退のテストを追加**
+
+```rust
+    #[test]
+    fn threshold_colors_are_applied() {
+        let pricing = PricingTable::embedded();
+        let input = StatusInput::parse(
+            r#"{
+            "context_window": {"remaining_percentage": 25.0},
+            "rate_limits": {"five_hour": {"used_percentage": 95.0, "resets_at": 1751700600}}
+        }"#,
+        )
+        .unwrap();
+        let d = RenderData {
+            input: &input,
+            branch: None,
+            session_models: HashMap::new(),
+            month_models: HashMap::new(),
+            pricing: &pricing,
+        };
+        let raw = render(&d);
+        // ctx free < 30% → ORANGE、5h >= 90% → ORANGE+BOLD(strip しない生出力で検証)
+        assert!(raw.contains("\u{1b}[38;5;208m"));
+        assert!(raw.contains("\u{1b}[38;5;208m\u{1b}[1m"));
+    }
+
+    #[test]
+    fn context_window_with_null_percentage_degrades() {
+        let pricing = PricingTable::embedded();
+        let input =
+            StatusInput::parse(r#"{"context_window":{"remaining_percentage":null}}"#).unwrap();
+        let d = RenderData {
+            input: &input,
+            branch: None,
+            session_models: HashMap::new(),
+            month_models: HashMap::new(),
+            pricing: &pricing,
+        };
+        let out = strip_ansi(&render(&d));
+        assert!(out.lines().next().unwrap().contains("ctx \u{2013}"));
+    }
+```
+
+- [ ] **Step 5: integration.rs — 空 stdin の assert を縮退 2 行構造まで強化**
+
+`survives_empty_stdin` の `run_binary` 呼び出し以降を置き換え:
+```rust
+    let out = strip_ansi(&run_binary(&home, ""));
+    let lines: Vec<&str> = out.lines().collect();
+    assert_eq!(lines.len(), 2, "expected degraded 2-line output: {out}");
+    assert!(lines[0].contains("ctx \u{2013}"));
+    assert!(lines[1].contains("S $0.00"));
+```
+
+- [ ] **Step 6: プラン注記(このファイル)**
+
+「設計上の重要な前提」の確定レイアウト説明の末尾に追記:
+> 注記: S の総額は stdin の `cost.total_cost_usd`(Claude Code の権威値)、括弧内のモデル別内訳は transcript からの自前計算のため、算出方式の違いにより両者は必ずしも一致しない(総額は権威値を優先する設計)。
+
+- [ ] **Step 7: Verify** — `cd claude/statusline && cargo fmt && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check`(追加後の総数はテスト出力で確認し報告すること)
+
+- [ ] **Step 8: Commit**
+```sh
+git add claude/statusline claude/docs/plans/2026-07-05-claude-statusline.md
+git commit -m "$(cat <<'EOF'
+Pin untested branches with regression tests
+
+/review で指摘された未検証経路を固定する: seen のシリアライズ往復
+(永続 dedup の核心)、truncate 全再走査、月跨ぎバケット分離、
+リポジトリ外 git、閾値カラー、ctx null 縮退、空 stdin の 2 行結線。
+S 総額と内訳の出典差異をプランに注記。挙動変更なし。
+EOF
+)"
+```
 
 ## Push and PR
 

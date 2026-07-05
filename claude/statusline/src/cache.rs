@@ -205,6 +205,7 @@ mod tests {
         save(&path, &c);
         let c2 = load(&path);
         assert_eq!(c2.files.get("/x.jsonl").unwrap().offset, 42);
+        assert_eq!(c2.files.get("/x.jsonl").unwrap().seen, vec![1, 2]);
 
         // バージョン不一致 → 空から再構築
         fs::write(&path, r#"{"version":99,"files":{}}"#).unwrap();
@@ -283,5 +284,60 @@ mod tests {
         update(&mut cache, &home.join("projects"), Some(&file), future);
         let sums = file_model_sums(&cache, &file.to_string_lossy());
         assert_eq!(sums.get("claude-haiku-4-5").unwrap().output, 7);
+    }
+
+    #[test]
+    fn dedup_survives_serialize_roundtrip() {
+        let home = tmp("rt-dedup");
+        let proj = home.join("projects/p1");
+        fs::create_dir_all(&proj).unwrap();
+        let file = proj.join("sess.jsonl");
+        let line = assistant_line("m1", "claude-opus-4-8", 100);
+        fs::write(&file, format!("{line}\n")).unwrap();
+
+        let cache_path = home.join("cache.json");
+        let mut cache = load(&cache_path);
+        update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
+        save(&cache_path, &cache);
+
+        // 別プロセス相当: ディスクから読み直した cache で、同じ message.id の行を追記後に update
+        let mut cache2 = load(&cache_path);
+        let mut content = fs::read_to_string(&file).unwrap();
+        content.push_str(&format!("{line}\n"));
+        fs::write(&file, content).unwrap();
+        update(&mut cache2, &home.join("projects"), None, UNIX_EPOCH);
+        let sums = month_model_sums(&cache2, &current_month());
+        assert_eq!(sums.get("claude-opus-4-8").unwrap().output, 100);
+    }
+
+    #[test]
+    fn truncated_file_is_rescanned_from_scratch() {
+        let home = tmp("truncate");
+        let proj = home.join("projects/p1");
+        fs::create_dir_all(&proj).unwrap();
+        let file = proj.join("sess.jsonl");
+        let long = format!(
+            "{}\n{}\n",
+            assistant_line("m1", "claude-opus-4-8", 100),
+            assistant_line("m2", "claude-opus-4-8", 50)
+        );
+        fs::write(&file, &long).unwrap();
+        let mut cache = load(&home.join("cache.json"));
+        update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
+        assert_eq!(
+            month_model_sums(&cache, &current_month())
+                .get("claude-opus-4-8")
+                .unwrap()
+                .output,
+            150
+        );
+
+        // より短い別内容で差し替え → 全再走査され新内容のみ反映される
+        let short = format!("{}\n", assistant_line("m3", "claude-haiku-4-5", 7));
+        fs::write(&file, &short).unwrap();
+        update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
+        let sums = month_model_sums(&cache, &current_month());
+        assert_eq!(sums.get("claude-haiku-4-5").unwrap().output, 7);
+        assert!(!sums.contains_key("claude-opus-4-8"));
     }
 }
