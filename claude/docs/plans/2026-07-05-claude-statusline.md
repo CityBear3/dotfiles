@@ -2186,7 +2186,7 @@ EOF
         update(&mut cache, &home.join("projects"), None, UNIX_EPOCH);
         let sums = month_model_sums(&cache, &current_month());
         assert_eq!(sums.get("claude-haiku-4-5").unwrap().output, 7);
-        assert!(sums.get("claude-opus-4-8").is_none());
+        assert!(!sums.contains_key("claude-opus-4-8"));
     }
 ```
 
