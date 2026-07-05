@@ -215,4 +215,27 @@ cache_write_1h = 9.0
         assert_eq!(t.lookup("claude-haiku-4-5").unwrap().input, 1.0);
         let _ = std::fs::remove_file(&path);
     }
+
+    #[test]
+    fn type_mismatched_entry_is_ignored() {
+        let path =
+            std::env::temp_dir().join(format!("cs-typemismatch-{}.toml", std::process::id()));
+        std::fs::write(
+            &path,
+            r#"
+[pricing."claude-sonnet-5"]
+input = "abc"
+output = 3.0
+cache_write_5m = 3.75
+cache_write_1h = 6.0
+cache_read = 0.3
+"#,
+        )
+        .unwrap();
+        let mut t = PricingTable::embedded();
+        t.load_overrides(&path);
+        // input が型違い(文字列)のエントリはそのエントリのみ無視(埋め込み価格のまま)
+        assert_eq!(t.lookup("claude-sonnet-5").unwrap().input, 3.0);
+        let _ = std::fs::remove_file(&path);
+    }
 }
