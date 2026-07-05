@@ -238,4 +238,14 @@ cache_read = 0.3
         assert_eq!(t.lookup("claude-sonnet-5").unwrap().input, 3.0);
         let _ = std::fs::remove_file(&path);
     }
+
+    #[test]
+    fn valid_toml_without_pricing_table_keeps_embedded() {
+        let path = std::env::temp_dir().join(format!("cs-nopricing-{}.toml", std::process::id()));
+        std::fs::write(&path, "some_other_key = 1\n").unwrap();
+        let mut t = PricingTable::embedded();
+        t.load_overrides(&path);
+        assert_eq!(t.lookup("claude-opus-4-8").unwrap().input, 5.0);
+        let _ = std::fs::remove_file(&path);
+    }
 }

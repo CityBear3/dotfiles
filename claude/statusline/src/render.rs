@@ -320,9 +320,13 @@ mod tests {
             pricing: &pricing,
         };
         let raw = render(&d);
-        // ctx free < 30% → ORANGE、5h >= 90% → ORANGE+BOLD(strip しない生出力で検証)
-        assert!(raw.contains("\u{1b}[38;5;208m"));
-        assert!(raw.contains("\u{1b}[38;5;208m\u{1b}[1m"));
+        let line1 = raw.lines().next().unwrap();
+        let line2 = raw.lines().nth(1).unwrap();
+        // ctx free 25% → 素の ORANGE(BOLD なし)。line1 に限定して 5h への吸収を防ぐ
+        assert!(line1.contains(ORANGE));
+        assert!(!line1.contains(BOLD));
+        // 5h 95% → ORANGE+BOLD
+        assert!(line2.contains("\u{1b}[38;5;208m\u{1b}[1m"));
     }
 
     #[test]

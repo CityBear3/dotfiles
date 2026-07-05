@@ -1885,6 +1885,7 @@ EOF
 # claude-statusline の単価上書き設定。
 # バイナリ埋め込みの価格表を [pricing."<model-id>"] で追加・上書きできる。
 # 値は $/MTok。5 フィールドすべて必須(欠けるとそのエントリは無視される)。
+# TOML 構文自体が壊れている場合(例: カンマ小数、重複テーブル)はこのファイル全体が無視される。
 # モデル ID は最長 prefix 一致で解決される。
 #
 # 例: Sonnet 5 の introductory 価格 (〜2026-08-31)
@@ -2056,6 +2057,8 @@ cache_write_1h = 9.0
         let _ = std::fs::remove_file(&path);
     }
 ```
+
+> (承認済み追加: `type_mismatched_entry_is_ignored` — 型違いエントリも同じ契約でエントリ単位無視されることを固定するテスト。コミット 2505927)
 
 Run: `cd claude/statusline && cargo test partial_entry`
 Expected: FAIL(現実装は opus 側も 5.0 のまま = ファイル全破棄)。
@@ -2317,6 +2320,79 @@ Pin untested branches with regression tests
 (永続 dedup の核心)、truncate 全再走査、月跨ぎバケット分離、
 リポジトリ外 git、閾値カラー、ctx null 縮退、空 stdin の 2 行結線。
 S 総額と内訳の出典差異をプランに注記。挙動変更なし。
+EOF
+)"
+```
+
+### Task 11: レビュー 2 周目の微修正パック(テスト品質 + 契約開示)
+
+**Why:** /review 2 周目で前回指摘 8 件の全解消を確認した上で、新規の Should Improve 4 件を Fix と triage した。(1) Task 10 で追加した閾値色テストの ctx 用 assert が 5h の ORANGE+BOLD 部分列に吸収され vacuous(2 レビュアー独立指摘)、(2) statusline.toml が構文エラー時のファイル全破棄を未開示、(3) Task 9 の新分岐 `[pricing]` テーブル不在が未テスト、(4) `type_mismatched_entry_is_ignored`(承認済み追加)がプラン未同期。
+
+**Behavior change:** no(テスト修正・追加、コメント 1 行、ドキュメント同期のみ)
+**Discipline:** 既存実装が green-bar。テストは現挙動を固定するリグレッションガード。
+
+**Files:**
+- Modify: `claude/statusline/src/render.rs`(tests のみ)
+- Modify: `claude/statusline/src/pricing.rs`(tests のみ)
+- Modify: `claude/statusline.toml`(コメント 1 行)
+- Modify: `claude/docs/plans/2026-07-05-claude-statusline.md`(同期 2 箇所)
+
+### Steps
+
+- [ ] **Step 1: render.rs — threshold_colors_are_applied の assert を行スコープ化**
+
+テスト本体の `let raw = render(&d);` 以降を置き換え:
+```rust
+        let raw = render(&d);
+        let line1 = raw.lines().next().unwrap();
+        let line2 = raw.lines().nth(1).unwrap();
+        // ctx free 25% → 素の ORANGE(BOLD なし)。line1 に限定して 5h への吸収を防ぐ
+        assert!(line1.contains(ORANGE));
+        assert!(!line1.contains(BOLD));
+        // 5h 95% → ORANGE+BOLD
+        assert!(line2.contains("\u{1b}[38;5;208m\u{1b}[1m"));
+```
+(`ORANGE`/`BOLD` は `use super::*` で参照可。この入力では line1 は ctx セグメントのみで構成される)
+
+- [ ] **Step 2: pricing.rs — `[pricing]` テーブル不在テストを追加**
+
+```rust
+    #[test]
+    fn valid_toml_without_pricing_table_keeps_embedded() {
+        let path =
+            std::env::temp_dir().join(format!("cs-nopricing-{}.toml", std::process::id()));
+        std::fs::write(&path, "some_other_key = 1\n").unwrap();
+        let mut t = PricingTable::embedded();
+        t.load_overrides(&path);
+        assert_eq!(t.lookup("claude-opus-4-8").unwrap().input, 5.0);
+        let _ = std::fs::remove_file(&path);
+    }
+```
+
+- [ ] **Step 3: statusline.toml — 構文エラー時の全破棄を開示**
+
+「5 フィールドすべて必須」のコメント行の直後に 1 行追加(claude/statusline.toml と、このプランの Task 8 Step 1 テンプレートブロックの両方):
+```toml
+# TOML 構文自体が壊れている場合(例: カンマ小数、重複テーブル)はこのファイル全体が無視される。
+```
+
+- [ ] **Step 4: プラン同期 — type_mismatched テストの記録**
+
+このプランの Task 9 Step 1 のテストコードブロック直後に追記:
+> (承認済み追加: `type_mismatched_entry_is_ignored` — 型違いエントリも同じ契約でエントリ単位無視されることを固定するテスト。コミット 2505927)
+
+- [ ] **Step 5: Verify** — `cd claude/statusline && cargo fmt && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check`(38 テスト想定: unit 36 + integration 2)
+
+- [ ] **Step 6: Commit**
+```sh
+git add claude/statusline claude/statusline.toml claude/docs/plans/2026-07-05-claude-statusline.md
+git commit -m "$(cat <<'EOF'
+Tighten threshold-color test and disclose TOML whole-file discard
+
+/review 2 周目の指摘対応: ctx 閾値色の assert を行スコープ化して 5h の
+ORANGE+BOLD への吸収を排除、[pricing] テーブル不在の縮退テストを追加、
+statusline.toml に構文エラー時のファイル全体無視を開示、プランへ
+type_mismatched テストを同期。挙動変更なし。
 EOF
 )"
 ```
