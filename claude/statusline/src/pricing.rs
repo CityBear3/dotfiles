@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use std::collections::HashMap;
 use std::path::Path;
 
 use crate::transcript::TokenSums;
@@ -64,12 +63,6 @@ pub struct PricingTable {
     entries: Vec<(String, ModelPrice)>,
 }
 
-#[derive(Deserialize)]
-struct OverrideFile {
-    #[serde(default)]
-    pricing: HashMap<String, ModelPrice>,
-}
-
 impl PricingTable {
     pub fn embedded() -> Self {
         Self {
@@ -77,19 +70,27 @@ impl PricingTable {
         }
     }
 
-    /// TOML(全 5 フィールド必須)で追加・上書き。読めない/壊れている場合は無視。
+    /// TOML(全 5 フィールド必須)で追加・上書き。フィールド欠損・型違いの
+    /// エントリはそのエントリのみ無視する(statusline.toml 記載の契約)。
+    /// ファイル自体が読めない・TOML 構文が壊れている場合は全体を無視する。
     pub fn load_overrides(&mut self, path: &Path) {
         let Ok(text) = std::fs::read_to_string(path) else {
             return;
         };
-        let Ok(file) = toml::from_str::<OverrideFile>(&text) else {
+        let Ok(table) = text.parse::<toml::Table>() else {
             return;
         };
-        for (id, price) in file.pricing {
-            if let Some(e) = self.entries.iter_mut().find(|(k, _)| *k == id) {
+        let Some(pricing) = table.get("pricing").and_then(|v| v.as_table()) else {
+            return;
+        };
+        for (id, entry) in pricing {
+            let Ok(price) = entry.clone().try_into::<ModelPrice>() else {
+                continue;
+            };
+            if let Some(e) = self.entries.iter_mut().find(|(k, _)| k == id) {
                 e.1 = price;
             } else {
-                self.entries.push((id, price));
+                self.entries.push((id.clone(), price));
             }
         }
     }
@@ -182,6 +183,36 @@ cache_read = 0.7
         std::fs::write(&path, "not [ valid toml").unwrap();
         t.load_overrides(&path);
         assert_eq!(t.lookup("claude-opus-4-8").unwrap().input, 5.0);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn partial_entry_is_ignored_but_complete_entries_apply() {
+        let path = std::env::temp_dir().join(format!("cs-partial-{}.toml", std::process::id()));
+        std::fs::write(
+            &path,
+            r#"
+[pricing."claude-opus-4-8"]
+input = 1.0
+output = 2.0
+cache_write_5m = 1.25
+cache_write_1h = 2.0
+cache_read = 0.1
+
+[pricing."claude-haiku-4-5"]
+input = 9.0
+output = 9.0
+cache_write_5m = 9.0
+cache_write_1h = 9.0
+"#,
+        )
+        .unwrap();
+        let mut t = PricingTable::embedded();
+        t.load_overrides(&path);
+        // 完備エントリは適用される
+        assert_eq!(t.lookup("claude-opus-4-8").unwrap().input, 1.0);
+        // cache_read 欠損エントリはそのエントリのみ無視(埋め込み価格のまま)
+        assert_eq!(t.lookup("claude-haiku-4-5").unwrap().input, 1.0);
         let _ = std::fs::remove_file(&path);
     }
 }
