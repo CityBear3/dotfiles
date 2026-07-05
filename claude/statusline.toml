@@ -1,0 +1,13 @@
+# claude-statusline の単価上書き設定。
+# バイナリ埋め込みの価格表を [pricing."<model-id>"] で追加・上書きできる。
+# 値は $/MTok。5 フィールドすべて必須(欠けるとそのエントリは無視される)。
+# TOML 構文自体が壊れている場合(例: カンマ小数、重複テーブル)はこのファイル全体が無視される。
+# モデル ID は最長 prefix 一致で解決される。
+#
+# 例: Sonnet 5 の introductory 価格 (〜2026-08-31)
+# [pricing."claude-sonnet-5"]
+# input = 2.0
+# output = 10.0
+# cache_write_5m = 2.5
+# cache_write_1h = 4.0
+# cache_read = 0.2
