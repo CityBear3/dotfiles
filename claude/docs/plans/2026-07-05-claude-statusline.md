@@ -1431,6 +1431,8 @@ fn month_segment(d: &RenderData) -> String {
 }
 
 fn fmt_usd(v: f64) -> String {
+    // 空の f64 sum は -0.0 を返し "$-0.00" になるため正のゼロへ正規化する。
+    let v = if v == 0.0 { 0.0 } else { v };
     if v >= 100.0 {
         format!("${v:.0}")
     } else if v >= 10.0 {
