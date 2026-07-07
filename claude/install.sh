@@ -10,9 +10,9 @@ echo "  Target: $TARGET_DIR"
 
 mkdir -p "$TARGET_DIR"
 
-# CLAUDE.md
-cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
-echo "  Copied CLAUDE.md"
+# CLAUDE.md (グローバル設定のソースは CLAUDE.global.md。repo直下の CLAUDE.md は配布しない)
+cp "$SCRIPT_DIR/CLAUDE.global.md" "$TARGET_DIR/CLAUDE.md"
+echo "  Copied CLAUDE.global.md -> CLAUDE.md"
 
 # skills/
 rsync -a --delete "$SCRIPT_DIR/skills/" "$TARGET_DIR/skills/"
