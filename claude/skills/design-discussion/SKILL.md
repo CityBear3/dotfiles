@@ -24,7 +24,7 @@ The discussion scales to the work: brief for trivial, extensive for complex.
 The engineer drives design decisions. Claude Code's role is to:
 
 - Gather and present codebase context to inform decisions
-- Grill through the decision tree with recommended answers and trade-offs to surface assumptions, constraints, and non-obvious dependencies
+- Walk the decision tree with recommended answers and trade-offs to surface assumptions, constraints, and non-obvious dependencies
 - Present multiple approaches with trade-offs (when applicable)
 - Act as sounding board — challenge assumptions, surface alternatives
 - Support engineer's prototyping by gathering context, running experiments, or executing prototype code at the engineer's request
@@ -37,7 +37,7 @@ Claude Code does NOT:
 ## Process
 
 **Operating Procedure (mandatory).** The engineer should never have to
-prompt for "ultrathink" or "grill harder" — both are baked into this
+prompt for "ultrathink" or deeper questioning — both are baked into this
 skill.
 
 1. **Investigate first.** Once the topic is understood, your next
@@ -56,24 +56,24 @@ skill.
    alternatives, present **2–3 candidates with trade-offs** so the
    engineer compares whole approaches.
 
-3. **Grill the engineer through the decision tree relentlessly.** One
-   question at a time; multiple-choice or recommend-an-answer formats
-   preferred. Walk branch by branch, surfacing dependencies between
-   decisions. Cover both **problem-space decisions** (what must be
-   required, guaranteed, or exposed — consistency, failure tolerance,
-   integration boundaries, performance budgets) and **solution-space
-   decisions** (which architecture, which structural alternative).
-   Continue until the engineer and Claude Code share complete
-   understanding of every critical-path decision. **Do not exit
-   grilling on surface answers or perceived simplicity.** Non-blocking
-   branches may be deferred with an explicit note.
+3. **Walk the engineer through the decision tree.** One question at a
+   time — the single highest-leverage question next; multiple-choice or
+   recommend-an-answer formats preferred. Walk branch by branch,
+   surfacing dependencies between decisions. Cover both **problem-space
+   decisions** (what must be required, guaranteed, or exposed —
+   consistency, failure tolerance, integration boundaries, performance
+   budgets) and **solution-space decisions** (which architecture, which
+   structural alternative). Continue until every critical-path decision
+   is resolved — do not stop at a surface answer when a deeper branch
+   materially changes the design. Non-blocking branches may be deferred
+   with an explicit note.
 
 4. **Close when design decisions are clear enough to feed `/create-plan`
    or `/design-doc`.** Route explicitly (see Closing) and wait for
    engineer's confirmation.
 
-Scale the depth to the work, but **do not skip ultrathink and do not
-exit grilling early**.
+Scale the depth to the work; investigation-first and ultrathink remain
+mandatory at every depth.
 
 ### Prototyping (optional, engineer-driven)
 
@@ -135,7 +135,7 @@ For smaller work where a Design Doc would be ceremony (handful of files, no cros
 | Claude Code asks a question and accepts the engineer's first reply without checking dependent branches | Walk the decision tree. If the answer constrains a downstream decision, surface the dependency. |
 | Claude Code recommends an answer without a trade-off, and the engineer rubber-stamps it | Always pair recommendation with trade-off or alternative. Recommendations are reactions to engage with, not defaults to accept. |
 | Claude Code asks the engineer something the codebase already answers | Explore the codebase first. Ask only if code can't answer. |
-| Claude Code waits for the engineer to prompt "ultrathink" or "grill harder" | Both are mandatory by default per Operating Procedure. Apply them without prompting. |
+| Claude Code waits for the engineer to prompt "ultrathink" or deeper investigation | Both are defaults per Operating Procedure. Apply them without prompting. |
 
 ## Rationalization Prevention
 
