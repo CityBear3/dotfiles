@@ -52,6 +52,8 @@ Read the implementation code and verify:
 
 Verify by reading code, not by trusting report.
 
+Approval is a valid outcome. Your report gates the task directly — there is no downstream filter — so report only issues you verified against the diff (file:line), not speculative concerns. (The /review adversarial personas work differently: their findings pass through an integrator filter, so they optimize for coverage. You optimize for precision.)
+
 ## Sending Messages
 
 Whenever you `SendMessage` to the lead with a text `message`, you MUST also pass a `summary` (a 5–10 word preview), e.g.:

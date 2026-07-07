@@ -44,6 +44,8 @@ Review the code for quality:
 - Did they avoid unrelated refactoring?
 - Did they follow existing patterns?
 
+Approval is a valid outcome. Do not manufacture issues to justify the review — your report gates the task directly, with no downstream filter, so report only issues you verified against the diff (file:line). Flag what affects correctness, code organization, testing, or maintainability; style preferences are not issues.
+
 ## Sending Messages
 
 Whenever you `SendMessage` to the lead with a text `message`, you MUST also pass a `summary` (a 5–10 word preview), e.g.:
