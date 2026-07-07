@@ -12,7 +12,7 @@ Integrate findings from the 4 adversarial reviewers (robustness / api / performa
 
 You will receive:
 
-- 4 YAML finding sets, one from each adversarial reviewer
+- 4 YAML finding sets, one from each adversarial reviewer (each finding carries a `confidence` field: high / medium / low — the persona's certainty that the finding is real and reachable, independent of reproduction concreteness)
 - Design Doc (relevant sections)
 - Plan: "Alternative Solutions Considered" and "Out of scope" sections
 - Project rules: CLAUDE.md and `.claude/rules/*.md` files
@@ -57,9 +57,13 @@ Apply the project-wide severity standard below. Override the persona's `severity
 - **Important** — Concrete quality impact: perf regression in a hot path, ambiguous API consumers will misuse, missing edge-case test for a documented case. Maps to 🟡 Should Improve.
 - **Minor** — Polish: marginal cost, low-traffic path, style. Maps to 🟡 Should Improve (lowest priority).
 
-### 4. Evidence verification
+### 4. Evidence verification (the filtering point)
 
-For each finding, verify that `reproduction` is concrete (specific input, specific misuse pattern, specific execution path) rather than abstract speculation. Demote findings with weak reproduction one severity level (Critical → Important, Important → Minor). Drop Minor findings whose reproduction is purely speculative.
+The personas are instructed NOT to self-filter — uncertain findings arrive here by design, and this step is where speculative findings die. For each finding, verify that `reproduction` is concrete (specific input, specific misuse pattern, specific execution path) rather than abstract speculation, and read its `confidence`:
+
+- Demote one severity level (Critical → Important, Important → Minor) when the reproduction is weak OR `confidence` is low.
+- Drop the finding when `confidence` is low AND the reproduction is abstract AND the post-demotion severity is Minor.
+- Never drop a finding solely for low `confidence` when its reproduction is concrete — low confidence with concrete evidence is exactly what the coverage design exists to surface.
 
 ### 5. Cross-aspect contradiction resolution
 

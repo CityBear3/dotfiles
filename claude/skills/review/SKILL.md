@@ -116,7 +116,7 @@ Each adversarial persona must:
 - Include `ultrathink` in the prompt so they use extended thinking; deeper-reasoning model surfaces subtle, hypothesis-driven issues
 - Use the context bundle's Design Doc / Plan / rules / hints to inform the hunt
 - Produce findings in the structured YAML schema (see "Adversarial Output Schema" below), including an `already_decided_check` field that records consultation of Design Doc and Plan
-- Return `findings: []` (with a `considered:` list of what was examined) when no genuine concerns were found. **Null-finding is acceptable** — speculative or "just in case" findings are forbidden
+- Report every genuine concern found, including uncertain ones, each carrying a `confidence` field. The finder stage optimizes for **coverage**; importance/confidence filtering happens downstream in the integrator (Step 2.5). Fabricated evidence is forbidden; honest uncertainty (`confidence: low`) is not. Return `findings: []` (with a `considered:` list) only when a genuine hunt surfaces nothing
 
 ### Step 2.5: Integrate Adversarial Findings (depends on agents 4–7 only)
 
@@ -249,6 +249,7 @@ findings:
     reproduction: "入力 / 操作 Z で再現可能"
     already_decided_check: "Design Doc §X / Plan Alternative Solutions / Out of scope を確認: <該当なし | 該当あり: 出典>"
     severity_suggestion: Critical | Important | Minor
+    confidence: high | medium | low  # finding が実在し到達可能だという確信度(再現の具体性とは独立の軸)
     rationale: <severity の根拠 1 行>
 considered:
   - <レビューした観点 1>
@@ -269,7 +270,8 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Treating "review → execute-plan" or "review → finish-branch" as a transition requiring confirmation | Both run autonomously per CLAUDE.md. The review feedback loop and the clean-review `review → finish-branch` transition are NOT gated — neither requires engineer confirmation. The engineer's control point is `/finish-branch`'s own options menu. |
 | Pausing to ask the engineer before transitioning `review → finish-branch` on a clean review | The transition is automatic (not gated). Invoke `/finish-branch` directly; it stops at its own options menu for the engineer's choice. |
 | Re-prompting "shall I proceed with fixes?" after producing the report | The plan already authorized autonomous execution. Append fix tasks and re-invoke `/execute-plan` directly. |
-| Adversarial persona inventing speculative findings to "find something" | Null-finding is acceptable. Return `findings: []` with `considered:` when no genuine concern with concrete reproduction can be constructed. |
+| Adversarial persona self-filtering findings it judges uncertain or low-severity | Report them with `confidence` and severity; the integrator filters downstream. Finder-stage self-filtering silently drops real bugs (recall loss). |
+| Adversarial persona fabricating evidence or reproductions to "find something" | Evidence must come from code actually read. Honest uncertainty is reported as `confidence: low`, never dressed up as certainty. |
 | Skipping language hint loading because the file is missing | Each context source is read fail-safe. Empty fields are normal; record them in the Context section. |
 | Dispatching verification agents (1–3) first, waiting for completion, then dispatching adversarial agents (4–7) | All 7 agents launch in a single batch via parallel Agent tool calls in ONE message. The Verification / Adversarial labels are categorical, not phasal. Two-wave dispatch defeats the wall-clock benefit and is forbidden. |
 | Passing a `name` to a reviewer Agent call | Dispatch name-less. A named spawn becomes a teammate (tmux pane + agent-teams lifecycle bugs); reviewers must be one-shot subagents that return findings directly. |

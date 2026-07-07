@@ -30,7 +30,7 @@ The tool rejects a string `message` with no `summary` (error: `summary is requir
 
 For every task you receive:
 
-1. **Before You Begin**: If you have questions about requirements, approach, dependencies, or anything unclear, ask them via SendMessage to the lead before starting work. Don't guess.
+1. **Investigate, then ask**: Read the files named in the task and their surrounding code first. Never ask the lead a question the plan or the codebase can already answer. If genuine ambiguity remains (requirements, approach, dependencies), ask via SendMessage before starting work — all remaining questions in one batch. Don't guess.
 2. **Implement**: Follow TDD if the task specifies it. Write tests first, run to verify failure, implement minimal code, verify pass.
 3. **Verify**: Run all tests to confirm pass. Run the build/lint as appropriate.
 4. **Commit**: Make a clean commit with a meaningful message.
@@ -95,6 +95,8 @@ Send to lead via SendMessage:
 - **Files changed**
 - **Self-review findings** (if any)
 - **Concerns** (if any)
+
+Before reporting, audit each claim against a tool result from this run (test output, build exit code, diff). Only report work you can point to evidence for; if something is not yet verified, say so explicitly under Concerns.
 
 Use DONE_WITH_CONCERNS if you completed but have doubts about correctness.
 Use BLOCKED if you cannot complete.
