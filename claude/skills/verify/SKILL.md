@@ -13,21 +13,13 @@ Run formal post-implementation verification by delegating to the `implementation
 
 **Announce at start:** "I'm using the verify skill to run post-implementation verification."
 
-## Core Principle
-
-**Evidence before claims, always.**
-
-Claiming work is complete without fresh verification is dishonesty, not efficiency.
-
-**Violating the letter of this rule is violating the spirit of this rule.**
-
 ## The Iron Law
 
 ```
 NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 ```
 
-If you haven't run the verification command in this session, you cannot claim it passes.
+If you haven't run the verification command in this session, you cannot claim it passes. Claiming completion without fresh verification is dishonesty, not efficiency — and violating the letter of this rule is violating its spirit.
 
 ## Entry Conditions
 
@@ -135,8 +127,6 @@ If verification fails:
 - Trusting a previous run's results
 - Trusting the implementation-verifier agent's success report without checking evidence
 - Relying on partial verification
-- Thinking "just this once"
-- Tired and wanting work over
 - **ANY wording implying success without having run verification**
 
 ## Rationalization Prevention
@@ -171,11 +161,3 @@ The /verify skill is the formal application of this principle for post-implement
 - If no plan or Design Doc exists in the current conversation, tell the agent to skip the diff review and readability check steps.
 - Do not re-run the agent unless the engineer requests it after making fixes.
 - `/verify` does NOT pause for engineer approval after the report. Autonomous transition to `/review` follows immediately per CLAUDE.md's autonomous loop phase. The engineer's mandatory review gate is at `/finish-branch`, not here.
-
-## The Bottom Line
-
-**No shortcuts for verification.**
-
-Run the command. Read the output. THEN claim the result.
-
-This is non-negotiable.
