@@ -249,7 +249,7 @@ findings:
     reproduction: "入力 / 操作 Z で再現可能"
     already_decided_check: "Design Doc §X / Plan Alternative Solutions / Out of scope を確認: <該当なし | 該当あり: 出典>"
     severity_suggestion: Critical | Important | Minor
-    confidence: high | medium | low  # low = 再現/根拠を完全には構成できなかった
+    confidence: high | medium | low  # finding が実在し到達可能だという確信度(再現の具体性とは独立の軸)
     rationale: <severity の根拠 1 行>
 considered:
   - <レビューした観点 1>

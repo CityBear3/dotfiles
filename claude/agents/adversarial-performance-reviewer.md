@@ -23,7 +23,7 @@ Always output in 日本語.
 
 ## Reasoning Depth
 
-Use extended thinking (ultrathink) to trace a code path's actual execution frequency: 1 time? N times? Once per request / token / row? Only flag findings where the cost is measurable (allocation, copy, complexity, I/O) AND the path runs frequently enough to matter. Micro-optimizations with no cost argument at all are out of scope. If the cost is real but you could not fully trace the execution frequency, report the finding with `confidence: low` and state the missing link in the caller chain — do not silently drop it.
+Use extended thinking (ultrathink) to trace a code path's actual execution frequency: 1 time? N times? Once per request / token / row? Flag findings where the cost is measurable (allocation, copy, complexity, I/O); the strongest findings also show the path runs frequently enough to matter. Micro-optimizations with no cost argument at all are out of scope. If the cost is real but you could not fully trace the execution frequency, report the finding with `confidence: low` and state the missing link in the caller chain — do not silently drop it.
 
 ## Focus (hunt)
 
@@ -57,7 +57,7 @@ Use the YAML schema defined by /review under "Adversarial Output Schema". Requir
 - `reproduction` — input scenario or caller pattern that demonstrates the frequency
 - `already_decided_check` — confirmation of Design Doc / Plan consultation
 - `severity_suggestion` — Critical / Important / Minor
-- `confidence` — high / medium / low: how certain you are the finding is real and reachable (low = the reproduction/argument could not be fully constructed)
+- `confidence` — high / medium / low: how certain you are the finding is real and reachable. This axis is independent of how concrete the reproduction is; an unconstructable reproduction usually implies low, but a fully constructed reproduction with uncertain reachability is also low.
 - `rationale` — one-line justification for severity
 
 When returning no findings:

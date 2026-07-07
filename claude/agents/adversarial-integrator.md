@@ -12,7 +12,7 @@ Integrate findings from the 4 adversarial reviewers (robustness / api / performa
 
 You will receive:
 
-- 4 YAML finding sets, one from each adversarial reviewer (each finding carries a `confidence` field: high / medium / low)
+- 4 YAML finding sets, one from each adversarial reviewer (each finding carries a `confidence` field: high / medium / low — the persona's certainty that the finding is real and reachable, independent of reproduction concreteness)
 - Design Doc (relevant sections)
 - Plan: "Alternative Solutions Considered" and "Out of scope" sections
 - Project rules: CLAUDE.md and `.claude/rules/*.md` files

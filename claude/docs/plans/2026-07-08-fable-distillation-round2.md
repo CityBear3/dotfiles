@@ -601,11 +601,127 @@ git log --oneline main..HEAD
 
 Expected: `bash -n` exit 0 / CLAUDE.global.md ≤175・verify ≤170 / 旧文言 2 種が 0 件(OK 行が出る)/ review SKILL に confidence ≥2 / ブランチに 5 コミット。
 
-**配布注記:** `./install.sh` は本ブランチでは実行しない。マージ後にエンジニア(または指示を受けた Claude Code)が実行して `~/.claude/` に反映する。
+**配布注記:** `./install.sh` は本ブランチでは実行しない。マージ後にエンジニア(または指示を受けた Claude Code)が実行して `~/.claude/` に反映し、配布反映を次で確認する: `./install.sh && diff ~/.claude/CLAUDE.md CLAUDE.global.md && grep -c confidence ~/.claude/agents/adversarial-robustness-reviewer.md`(期待: diff 無差分・grep ≥4)。
 
 ## Post-/review iteration
 
-Reserved for fix tasks appended by Claude Code after `/review` produces actionable items. Empty until `/review` runs.
+/review 一巡目(2026-07-07T16:26Z、7 レビュアー+integrator)の triage 結果: Fix 7 件 / Push back 2 系統(コミット同梱=プラン Task 1 Step 7 の承認済みコマンドどおり・位置検証系=Discipline 共通注記で既決)/ Escalate 0 件。
+
+**エンジニア裁定(2026-07-08、事後レビュー):** 本イテレーション自体がエンジニアの意図(「直接編集」=レビューループなし)の取り違えの上で自律実行されたため、全 Fix を事後 triage し直した。**採用**: Step 2(confidence 一軸化 — 読めば検証できる内部矛盾の解消)・Step 3(performance gate 格下げ)・Step 5(Turn-End 例外句)・Fix Task 7。**却下・復元**: Step 1(drop 規則の severity 制約撤去 — silent-drop 領域を広げ §2 の精神に逆行、降格+triage push back で足りる)・Step 4(3 巡上限 — 労力を測り収束健全性を測らない形で、自律品質収束の目的に不適合。収束判定型ガード(件数の非減少 2 連続でエスカレーション)を第 3 弾候補として記録)。却下 2 項は fixup で同一コミット内で復元済みのため、Step 6 検証のうち当該 2 grep は適用外。
+
+### Fix Task 6: /review 一巡目指摘への設定修正
+
+**Why:** integrator の drop 規則の穴(投機的 Critical が素通り)、confidence の二重定義(再現構成軸 vs 到達確信軸)、performance ペルソナの残存 hard gate、ループ収束保証の喪失、Turn-End の語彙衝突 — いずれも一巡目の変更が導入した機構レベルの指摘で、既存設計(finder=coverage / integrator=filter)内で修正可能。
+
+**Behavior change:** yes(フィルタ規則・スキーマ定義の精密化)
+**Discipline:** 直接編集+構造チェック(共通注記参照)。
+
+### Steps
+
+- [ ] **Step 1: integrator Step 4 の drop 条件から severity 制約を撤去**
+
+`agents/adversarial-integrator.md` — 旧:
+```
+- Drop the finding when `confidence` is low AND the reproduction is abstract AND the post-demotion severity is Minor.
+```
+新:
+```
+- Drop the finding when `confidence` is low AND the reproduction is abstract — regardless of the suggested severity. A severity label alone cannot substantiate a finding that has neither confidence nor concrete evidence.
+```
+
+- [ ] **Step 2: confidence の定義を「実在・到達可能への確信度」一軸に統一**
+
+`skills/review/SKILL.md` — 旧:
+```
+    confidence: high | medium | low  # low = 再現/根拠を完全には構成できなかった
+```
+新:
+```
+    confidence: high | medium | low  # finding が実在し到達可能だという確信度(再現の具体性とは独立の軸)
+```
+
+4 ペルソナ共通 — 旧:
+```
+- `confidence` — high / medium / low: how certain you are the finding is real and reachable (low = the reproduction/argument could not be fully constructed)
+```
+新:
+```
+- `confidence` — high / medium / low: how certain you are the finding is real and reachable. This axis is independent of how concrete the reproduction is; an unconstructable reproduction usually implies low, but a fully constructed reproduction with uncertain reachability is also low.
+```
+
+`agents/adversarial-integrator.md` Input — 旧:
+```
+- 4 YAML finding sets, one from each adversarial reviewer (each finding carries a `confidence` field: high / medium / low)
+```
+新:
+```
+- 4 YAML finding sets, one from each adversarial reviewer (each finding carries a `confidence` field: high / medium / low — the persona's certainty that the finding is real and reachable, independent of reproduction concreteness)
+```
+
+- [ ] **Step 3: performance ペルソナの残存 hard gate を格下げ**
+
+`agents/adversarial-performance-reviewer.md` — 旧:
+```
+Only flag findings where the cost is measurable (allocation, copy, complexity, I/O) AND the path runs frequently enough to matter.
+```
+新:
+```
+Flag findings where the cost is measurable (allocation, copy, complexity, I/O); the strongest findings also show the path runs frequently enough to matter.
+```
+
+- [ ] **Step 4: /review ループガードに総イテレーション上限を追加**
+
+`skills/review/SKILL.md` — 旧:
+```
+**Loop termination guard**: if the same item recurs across 2 consecutive review iterations after a Fix attempt, escalate it instead — the fix is not working and may require a design change.
+```
+新:
+```
+**Loop termination guard**: if the same item recurs across 2 consecutive review iterations after a Fix attempt, escalate it instead — the fix is not working and may require a design change. Additionally, cap the autonomous loop at 3 full review iterations per branch: if a 4th iteration would start with Must Fix / Should Improve items still appearing, escalate — findings that keep morphing across iterations indicate the loop is not converging.
+```
+
+- [ ] **Step 5: Turn-End Discipline の例外句に承認待ち計画を明記**
+
+`CLAUDE.global.md` — 旧:
+```
+The exceptions are the stops this document itself mandates — gated phase transitions, escalations, and questions only the engineer can answer: there, ask and end the turn, rather than ending on a promise.
+```
+新:
+```
+The exceptions are the stops this document itself mandates — gated phase transitions (including a plan or design presented for the engineer's approval), escalations, and questions only the engineer can answer: there, ask and end the turn, rather than ending on a promise.
+```
+
+- [ ] **Step 6: Verify(構造チェック — 一巡目指摘の盲点閉鎖分を含む強化版)**
+
+```sh
+bash -n install.sh
+grep -c 'regardless of the suggested severity' agents/adversarial-integrator.md
+grep -c 'independent of reproduction concreteness' agents/adversarial-integrator.md
+grep -c '確信度(再現の具体性とは独立の軸)' skills/review/SKILL.md
+grep -c 'uncertain reachability is also low' agents/adversarial-robustness-reviewer.md agents/adversarial-api-reviewer.md agents/adversarial-performance-reviewer.md agents/adversarial-tests-reviewer.md
+grep -c 'the strongest findings also show' agents/adversarial-performance-reviewer.md
+{ grep -c 'Only flag findings' agents/adversarial-performance-reviewer.md || echo "only-flag: 0 (OK)"; }
+grep -c 'cap the autonomous loop at 3 full review iterations' skills/review/SKILL.md
+grep -c "including a plan or design presented for the engineer's approval" CLAUDE.global.md
+wc -l CLAUDE.global.md
+{ grep -rn 'forbidden\.\*\*' agents/adversarial-robustness-reviewer.md agents/adversarial-api-reviewer.md agents/adversarial-performance-reviewer.md agents/adversarial-tests-reviewer.md || echo "bold-absolutes: 0 (OK)"; }
+grep -c 'self-filtering findings it judges' skills/review/SKILL.md
+grep -c 'fabricating evidence or reproductions' skills/review/SKILL.md
+grep -c 'deeper questioning' skills/design-discussion/SKILL.md
+grep -c 'mandatory at every depth' skills/design-discussion/SKILL.md
+grep -c 'do not hedge across multiple approaches' CLAUDE.global.md
+grep -c 'dishonesty, not efficiency' skills/verify/SKILL.md
+{ grep -c 'Tired and wanting work over' skills/verify/SKILL.md || echo "tired-line: 0 (OK)"; }
+```
+
+Expected: 新文言が各 1 回(ペルソナ 4 体は各 1)/ `Only flag findings` 0 / CLAUDE.global.md ≤175 / bold-absolutes 0 / 一巡目の盲点系(self-filtering 行・fabricating 行・deeper questioning・mandatory at every depth・do not hedge・dishonesty 統合文)各 1 / `Tired and wanting work over` 0。
+
+- [ ] **Step 7: Commit**
+
+### Fix Task 7: 配布注記に post-install 再検証を追記(プラン文書のみ)
+
+- [ ] **Step 1:** 本プランの配布注記に以下を追記: マージ後 `./install.sh && diff ~/.claude/CLAUDE.md CLAUDE.global.md && grep -c confidence ~/.claude/agents/adversarial-robustness-reviewer.md`(期待: diff 無差分・grep ≥4)で配布反映を確認する。
+- [ ] **Step 2: Commit**(Task 6 と同一コミットに含めてよい — プラン文書の追記のみのため)
 
 (See CLAUDE.md "Core Flow" for the autonomous review feedback loop.)
 

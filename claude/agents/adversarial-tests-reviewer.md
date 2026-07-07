@@ -57,7 +57,7 @@ Use the YAML schema defined by /review under "Adversarial Output Schema". Requir
 - `reproduction` — concrete bug pattern or no-op replacement that still passes
 - `already_decided_check` — confirmation of Design Doc / Plan consultation
 - `severity_suggestion` — Critical / Important / Minor
-- `confidence` — high / medium / low: how certain you are the finding is real and reachable (low = the reproduction/argument could not be fully constructed)
+- `confidence` — high / medium / low: how certain you are the finding is real and reachable. This axis is independent of how concrete the reproduction is; an unconstructable reproduction usually implies low, but a fully constructed reproduction with uncertain reachability is also low.
 - `rationale` — one-line justification for severity
 
 When returning no findings:

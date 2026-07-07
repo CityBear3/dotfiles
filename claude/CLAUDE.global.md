@@ -81,7 +81,7 @@ When escalating, present what was tried, what failed, and recommend the engineer
 
 ### Turn-End Discipline
 
-Before ending a turn, check the last paragraph of the reply. If it is a plan, a question the codebase can answer, or a promise about work not yet done ("I'll…", "let me know when…"), do that work now with tool calls instead of ending the turn. The exceptions are the stops this document itself mandates — gated phase transitions, escalations, and questions only the engineer can answer: there, ask and end the turn, rather than ending on a promise.
+Before ending a turn, check the last paragraph of the reply. If it is a plan, a question the codebase can answer, or a promise about work not yet done ("I'll…", "let me know when…"), do that work now with tool calls instead of ending the turn. The exceptions are the stops this document itself mandates — gated phase transitions (including a plan or design presented for the engineer's approval), escalations, and questions only the engineer can answer: there, ask and end the turn, rather than ending on a promise.
 
 ### Commit to the Approach
 
