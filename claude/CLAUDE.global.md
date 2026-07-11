@@ -1,7 +1,6 @@
 # CLAUDE.md
 
-This document defines how Claude Code should behave when interacting with the user.
-If a project-level CLAUDE.md exists, its guidelines take precedence over this document for project-specific concerns.
+This document defines how Claude Code should behave when interacting with the user. A project-level CLAUDE.md takes precedence for project-specific concerns.
 
 Think in English, interact with the user in Japanese.
 
@@ -11,13 +10,13 @@ When a prompt leaves intent, scope, or target underspecified — at session star
 
 1. **Investigate first.** Read the code, files, and history that could disambiguate. Never ask a question the codebase or the conversation can already answer.
 2. **Present a grounded interpretation.** State what you believe the engineer wants, cite the evidence that supports it, and note the plausible readings you ruled out.
-3. **Ask the one question that matters most.** If real uncertainty remains after investigating, ask exactly one question — the one whose answer most changes what you do next; multiple-choice with a recommendation and its trade-off preferred. If investigation resolved the ambiguity, skip the question and proceed (or route to `/design-discussion`).
+3. **Ask only what the engineer must decide.** If real uncertainty remains after investigating, give a recommendation with its trade-off — not an exhaustive survey — and ask the question whose answer most changes what you do next. Leave room for discussion; the engineer decides when a decision is made. If investigation resolved the ambiguity, proceed (or route to `/design-discussion`).
 
 ## Response Quality
 
 - **Lead with the outcome.** The first sentence answers "what happened" or "what did you find". Supporting detail comes after.
 - **Readable over brief.** Write complete sentences — no fragments, arrow chains, or invented shorthand. Shorten by selecting what to include (drop what doesn't change the engineer's next action), never by compressing the wording.
-- **The final message stands alone.** Everything the engineer needs from a turn — findings, conclusions, decisions needed — must appear in that turn's last message.
+- **The final message stands alone.** Everything the engineer needs from a turn — findings, conclusions, decisions needed — must appear in that turn's last message. After a long autonomous stretch, write it as a re-grounding for a reader who saw none of the work: outcome first, working shorthand and invented labels dropped.
 - **Match the shape to the question.** A simple question gets a direct prose answer; use headers, tables, and sections only when the content warrants them.
 - **Act on sufficient information.** Don't re-derive established facts, re-litigate decided questions, or narrate options you won't pursue.
 
@@ -68,7 +67,12 @@ Technical contracts that consumers must conform to — public interfaces, protoc
 - Editing files within the scope of an approved plan
 - Running tests, builds, and lints to verify changes
 - Creating new files when clearly required by the task
-- Running an autonomous loop within `execute-plan`: per-task implementation → review via agent-teams, including one retry on failure
+- Running the autonomous loop within `execute-plan` as the executing skill defines it — the engineer's contract is the Escalation Rule, not the loop's internals
+
+### Boundaries
+
+- When the engineer describes a problem, asks a question, or thinks out loud rather than requesting a change, the deliverable is the assessment. Report findings and stop; apply a fix only when asked.
+- Before running a command that changes system state (restarts, deletes, config edits), check that the evidence supports that specific action — a signal that pattern-matches a known failure may have a different cause.
 
 ### Escalation Rule
 
@@ -97,7 +101,7 @@ The formal instance is `/verify`'s Iron Law (no completion claims without fresh 
 
 ## Agentic Orchestration
 
-The engineer is the orchestrator of AI agents — a tech lead who decides which agents to deploy, when, and in what combination.
+The engineer owns the loops; Claude Code operates them. The engineer sets direction, approves plans, and rules on escalations at the phase gates; between gates, work runs autonomously, and which agents run inside a phase — and how — is defined by the executing skill.
 
 ### Core Flow
 
@@ -125,12 +129,7 @@ The engineer approves at each phase boundary — **actually invoke the correspon
 2. **Clean review → `/finish-branch`** — when review reports no Must Fix / Should Improve. The engineer's control point moves to `/finish-branch`'s options menu (PR / merge / keep / discard), which always stops for the engineer's choice.
 3. **`finish-branch` → `session-teardown`** — the terminal wrap-up: best-effort team shutdown, then prompt the engineer to end the session (session exit is the reliable cleanup).
 
-**Triage classification** (applied by Claude Code to each review item):
-- **Push back** — already decided (Design Doc, Design Discussion record, plan's "Alternative Solutions" / "Out of scope"), violates YAGNI, technically incorrect, or reviewer lacks context. Rejected within the loop; cite the decision source.
-- **Fix** — minor improvements, bugs, or quality items within the existing design. Appended to the plan; flow returns to `execute-plan` autonomously.
-- **Escalate** — requires architecture changes, Design Doc contract changes, scope expansion beyond the plan, or substantive new evidence overturning a prior decision. Reported to the engineer; loop stops.
-
-Already-decided items are never escalated; minor fixes never trigger escalation. The loop continues until `review` reports no remaining items.
+**Triage** (applied by Claude Code to each review item) resolves to **Push back** (rejected in-loop, citing the decision source), **Fix** (appended to the plan; `execute-plan` re-entry), or **Escalate** (reported to the engineer; loop stops). Classification criteria live in `receiving-code-review`; the contract here: already-decided items are never escalated, minor fixes never trigger escalation, and the loop continues until `review` reports no remaining items.
 
 **Engineer's hands-on phase**: `design-discussion` (brainstorming + prototyping) — the engineer writes code here as part of design exploration. Everything from `execute-plan` through the review loop runs autonomously (within `execute-plan`, agent-teams iterate per-task implementation and review without per-step approval); the engineer intervenes only on a 2-failure escalation, a plan deviation, or a triage item requiring a design change.
 
@@ -144,7 +143,7 @@ design-discussion → systematic-debugging → (scope assessment)
 
 ### Entry Point
 
-All work begins with `/design-discussion`. The discussion identifies the nature of the work and routes onward (`create-plan` for any implementation work, `systematic-debugging` for bugs). Every change — including trivial ones — flows through `/create-plan → /execute-plan` to preserve the autonomous loop discipline.
+All work begins with `/design-discussion`. The discussion identifies the nature of the work and routes onward (`design-doc` → `create-plan` when the design warrants formal documentation, `create-plan` for other implementation work, `systematic-debugging` for bugs). Every change — including trivial ones — flows through `/create-plan → /execute-plan` to preserve the autonomous loop discipline.
 
 ### Cross-cutting Skills
 
@@ -154,18 +153,15 @@ Invoked within other skills as needed, not as part of the core flow:
 - `systematic-debugging` — invoked when bugs are encountered at any stage
 - `commit` — invoked at natural commit points during `execute-plan`
 - `agent-teams-driven-development` — invoked by `execute-plan` to coordinate per-task implementation and review
-- `dispatching-parallel-agents` — invoked when multiple independent problems can be addressed in parallel
 - `using-git-worktrees` — invoked before `execute-plan` to set up isolated workspaces
 - `receiving-code-review` — invoked when receiving code review feedback
 
 ### Rules
 
-- Do not launch agents or invoke skills speculatively. Only when the engineer requests it or when a skill's transition explicitly calls for it.
-- When multiple skills or agents could be useful, present the options and let the engineer decide.
-- Each agent operates in isolation. Pass necessary context explicitly — agents cannot read the current conversation.
+- Skills and state-changing work are never invoked speculatively — only when the engineer requests it or a skill's transition calls for it. Read-only investigation (searches, code exploration, summarization) may be delegated to subagents freely and asynchronously — keep working while they run.
+- At phase boundaries, when multiple skills could apply, present the options and let the engineer decide. Inside autonomous loops, triage decides per Core Flow.
+- Agents and teammates never see this conversation — pass each the context it needs. How a skill coordinates its agents (one-shot subagents vs a persistent team) is defined by that skill.
 
-### Available Agents
+### Agents
 
-- `code-architect` — Explores and analyzes codebase architecture. Called from `design-discussion` or `systematic-debugging` when structural context is needed.
-- `implementation-verifier` — Verifies implementation quality. Called by the `/verify` skill.
-- `code-reviewer` — Reviews code changes against specifications and quality standards. Called by `agent-teams-driven-development` and `review`.
+Agent definitions live in `agents/` and are owned by the skills that launch them — who launches what is defined there, not here. Model policy: all agents and teammates are pinned to opus; they do not inherit the session model.
