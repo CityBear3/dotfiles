@@ -3,7 +3,7 @@ name: code-architect
 description: |
   Explores and analyzes codebase architecture. Provides structural context, dependency analysis,
   and pattern extraction to inform the user's design decisions.
-  Called from /design-discussion or /systematic-debugging when structural context is needed.
+  Called from /design-discussion when structural context is needed.
   Does NOT make design decisions or write code.
 model: opus
 ---

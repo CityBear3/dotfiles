@@ -57,8 +57,9 @@ skill.
    engineer compares whole approaches.
 
 3. **Walk the engineer through the decision tree.** One question at a
-   time — the single highest-leverage question next; multiple-choice or
-   recommend-an-answer formats preferred. Walk branch by branch,
+   time — the single highest-leverage question next; recommend an
+   answer with its trade-off and let discussion settle before moving
+   on. Walk branch by branch,
    surfacing dependencies between decisions. Cover both **problem-space
    decisions** (what must be required, guaranteed, or exposed —
    consistency, failure tolerance, integration boundaries, performance
@@ -113,7 +114,7 @@ For smaller work where a Design Doc would be ceremony (handful of files, no cros
 ## Key Principles
 
 - **One question at a time** — Don't overwhelm with multiple questions.
-- **Multiple choice preferred** — Easier to answer than open-ended.
+- **Explain first, decide later** — Present analysis and leave room for discussion; offer options when the engineer is ready to decide.
 - **Engineer decides** — Claude Code presents options; the engineer chooses.
 - **Scale to the work** — Brief for trivial, extensive for complex.
 - **YAGNI** — Strip unnecessary scope from any design.
