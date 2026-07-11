@@ -2,7 +2,7 @@
 name: code-reviewer
 description: |
   Reviews code changes against specifications and quality standards.
-  Used by agent-teams-driven-development (spec / code-quality reviewer roles) and the /review skill.
+  Used by agent-teams-driven-development (spec / code-quality reviewer roles); /review uses its own dedicated reviewer agents instead.
   Provides structured feedback (Strengths / Issues by severity / Assessment).
   Does NOT modify code — only reviews and reports.
 model: opus
