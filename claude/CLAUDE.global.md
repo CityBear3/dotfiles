@@ -145,6 +145,10 @@ design-discussion → systematic-debugging → (scope assessment)
 
 All work begins with `/design-discussion`. The discussion identifies the nature of the work and routes onward (`design-doc` → `create-plan` when the design warrants formal documentation, `create-plan` for other implementation work, `systematic-debugging` for bugs). Every change — including trivial ones — flows through `/create-plan → /execute-plan` to preserve the autonomous loop discipline.
 
+### Workspaces
+
+Feature work runs in a per-feature herdr workspace: one feature = one git worktree under `~/.herdr/worktrees/<repo>/<branch>` = one session, from `design-discussion` through `finish-branch`. `create-workspace` verifies or establishes this state — Claude runs the herdr commands (`herdr worktree create`); opening the session in the new workspace and removing the workspace afterward (`herdr worktree remove`) are the engineer's actions. Worktrees Claude spawns autonomously (subagent `isolation: "worktree"`, EnterWorktree) stay harness-managed under `.claude/worktrees` and are outside this policy.
+
 ### Cross-cutting Skills
 
 Invoked within other skills as needed, not as part of the core flow:
@@ -153,7 +157,7 @@ Invoked within other skills as needed, not as part of the core flow:
 - `systematic-debugging` — invoked when bugs are encountered at any stage
 - `commit` — invoked at natural commit points during `execute-plan`
 - `agent-teams-driven-development` — invoked by `execute-plan` to coordinate per-task implementation and review
-- `using-git-worktrees` — invoked before `execute-plan` to set up isolated workspaces
+- `create-workspace` — ensures feature work runs in its own herdr workspace; invoked from `design-discussion` (workspace check) and before `execute-plan`
 - `receiving-code-review` — invoked when receiving code review feedback
 
 ### Rules
