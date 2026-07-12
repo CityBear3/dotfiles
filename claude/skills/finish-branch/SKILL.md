@@ -72,13 +72,28 @@ Do not add explanation — keep options concise.
 
 #### Option 2: Merge Locally
 
+In a worktree session, `git checkout <base-branch>` is impossible — the base
+branch is checked out in the main checkout. Operate on the main checkout via
+`-C` instead:
+
 ```bash
-git checkout <base-branch>
-git pull
-git merge <feature-branch>
-# Verify tests on merged result
-git branch -d <feature-branch>
+main_root=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
+git -C "$main_root" pull
+git -C "$main_root" merge <feature-branch>
+# Verify tests on the merged result (run them in $main_root)
 ```
+
+The feature branch cannot be deleted while this worktree has it checked out.
+Report instead:
+
+```
+Merged into <base-branch>. After you remove this workspace
+(herdr worktree remove), delete the branch with `git branch -d <feature-branch>`.
+```
+
+(On a plain feature branch — no worktree — the classic sequence applies:
+`git checkout <base-branch> && git pull && git merge <feature-branch>`,
+verify tests, then `git branch -d <feature-branch>`.)
 
 #### Option 3: Keep As-Is
 
@@ -95,11 +110,19 @@ This will permanently delete:
 Type 'discard' to confirm.
 ```
 
-Wait for exact confirmation. If confirmed:
-```bash
-git checkout <base-branch>
-git branch -D <feature-branch>
+Wait for exact confirmation. If confirmed, in a worktree session Claude
+deletes nothing — the branch is checked out here. Report instead
+(`$HERDR_WORKSPACE_ID` carries this session's workspace ID):
+
 ```
+To discard: remove this workspace
+  herdr worktree remove --workspace $HERDR_WORKSPACE_ID --force
+then delete the branch from the main checkout:
+  git branch -D <feature-branch>
+```
+
+(On a plain feature branch — no worktree:
+`git checkout <base-branch> && git branch -D <feature-branch>` as before.)
 
 ## Red Flags
 
