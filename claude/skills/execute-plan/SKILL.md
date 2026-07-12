@@ -15,13 +15,13 @@ Execute the approved implementation plan via the agent-teams autonomous loop.
 ## Entry Conditions
 
 - An approved plan exists (from `/create-plan`)
-- A feature branch or worktree is set up (NOT main/master). If not, invoke `/using-git-worktrees` first.
+- A feature workspace is set up (NOT main/master). If not, invoke `/create-workspace` first.
 
 ## Process
 
 ### Step 1: Verify Workspace
 
-Confirm an isolated workspace (worktree or feature branch) is set up. If not, invoke `/using-git-worktrees`.
+Confirm an isolated workspace (herdr worktree or feature branch) is set up. If not, invoke `/create-workspace`.
 
 ### Step 2: Dispatch to Agent-Teams
 
@@ -56,7 +56,7 @@ When agent-teams reports completion, verify all TaskList entries are marked comp
 | Violation | Correct Behavior |
 |---|---|
 | Executing without an approved plan | Stop. Get plan approval first via /create-plan. |
-| Executing on main/master | Stop. Set up worktree or feature branch via /using-git-worktrees. |
+| Executing on main/master | Stop. Set up the feature workspace via /create-workspace. |
 | Ad-hoc design changes during execution | Flag. Return to `/design-discussion` if design must change. |
 | Skipping /verify after agent-teams completes | /verify is the formal gate. Run it. |
 | Reporting completion with known test failures | Fix or note explicitly. |
@@ -81,6 +81,6 @@ When agent-teams reports completion, verify all TaskList entries are marked comp
 
 **Required:**
 - `/create-plan` — provides the plan to execute
-- `/using-git-worktrees` — workspace setup before execution
+- `/create-workspace` — workspace verification/setup before execution
 - `/agent-teams-driven-development` — autonomous execution
 - `/verify` — formal verification after execution
