@@ -40,6 +40,15 @@ Claude Code does NOT:
 prompt for "ultrathink" or deeper questioning — both are baked into this
 skill.
 
+0. **Workspace check.** As soon as the discussion reveals the work will
+   change code — and no later than routing — check where this session
+   runs: if `git rev-parse --path-format=absolute --git-common-dir`
+   equals `<toplevel>/.git`, this is the main checkout (a launchpad
+   session), so invoke `/create-workspace` before going deeper. Feature
+   work lives in its own herdr workspace from design-discussion onward.
+   Pure consultation, investigation, or prototyping support may stay
+   where it is.
+
 1. **Investigate first.** Once the topic is understood, your next
    response uses extended thinking (ultrathink) to investigate the
    codebase, existing Design Docs, and relevant specs. Ground the
