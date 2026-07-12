@@ -21,7 +21,7 @@ Invoked by `/execute-plan`. Not invoked directly by the engineer.
 
 **Prerequisites:**
 - An approved plan exists (from `/create-plan`)
-- An isolated workspace is set up (via `/using-git-worktrees`)
+- An isolated workspace is set up (via `/create-workspace`)
 - The current branch is NOT main/master
 
 ## Team Composition
@@ -193,7 +193,7 @@ Present what was tried, what failed, teammate's analysis, recommended next step.
 ## Integration
 
 **Required:**
-- `/using-git-worktrees` — isolated workspace before starting
+- `/create-workspace` — isolated workspace before starting
 - `/create-plan` — creates the plan
 - `/finish-branch` — after all tasks complete
 
