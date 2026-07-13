@@ -71,7 +71,7 @@ When findings from different personas conflict (e.g., Performance suggests inlin
 
 ## Output
 
-Emit a single markdown section using the Finding Format defined by /review. For each surviving finding:
+Return the integrated result as your final message text — a single markdown section using the Finding Format defined by /review. Your final text IS the deliverable: /review's lead consumes it inline as the Agent tool result for Step 3 aggregation. Never use the Artifact tool, never write the section to a file, never route it through any channel other than your final text. For each surviving finding:
 
 ```
 <icon> **<short title>**
@@ -125,3 +125,4 @@ If all findings are filtered out:
 - Do not re-grade severity based on your own analysis — apply the standard mechanically
 - Do not comment on individual persona quality
 - Do not call extended thinking
+- Do not create Artifacts or write files — the integrated section returns inline as your final text, nothing else
