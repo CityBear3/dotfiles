@@ -31,7 +31,7 @@ adjust this header.
 
 **Tech Stack:** Rust 2024 edition. Zero runtime deps.
 
-**Working directory:** `/Users/sakumatomoya/workspace/calculator/.claude/worktrees/stage3c-generics` (cargo CWD: `<worktree>/compiler`).
+**Working directory:** `~/workspace/calculator/.claude/worktrees/stage3c-generics` (cargo CWD: `<worktree>/compiler`).
 **Branch:** `stage3c-generics`.
 **Baseline before Task 1:** 319 tests passing (294 lib + 7 bin + 17 e2e + 1 samples), clippy `-D warnings` clean, `cargo fmt -- --check` clean. Main HEAD `7f651e2`.
 
