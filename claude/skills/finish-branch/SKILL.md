@@ -16,8 +16,10 @@ Guide completion of development work by presenting clear options and handling th
 
 ## Entry Conditions
 
-- `review` has been completed and the engineer is satisfied with the results
-- Or the engineer explicitly decides to finish the branch at any point
+- `/review` (the skill) has run to completion and reported clean — no Must Fix / Should Improve
+- Or the engineer explicitly decides to finish the branch at any point (the entry guard below does not apply)
+
+**Entry guard (automatic transition only):** when entered via the Core Flow's clean-review automatic transition, verify there is evidence of a clean `/review` completion since the latest commit: the most recent `/review` report in this session shows zero Must Fix / Should Improve, and no commit has been made after that report. If fixes were committed after the last `/review` report — or no `/review` report exists — do not proceed: return to `/verify` (the loop continues `/verify` → `/review` → back here). Agent-teams internal reviewer approval (spec-reviewer / code-quality-reviewer) is NOT such evidence.
 
 ## The Process
 
