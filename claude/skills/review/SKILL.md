@@ -172,12 +172,12 @@ After producing the report, Claude Code applies `/receiving-code-review` discipl
 → Annotate the item in the report as "pushed back" with the decision source cited. No fix task is created. No engineer prompt.
 
 **Fix** — minor improvements, bugs, or quality items within the existing design.
-→ Append a fix task to the plan's "Post-/review iteration" section with concrete steps. Then re-invoke `/execute-plan` autonomously. The loop continues: /execute-plan → /verify → /review → (triage again). No engineer prompt.
+→ Append a fix task to the plan's "Post-/review iteration" section with concrete steps. Then complete Step 5 and re-invoke `/execute-plan` autonomously. The loop continues: /execute-plan → /verify → /review → (triage again). No engineer prompt.
 
 **Escalate** — architecture / Design Doc contract change / scope expansion beyond the plan / substantive new evidence overturning a prior decision.
-→ Stop the loop. Present to the engineer: the item, the triage reasoning, what design change appears necessary, the recommended next step.
+→ Complete Step 5, then stop the loop. Present to the engineer: the item, the triage reasoning, what design change appears necessary, the recommended next step.
 
-Whatever the triage outcomes, complete **Step 5 (append the local review report)** before executing any transition defined above — the fix-loop re-entry, the escalation stop, and the clean `/finish-branch` transition all happen only after the report file is updated.
+Whatever the triage outcomes, complete **Step 5 (append the local review report)** before executing any transition defined in this step — the fix-loop re-entry, the escalation stop, and the clean `/finish-branch` transition all happen only after the report file is updated.
 
 **Engineer involvement at this step**:
 
@@ -186,7 +186,7 @@ The engineer is **NOT prompted** for triage decisions, for choosing what to fix,
 The engineer is surfaced only when:
 
 - An item is **escalated** (above), OR
-- All items are resolved and the report has no remaining Must Fix / Should Improve. An item counts as **resolved** only when it was pushed back, or when a subsequent fresh `/review` run no longer reports it — executing a fix does NOT resolve an item. A report from which even one Fix task was executed is therefore never clean: the Fix path always re-enters the loop (`/execute-plan` → `/verify` → `/review`), and only that next fresh `/review` run — never the agent-teams internal reviewers' (spec-reviewer / code-quality-reviewer) approval — renders the clean verdict. When the clean verdict holds, present the final clean report with the triage summary and **transition to `/finish-branch` automatically** — on a clean review this transition is **NOT** gated (per CLAUDE.md Role and Autonomy). Do NOT pause to ask the engineer for approval to proceed; the engineer's control point is `/finish-branch`'s own options menu (PR / merge / keep / discard), which always stops for the engineer's choice. (`/finish-branch` is in turn followed by the terminal `/session-teardown` wrap-up.)
+- All items are resolved and the report has no remaining Must Fix / Should Improve. An item counts as **resolved** only when it was pushed back, or when a subsequent fresh `/review` run no longer reports it — executing a fix does NOT resolve an item. A report from which even one Fix task was executed is therefore never clean: the Fix path always re-enters the loop (`/execute-plan` → `/verify` → `/review`), and only that next fresh `/review` run — never the agent-teams internal reviewers' (spec-reviewer / code-quality-reviewer) approval — renders the clean verdict. When the clean verdict holds, first complete **Step 5** for this iteration, then present the final clean report with the triage summary and **transition to `/finish-branch` automatically** — on a clean review this transition is **NOT** gated (per CLAUDE.md Role and Autonomy). Do NOT pause to ask the engineer for approval to proceed; the engineer's control point is `/finish-branch`'s own options menu (PR / merge / keep / discard), which always stops for the engineer's choice. (`/finish-branch` is in turn followed by the terminal `/session-teardown` wrap-up.)
 
 **Triage summary format** (appended to the report when surfacing to the engineer):
 
@@ -209,16 +209,17 @@ After triage completes — whatever the outcome (fix-loop re-entry, escalation, 
 If Step 1's context bundle identified no plan file, skip this step and note the skip in the chat report (the report lives next to the plan and has no home without one).
 
 1. **Path**: same directory and basename as the plan file, suffixed `-review.html`. Example: plan `docs/plans/2026-07-13-foo.md` → report `docs/plans/2026-07-13-foo-review.html`.
-2. **Keep it uncommitted** — idempotently add the pattern to the clone-local exclude file (never the repo's tracked `.gitignore`):
+2. **Keep it uncommitted** — idempotently register the report's repo-relative path in the clone-local exclude file (never the repo's tracked `.gitignore`). Register the exact path, not a `*-review.html` glob: a glob would silently hide unrelated untracked files matching the suffix anywhere in the clone, defeating the reason info/exclude was chosen (leave the target repo untouched):
 
    ```sh
+   REPORT="<repo-relative report path from item 1, e.g. docs/plans/2026-07-13-foo-review.html>"
    EXCLUDE="$(git rev-parse --path-format=absolute --git-common-dir)/info/exclude"
-   grep -qxF '*-review.html' "$EXCLUDE" 2>/dev/null || echo '*-review.html' >> "$EXCLUDE"
+   grep -qxF "$REPORT" "$EXCLUDE" 2>/dev/null || echo "$REPORT" >> "$EXCLUDE"
    ```
 
    `info/exclude` lives in the common git dir, so it covers every worktree of the clone without touching shared repo state.
 3. **First iteration**: if the report file does not exist, create it from the template below, filling `[feature]` from the plan basename and `[branch]` from the current branch.
-4. **Append the iteration section**: insert a new `<section class="iteration">` immediately before the closing `</main>` tag, containing in order: an `<h2>` with the 1-based iteration number and today's date, the Step 3 unified report, and the Step 4 triage summary including pushed-back items with their cited decision sources. Convert the markdown mechanically — `##`/`###` headings to `<h3>`/`<h4>`, code fences to `<pre><code>`, finding icons and structure preserved. This is a transcription of content the lead already produced, not a rewrite: do not re-analyze, re-word, or drop findings.
+4. **Append the iteration section**: insert a new `<section class="iteration">` immediately before the closing `</main>` tag. Determine the iteration number by counting the existing `<section class="iteration">` blocks already in the file and adding 1 — the first append into a freshly created file is iteration 1. The section contains, in order: an `<h2>` with that iteration number and today's date, the Step 3 unified report, and the Step 4 triage summary including pushed-back items with their cited decision sources. Convert the markdown mechanically — `##`/`###` headings to `<h3>`/`<h4>`, code fences to `<pre><code>`, finding icons and structure preserved. **Escape every transcribed body before it goes into the HTML** — replace `&` → `&amp;`, then `<` → `&lt;`, then `>` → `&gt;` (in that order) across all finding text and especially code snippets, so that HTML/XML literals in the reviewed diff (e.g. a `</main>` or `<section>` string) render as visible text and cannot corrupt the document or the `</main>` append anchor the next iteration relies on. This is a transcription of content the lead already produced, not a rewrite: do not re-analyze, re-word, or drop findings.
 
 Template (first creation only):
 
