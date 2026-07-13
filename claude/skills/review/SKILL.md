@@ -177,6 +177,8 @@ After producing the report, Claude Code applies `/receiving-code-review` discipl
 **Escalate** — architecture / Design Doc contract change / scope expansion beyond the plan / substantive new evidence overturning a prior decision.
 → Stop the loop. Present to the engineer: the item, the triage reasoning, what design change appears necessary, the recommended next step.
 
+Whatever the triage outcomes, complete **Step 5 (append the local review report)** before executing any transition defined above — the fix-loop re-entry, the escalation stop, and the clean `/finish-branch` transition all happen only after the report file is updated.
+
 **Engineer involvement at this step**:
 
 The engineer is **NOT prompted** for triage decisions, for choosing what to fix, or for confirmation to re-enter `/execute-plan`. The loop runs autonomously per CLAUDE.md's Autonomous loop phase.
@@ -199,6 +201,49 @@ The engineer is surfaced only when:
 **Loop termination guard**: if the same item recurs across 2 consecutive review iterations after a Fix attempt, escalate it instead — the fix is not working and may require a design change.
 
 If unsure between Fix and Escalate for an item, lean toward **Fix**. The engineer can override during the next plan review.
+
+### Step 5: Append the Local Review Report (every iteration, before transitioning)
+
+After triage completes — whatever the outcome (fix-loop re-entry, escalation, or clean) — append this iteration's report to a local HTML file next to the plan, then transition. The file is the engineer-facing record of what each iteration found and how it was triaged: browser-readable, workspace-local, and gone when the worktree is removed. Do NOT publish the review report as an Artifact — external hosting is not part of this flow.
+
+If Step 1's context bundle identified no plan file, skip this step and note the skip in the chat report (the report lives next to the plan and has no home without one).
+
+1. **Path**: same directory and basename as the plan file, suffixed `-review.html`. Example: plan `docs/plans/2026-07-13-foo.md` → report `docs/plans/2026-07-13-foo-review.html`.
+2. **Keep it uncommitted** — idempotently add the pattern to the clone-local exclude file (never the repo's tracked `.gitignore`):
+
+   ```sh
+   EXCLUDE="$(git rev-parse --path-format=absolute --git-common-dir)/info/exclude"
+   grep -qxF '*-review.html' "$EXCLUDE" 2>/dev/null || echo '*-review.html' >> "$EXCLUDE"
+   ```
+
+   `info/exclude` lives in the common git dir, so it covers every worktree of the clone without touching shared repo state.
+3. **First iteration**: if the report file does not exist, create it from the template below, filling `[feature]` from the plan basename and `[branch]` from the current branch.
+4. **Append the iteration section**: insert a new `<section class="iteration">` immediately before the closing `</main>` tag, containing in order: an `<h2>` with the 1-based iteration number and today's date, the Step 3 unified report, and the Step 4 triage summary including pushed-back items with their cited decision sources. Convert the markdown mechanically — `##`/`###` headings to `<h3>`/`<h4>`, code fences to `<pre><code>`, finding icons and structure preserved. This is a transcription of content the lead already produced, not a rewrite: do not re-analyze, re-word, or drop findings.
+
+Template (first creation only):
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Report: [feature] ([branch])</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, "Hiragino Sans", sans-serif; max-width: 60rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.7; }
+  section.iteration { border-top: 2px solid rgba(128,128,128,.4); margin-top: 2.5rem; padding-top: 1rem; }
+  pre { background: rgba(128,128,128,.12); padding: .75rem; border-radius: 6px; overflow-x: auto; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .9em; }
+</style>
+</head>
+<body>
+<h1>Review Report: [feature] ([branch])</h1>
+<main>
+</main>
+</body>
+</html>
+```
 
 ## Finding Format
 
@@ -280,6 +325,7 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Setting `run_in_background: true` on a reviewer Agent call | Run foreground. Findings must return inline as the tool result for Step 2.5 / Step 3 aggregation. |
 | Dispatching the integrator (Step 2.5) with a `name`, in the background, or without an explicit `model: "opus"` | The integrator follows the same dispatch rules as the Step 2 reviewers, for the same reasons: name-less one-shot subagent, foreground, model pinned explicitly at the call site. |
 | The integrator returning its result via the Artifact tool or a file instead of its final text | The integrated section must come back inline as the Agent tool result — Step 3 embeds it in the unified report. Any other channel breaks the aggregation (this is the drift Step 2.5's dispatch rules exist to prevent). |
+| Publishing the review report as an Artifact, or skipping the Step 5 local report | The engineer-facing record is the Step 5 local HTML next to the plan — appended every iteration (clean runs included), kept uncommitted via `info/exclude`. External hosting is not part of this flow. |
 
 ## Important Rules
 
