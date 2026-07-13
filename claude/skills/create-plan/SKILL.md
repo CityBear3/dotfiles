@@ -73,7 +73,7 @@ A complete real-world example lives next to this skill at `example-plan.md` — 
 **Architecture:** [2-3 sentences explaining the overall approach and how the tasks compose]
 **Tech Stack:** [Key technologies / libraries / language version]
 
-**Working directory:** `[absolute or repo-relative path]` (run all build/test commands from there).
+**Working directory:** `[~-prefixed or repo-relative path — never an absolute path embedding the username]` (run all build/test commands from there).
 **Branch:** `[branch-name]`.
 **Baseline before Task 1:** [N tests passing, lint clean, fmt clean — engineer must verify before starting].
 
@@ -244,6 +244,7 @@ After writing the complete plan, review with fresh eyes:
 1. **Spec coverage:** Skim the Design Doc / discussion. Can you point to a task that implements each requirement? List any gaps.
 2. **Placeholder scan:** Search for red flags (see "No Placeholders" below). Fix them.
 3. **Type consistency:** Do types, method signatures, and property names match across tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+4. **PII / path scan:** No personal information anywhere in the plan — no `/Users/<name>`-style absolute paths (write every path `~`-prefixed or repo-relative), no usernames, no email addresses. Plans can leave the machine (PRs, shared logs), so they must be clean by construction. `grep -nE '/Users/|/home/' <plan-file>` must return nothing.
 
 Fix issues inline. No need to re-review — just fix and move on.
 
@@ -290,6 +291,7 @@ Every step must contain the actual content an executor needs. These are **plan f
 | Behavior-change task without `Discipline: TDD` | Mark as TDD. The change must be preceded by a red test (Step 1). |
 | Refactor task that adds new tests | If new tests are needed, the task isn't a pure refactor — re-tag as `Behavior change: yes` and `Discipline: TDD`. |
 | Steps that enumerate the full red-green-refactor cycle | Plan specifies WHAT (which tests, which behaviors); the TDD skill drives HOW. Don't duplicate the skill into Steps. |
+| Absolute paths embedding the username (`/Users/<name>/...`) anywhere in the plan | Write `~`-prefixed or repo-relative paths. Plans must contain no PII (usernames, emails) — see Self-Review's PII / path scan. |
 
 ## Rationalization Prevention
 
