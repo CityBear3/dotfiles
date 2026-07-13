@@ -122,12 +122,14 @@ Each adversarial persona must:
 
 When the 4 adversarial agents (4–7) complete, launch the `adversarial-integrator` agent. **This step does NOT wait for verification agents (1–3)** — verification findings flow directly to Step 3 in parallel.
 
+Dispatch the integrator under the same rules as the Step 2 reviewers, for the same reasons: **name-less** (one-shot subagent, not a teammate), **foreground** (do NOT set `run_in_background: true`), and with **`model: "opus"` passed explicitly**. The integrator's output channel is its final text: the integrated section must come back **inline as the Agent tool result** — never as an Artifact, never as a file (see Red Flags).
+
 Inputs to the integrator:
 
 - The 4 adversarial findings
 - Design Doc / Plan / CLAUDE.md / rules from the context bundle (for already-decided filtering)
 
-The integrator returns a single deduplicated, severity-normalized markdown section. Verification findings are NOT passed to the integrator.
+The integrator returns a single deduplicated, severity-normalized markdown section inline as its final text — this return value is what Step 3 embeds in the unified report. Verification findings are NOT passed to the integrator.
 
 ### Step 3: Unified Report
 
@@ -276,6 +278,8 @@ When no genuine concerns are found, return `findings: []` with `considered:` pop
 | Dispatching verification agents (1–3) first, waiting for completion, then dispatching adversarial agents (4–7) | All 7 agents launch in a single batch via parallel Agent tool calls in ONE message. The Verification / Adversarial labels are categorical, not phasal. Two-wave dispatch defeats the wall-clock benefit and is forbidden. |
 | Passing a `name` to a reviewer Agent call | Dispatch name-less. A named spawn becomes a teammate (tmux pane + agent-teams lifecycle bugs); reviewers must be one-shot subagents that return findings directly. |
 | Setting `run_in_background: true` on a reviewer Agent call | Run foreground. Findings must return inline as the tool result for Step 2.5 / Step 3 aggregation. |
+| Dispatching the integrator (Step 2.5) with a `name`, in the background, or without an explicit `model: "opus"` | The integrator follows the same dispatch rules as the Step 2 reviewers, for the same reasons: name-less one-shot subagent, foreground, model pinned explicitly at the call site. |
+| The integrator returning its result via the Artifact tool or a file instead of its final text | The integrated section must come back inline as the Agent tool result — Step 3 embeds it in the unified report. Any other channel breaks the aggregation (this is the drift Step 2.5's dispatch rules exist to prevent). |
 
 ## Important Rules
 
