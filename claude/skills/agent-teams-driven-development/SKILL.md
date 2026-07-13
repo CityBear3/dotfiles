@@ -195,7 +195,7 @@ Present what was tried, what failed, teammate's analysis, recommended next step.
 **Required:**
 - `/create-workspace` — isolated workspace before starting
 - `/create-plan` — creates the plan
-- `/finish-branch` — after all tasks complete
+- `/verify` — after all tasks complete (via the parent flow's `/execute-plan` → `/verify` transition; see Completion)
 
 **Teammates follow:**
 - `/test-driven-development` — TDD for each task
