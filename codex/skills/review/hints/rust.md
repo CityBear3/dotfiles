@@ -37,7 +37,7 @@ Use these prompts selectively. Repository guidance and the approved design take 
 - Prefer DAMP case-local setup when a shared fixture would hide why values matter.
 - Assert the complete returned domain value when practical. Assert a side effect when it is the behavior under test.
 - Reject tests that only prove the mock, only check success, or duplicate guarantees already enforced by the type system.
-- Check isolation of paths, static state, environment, current directory, clocks, and ports under parallel execution.
+- Check isolation of paths, static state, process-global environment, current directory, clocks, and ports under parallel execution.
 - Never permit tests to touch the user's real home or configuration.
 - For binary journeys, use the Cargo-built binary rather than a behavioral shim.
 - Review snapshots and generated expected files as behavior changes; do not accept them mechanically.
