@@ -1,5 +1,6 @@
 mod support;
 
+use std::path::Path;
 use std::process::Command;
 
 use support::process_tempdir;
@@ -8,10 +9,21 @@ use support::process_tempdir;
 fn compiled_binary_dry_run_is_non_mutating() {
     // Arrange
     let temporary = process_tempdir("compiled-dry-run");
-    let home = temporary.path().join("home");
-    let codex_home = temporary.path().join("codex-home");
-    let skills_home = temporary.path().join("skills-home");
-    let state_root = temporary.path().join("xdg-state");
+    let unique_name = temporary
+        .path()
+        .file_name()
+        .expect("unique process-test directory name")
+        .to_string_lossy();
+    let destination_root =
+        Path::new("/private/tmp").join(format!("{unique_name}-test-destination"));
+    assert!(
+        !destination_root.exists(),
+        "external destination root must start absent"
+    );
+    let home = destination_root.join("home");
+    let codex_home = destination_root.join("codex-home");
+    let skills_home = destination_root.join("skills-home");
+    let state_root = destination_root.join("xdg-state");
     let state_dir = state_root.join("installer");
     let output = Command::new(env!("CARGO_BIN_EXE_dotfiles-codex-installer"))
         .env_clear()
@@ -59,7 +71,8 @@ fn compiled_binary_dry_run_is_non_mutating() {
             skills_home.exists(),
             state_root.exists(),
             codex_home.join("codex-manifest-installer.lock").exists(),
+            destination_root.exists(),
         ),
-        (false, false, false, false, false)
+        (false, false, false, false, false, false)
     );
 }
