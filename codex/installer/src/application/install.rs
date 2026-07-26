@@ -1,13 +1,22 @@
 use crate::InstallerError;
+#[cfg(target_os = "macos")]
 use crate::backup::{BackupRequest, BackupRoots, BackupStore, EnsureBackup};
 use crate::command::InstallCommand;
+#[cfg(target_os = "macos")]
 use crate::operation_lock::OperationLock;
+#[cfg(target_os = "macos")]
 use crate::ownership::{ManifestState, read_manifest};
-use crate::plan::{InstallPlan, InstallPlanRequest, PlanOperation, plan_install, render_dry_run};
+#[cfg(target_os = "macos")]
+use crate::plan::{InstallPlan, PlanOperation};
+use crate::plan::{InstallPlanRequest, plan_install, render_dry_run};
+#[cfg(target_os = "macos")]
 use crate::platform::macos::MacOsPlatform;
+#[cfg(target_os = "macos")]
 use crate::transaction::{FaultPoint, TransactionEngine};
 
-use super::{ApplicationContext, discard_if_unselected, recover_unfinished};
+use super::ApplicationContext;
+#[cfg(target_os = "macos")]
+use super::{discard_if_unselected, recover_unfinished};
 
 pub(super) fn execute_dry_run(
     command: InstallCommand,
@@ -25,6 +34,7 @@ pub(super) fn execute_dry_run(
     Ok(render_dry_run(&plan))
 }
 
+#[cfg(target_os = "macos")]
 pub(super) fn execute_mutating(
     command: InstallCommand,
     context: ApplicationContext,
@@ -95,6 +105,16 @@ pub(super) fn execute_mutating(
     Ok("install complete\n".to_owned())
 }
 
+#[cfg(not(target_os = "macos"))]
+pub(super) fn execute_mutating(
+    _command: InstallCommand,
+    _context: ApplicationContext,
+    _requested_operation_id: &str,
+) -> Result<String, InstallerError> {
+    Err(InstallerError::UnsupportedPlatform)
+}
+
+#[cfg(target_os = "macos")]
 fn has_mutating_actions(plan: &InstallPlan) -> bool {
     plan.actions
         .iter()

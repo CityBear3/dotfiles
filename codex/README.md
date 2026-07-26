@@ -6,6 +6,8 @@ This directory is the source of truth for the personal Codex bundle.
 
 Use `install.sh` as the normal entry point. It resolves the installer manifest relative to its own location, so it can be invoked from any working directory.
 
+Mutating `install` and `restore` commands are supported only on macOS; on non-macOS platforms, dry-run remains available, while mutating commands are explicitly rejected before any destination changes.
+
 ```sh
 # Preview the default install.
 ./codex/install.sh --dry-run

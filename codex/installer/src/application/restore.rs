@@ -1,16 +1,24 @@
 use std::path::Path;
 
 use crate::InstallerError;
+#[cfg(target_os = "macos")]
 use crate::backup::BackupStore;
 use crate::command::RestoreCommand;
+#[cfg(target_os = "macos")]
 use crate::operation_lock::OperationLock;
+#[cfg(target_os = "macos")]
 use crate::path::InstallRoots;
+#[cfg(target_os = "macos")]
 use crate::plan::{PlanOperation, build_restore_plan};
+#[cfg(target_os = "macos")]
 use crate::platform::macos::MacOsPlatform;
+#[cfg(target_os = "macos")]
 use crate::transaction::{FaultPoint, TransactionEngine};
 
+#[cfg(target_os = "macos")]
 use super::recover_unfinished;
 
+#[cfg(target_os = "macos")]
 pub(super) fn execute_mutating(
     command: RestoreCommand,
     source_root: &Path,
@@ -30,6 +38,16 @@ pub(super) fn execute_mutating(
     )
 }
 
+#[cfg(not(target_os = "macos"))]
+pub(super) fn execute_mutating(
+    _command: RestoreCommand,
+    _source_root: &Path,
+    _operation_id: &str,
+) -> Result<String, InstallerError> {
+    Err(InstallerError::UnsupportedPlatform)
+}
+
+#[cfg(target_os = "macos")]
 pub(super) fn execute_locked(
     platform: MacOsPlatform,
     store: &BackupStore<'_, MacOsPlatform>,
@@ -59,6 +77,7 @@ pub(super) fn execute_locked(
     Ok("restore complete\n".to_owned())
 }
 
+#[cfg(target_os = "macos")]
 fn resolve_lock_target<P: crate::platform::Platform>(
     store: &BackupStore<'_, P>,
     source_root: &Path,
@@ -68,6 +87,7 @@ fn resolve_lock_target<P: crate::platform::Platform>(
     Ok(initial_roots.codex_home)
 }
 
+#[cfg(target_os = "macos")]
 fn require_latest_roots<P: crate::platform::Platform>(
     store: &BackupStore<'_, P>,
 ) -> Result<crate::backup::BackupRoots, InstallerError> {
@@ -78,6 +98,7 @@ fn require_latest_roots<P: crate::platform::Platform>(
         })
 }
 
+#[cfg(target_os = "macos")]
 fn require_latest<P: crate::platform::Platform>(
     store: &BackupStore<'_, P>,
 ) -> Result<crate::backup::Backup, InstallerError> {
@@ -88,6 +109,7 @@ fn require_latest<P: crate::platform::Platform>(
         })
 }
 
+#[cfg(target_os = "macos")]
 fn validate_locked_authority(
     source_root: &Path,
     backup: &crate::backup::Backup,
@@ -104,6 +126,7 @@ fn validate_locked_authority(
     Ok(())
 }
 
+#[cfg(target_os = "macos")]
 fn validate_restore_roots(
     source_root: &Path,
     roots: &crate::backup::BackupRoots,

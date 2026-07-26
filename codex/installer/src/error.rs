@@ -18,6 +18,9 @@ pub enum InstallerError {
     #[error("--agent-threads must be auto or an integer from 2 to 32")]
     InvalidAgentThreads,
 
+    #[error("mutating installer commands are supported only on macOS")]
+    UnsupportedPlatform,
+
     #[error("{message}")]
     InvalidConfiguration { message: String },
 
@@ -122,6 +125,7 @@ impl InstallerError {
             Self::Cli { exit_code, .. } => *exit_code,
             Self::MissingHome
             | Self::InvalidAgentThreads
+            | Self::UnsupportedPlatform
             | Self::InvalidConfiguration { .. }
             | Self::InvalidInventory { .. }
             | Self::InvalidManifest { .. }
@@ -148,6 +152,7 @@ impl InstallerError {
             Self::Cli { use_stderr, .. } => *use_stderr,
             Self::MissingHome
             | Self::InvalidAgentThreads
+            | Self::UnsupportedPlatform
             | Self::InvalidConfiguration { .. }
             | Self::InvalidInventory { .. }
             | Self::InvalidManifest { .. }

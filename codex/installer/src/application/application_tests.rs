@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
+use crate::InstallerError;
 use crate::backup::{BackupRequest, BackupRoots, BackupStore};
 use crate::command::{InstallCommand, InstallerCommand, RestoreCommand};
 use crate::content::{CapturedContent, capture_optional};
@@ -14,7 +15,7 @@ use crate::transaction::{FaultPoint, TransactionEngine};
 
 use super::{
     ApplicationContext, execute_restore_with_context_and_id, execute_with_context,
-    execute_with_context_and_id,
+    execute_with_context_and_id, execute_with_context_for_platform,
 };
 
 const MANAGED_CONFIG: &str = concat!(
@@ -71,6 +72,59 @@ fn dry_run_creates_no_destination_or_state() {
             codex_home.join("codex-manifest-installer.lock").exists(),
         ),
         (false, false, false, false)
+    );
+}
+
+#[test]
+fn non_macos_mutating_install_is_rejected_before_creating_installer_state() {
+    // Arrange
+    let temporary = project_tempdir("application-unsupported-platform");
+    let source_root = temporary.path().join("source");
+    let codex_home = temporary.path().join("codex-home");
+    let skills_home = temporary.path().join("skills-home");
+    let state_dir = temporary.path().join("state");
+    fs::create_dir(&source_root).expect("create source");
+    fs::create_dir(&codex_home).expect("create existing Codex home");
+    fs::write(source_root.join("config.toml"), MANAGED_CONFIG).expect("write config");
+    let command = InstallerCommand::Install(InstallCommand {
+        dry_run: false,
+        adopt_existing: false,
+        agent_threads: "6".to_owned(),
+        codex_home: codex_home.clone(),
+        skills_home: skills_home.clone(),
+        state_dir: state_dir.clone(),
+    });
+    let context = ApplicationContext {
+        source_root,
+        resources: MachineResources {
+            logical_cpus: 1,
+            memory_bytes: 0,
+        },
+    };
+
+    // Act
+    let result = execute_with_context_for_platform(command, context, false);
+
+    // Assert
+    assert_eq!(result, Err(InstallerError::UnsupportedPlatform));
+    let error = result.expect_err("non-macOS mutation is rejected");
+    assert_eq!(
+        (error.to_string(), error.exit_code(), error.use_stderr(),),
+        (
+            "mutating installer commands are supported only on macOS".to_owned(),
+            1,
+            true,
+        )
+    );
+    assert_eq!(
+        (
+            codex_home.exists(),
+            codex_home.join("codex-manifest-installer.lock").exists(),
+            codex_home.join("config.toml").exists(),
+            skills_home.exists(),
+            state_dir.exists(),
+        ),
+        (true, false, false, false, false)
     );
 }
 

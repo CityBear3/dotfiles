@@ -1,12 +1,17 @@
-use std::path::{Path, PathBuf};
+#[cfg(target_os = "macos")]
+use std::path::Path;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::InstallerError;
+#[cfg(target_os = "macos")]
 use crate::backup::BackupStore;
 use crate::command::InstallerCommand;
+#[cfg(target_os = "macos")]
 use crate::platform::macos::MacOsPlatform;
 use crate::resources::MachineResources;
+#[cfg(target_os = "macos")]
 use crate::transaction::{RecoveryOutcome, TransactionEngine};
 
 mod install;
@@ -40,6 +45,22 @@ pub(crate) fn execute_with_context(
     command: InstallerCommand,
     context: ApplicationContext,
 ) -> Result<String, InstallerError> {
+    execute_with_context_for_platform(command, context, cfg!(target_os = "macos"))
+}
+
+fn execute_with_context_for_platform(
+    command: InstallerCommand,
+    context: ApplicationContext,
+    mutations_supported: bool,
+) -> Result<String, InstallerError> {
+    if !mutations_supported
+        && !matches!(
+            &command,
+            InstallerCommand::Install(command) if command.dry_run
+        )
+    {
+        return Err(InstallerError::UnsupportedPlatform);
+    }
     let operation_id = match &command {
         InstallerCommand::Install(command) if command.dry_run => None,
         InstallerCommand::Install(_) => Some(generate_operation_id("install")),
@@ -88,6 +109,7 @@ fn execute_with_context_and_optional_id(
     }
 }
 
+#[cfg(target_os = "macos")]
 fn recover_unfinished(
     engine: &TransactionEngine<MacOsPlatform>,
     store: &BackupStore<'_, MacOsPlatform>,
@@ -102,6 +124,7 @@ fn recover_unfinished(
     Ok(())
 }
 
+#[cfg(target_os = "macos")]
 fn discard_if_unselected(
     store: &BackupStore<'_, MacOsPlatform>,
     backup_id: &str,
@@ -177,6 +200,6 @@ fn physical_memory_bytes() -> Result<u64, InstallerError> {
     Ok(0)
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "macos"))]
 #[path = "application/application_tests.rs"]
 mod tests;
