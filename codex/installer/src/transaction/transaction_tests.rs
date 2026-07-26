@@ -148,7 +148,13 @@ fn replace_commits_the_desired_content_and_removes_prior_content() {
     );
 
     // Assert
-    assert!(result.is_ok());
+    assert_eq!(
+        result,
+        Ok(TransactionOutcome {
+            transaction_id: "replace-success".to_owned(),
+            applied_entries: 1,
+        })
+    );
     assert_eq!(fs::read(destination).expect("read destination"), b"desired");
     assert_transaction_state_absent(&roots.state_dir, "replace-success");
 }
@@ -176,7 +182,13 @@ fn remove_commits_absence_and_removes_prior_content() {
     );
 
     // Assert
-    assert!(result.is_ok());
+    assert_eq!(
+        result,
+        Ok(TransactionOutcome {
+            transaction_id: "remove-success".to_owned(),
+            applied_entries: 1,
+        })
+    );
     assert!(!destination.exists());
     assert_transaction_state_absent(&roots.state_dir, "remove-success");
 }

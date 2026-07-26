@@ -1,8 +1,7 @@
 use std::ffi::OsString;
-use std::fs;
-use std::sync::{Arc, Barrier, mpsc};
+use std::fs::{self, OpenOptions};
+use std::sync::{Arc, Barrier};
 use std::thread;
-use std::time::Duration;
 
 use crate::test_support::project_tempdir;
 
@@ -44,33 +43,31 @@ fn independently_opened_lock_files_serialize_blocking_acquisition() {
     let codex_home = temporary.path().join("codex-home");
     fs::create_dir(&codex_home).expect("create Codex home");
     let first = OperationLock::acquire(&codex_home).expect("acquire first lock");
+    let independently_opened = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(codex_home.join(LOCK_NAME))
+        .expect("independently open lock file");
+    let lock_error = independently_opened
+        .try_lock()
+        .expect_err("independent try-lock must observe the held lock");
+    assert!(matches!(lock_error, std::fs::TryLockError::WouldBlock));
+    drop(independently_opened);
     let barrier = Arc::new(Barrier::new(2));
     let worker_barrier = Arc::clone(&barrier);
     let worker_home = codex_home.clone();
-    let (acquired_tx, acquired_rx) = mpsc::channel();
     let worker = thread::spawn(move || {
         worker_barrier.wait();
-        acquired_tx
-            .send(OperationLock::acquire(&worker_home))
-            .expect("send second acquisition");
+        OperationLock::acquire(&worker_home).map(drop)
     });
     barrier.wait();
 
     // Act
-    let while_first_lives = acquired_rx.recv_timeout(Duration::from_millis(100));
     drop(first);
-    let after_first_drops = acquired_rx
-        .recv_timeout(Duration::from_secs(2))
-        .expect("second acquisition completes");
+    let after_first_drops = worker.join().expect("join lock worker");
 
     // Assert
-    assert!(
-        matches!(while_first_lives, Err(mpsc::RecvTimeoutError::Timeout)),
-        "second independently opened file must block: acquisition completed early"
-    );
-    let second = after_first_drops.expect("second lock succeeds");
-    drop(second);
-    worker.join().expect("join lock worker");
+    assert_eq!(after_first_drops, Ok(()));
 }
 
 #[test]
