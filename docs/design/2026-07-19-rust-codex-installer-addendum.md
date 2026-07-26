@@ -2,11 +2,8 @@
 
 - Author: Repository owner
 - Date: 2026-07-19
-- Last updated: 2026-07-23
+- Last updated: 2026-07-26
 - Status: Approved
-- Related plans:
-  - `docs/plans/2026-07-22-rust-codex-installer-rebuild.md`
-  - `docs/plans/2026-07-22-codex-workflow-assets.md`
 
 ## Context and Scope
 
@@ -52,9 +49,9 @@ without overwriting an unrecorded path.
 The migration must retain a non-mutating dry-run for Codex targets and state. It
 must also retain the adaptive thread selection, explicit target-directory options,
 manifest-limited pruning, conflict adoption, deterministic operator messages, and
-testable failure injection established by the Python implementation. Dry-run does
-not acquire or create the operation lock and does not promise a coherent view while
-a mutating invocation is running.
+representative pre-commit and post-commit failure injection. Dry-run does not acquire
+or create the operation lock and does not promise a coherent view while a mutating
+invocation is running.
 
 ### Non-Goals
 
@@ -75,6 +72,12 @@ support external edits during a transaction, arbitrary historical-backup selecti
 an explicit recover command, or mutation-time defense against an operator replacing
 roots, ancestors, or managed entries. Static preflight still rejects unsafe paths,
 symlinks, special files, and unmanaged conflicts before mutation.
+
+V1 assumes that the Codex home, personal skills home, and installer state directory
+are on the same filesystem. It does not validate device identities, provide
+cross-filesystem publication, or implement dedicated `EXDEV` handling. A violated
+assumption is reported as an ordinary filesystem-operation failure and never causes
+the installer to fall back to copy-and-delete publication.
 
 ## Overview
 
@@ -155,17 +158,15 @@ symlinks and special files in managed source or destination trees, and manifest
 ownership or explicit adoption is required before an existing destination can be
 changed. `.system` and every manifest-external asset remain excluded from mutation.
 
-No-replace rename semantics are used when publishing a destination. V1 requires
-every source and destination used by the transaction move protocol to be on the
-same filesystem. If the platform reports `EXDEV`, the source and destination remain
-unchanged, the already-durable pending intent remains in the canonical journal, and
-the operation returns an unsupported-cross-device error. Synchronous rollback or
-the next mutating invocation classifies that source-only state as not applied,
-clears the pending intent, and removes recorded transaction-owned staging. Backup
-payload capture and materialization are separate backup-store responsibilities and
-are not a transaction move fallback. A directory is removed only when the
-transaction records responsibility for it and it is empty. The engine never
-recursively deletes or synchronizes the skills or agents parent directory.
+No-replace rename semantics are used when publishing a destination. Under the
+same-filesystem operating assumption, a rename failure is an ordinary operation
+failure: the installer reports it and applies the same pre-commit rollback rules as
+for any other filesystem error. It does not inspect device IDs, add an
+`EXDEV`-specific state transition, or fall back to copy-and-delete publication.
+Backup payload capture and materialization are separate backup-store
+responsibilities and are not a transaction move fallback. A directory is removed
+only when the transaction records responsibility for it and it is empty. The engine
+never recursively deletes or synchronizes the skills or agents parent directory.
 
 ### Journal, commit, and crash recovery
 
@@ -218,55 +219,16 @@ Every move intent records one entry index and its post-move target phase. The sa
 WAL revision keeps the entry at its old phase and makes that intent durable before
 an exclusive rename. After the rename, both parent directories are synchronized;
 one WAL replacement then clears the intent and advances the entry to its target
-phase atomically. A caller cannot advance the phase separately. Pending intents are
-accepted only for one exact live/stage/tombstone edge of the indexed entry:
+phase atomically. A caller cannot advance the phase separately.
 
-| Transaction | Operation | Edge | Current entry state | Target entry state |
-|---|---|---|---|---|
-| applying | create | stage -> live | staged | desired installed |
-| applying | replace | live -> tombstone | staged | prior isolated |
-| applying | replace | stage -> live | prior isolated | desired installed |
-| applying | remove | live -> tombstone | planned | desired installed |
-| rolling back | create | live -> stage | desired installed | staged |
-| rolling back | replace | live -> stage | desired installed | prior isolated |
-| rolling back | replace | tombstone -> live | prior isolated | staged |
-| rolling back | remove | tombstone -> live | desired installed | planned |
-
-With the exclusive-lock and no-external-edit assumptions, recovery
-classifies an interrupted rename from path existence: source-only means the rename
-has not run, and destination-only means it has run. Both paths present or both paths
-absent violate the finite-state protocol, so recovery leaves them untouched and
-fails closed. An `EXDEV` result leaves the source-only state and durable intent
-unchanged. Rollback classifies it as not applied, clears the intent, cleans recorded
-staging, and never creates a copy-publication subprotocol in V1.
-
-Before its first mutation, rollback observes any pending move and computes each
-entry's effective phase: an applied move uses its target phase, while a not-applied
-move retains its old phase. It then globally preflights every live, stage, and
-tombstone tree with no-follow traversal and requires this exact existence topology:
-
-| Operation | Effective entry phase | Live | Stage | Tombstone |
-|---|---|---|---|---|
-| create | planned | absent | optional | not recorded |
-| create | staged | absent | optional | not recorded |
-| create | desired installed | present | absent | not recorded |
-| replace | planned | present | optional | absent |
-| replace | staged | present | optional | absent |
-| replace | prior isolated | absent | present | present |
-| replace | desired installed | present | absent | present |
-| remove | planned | present | not recorded | absent |
-| remove | desired installed | absent | not recorded | present |
-
-Here, optional permits either an absent stage or transaction-owned partial staging
-that rollback will remove. Any other ordinary-file presence is inconsistent, not
-cleanup material. A failure in any entry leaves every entry and the canonical WAL
-unchanged.
-
-Contract tests cover the prohibited ordinary-file presence for every topology row
-independently. Separate role-oriented tests cover live, stage, and tombstone trees
-with representative missing, symlink, and FIFO/special failures; they do not
-multiply every topology row by every file kind. Every failure preserves referenced
-paths and the canonical WAL bytes.
+With the exclusive-lock, same-filesystem, and no-external-edit assumptions,
+recovery classifies an interrupted rename from the recorded intent and the
+existence of its source and destination. A state that cannot be classified safely
+is left untouched and fails closed. Before rollback mutates its first path, it
+validates every entry it will reverse; cleanup likewise validates its complete
+transaction-owned removal set before deleting its first path. The implementation
+may choose its private entry phases and validation helpers as long as create,
+replace, and remove preserve these observable rollback and cleanup contracts.
 
 Before planning new mutable work, the engine rolls back any pre-commit canonical
 journal. An ordinary runtime error attempts the same rollback before returning. A
@@ -274,10 +236,13 @@ committed journal instead finishes backup publication and cleanup. If rollback o
 cleanup fails, the journal remains and the next mutating invocation retries it
 before starting a new transaction. There is no separate recover command.
 
-Fault tests at both canonical-publication boundaries continue from the exact
-generated directory and WAL state. They discard the faulting store, construct a
-fresh store, call startup recovery, and assert terminal rollback plus exact live,
-stage, and WAL state.
+Two representative fault tests preserve the semantic commit boundary. One stops
+after a live mutation but before `committed` and proves that a fresh engine rolls
+back to the prior state. The other stops after `committed` but before cleanup and
+proves that a fresh engine keeps the installed state and finishes cleanup. Adding a
+write, rename, or synchronization call does not by itself require another fault
+case; a new test is required only when a new durable phase has a distinct recovery
+outcome.
 
 The manifest is the last live destination switched before commit. A successful
 install publishes an immutable restore journal and payload under a transaction-ID
@@ -349,24 +314,24 @@ runtime fallback. The current unreleased Rust generation-tracking core may serve
 a short-lived behavioral oracle for retained configuration, inventory, and CLI
 defaults while responsibility-focused replacement modules are built beside it.
 Cutover occurs only after the replacement suite covers every retained configuration
-and installer contract, the simple operation lock, durable journal boundaries,
-automatic rollback, latest-backup restore, the normal-binary end-to-end installation,
-and the current-machine dry-run. The cutover commit removes the rejected Rust
-filesystem, planner, transaction, and obsolete integration-test contracts after
-equivalent public-boundary tests exist. Existing Git commits remain intact as
-implementation history.
+and installer contract, the simple operation lock, representative pre-commit
+rollback and post-commit cleanup, latest-backup restore, the normal-binary
+end-to-end installation, and the current-machine dry-run. The new implementation
+may reuse focused behavior from that history, but it does not import the old core or
+its exhaustive test matrix wholesale.
 
 ## Cross-cutting Concerns
 
 Safety tests use real temporary directories together with a narrow filesystem
-interface and named failure checkpoints. The suite must cover blocking serialization
-of mutating operations, lock-free dry-run, static symlink and special-file rejection,
-unmanaged preservation, `EXDEV` non-mutation followed by rollback or restart, every
-durable single-journal boundary, each legal and illegal move-existence state,
-process termination followed by automatic rollback, latest-backup publication,
-restore, and cleanup failure.
+interface and named failure checkpoints. The suite covers blocking serialization of
+mutating operations, lock-free dry-run, static symlink and special-file rejection,
+unmanaged preservation, one representative pre-commit rollback, one representative
+post-commit cleanup, latest-backup publication, and latest-backup restore. Component
+unit tests cover the ordinary create, replace, and remove outcomes without
+multiplying them by every failure checkpoint or path-existence combination.
 Race injection for external edits, root replacement, or ancestor replacement is not
-part of the supported contract.
+part of the supported contract. Cross-filesystem and dedicated `EXDEV` tests are
+also outside V1.
 
 Operator output is part of the recovery model. Errors distinguish preflight failure,
 clean rollback, rollback failure, and committed operation with cleanup warning. If
