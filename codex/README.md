@@ -2,24 +2,188 @@
 
 This directory is the source of truth for the personal Codex bundle.
 
-## Installation mapping
+## Rust installer
+
+Use `install.sh` as the normal entry point. It resolves the installer manifest relative to its own location, so it can be invoked from any working directory.
+
+Mutating `install` and `restore` commands are supported only on macOS; on non-macOS platforms, dry-run remains available, while mutating commands are explicitly rejected before any destination changes.
+
+Prerequisites:
+
+- Codex is already installed and the resolved Codex home exists.
+- `rustc` and `cargo` are available. Cargo may access the network when dependencies are not already cached.
+
+```sh
+# Preview the default install.
+./codex/install.sh --dry-run
+
+# Install. The explicit `install` subcommand is optional.
+./codex/install.sh install
+./codex/install.sh
+
+# Restore the selected pre-install backup.
+./codex/install.sh restore
+
+# Show the available install or restore options.
+./codex/install.sh --help
+./codex/install.sh restore --help
+```
+
+The install options are:
+
+| Option | Meaning |
+|---|---|
+| `--dry-run` | Print `CREATE`, `REPLACE`, `REMOVE`, and `NO-OP` actions without changing the destination or state |
+| `--adopt-existing` | Allow the first install to take ownership of existing same-name assets |
+| `--agent-threads auto\|2..=32` | Select the value merged into `agents.max_threads`; the default is `auto` |
+| `--codex-home PATH` | Override the Codex home |
+| `--skills-home PATH` | Override the personal skills destination |
+| `--state-dir PATH` | Override the installer state directory |
+
+`restore` accepts only `--state-dir`. The selected backup records the Codex and skills roots that it belongs to, so restore obtains those roots from the backup rather than accepting new destination overrides.
+
+Dry-run computes and renders an install plan without taking the operation lock or creating destination or state files. The launcher itself still invokes Cargo, so it may create or update the repository-local Cargo build directory described below. The launcher uses `cargo run --quiet --locked --release` on every invocation instead of installing or copying a standalone binary.
+
+### Adopting existing assets
+
+An existing same-name guidance file, skill, or agent is a conflict until the installer owns it. Review the dry-run and use `--adopt-existing` for the first intentional adoption:
+
+```sh
+./codex/install.sh --dry-run --adopt-existing
+./codex/install.sh --adopt-existing
+```
+
+A successful install writes the ownership manifest. Later installs use that manifest to replace or remove only installer-owned names, so `--adopt-existing` is no longer needed for those assets.
+
+### Agent concurrency
+
+`--agent-threads` accepts `auto` or an integer from `2` through `32`; `auto` is the default. The selected value is written to `agents.max_threads`.
+
+Automatic selection uses logical CPU count and physical memory:
+
+- 4 threads when there are fewer than 8 logical CPUs or less than 16 GiB of memory.
+- 8 threads when there are at least 12 logical CPUs and at least 32 GiB of memory.
+- 6 threads otherwise.
+
+### Roots and managed destinations
+
+Command-line options override these environment-derived defaults. The paths shown in the rest of this README use these default expressions; when an override option is supplied, replace the corresponding base path with that option's value.
+
+| Purpose | Default path | Override |
+|---|---|---|
+| Codex files | `${CODEX_HOME:-$HOME/.codex}` | `--codex-home PATH` |
+| Personal skills | `$HOME/.agents/skills` | `--skills-home PATH` |
+| Installer state | `${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles-codex-installer` | `--state-dir PATH` |
 
 | Repository source | Personal destination |
 |---|---|
-| `AGENTS.global.md` | `~/.codex/AGENTS.md` |
-| `agents/<name>.toml` | `~/.codex/agents/<name>.toml` |
-| `skills/<name>/` | `~/.agents/skills/<name>/` |
-| `config.toml` | Partially merged into `~/.codex/config.toml` by the Rust installer |
+| `AGENTS.global.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| `agents/<name>.toml` | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` |
+| `skills/<name>/` | `$HOME/.agents/skills/<name>/` |
+| `config.toml` | Five managed values merged into `${CODEX_HOME:-$HOME/.codex}/config.toml` |
 
-The bootstrap and installer manage only declared names. They do not prune unrelated personal skills or agents.
+The five managed configuration values are `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `agents.max_threads`, and `agents.max_depth`. Other configuration bytes—including comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
 
-`~/.codex/skills/.system` is owned by Codex and is never a destination, inventory root, or deletion target for this repository.
+The installer manages only declared or manifest-owned names. Unrelated sibling skills and agents are preserved. `.system` cannot be installer-owned or pruned; in particular, `${CODEX_HOME:-$HOME/.codex}/skills/.system` is outside the destination mapping.
 
-The repository `config.toml` intentionally contains only the managed model and agent-capacity values. Context Window, Auto Compact, statusline, MCP, permissions, authentication, providers, and other device-specific settings remain untouched.
+### Rough behavior
 
-## Temporary bootstrap and installer fallback
+An install follows this sequence:
 
-Use this procedure until the Rust installer is complete, or when the installer cannot be built or run. Run the complete block from the dotfiles repository root.
+1. Resolve the source and destination roots, validate the source inventory, and merge the five managed configuration values with the live `config.toml`.
+2. Compare the desired content with the live destinations and ownership manifest to build a plan.
+3. For dry-run, print the plan and stop without changing installer-managed destinations or state.
+4. For a mutating install, acquire the operation lock and recover or finalize any transaction left by an interrupted earlier run.
+5. If the plan has live changes, capture the pre-install managed state as the restore backup, stage the desired content, and write the transaction WAL.
+6. Apply creates, replacements, and removals. The ownership manifest is applied last.
+7. Commit the transaction, select its backup as `latest`, remove older unselected backups, and clean the WAL and per-operation work tree.
+
+A mutating no-op install still creates and acquires the persistent lock file, but it does not create a new backup or transaction. Restore loads the selected backup, acquires the lock recorded for its Codex home, performs the same startup recovery, checks the complete restore plan for conflicts, and then restores the captured content transactionally. A successful restore keeps that same backup selected.
+
+### Files created in destination roots
+
+The installer may create missing parent directories below the configured roots. The Codex home itself must already exist.
+
+| Path | Contents and lifetime |
+|---|---|
+| `${CODEX_HOME:-$HOME/.codex}/codex-manifest-installer.lock` | Persistent empty file used only to serialize mutating commands; dry-run does not create it |
+| `${CODEX_HOME:-$HOME/.codex}/config.toml` | Live Codex configuration with only the five declared values managed by this installer |
+| `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Global guidance copied from `AGENTS.global.md` |
+| `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` | Managed custom-agent definitions |
+| `$HOME/.agents/skills/<name>/` | Managed personal skill directories |
+| `${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles-codex-installer/manifest-v1.json` | Persistent ownership manifest used to decide what later installs may replace or remove |
+
+`AGENTS.md`, agent files, and skill directories are present only when declared by the repository inventory. A managed destination that is removed from the inventory may be removed by a later install; unrelated destinations are left alone.
+
+### State, backups, and temporary files
+
+Mutating `install` and `restore` commands serialize through `${CODEX_HOME:-$HOME/.codex}/codex-manifest-installer.lock`. This is a persistent empty lock file. Dry-run does not create or acquire it.
+
+Backups and transaction data are both stored below `${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles-codex-installer`. The following tree shows the complete layout; temporary entries exist only while they are being written or when recovery from an interrupted operation is pending.
+
+```text
+${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles-codex-installer/
+├── manifest-v1.json
+├── backups/
+│   ├── latest
+│   ├── latest.tmp
+│   ├── .publication.tmp/
+│   └── <backup-id>/
+│       ├── journal-v1.json
+│       └── payload/
+│           ├── codex-home/
+│           ├── skills-home/
+│           └── state-dir/
+└── transaction/
+    ├── wal-v1.json
+    ├── wal-v1.json.tmp
+    └── work/
+        └── <operation-id>/
+            ├── stage/
+            │   └── <index>
+            └── tombstone/
+                └── <index>
+```
+
+The `payload/codex-home/`, `payload/skills-home/`, and `payload/state-dir/` names are literal internal backup directories, not placeholders for environment variables. They preserve which configured root each captured relative path came from.
+
+The state directory contains:
+
+| Path | Meaning and lifetime |
+|---|---|
+| `manifest-v1.json` | Persistent list of names currently owned by the installer |
+| `transaction/wal-v1.json` | Canonical write-ahead log while a mutation is in progress; retained after interruption and removed after successful commit or rollback |
+| `transaction/wal-v1.json.tmp` | Temporary file used to atomically replace the canonical WAL; normally renamed immediately, and a stale ordinary file is discarded during the next transaction open |
+| `transaction/work/<operation-id>/stage/<index>` | Desired file or directory content prepared before it is moved to a live destination |
+| `transaction/work/<operation-id>/tombstone/<index>` | Previous live content isolated so an unfinished transaction can be rolled back |
+| `backups/latest` | Persistent text file containing the selected restore backup ID |
+| `backups/latest.tmp` | Temporary file used to atomically replace `latest`; normally renamed immediately |
+| `backups/.publication.tmp/` | Temporary backup directory populated before it is atomically published under its final backup ID |
+| `backups/<backup-id>/journal-v1.json` | Immutable backup metadata, recorded roots, ownership, and fingerprints |
+| `backups/<backup-id>/payload/` | Captured pre-install content, grouped below `codex-home/`, `skills-home/`, and `state-dir/` |
+
+At the start of a mutating command, the installer automatically recovers or finalizes an unfinished transaction before planning new work. There is no manual `recover` command.
+
+An install with live mutations captures its pre-install managed state, commits the live changes, selects that backup through `backups/latest`, and removes older unselected backups during successful cleanup. Restore accepts only the selected latest backup; it does not accept an arbitrary backup path. After a successful restore, that same backup remains selected, no replacement backup is promoted, and successful cleanup retains only the selected backup directory. A completed transaction leaves no canonical WAL and no operation work tree.
+
+The `transaction/`, `transaction/work/`, and `backups/` parent directories may remain after their temporary children have been cleaned. If the process stops partway through a mutation, the canonical WAL and its referenced work tree are recovery data rather than disposable scratch files. The next mutating command validates and uses them automatically; do not manually edit or delete them during normal operation.
+
+### Repository-local build and test files
+
+The wrapper does not install an executable elsewhere, but Cargo keeps normal build artifacts:
+
+| Path | Created by | Lifetime |
+|---|---|---|
+| `codex/installer/target/` | `install.sh` and crate-local Cargo commands, unless `CARGO_TARGET_DIR` overrides it | Reusable Cargo build cache; ignored by Git and retained until Cargo or the user cleans it |
+| `codex/installer/target/release/dotfiles-codex-installer` | The release build run by `install.sh` | Cargo-managed executable used by `cargo run`; not copied into the Codex or skills roots |
+| `codex/installer/target/test-tmp/unit/<test-name>.../` | Unit tests | Each unique test directory is removed when its `TempDir` is dropped; parent directories may remain |
+| `target/test-tmp/process/<test-name>.../` | Process and end-to-end tests | Each unique test directory is removed when its `TempDir` is dropped; parent directories may remain |
+
+Both target directories are repository-local and ignored by Git. They are build and development artifacts, not installer state and not part of backup or restore.
+
+## Manual installer fallback
+
+Use this procedure only when the Rust installer cannot be built or run. It does not merge `config.toml`. Run the complete block from the dotfiles repository root.
 
 Prerequisites:
 
@@ -92,4 +256,4 @@ No output from `cmp` and `diff` means the managed installed assets match the rep
 
 ### Configuration limitation
 
-The temporary procedure intentionally does not copy `config.toml`, because replacing the live file would destroy unmanaged device-specific settings. Until the Rust installer can perform a partial TOML merge, review the live `~/.codex/config.toml` and update only the keys declared in this repository fragment when a configuration change is required. Never copy the fragment over the entire live file.
+The fallback intentionally does not copy `config.toml`, because replacing the live file would destroy unmanaged device-specific settings. When using the fallback, review the live `~/.codex/config.toml` and update only the five managed keys declared in this repository fragment. Never copy the fragment over the entire live file.
