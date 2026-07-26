@@ -50,6 +50,11 @@ impl<P: Platform> TransactionEngine<P> {
         ensure_directory_durable(&self.platform, &plan.roots.skills_home)?;
         ensure_live_parents(&self.platform, plan, &actions)?;
         let store = WalStore::open(&self.platform, &plan.roots.state_dir, true)?;
+        if store.load()?.is_some() {
+            return Err(InstallerError::Transaction {
+                message: "an unfinished transaction already exists".to_owned(),
+            });
+        }
         ensure_transaction_work_absent(&self.platform, &initial)?;
         let mut wal = match store.write_initial(initial) {
             Ok(wal) => wal,

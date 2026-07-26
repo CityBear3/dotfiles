@@ -611,6 +611,81 @@ fn synchronization_error_after_durable_commit_never_rolls_back_installed_state()
 }
 
 #[test]
+fn new_execute_preserves_an_existing_committed_transaction() {
+    // Arrange
+    let temporary = project_tempdir("transaction-existing-committed");
+    let roots = create_roots(temporary.path());
+    let destination = roots.codex_home.join("config.toml");
+    fs::write(&destination, b"prior").expect("write prior");
+    let committed_plan = single_action_plan(
+        &roots,
+        PlanOperation::Replace,
+        AssetCategory::Config,
+        Locator::new(RootId::CodexHome, "config.toml").expect("config locator"),
+        Some(CapturedContent::file(b"installed".to_vec())),
+    );
+    let engine = TransactionEngine::new(MacOsPlatform::new());
+    assert_eq!(
+        engine.execute(
+            &committed_plan,
+            "existing-committed",
+            FaultPoint::AfterCommittedBeforeCleanup,
+        ),
+        Err(crate::InstallerError::InjectedTransactionFault {
+            point: "after committed before cleanup",
+        })
+    );
+    let wal_path = roots.state_dir.join("transaction/wal-v1.json");
+    let wal_bytes = fs::read(&wal_path).expect("read committed WAL");
+    let committed_wal: WalDocument =
+        serde_json::from_slice(&wal_bytes).expect("parse committed WAL");
+    assert_eq!(committed_wal.transaction_id, "existing-committed");
+    assert_eq!(committed_wal.phase, TransactionPhase::Committed);
+    let entry = &committed_wal.entries[0];
+    let stage = committed_wal
+        .roots
+        .resolve(entry.stage.as_ref().expect("replace stage"));
+    let tombstone = committed_wal
+        .roots
+        .resolve(entry.tombstone.as_ref().expect("replace tombstone"));
+    let work_root = committed_wal.work_root();
+    assert!(work_root.is_dir());
+    assert!(!stage.exists());
+    assert_eq!(fs::read(&tombstone).expect("read tombstone"), b"prior");
+    let next_plan = single_action_plan(
+        &roots,
+        PlanOperation::Replace,
+        AssetCategory::Config,
+        Locator::new(RootId::CodexHome, "config.toml").expect("config locator"),
+        Some(CapturedContent::file(b"next".to_vec())),
+    );
+
+    // Act
+    let result = engine.execute(&next_plan, "next-transaction", FaultPoint::None);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::Transaction {
+            message: "an unfinished transaction already exists".to_owned(),
+        })
+    );
+    assert_eq!(
+        fs::read(&destination).expect("read installed live"),
+        b"installed"
+    );
+    let preserved_bytes = fs::read(&wal_path).expect("reread committed WAL");
+    assert_eq!(preserved_bytes, wal_bytes);
+    let preserved_wal: WalDocument =
+        serde_json::from_slice(&preserved_bytes).expect("parse preserved WAL");
+    assert_eq!(preserved_wal.transaction_id, "existing-committed");
+    assert_eq!(preserved_wal.phase, TransactionPhase::Committed);
+    assert!(work_root.is_dir());
+    assert!(!stage.exists());
+    assert_eq!(fs::read(&tombstone).expect("reread tombstone"), b"prior");
+}
+
+#[test]
 fn resolved_initial_wal_sync_failure_rolls_back_before_returning() {
     // Arrange
     let temporary = project_tempdir("transaction-initial-wal-sync-failure");
