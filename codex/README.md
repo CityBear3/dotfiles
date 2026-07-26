@@ -58,7 +58,7 @@ Command-line roots override these defaults:
 | `skills/<name>/` | `<skills-home>/<name>/` |
 | `config.toml` | Five managed values merged into `<codex-home>/config.toml` |
 
-The five managed configuration values are `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `agents.max_threads`, and `agents.max_depth`. Other configuration bytes—including comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved.
+The five managed configuration values are `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `agents.max_threads`, and `agents.max_depth`. Other configuration bytes—including comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
 
 The installer manages only declared or manifest-owned names. Unrelated sibling skills and agents are preserved. `.system` cannot be installer-owned or pruned; in particular, `<codex-home>/skills/.system` is outside the destination mapping.
 
