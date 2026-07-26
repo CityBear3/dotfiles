@@ -1,6 +1,5 @@
 mod support;
 
-use std::path::Path;
 use std::process::Command;
 
 use support::process_tempdir;
@@ -9,16 +8,10 @@ use support::process_tempdir;
 fn compiled_binary_dry_run_is_non_mutating() {
     // Arrange
     let temporary = process_tempdir("compiled-dry-run");
-    let unique_name = temporary
-        .path()
-        .file_name()
-        .expect("unique process-test directory name")
-        .to_string_lossy();
-    let destination_root =
-        Path::new("/private/tmp").join(format!("{unique_name}-test-destination"));
+    let destination_root = temporary.path().join("test-destination");
     assert!(
         !destination_root.exists(),
-        "external destination root must start absent"
+        "destination root must start absent"
     );
     let home = destination_root.join("home");
     let codex_home = destination_root.join("codex-home");

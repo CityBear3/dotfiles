@@ -162,6 +162,7 @@ impl<'a, P: Platform> BackupStore<'a, P> {
         entries.sort_by_key(fs::DirEntry::file_name);
 
         let mut removable = Vec::new();
+        let mut stale_publication = None;
         for entry in entries {
             let name = entry
                 .file_name()
@@ -174,6 +175,17 @@ impl<'a, P: Platform> BackupStore<'a, P> {
                 }
                 continue;
             }
+            if name == PUBLICATION_TEMP_NAME {
+                if self.kind(&path, "inspect backup publication temporary")?
+                    != Some(EntryKind::Directory)
+                {
+                    return Err(invalid_backup(
+                        "backup publication temporary is not an ordinary directory",
+                    ));
+                }
+                stale_publication = Some(path);
+                continue;
+            }
             validate_backup_id(&name)
                 .map_err(|_| invalid_backup(format!("unexpected backup entry: {name}")))?;
             self.load_backup(&name)?;
@@ -182,6 +194,11 @@ impl<'a, P: Platform> BackupStore<'a, P> {
             }
         }
 
+        if let Some(path) = stale_publication {
+            self.platform.cleanup_owned_tree(&path).map_err(|error| {
+                filesystem_error("remove stale backup publication", &path, error)
+            })?;
+        }
         for path in &removable {
             self.platform
                 .cleanup_owned_tree(path)

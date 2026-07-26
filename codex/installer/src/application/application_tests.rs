@@ -29,17 +29,45 @@ const MANAGED_CONFIG: &str = concat!(
 );
 
 #[test]
-fn dry_run_creates_no_destination_or_state() {
+fn dry_run_preserves_existing_destinations_and_state_without_lock() {
     // Arrange
     let temporary = project_tempdir("application-dry-run");
     let source_root = temporary.path().join("source");
     let codex_home = temporary.path().join("codex-home");
     let skills_home = temporary.path().join("skills-home");
     let state_dir = temporary.path().join("state");
-    fs::create_dir(&source_root).expect("create source");
+    for directory in [&source_root, &codex_home, &state_dir] {
+        fs::create_dir(directory).expect("create application root");
+    }
     fs::write(source_root.join("config.toml"), MANAGED_CONFIG).expect("write config");
     fs::create_dir_all(source_root.join("skills/review")).expect("create source skill");
     fs::write(source_root.join("skills/review/SKILL.md"), b"review").expect("write source skill");
+    let existing_config = concat!(
+        "model = \"existing\"\n",
+        "model_reasoning_effort = \"medium\"\n",
+        "plan_mode_reasoning_effort = \"high\"\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 2\n",
+        "max_depth = 3\n",
+    );
+    fs::write(codex_home.join("config.toml"), existing_config).expect("write existing config");
+    fs::create_dir_all(skills_home.join("unrelated")).expect("create unrelated skill");
+    fs::write(skills_home.join("unrelated/SKILL.md"), b"unrelated").expect("write unrelated skill");
+    fs::create_dir_all(skills_home.join(".system")).expect("create system skill");
+    fs::write(skills_home.join(".system/SKILL.md"), b"system").expect("write system skill");
+    fs::write(state_dir.join("sentinel"), b"state").expect("write state sentinel");
+    let destinations_before = (
+        capture_optional(&codex_home)
+            .expect("capture Codex home before dry-run")
+            .expect("Codex home exists"),
+        capture_optional(&skills_home)
+            .expect("capture skills home before dry-run")
+            .expect("skills home exists"),
+        capture_optional(&state_dir)
+            .expect("capture state before dry-run")
+            .expect("state directory exists"),
+    );
     let command = InstallerCommand::Install(InstallCommand {
         dry_run: true,
         adopt_existing: false,
@@ -61,18 +89,24 @@ fn dry_run_creates_no_destination_or_state() {
 
     // Assert
     let output = result.expect("dry-run succeeds");
-    assert!(output.contains("CREATE config"));
+    assert!(output.contains("REPLACE config"));
     assert!(output.contains("CREATE skill review"));
     assert!(output.contains("CREATE manifest"));
     assert_eq!(
         (
-            codex_home.exists(),
-            skills_home.exists(),
-            state_dir.exists(),
-            codex_home.join("codex-manifest-installer.lock").exists(),
+            capture_optional(&codex_home)
+                .expect("capture Codex home after dry-run")
+                .expect("Codex home remains"),
+            capture_optional(&skills_home)
+                .expect("capture skills home after dry-run")
+                .expect("skills home remains"),
+            capture_optional(&state_dir)
+                .expect("capture state after dry-run")
+                .expect("state directory remains"),
         ),
-        (false, false, false, false)
+        destinations_before
     );
+    assert!(!codex_home.join("codex-manifest-installer.lock").exists());
 }
 
 #[test]
@@ -948,6 +982,86 @@ fn restore_keeps_backup_a_selected_and_does_not_promote_b() {
             .is_none()
     );
     assert!(codex_home.join("codex-manifest-installer.lock").is_file());
+}
+
+#[test]
+fn restore_cleans_stale_backup_publication_after_committing_selected_backup() {
+    // Arrange
+    let temporary = project_tempdir("application-restore-stale-publication");
+    let source_root = temporary.path().join("source");
+    let codex_home = temporary.path().join("codex-home");
+    let skills_home = temporary.path().join("skills-home");
+    let state_dir = temporary.path().join("state");
+    for directory in [&source_root, &codex_home, &skills_home, &state_dir] {
+        fs::create_dir(directory).expect("create application root");
+    }
+    let config = codex_home.join("config.toml");
+    fs::write(&config, b"config A").expect("write config A");
+    let platform = MacOsPlatform::new();
+    let store = BackupStore::new(&platform, &state_dir);
+    store
+        .publish_current(BackupRequest {
+            backup_id: "backup-a".to_owned(),
+            roots: BackupRoots {
+                codex_home: codex_home.clone(),
+                skills_home,
+                state_dir: state_dir.clone(),
+            },
+            ownership: None,
+            locators: vec![Locator::new(RootId::CodexHome, "config.toml").expect("config locator")],
+        })
+        .expect("publish backup A");
+    store.select_latest("backup-a").expect("select backup A");
+    fs::write(&config, b"config B").expect("write config B");
+    let stale_publication = state_dir.join("backups/.publication.tmp");
+    fs::create_dir(&stale_publication).expect("create stale publication");
+    fs::create_dir(stale_publication.join("payload")).expect("create partial payload");
+    fs::write(stale_publication.join("payload/partial"), b"partial")
+        .expect("write partial publication");
+    let transaction_id = "restore-stale-publication";
+
+    // Act
+    let result = execute_restore_with_context_and_id(
+        RestoreCommand {
+            state_dir: state_dir.clone(),
+        },
+        ApplicationContext {
+            source_root,
+            resources: MachineResources {
+                logical_cpus: 1,
+                memory_bytes: 0,
+            },
+        },
+        transaction_id,
+    );
+
+    // Assert
+    assert_eq!(result, Ok("restore complete\n".to_owned()));
+    assert_eq!(
+        fs::read(&config).expect("read restored config"),
+        b"config A"
+    );
+    assert_eq!(
+        store
+            .load_latest()
+            .expect("load latest after restore")
+            .expect("backup A remains selected")
+            .journal
+            .backup_id,
+        "backup-a"
+    );
+    assert_eq!(
+        fs::read(state_dir.join("backups/latest")).expect("read latest marker"),
+        b"backup-a\n"
+    );
+    assert!(!stale_publication.exists());
+    assert!(!state_dir.join("transaction/wal-v1.json").exists());
+    assert!(
+        !state_dir
+            .join("transaction/work")
+            .join(transaction_id)
+            .exists()
+    );
 }
 
 #[test]
