@@ -1,0 +1,61 @@
+use clap::error::ErrorKind;
+use thiserror::Error;
+
+/// Errors emitted by the installer command shell.
+#[derive(Debug, Eq, Error, PartialEq)]
+pub enum InstallerError {
+    #[error("{message}")]
+    Cli {
+        message: String,
+        exit_code: u8,
+        use_stderr: bool,
+    },
+
+    #[error("HOME must be set to resolve installer defaults")]
+    MissingHome,
+
+    #[error("--agent-threads must be auto or an integer from 2 to 32")]
+    InvalidAgentThreads,
+
+    #[error("{message}")]
+    InvalidConfiguration { message: String },
+
+    #[error("{operation} is not implemented yet")]
+    NotImplemented { operation: &'static str },
+}
+
+impl InstallerError {
+    pub(crate) fn from_clap(error: clap::Error) -> Self {
+        let is_display = matches!(
+            error.kind(),
+            ErrorKind::DisplayHelp | ErrorKind::DisplayVersion
+        );
+        Self::Cli {
+            message: error.to_string(),
+            exit_code: if is_display { 0 } else { 1 },
+            use_stderr: error.use_stderr(),
+        }
+    }
+
+    /// Installer exit status associated with this error.
+    pub fn exit_code(&self) -> u8 {
+        match self {
+            Self::Cli { exit_code, .. } => *exit_code,
+            Self::MissingHome
+            | Self::InvalidAgentThreads
+            | Self::InvalidConfiguration { .. }
+            | Self::NotImplemented { .. } => 1,
+        }
+    }
+
+    /// Whether the error should be written to standard error.
+    pub fn use_stderr(&self) -> bool {
+        match self {
+            Self::Cli { use_stderr, .. } => *use_stderr,
+            Self::MissingHome
+            | Self::InvalidAgentThreads
+            | Self::InvalidConfiguration { .. }
+            | Self::NotImplemented { .. } => true,
+        }
+    }
+}
