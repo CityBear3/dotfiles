@@ -137,7 +137,10 @@ pub(crate) fn validate_destination_ancestors(
     Ok(())
 }
 
-fn normalize_directory(path: &Path, must_exist: bool) -> Result<PathBuf, InstallerError> {
+pub(crate) fn normalize_directory(
+    path: &Path,
+    must_exist: bool,
+) -> Result<PathBuf, InstallerError> {
     if !path.is_absolute() {
         return Err(unsafe_path(path, "root must be absolute"));
     }

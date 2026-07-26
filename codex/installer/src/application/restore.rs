@@ -4,6 +4,7 @@ use crate::InstallerError;
 use crate::backup::BackupStore;
 use crate::command::RestoreCommand;
 use crate::operation_lock::OperationLock;
+use crate::path::InstallRoots;
 use crate::plan::{PlanOperation, build_restore_plan};
 use crate::platform::macos::MacOsPlatform;
 use crate::transaction::{FaultPoint, TransactionEngine};
@@ -17,20 +18,57 @@ pub(super) fn execute_mutating(
 ) -> Result<String, InstallerError> {
     let platform = MacOsPlatform::new();
     let store = BackupStore::new(&platform, &command.state_dir);
-    let initial = require_latest(&store)?;
-    let locked_codex_home = initial.journal.roots.codex_home;
+    let locked_codex_home = resolve_lock_target(&store, source_root)?;
     let _lock = OperationLock::acquire(&locked_codex_home)?;
+    execute_after_lock(
+        platform,
+        &store,
+        &command.state_dir,
+        source_root,
+        operation_id,
+        &locked_codex_home,
+    )
+}
 
+#[cfg(test)]
+pub(super) fn execute_mutating_with_post_lock_hook<F>(
+    command: RestoreCommand,
+    source_root: &Path,
+    operation_id: &str,
+    post_lock_hook: F,
+) -> Result<String, InstallerError>
+where
+    F: FnOnce(),
+{
+    let platform = MacOsPlatform::new();
+    let store = BackupStore::new(&platform, &command.state_dir);
+    let locked_codex_home = resolve_lock_target(&store, source_root)?;
+    let _lock = OperationLock::acquire(&locked_codex_home)?;
+    post_lock_hook();
+    execute_after_lock(
+        platform,
+        &store,
+        &command.state_dir,
+        source_root,
+        operation_id,
+        &locked_codex_home,
+    )
+}
+
+fn execute_after_lock(
+    platform: MacOsPlatform,
+    store: &BackupStore<'_, MacOsPlatform>,
+    state_dir: &Path,
+    source_root: &Path,
+    operation_id: &str,
+    locked_codex_home: &Path,
+) -> Result<String, InstallerError> {
     let engine = TransactionEngine::new(platform);
-    recover_unfinished(&engine, &store, &command.state_dir)?;
-    let backup = require_latest(&store)?;
-    if backup.journal.roots.codex_home != locked_codex_home {
-        return Err(InstallerError::InvalidBackup {
-            message:
-                "latest backup changed to a different Codex home while acquiring the operation lock"
-                    .to_owned(),
-        });
-    }
+    let post_lock = require_latest(store)?;
+    validate_locked_authority(source_root, &post_lock, locked_codex_home)?;
+    recover_unfinished(&engine, store, state_dir)?;
+    let backup = require_latest(store)?;
+    validate_locked_authority(source_root, &backup, locked_codex_home)?;
     let plan = build_restore_plan(source_root, &backup)?;
     if plan
         .actions
@@ -46,6 +84,25 @@ pub(super) fn execute_mutating(
     Ok("restore complete\n".to_owned())
 }
 
+fn resolve_lock_target<P: crate::platform::Platform>(
+    store: &BackupStore<'_, P>,
+    source_root: &Path,
+) -> Result<std::path::PathBuf, InstallerError> {
+    let initial_roots = require_latest_roots(store)?;
+    validate_restore_roots(source_root, &initial_roots)?;
+    Ok(initial_roots.codex_home)
+}
+
+fn require_latest_roots<P: crate::platform::Platform>(
+    store: &BackupStore<'_, P>,
+) -> Result<crate::backup::BackupRoots, InstallerError> {
+    store
+        .load_latest_roots()?
+        .ok_or_else(|| InstallerError::InvalidBackup {
+            message: "restore requires a selected latest backup".to_owned(),
+        })
+}
+
 fn require_latest<P: crate::platform::Platform>(
     store: &BackupStore<'_, P>,
 ) -> Result<crate::backup::Backup, InstallerError> {
@@ -54,4 +111,33 @@ fn require_latest<P: crate::platform::Platform>(
         .ok_or_else(|| InstallerError::InvalidBackup {
             message: "restore requires a selected latest backup".to_owned(),
         })
+}
+
+fn validate_locked_authority(
+    source_root: &Path,
+    backup: &crate::backup::Backup,
+    locked_codex_home: &Path,
+) -> Result<(), InstallerError> {
+    validate_restore_roots(source_root, &backup.journal.roots)?;
+    if backup.journal.roots.codex_home != locked_codex_home {
+        return Err(InstallerError::InvalidBackup {
+            message:
+                "latest backup changed to a different Codex home while acquiring the operation lock"
+                    .to_owned(),
+        });
+    }
+    Ok(())
+}
+
+fn validate_restore_roots(
+    source_root: &Path,
+    roots: &crate::backup::BackupRoots,
+) -> Result<(), InstallerError> {
+    InstallRoots::normalize(
+        source_root,
+        &roots.codex_home,
+        &roots.skills_home,
+        &roots.state_dir,
+    )?;
+    Ok(())
 }

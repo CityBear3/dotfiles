@@ -66,6 +66,24 @@ pub(super) fn execute_restore_with_context_and_id(
     restore::execute_mutating(command, &context.source_root, operation_id)
 }
 
+#[cfg(test)]
+pub(super) fn execute_restore_with_context_id_and_post_lock_hook<F>(
+    command: crate::command::RestoreCommand,
+    context: ApplicationContext,
+    operation_id: &str,
+    post_lock_hook: F,
+) -> Result<String, InstallerError>
+where
+    F: FnOnce(),
+{
+    restore::execute_mutating_with_post_lock_hook(
+        command,
+        &context.source_root,
+        operation_id,
+        post_lock_hook,
+    )
+}
+
 fn execute_with_context_and_optional_id(
     command: InstallerCommand,
     context: ApplicationContext,

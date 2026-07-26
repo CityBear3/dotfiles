@@ -237,6 +237,62 @@ fn corrupt_latest_marker_is_rejected_before_store_mutation() {
     );
 }
 
+#[cfg(unix)]
+#[test]
+fn latest_backup_rejects_a_codex_root_with_a_symlink_ancestor() {
+    // Arrange
+    use std::os::unix::fs::symlink;
+
+    let temporary = project_tempdir("backup-symlink-root");
+    let roots = create_roots(temporary.path());
+    let config = roots.codex_home.join("config.toml");
+    fs::write(&config, b"generation-a").expect("write current config");
+    let platform = MacOsPlatform::new();
+    let store = BackupStore::new(&platform, &roots.state_dir);
+    let backup = store
+        .publish_current(config_request("backup-a", &roots))
+        .expect("publish backup");
+    store.select_latest("backup-a").expect("select backup");
+    let linked_parent = temporary.path().join("linked-parent");
+    symlink(temporary.path(), &linked_parent).expect("create root ancestor symlink");
+    let journal_path = backup.directory.join("journal-v1.json");
+    let mut journal: serde_json::Value =
+        serde_json::from_slice(&fs::read(&journal_path).expect("read backup journal"))
+            .expect("parse backup journal");
+    journal["roots"]["codex_home"] =
+        serde_json::json!(linked_parent.join("codex-home").to_string_lossy());
+    fs::write(
+        &journal_path,
+        serde_json::to_vec_pretty(&journal).expect("encode backup journal"),
+    )
+    .expect("write backup journal with unsafe root");
+    let marker_before =
+        fs::read(roots.state_dir.join("backups/latest")).expect("read latest marker");
+    let payload_before = fs::read(backup.directory.join("payload/codex-home/config.toml"))
+        .expect("read backup payload");
+
+    // Act
+    let result = store.load_latest();
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(InstallerError::InvalidBackup {
+            message: "backup codex home root is not normalized and safe".to_owned(),
+        })
+    );
+    assert_eq!(
+        fs::read(roots.state_dir.join("backups/latest")).expect("reread latest marker"),
+        marker_before
+    );
+    assert_eq!(
+        fs::read(backup.directory.join("payload/codex-home/config.toml"))
+            .expect("reread backup payload"),
+        payload_before
+    );
+    assert_eq!(fs::read(config).expect("read live config"), b"generation-a");
+}
+
 #[test]
 fn discard_unselected_removes_only_the_named_valid_backup_and_preserves_latest() {
     // Arrange

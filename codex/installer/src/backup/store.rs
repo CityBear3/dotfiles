@@ -3,10 +3,12 @@ use std::fs::{self, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
+use serde::Deserialize;
+
 use crate::InstallerError;
 use crate::content::{CapturedContent, ContentPayload, capture_optional, materialize_durable};
 use crate::ownership::validate_manifest;
-use crate::path::{Locator, RootId};
+use crate::path::{Locator, RootId, normalize_directory};
 use crate::platform::{EntryKind, Platform};
 use crate::source::{validate_agent_name, validate_asset_name};
 
@@ -19,6 +21,13 @@ const PAYLOAD_NAME: &str = "payload";
 const LATEST_NAME: &str = "latest";
 const LATEST_TEMP_NAME: &str = "latest.tmp";
 const PUBLICATION_TEMP_NAME: &str = ".publication.tmp";
+
+#[derive(Deserialize)]
+struct BackupJournalHeader {
+    version: u32,
+    backup_id: String,
+    roots: super::BackupRoots,
+}
 
 pub(crate) struct BackupStore<'a, P> {
     platform: &'a P,
@@ -56,6 +65,20 @@ impl<'a, P: Platform> BackupStore<'a, P> {
     }
 
     pub(crate) fn load_latest(&self) -> Result<Option<Backup>, InstallerError> {
+        let Some(backup_id) = self.load_latest_backup_id()? else {
+            return Ok(None);
+        };
+        self.load_backup(&backup_id).map(Some)
+    }
+
+    pub(crate) fn load_latest_roots(&self) -> Result<Option<super::BackupRoots>, InstallerError> {
+        let Some(backup_id) = self.load_latest_backup_id()? else {
+            return Ok(None);
+        };
+        self.load_backup_roots(&backup_id).map(Some)
+    }
+
+    fn load_latest_backup_id(&self) -> Result<Option<String>, InstallerError> {
         match self.kind(&self.backups_dir, "inspect backups directory")? {
             None => return Ok(None),
             Some(EntryKind::Directory) => {}
@@ -73,7 +96,7 @@ impl<'a, P: Platform> BackupStore<'a, P> {
                 let bytes = fs::read(&marker)
                     .map_err(|error| filesystem_error("read latest marker", &marker, error))?;
                 let backup_id = parse_latest_marker(&bytes)?;
-                self.load_backup(backup_id).map(Some)
+                Ok(Some(backup_id.to_owned()))
             }
             Some(_) => Err(invalid_backup("latest marker is not an ordinary file")),
         }
@@ -350,6 +373,35 @@ impl<'a, P: Platform> BackupStore<'a, P> {
         self.load_backup(backup_id)
     }
 
+    fn load_backup_roots(&self, backup_id: &str) -> Result<super::BackupRoots, InstallerError> {
+        validate_backup_id(backup_id).map_err(|_| invalid_backup("unsafe backup ID"))?;
+        let directory = self.backups_dir.join(backup_id);
+        if self.kind(&directory, "inspect backup directory")? != Some(EntryKind::Directory) {
+            return Err(invalid_backup(format!(
+                "selected backup is not an ordinary directory: {}",
+                directory.display()
+            )));
+        }
+        let journal_path = directory.join(JOURNAL_NAME);
+        let journal_bytes = ordinary_file_bytes(self.platform, &journal_path, "backup journal")?;
+        let header: BackupJournalHeader = serde_json::from_slice(&journal_bytes)
+            .map_err(|error| invalid_backup(format!("invalid backup journal: {error}")))?;
+        if header.version != BACKUP_VERSION {
+            return Err(invalid_backup(format!(
+                "unsupported backup journal version: {}",
+                header.version
+            )));
+        }
+        validate_backup_id(&header.backup_id).map_err(|_| invalid_backup("unsafe backup ID"))?;
+        if header.backup_id != backup_id {
+            return Err(invalid_backup(
+                "backup journal ID does not match its directory",
+            ));
+        }
+        self.validate_roots(&header.roots)?;
+        Ok(header.roots)
+    }
+
     fn load_backup(&self, backup_id: &str) -> Result<Backup, InstallerError> {
         validate_backup_id(backup_id).map_err(|_| invalid_backup("unsafe backup ID"))?;
         let directory = self.backups_dir.join(backup_id);
@@ -476,6 +528,9 @@ impl<'a, P: Platform> BackupStore<'a, P> {
                 return Err(invalid_backup("backup roots must be absolute UTF-8 paths"));
             }
         }
+        validate_normalized_root(&roots.codex_home, "codex home", true)?;
+        validate_normalized_root(&roots.skills_home, "skills home", false)?;
+        validate_normalized_root(&roots.state_dir, "state", true)?;
         for (first, second) in [
             (&roots.codex_home, &roots.skills_home),
             (&roots.codex_home, &roots.state_dir),
@@ -521,6 +576,21 @@ impl<'a, P: Platform> BackupStore<'a, P> {
             .sync_directory(path)
             .map_err(|error| filesystem_error("synchronize directory", path, error))
     }
+}
+
+fn validate_normalized_root(
+    root: &Path,
+    label: &str,
+    must_exist: bool,
+) -> Result<(), InstallerError> {
+    let normalized = normalize_directory(root, must_exist)
+        .map_err(|_| invalid_backup(format!("backup {label} root is not normalized and safe")))?;
+    if normalized != root {
+        return Err(invalid_backup(format!(
+            "backup {label} root is not normalized and safe"
+        )));
+    }
+    Ok(())
 }
 
 fn merge_payload(

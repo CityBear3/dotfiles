@@ -13,7 +13,8 @@ use crate::test_support::project_tempdir;
 use crate::transaction::{FaultPoint, TransactionEngine};
 
 use super::{
-    ApplicationContext, execute_restore_with_context_and_id, execute_with_context,
+    ApplicationContext, execute_restore_with_context_and_id,
+    execute_restore_with_context_id_and_post_lock_hook, execute_with_context,
     execute_with_context_and_id,
 };
 
@@ -662,6 +663,112 @@ fn no_op_install_creates_neither_backup_nor_transaction_state() {
     assert_eq!(
         fs::read(codex_home.join("config.toml")).expect("read unchanged config"),
         MANAGED_CONFIG.as_bytes()
+    );
+}
+
+#[test]
+fn restore_validates_post_lock_latest_before_recovering_a_pre_commit_wal() {
+    // Arrange
+    let temporary = project_tempdir("application-restore-post-lock-authority");
+    let source_root = temporary.path().join("source");
+    let codex_home = temporary.path().join("codex-home");
+    let skills_home = temporary.path().join("skills-home");
+    let state_dir = temporary.path().join("state");
+    for directory in [&source_root, &codex_home, &skills_home, &state_dir] {
+        fs::create_dir(directory).expect("create application root");
+    }
+    let config = codex_home.join("config.toml");
+    fs::write(&config, b"backup generation").expect("write backup generation");
+    let platform = MacOsPlatform::new();
+    let store = BackupStore::new(&platform, &state_dir);
+    let backup = store
+        .publish_current(BackupRequest {
+            backup_id: "backup-a".to_owned(),
+            roots: BackupRoots {
+                codex_home: codex_home.clone(),
+                skills_home: skills_home.clone(),
+                state_dir: state_dir.clone(),
+            },
+            ownership: None,
+            locators: vec![Locator::new(RootId::CodexHome, "config.toml").expect("config locator")],
+        })
+        .expect("publish backup A");
+    store.select_latest("backup-a").expect("select backup A");
+    fs::write(&config, b"live before transaction").expect("write pre-transaction live");
+    let transaction_id = "interrupted-before-restore";
+    let interrupted_plan = InstallPlan {
+        roots: InstallRoots {
+            source_root: source_root.clone(),
+            codex_home: codex_home.clone(),
+            skills_home: skills_home.clone(),
+            state_dir: state_dir.clone(),
+        },
+        max_threads: 0,
+        actions: vec![PlanAction {
+            operation: PlanOperation::Replace,
+            category: AssetCategory::Config,
+            name: None,
+            locator: Locator::new(RootId::CodexHome, "config.toml").expect("config locator"),
+            desired: Some(CapturedContent::file(b"interrupted live".to_vec())),
+        }],
+    };
+    let interrupted = TransactionEngine::new(platform).execute(
+        &interrupted_plan,
+        transaction_id,
+        FaultPoint::AfterFirstLiveMutationBeforeCommit,
+    );
+    assert!(matches!(
+        interrupted,
+        Err(crate::InstallerError::InjectedTransactionFault { .. })
+    ));
+    let wal_path = state_dir.join("transaction/wal-v1.json");
+    let work = state_dir.join("transaction/work").join(transaction_id);
+    let wal_before = fs::read(&wal_path).expect("read pre-commit WAL");
+    let work_before = capture_optional(&work)
+        .expect("capture transaction work")
+        .expect("transaction work exists");
+    let payload = backup.directory.join("payload/codex-home/config.toml");
+
+    // Act
+    let result = execute_restore_with_context_id_and_post_lock_hook(
+        RestoreCommand {
+            state_dir: state_dir.clone(),
+        },
+        ApplicationContext {
+            source_root,
+            resources: MachineResources {
+                logical_cpus: 1,
+                memory_bytes: 0,
+            },
+        },
+        "unused-restore-id",
+        || fs::write(&payload, b"corrupt").expect("corrupt latest payload after lock"),
+    );
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::InvalidBackup {
+            message: "backup payload fingerprint does not match journal".to_owned(),
+        })
+    );
+    assert_eq!(
+        fs::read(&config).expect("read untouched interrupted live"),
+        b"interrupted live"
+    );
+    assert_eq!(
+        fs::read(&wal_path).expect("reread pre-commit WAL"),
+        wal_before
+    );
+    assert_eq!(
+        capture_optional(&work)
+            .expect("recapture transaction work")
+            .expect("transaction work remains"),
+        work_before
+    );
+    assert_eq!(
+        fs::read(state_dir.join("backups/latest")).expect("read latest marker"),
+        b"backup-a\n"
     );
 }
 
