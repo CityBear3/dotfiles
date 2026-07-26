@@ -284,16 +284,47 @@ fn missing_home_reports_a_structured_error() {
 }
 
 #[test]
-fn parsed_install_is_reported_as_not_implemented() {
+fn parsed_install_dispatches_to_the_mutating_application() {
     // Arrange
-    let arguments = [
-        "installer",
-        "--codex-home",
-        "/codex",
-        "--skills-home",
-        "/skills",
-        "--state-dir",
-        "/state",
+    let temporary = project_tempdir("command-mutating-dispatch");
+    let codex_home = temporary.path().join("missing-codex");
+    let skills_home = temporary.path().join("skills");
+    let state_dir = temporary.path().join("state");
+    let arguments = vec![
+        OsString::from("installer"),
+        OsString::from("--codex-home"),
+        codex_home.clone().into_os_string(),
+        OsString::from("--skills-home"),
+        skills_home.clone().into_os_string(),
+        OsString::from("--state-dir"),
+        state_dir.clone().into_os_string(),
+    ];
+
+    // Act
+    let result = crate::run_from(arguments, |_| None);
+
+    // Assert
+    assert!(matches!(result, Err(InstallerError::Lock { .. })));
+    assert_eq!(
+        (
+            codex_home.exists(),
+            skills_home.exists(),
+            state_dir.exists()
+        ),
+        (false, false, false)
+    );
+}
+
+#[test]
+fn parsed_restore_dispatches_to_the_mutating_application() {
+    // Arrange
+    let temporary = project_tempdir("command-restore-dispatch");
+    let state_dir = temporary.path().join("missing-state");
+    let arguments = vec![
+        OsString::from("installer"),
+        OsString::from("restore"),
+        OsString::from("--state-dir"),
+        state_dir.clone().into_os_string(),
     ];
 
     // Act
@@ -302,27 +333,11 @@ fn parsed_install_is_reported_as_not_implemented() {
     // Assert
     assert_eq!(
         result,
-        Err(InstallerError::NotImplemented {
-            operation: "install",
+        Err(InstallerError::InvalidBackup {
+            message: "restore requires a selected latest backup".to_owned(),
         })
     );
-}
-
-#[test]
-fn parsed_restore_is_reported_as_not_implemented() {
-    // Arrange
-    let arguments = ["installer", "restore", "--state-dir", "/state"];
-
-    // Act
-    let result = crate::run_from(arguments, |_| None);
-
-    // Assert
-    assert_eq!(
-        result,
-        Err(InstallerError::NotImplemented {
-            operation: "restore",
-        })
-    );
+    assert!(!state_dir.exists());
 }
 
 #[test]

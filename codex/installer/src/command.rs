@@ -12,15 +12,6 @@ pub enum InstallerCommand {
     Restore(RestoreCommand),
 }
 
-impl InstallerCommand {
-    pub(crate) fn operation_name(&self) -> &'static str {
-        match self {
-            Self::Install(_) => "install",
-            Self::Restore(_) => "restore",
-        }
-    }
-}
-
 /// Fully resolved arguments for an install or dry-run.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InstallCommand {

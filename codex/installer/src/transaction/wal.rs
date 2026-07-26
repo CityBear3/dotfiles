@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use crate::InstallerError;
 use crate::platform::{EntryKind, Platform};
 
-use super::model::{WalDocument, invalid_wal};
+use super::model::{WalDocument, invalid_wal, unresolved_wal_authority};
 
 const MAX_WAL_BYTES: u64 = 1024 * 1024;
 
@@ -127,20 +127,22 @@ impl<'a, P: Platform> WalStore<'a, P> {
             match self.load() {
                 Ok(Some(authoritative)) => *current = authoritative,
                 Ok(None) => {
-                    return Err(InstallerError::UnresolvedWalAuthority {
-                        wal: self.canonical.clone(),
-                        message: format!(
+                    return Err(unresolved_wal_authority(
+                        &self.canonical,
+                        current,
+                        format!(
                             "WAL replacement synchronization failed and canonical authority is absent: {sync_error}"
                         ),
-                    });
+                    ));
                 }
                 Err(reload_error) => {
-                    return Err(InstallerError::UnresolvedWalAuthority {
-                        wal: self.canonical.clone(),
-                        message: format!(
+                    return Err(unresolved_wal_authority(
+                        &self.canonical,
+                        current,
+                        format!(
                             "WAL replacement synchronization failed and canonical authority cannot be reloaded: {sync_error}; {reload_error}"
                         ),
-                    });
+                    ));
                 }
             }
             return Err(filesystem_error(

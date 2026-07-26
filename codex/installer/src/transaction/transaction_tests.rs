@@ -1,7 +1,7 @@
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use crate::content::CapturedContent;
@@ -469,15 +469,87 @@ fn ordinary_rename_failure_uses_pre_commit_rollback_rules() {
 
     // Act
     let result =
-        TransactionEngine::new(platform).execute(&plan, "rename-failure", FaultPoint::None);
+        TransactionEngine::new(platform).execute(&plan, "generic-rename-failure", FaultPoint::None);
 
     // Assert
-    assert!(matches!(
+    assert_eq!(
         result,
-        Err(crate::InstallerError::Filesystem { .. })
-    ));
+        Err(crate::InstallerError::TransactionRolledBack {
+            transaction_id: "generic-rename-failure".to_owned(),
+            cause: Box::new(crate::InstallerError::Filesystem {
+                message: format!(
+                    "move transaction entry {}: injected rename failure",
+                    destination.display()
+                ),
+            }),
+        })
+    );
     assert_eq!(fs::read(destination).expect("read restored live"), b"prior");
-    assert_transaction_state_absent(&roots.state_dir, "rename-failure");
+    assert_transaction_state_absent(&roots.state_dir, "generic-rename-failure");
+}
+
+#[test]
+fn rollback_failure_reports_all_recorded_paths_and_preserves_transaction_state() {
+    // Arrange
+    let temporary = project_tempdir("transaction-rollback-failure");
+    let roots = create_roots(temporary.path());
+    let config = roots.codex_home.join("config.toml");
+    let manifest = roots.state_dir.join("manifest-v1.json");
+    fs::write(&config, b"prior config").expect("write prior config");
+    fs::write(&manifest, b"prior manifest").expect("write prior manifest");
+    let plan = replace_config_and_manifest_plan(&roots);
+    let platform = FailForwardAndRollbackRenamePlatform {
+        delegate: MacOsPlatform::new(),
+        renames: AtomicUsize::new(0),
+    };
+    let transaction_id = "rollback-failure";
+    let wal_path = roots.state_dir.join("transaction/wal-v1.json");
+    let work = roots
+        .state_dir
+        .join("transaction/work")
+        .join(transaction_id);
+    let recorded_paths = vec![
+        config.clone(),
+        work.join("stage/0"),
+        work.join("tombstone/0"),
+        manifest.clone(),
+        work.join("stage/1"),
+        work.join("tombstone/1"),
+    ];
+
+    // Act
+    let result = TransactionEngine::new(platform).execute(&plan, transaction_id, FaultPoint::None);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::TransactionRollbackFailed {
+            transaction_id: transaction_id.to_owned(),
+            wal: wal_path.clone(),
+            paths: recorded_paths,
+            cause: Some(Box::new(crate::InstallerError::Filesystem {
+                message: format!(
+                    "move transaction entry {}: injected forward rename failure",
+                    manifest.display()
+                ),
+            })),
+            rollback_cause: Box::new(crate::InstallerError::Filesystem {
+                message: format!(
+                    "move transaction entry {}: injected rollback rename failure",
+                    config.display()
+                ),
+            }),
+        })
+    );
+    assert_eq!(
+        (
+            fs::read(&config).expect("read partially installed config"),
+            fs::read(&manifest).expect("read unchanged manifest"),
+        ),
+        (b"desired config".to_vec(), b"prior manifest".to_vec())
+    );
+    assert!(wal_path.is_file());
+    assert!(work.is_dir());
 }
 
 #[test]
@@ -713,10 +785,18 @@ fn resolved_initial_wal_sync_failure_rolls_back_before_returning() {
     );
 
     // Assert
-    assert!(matches!(
+    assert_eq!(
         result,
-        Err(crate::InstallerError::Filesystem { .. })
-    ));
+        Err(crate::InstallerError::TransactionRolledBack {
+            transaction_id: "initial-wal-sync-failure".to_owned(),
+            cause: Box::new(crate::InstallerError::Filesystem {
+                message: format!(
+                    "synchronize transaction directory {}: injected initial WAL sync failure",
+                    roots.state_dir.join("transaction").display()
+                ),
+            }),
+        })
+    );
     assert!(!destination.exists());
     assert_transaction_state_absent(&roots.state_dir, "initial-wal-sync-failure");
 }
@@ -735,34 +815,46 @@ fn failed_authority_reload_prohibits_further_transaction_mutation() {
         Locator::new(RootId::CodexHome, "config.toml").expect("config locator"),
         Some(CapturedContent::file(b"desired".to_vec())),
     );
+    let transaction_id = "unresolved-authority";
+    let wal_path = roots.state_dir.join("transaction/wal-v1.json");
+    let work = roots
+        .state_dir
+        .join("transaction/work")
+        .join(transaction_id);
     let platform = FailWalSyncAndReloadPlatform {
         delegate: MacOsPlatform::new(),
         transaction_dir: roots.state_dir.join("transaction"),
-        wal_path: roots.state_dir.join("transaction/wal-v1.json"),
+        wal_path: wal_path.clone(),
         failed_sync: AtomicBool::new(false),
         authority_unreadable: AtomicBool::new(false),
     };
 
     // Act
-    let result =
-        TransactionEngine::new(platform).execute(&plan, "unresolved-authority", FaultPoint::None);
+    let result = TransactionEngine::new(platform).execute(&plan, transaction_id, FaultPoint::None);
 
     // Assert
-    assert!(matches!(
+    assert_eq!(
         result,
-        Err(crate::InstallerError::UnresolvedWalAuthority { .. })
-    ));
+        Err(crate::InstallerError::UnresolvedWalAuthority {
+            transaction_id: transaction_id.to_owned(),
+            wal: wal_path.clone(),
+            paths: vec![
+                destination.clone(),
+                work.join("stage/0"),
+                work.join("tombstone/0"),
+            ],
+            message: format!(
+                "WAL replacement synchronization failed and canonical authority cannot be reloaded: injected WAL synchronization failure; inspect transaction WAL {}: injected canonical WAL reload failure",
+                wal_path.display()
+            ),
+        })
+    );
     assert_eq!(
         fs::read(destination).expect("read untouched live"),
         b"prior"
     );
-    assert!(roots.state_dir.join("transaction/wal-v1.json").exists());
-    assert!(
-        roots
-            .state_dir
-            .join("transaction/work/unresolved-authority")
-            .exists()
-    );
+    assert!(wal_path.exists());
+    assert!(work.exists());
 }
 
 #[test]
@@ -1132,6 +1224,11 @@ struct FailFirstRenamePlatform {
     failed: AtomicBool,
 }
 
+struct FailForwardAndRollbackRenamePlatform {
+    delegate: MacOsPlatform,
+    renames: AtomicUsize,
+}
+
 struct FailCommittedWalSyncPlatform {
     delegate: MacOsPlatform,
     transaction_dir: PathBuf,
@@ -1276,6 +1373,36 @@ impl Platform for FailFirstRenamePlatform {
             Err(io::Error::other("injected rename failure"))
         } else {
             self.delegate.rename_exclusive(source, destination)
+        }
+    }
+
+    fn sync_file(&self, path: &Path) -> io::Result<()> {
+        self.delegate.sync_file(path)
+    }
+
+    fn sync_directory(&self, path: &Path) -> io::Result<()> {
+        self.delegate.sync_directory(path)
+    }
+
+    fn remove_file_or_empty_directory(&self, path: &Path) -> io::Result<()> {
+        self.delegate.remove_file_or_empty_directory(path)
+    }
+
+    fn cleanup_owned_tree(&self, path: &Path) -> io::Result<()> {
+        self.delegate.cleanup_owned_tree(path)
+    }
+}
+
+impl Platform for FailForwardAndRollbackRenamePlatform {
+    fn no_follow_kind(&self, path: &Path) -> io::Result<Option<EntryKind>> {
+        self.delegate.no_follow_kind(path)
+    }
+
+    fn rename_exclusive(&self, source: &Path, destination: &Path) -> io::Result<()> {
+        match self.renames.fetch_add(1, Ordering::SeqCst) {
+            2 => Err(io::Error::other("injected forward rename failure")),
+            3 => Err(io::Error::other("injected rollback rename failure")),
+            _ => self.delegate.rename_exclusive(source, destination),
         }
     }
 

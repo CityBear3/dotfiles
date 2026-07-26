@@ -64,6 +64,7 @@ impl Platform for MacOsPlatform {
         directory.sync_all()
     }
 
+    #[cfg(test)]
     fn remove_file_or_empty_directory(&self, path: &Path) -> io::Result<()> {
         match self.no_follow_kind(path)? {
             Some(EntryKind::File) => fs::remove_file(path),

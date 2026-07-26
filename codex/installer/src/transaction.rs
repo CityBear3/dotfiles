@@ -5,7 +5,9 @@ mod recovery;
 mod wal;
 
 pub(crate) use engine::TransactionEngine;
-pub(crate) use model::{FaultPoint, RecoveryOutcome, TransactionOutcome};
+#[cfg(test)]
+pub(crate) use model::TransactionOutcome;
+pub(crate) use model::{FaultPoint, RecoveryOutcome};
 
 #[cfg(test)]
 #[path = "transaction/transaction_tests.rs"]

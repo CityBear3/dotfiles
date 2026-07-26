@@ -7,10 +7,6 @@ use crate::platform::Platform;
 
 use super::{CapturedContent, ContentPayload};
 
-#[allow(
-    dead_code,
-    reason = "Task 2 captures immutable content; Task 3 consumes materialization"
-)]
 pub(crate) fn materialize(
     content: &CapturedContent,
     destination: &Path,
@@ -33,10 +29,6 @@ pub(crate) fn materialize(
     }
 }
 
-#[allow(
-    dead_code,
-    reason = "Task 4 wires durable materialization through the transaction engine"
-)]
 pub(crate) fn materialize_durable<P: Platform>(
     platform: &P,
     content: &CapturedContent,

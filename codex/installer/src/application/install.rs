@@ -1,106 +1,102 @@
-use std::path::PathBuf;
-
 use crate::InstallerError;
-use crate::command::InstallerCommand;
-use crate::plan::{InstallPlanRequest, plan_install, render_dry_run};
-use crate::resources::MachineResources;
+use crate::backup::{BackupRequest, BackupRoots, BackupStore, EnsureBackup};
+use crate::command::InstallCommand;
+use crate::operation_lock::OperationLock;
+use crate::ownership::{ManifestState, read_manifest};
+use crate::plan::{InstallPlan, InstallPlanRequest, PlanOperation, plan_install, render_dry_run};
+use crate::platform::macos::MacOsPlatform;
+use crate::transaction::{FaultPoint, TransactionEngine};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(crate) struct ApplicationContext {
-    pub(crate) source_root: PathBuf,
-    pub(crate) resources: MachineResources,
-}
+use super::{ApplicationContext, discard_if_unselected, recover_unfinished};
 
-pub(crate) fn execute(command: InstallerCommand) -> Result<String, InstallerError> {
-    let resources = resources_for(&command)?;
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let source_root = manifest_dir
-        .parent()
-        .expect("installer crate must be nested under the Codex source root")
-        .to_path_buf();
-    execute_with_context(
-        command,
-        ApplicationContext {
-            source_root,
-            resources,
-        },
-    )
-}
-
-pub(crate) fn execute_with_context(
-    command: InstallerCommand,
+pub(super) fn execute_dry_run(
+    command: InstallCommand,
     context: ApplicationContext,
 ) -> Result<String, InstallerError> {
-    let operation = command.operation_name();
-    match command {
-        InstallerCommand::Install(command) if command.dry_run => {
-            let plan = plan_install(InstallPlanRequest {
-                source_root: context.source_root,
-                codex_home: command.codex_home,
-                skills_home: command.skills_home,
-                state_dir: command.state_dir,
-                adopt_existing: command.adopt_existing,
-                requested_threads: command.agent_threads,
-                resources: context.resources,
-            })?;
-            Ok(render_dry_run(&plan))
-        }
-        InstallerCommand::Install(_) | InstallerCommand::Restore(_) => {
-            Err(InstallerError::NotImplemented { operation })
-        }
-    }
+    let plan = plan_install(InstallPlanRequest {
+        source_root: context.source_root,
+        codex_home: command.codex_home,
+        skills_home: command.skills_home,
+        state_dir: command.state_dir,
+        adopt_existing: command.adopt_existing,
+        requested_threads: command.agent_threads,
+        resources: context.resources,
+    })?;
+    Ok(render_dry_run(&plan))
 }
 
-fn resources_for(command: &InstallerCommand) -> Result<MachineResources, InstallerError> {
-    let requires_detection = matches!(
-        command,
-        InstallerCommand::Install(command)
-            if command.dry_run && command.agent_threads == "auto"
-    );
-    if !requires_detection {
-        return Ok(MachineResources {
-            logical_cpus: 1,
-            memory_bytes: 0,
-        });
+pub(super) fn execute_mutating(
+    command: InstallCommand,
+    context: ApplicationContext,
+    requested_operation_id: &str,
+) -> Result<String, InstallerError> {
+    let _lock = OperationLock::acquire(&command.codex_home)?;
+    let platform = MacOsPlatform::new();
+    let engine = TransactionEngine::new(platform);
+    let store = BackupStore::new(&platform, &command.state_dir);
+    recover_unfinished(&engine, &store, &command.state_dir)?;
+
+    let plan = plan_install(InstallPlanRequest {
+        source_root: context.source_root,
+        codex_home: command.codex_home,
+        skills_home: command.skills_home,
+        state_dir: command.state_dir,
+        adopt_existing: command.adopt_existing,
+        requested_threads: command.agent_threads,
+        resources: context.resources,
+    })?;
+    if !has_mutating_actions(&plan) {
+        return Ok("install complete\n".to_owned());
     }
-    Ok(MachineResources {
-        logical_cpus: std::thread::available_parallelism()
-            .map(usize::from)
-            .unwrap_or(1),
-        memory_bytes: physical_memory_bytes()?,
-    })
-}
 
-#[cfg(target_os = "macos")]
-fn physical_memory_bytes() -> Result<u64, InstallerError> {
-    use std::ffi::{CString, c_void};
-    use std::mem;
-    use std::ptr;
-
-    let name = CString::new("hw.memsize").expect("static sysctl name");
-    let mut memory = 0_u64;
-    let mut length = mem::size_of::<u64>();
-    let result = unsafe {
-        libc::sysctlbyname(
-            name.as_ptr(),
-            (&mut memory as *mut u64).cast::<c_void>(),
-            &mut length,
-            ptr::null_mut(),
-            0,
-        )
+    engine.initialize_state(&plan.roots.state_dir)?;
+    let ownership = match read_manifest(&plan.roots.state_dir.join("manifest-v1.json"))? {
+        ManifestState::Absent => None,
+        ManifestState::Present { manifest, .. } => Some(manifest),
     };
-    if result != 0 || length != mem::size_of::<u64>() {
-        return Err(InstallerError::Filesystem {
-            message: format!(
-                "read physical memory with sysctl: {}",
-                std::io::Error::last_os_error()
-            ),
-        });
+    let request = BackupRequest {
+        backup_id: requested_operation_id.to_owned(),
+        roots: BackupRoots {
+            codex_home: plan.roots.codex_home.clone(),
+            skills_home: plan.roots.skills_home.clone(),
+            state_dir: plan.roots.state_dir.clone(),
+        },
+        ownership,
+        locators: plan
+            .actions
+            .iter()
+            .map(|action| action.locator.clone())
+            .collect(),
+    };
+    let store = BackupStore::new(&platform, &plan.roots.state_dir);
+    let ensured = store.ensure_current(request)?;
+    let (backup, select_after_commit) = match ensured {
+        EnsureBackup::Published(backup) => (backup, true),
+        EnsureBackup::Reused(backup) => (backup, false),
+    };
+    let execution = engine.execute_with_finalization(
+        &plan,
+        &backup.journal.backup_id,
+        FaultPoint::None,
+        |transaction_id| store.finalize_committed_transaction(transaction_id),
+    );
+    if let Err(error) = execution {
+        if select_after_commit
+            && matches!(
+                engine.has_unfinished_transaction(&plan.roots.state_dir),
+                Ok(false)
+            )
+        {
+            discard_if_unselected(&store, &backup.journal.backup_id)?;
+        }
+        return Err(error);
     }
-    Ok(memory)
+
+    Ok("install complete\n".to_owned())
 }
 
-#[cfg(not(target_os = "macos"))]
-fn physical_memory_bytes() -> Result<u64, InstallerError> {
-    Ok(0)
+fn has_mutating_actions(plan: &InstallPlan) -> bool {
+    plan.actions
+        .iter()
+        .any(|action| action.operation != PlanOperation::NoOp)
 }

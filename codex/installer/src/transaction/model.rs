@@ -276,6 +276,21 @@ impl WalDocument {
             .join("transaction/work")
             .join(&self.transaction_id)
     }
+
+    pub(crate) fn recorded_paths(&self) -> Vec<PathBuf> {
+        self.entries
+            .iter()
+            .flat_map(|entry| {
+                [
+                    Some(&entry.live),
+                    entry.stage.as_ref(),
+                    entry.tombstone.as_ref(),
+                ]
+            })
+            .flatten()
+            .map(|locator| self.roots.resolve(locator))
+            .collect()
+    }
 }
 
 fn validate_entry(
@@ -586,6 +601,49 @@ pub(crate) fn unclassifiable_entry(
         transaction_id: wal.transaction_id.clone(),
         wal: wal_path.to_owned(),
         paths,
+        message: message.into(),
+    }
+}
+
+pub(crate) fn transaction_rollback_failed(
+    wal_path: &Path,
+    wal: &WalDocument,
+    cause: Option<InstallerError>,
+    rollback_cause: InstallerError,
+) -> InstallerError {
+    InstallerError::TransactionRollbackFailed {
+        transaction_id: wal.transaction_id.clone(),
+        wal: wal_path.to_owned(),
+        paths: wal.recorded_paths(),
+        cause: cause.map(Box::new),
+        rollback_cause: Box::new(rollback_cause),
+    }
+}
+
+pub(crate) fn committed_cleanup_incomplete(
+    wal_path: &Path,
+    wal: &WalDocument,
+    cause: Option<InstallerError>,
+    cleanup_cause: InstallerError,
+) -> InstallerError {
+    InstallerError::CommittedCleanupIncomplete {
+        transaction_id: wal.transaction_id.clone(),
+        wal: wal_path.to_owned(),
+        paths: wal.recorded_paths(),
+        cause: cause.map(Box::new),
+        cleanup_cause: Box::new(cleanup_cause),
+    }
+}
+
+pub(crate) fn unresolved_wal_authority(
+    wal_path: &Path,
+    wal: &WalDocument,
+    message: impl Into<String>,
+) -> InstallerError {
+    InstallerError::UnresolvedWalAuthority {
+        transaction_id: wal.transaction_id.clone(),
+        wal: wal_path.to_owned(),
+        paths: wal.recorded_paths(),
         message: message.into(),
     }
 }

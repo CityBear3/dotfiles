@@ -8,15 +8,27 @@ use crate::platform::{EntryKind, Platform};
 
 use super::model::{
     EntryOperation, EntryPhase, MoveKind, RecoveryOutcome, TransactionPhase, WalDocument,
-    unclassifiable_entry,
+    committed_cleanup_incomplete, transaction_rollback_failed, unclassifiable_entry,
 };
 use super::move_protocol::{move_with_intent, resolve_pending};
 use super::wal::WalStore;
 
+#[cfg(test)]
 pub(crate) fn recover<P: Platform>(
     platform: &P,
     state_dir: &Path,
 ) -> Result<RecoveryOutcome, InstallerError> {
+    recover_with_finalization(platform, state_dir, |_| Ok(()))
+}
+
+pub(crate) fn recover_with_finalization<P: Platform, F>(
+    platform: &P,
+    state_dir: &Path,
+    mut finalize: F,
+) -> Result<RecoveryOutcome, InstallerError>
+where
+    F: FnMut(&str) -> Result<(), InstallerError>,
+{
     match platform
         .no_follow_kind(state_dir)
         .map_err(|error| filesystem_error("inspect state directory", state_dir, error))?
@@ -38,7 +50,22 @@ pub(crate) fn recover<P: Platform>(
     match wal.phase {
         TransactionPhase::Committed | TransactionPhase::CleaningUp | TransactionPhase::Complete => {
             let transaction_id = wal.transaction_id.clone();
-            cleanup_committed(platform, &store, &mut wal)?;
+            if let Err(cleanup_cause) = finalize(&transaction_id) {
+                return Err(committed_cleanup_incomplete(
+                    store.canonical_path(),
+                    &wal,
+                    None,
+                    cleanup_cause,
+                ));
+            }
+            if let Err(cleanup_cause) = cleanup_committed(platform, &store, &mut wal) {
+                return Err(committed_cleanup_incomplete(
+                    store.canonical_path(),
+                    &wal,
+                    None,
+                    cleanup_cause,
+                ));
+            }
             Ok(RecoveryOutcome::CleanedCommitted { transaction_id })
         }
         TransactionPhase::Planned
@@ -48,7 +75,14 @@ pub(crate) fn recover<P: Platform>(
         | TransactionPhase::RollingBack
         | TransactionPhase::RolledBack => {
             let transaction_id = wal.transaction_id.clone();
-            rollback(platform, &store, &mut wal)?;
+            if let Err(rollback_cause) = rollback(platform, &store, &mut wal) {
+                return Err(transaction_rollback_failed(
+                    store.canonical_path(),
+                    &wal,
+                    None,
+                    rollback_cause,
+                ));
+            }
             Ok(RecoveryOutcome::RolledBack { transaction_id })
         }
     }

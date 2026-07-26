@@ -10,10 +10,12 @@ use crate::platform::{EntryKind, Platform};
 
 use super::model::{
     EntryOperation, EntryPhase, FaultPoint, MoveKind, RecoveryOutcome, TransactionOutcome,
-    TransactionPhase, WalDocument,
+    TransactionPhase, WalDocument, committed_cleanup_incomplete, transaction_rollback_failed,
 };
 use super::move_protocol::move_with_intent;
-use super::recovery::{cleanup_committed, recover, rollback};
+#[cfg(test)]
+use super::recovery::recover;
+use super::recovery::{cleanup_committed, rollback};
 use super::wal::WalStore;
 
 pub(crate) struct TransactionEngine<P> {
@@ -25,12 +27,26 @@ impl<P: Platform> TransactionEngine<P> {
         Self { platform }
     }
 
+    #[cfg(test)]
     pub(crate) fn execute(
         &self,
         plan: &InstallPlan,
         transaction_id: &str,
         fault: FaultPoint,
     ) -> Result<TransactionOutcome, InstallerError> {
+        self.execute_with_finalization(plan, transaction_id, fault, |_| Ok(()))
+    }
+
+    pub(crate) fn execute_with_finalization<F>(
+        &self,
+        plan: &InstallPlan,
+        transaction_id: &str,
+        fault: FaultPoint,
+        mut finalize: F,
+    ) -> Result<TransactionOutcome, InstallerError>
+    where
+        F: FnMut(&str) -> Result<(), InstallerError>,
+    {
         let actions = plan
             .actions
             .iter()
@@ -65,48 +81,134 @@ impl<P: Platform> TransactionEngine<P> {
                 let Some(mut authoritative) = store.load()? else {
                     return Err(error);
                 };
+                let transaction_id = authoritative.transaction_id.clone();
                 if let Err(recovery_error) = rollback(&self.platform, &store, &mut authoritative) {
-                    return Err(InstallerError::Transaction {
-                        message: format!(
-                            "initial WAL write failed and rollback also failed: {recovery_error}"
-                        ),
-                    });
+                    return Err(transaction_rollback_failed(
+                        store.canonical_path(),
+                        &authoritative,
+                        Some(error),
+                        recovery_error,
+                    ));
                 }
-                return Err(error);
+                return Err(InstallerError::TransactionRolledBack {
+                    transaction_id,
+                    cause: Box::new(error),
+                });
             }
         };
 
-        let result = self.execute_forward(&actions, &store, &mut wal, fault);
-        if result.is_err()
-            && !matches!(
-                result,
-                Err(InstallerError::InjectedTransactionFault { .. }
-                    | InstallerError::UnresolvedWalAuthority { .. })
-            )
+        match self.execute_forward(&actions, &store, &mut wal, fault) {
+            Ok(outcome) => {
+                if let Err(cleanup_cause) = finalize(&wal.transaction_id) {
+                    return Err(committed_cleanup_incomplete(
+                        store.canonical_path(),
+                        &wal,
+                        None,
+                        cleanup_cause,
+                    ));
+                }
+                if let Err(cleanup_cause) = cleanup_committed(&self.platform, &store, &mut wal) {
+                    return Err(committed_cleanup_incomplete(
+                        store.canonical_path(),
+                        &wal,
+                        None,
+                        cleanup_cause,
+                    ));
+                }
+                Ok(outcome)
+            }
+            Err(error)
+                if matches!(
+                    error,
+                    InstallerError::InjectedTransactionFault { .. }
+                        | InstallerError::UnresolvedWalAuthority { .. }
+                ) =>
+            {
+                Err(error)
+            }
+            Err(error) => {
+                let committed = matches!(
+                    wal.phase,
+                    TransactionPhase::Committed
+                        | TransactionPhase::CleaningUp
+                        | TransactionPhase::Complete
+                );
+                if committed {
+                    if let Err(cleanup_cause) = finalize(&wal.transaction_id) {
+                        return Err(committed_cleanup_incomplete(
+                            store.canonical_path(),
+                            &wal,
+                            Some(error),
+                            cleanup_cause,
+                        ));
+                    }
+                    if let Err(cleanup_cause) = cleanup_committed(&self.platform, &store, &mut wal)
+                    {
+                        return Err(committed_cleanup_incomplete(
+                            store.canonical_path(),
+                            &wal,
+                            Some(error),
+                            cleanup_cause,
+                        ));
+                    }
+                    return Err(error);
+                }
+                if let Err(recovery_error) = rollback(&self.platform, &store, &mut wal) {
+                    return Err(transaction_rollback_failed(
+                        store.canonical_path(),
+                        &wal,
+                        Some(error),
+                        recovery_error,
+                    ));
+                }
+                Err(InstallerError::TransactionRolledBack {
+                    transaction_id: wal.transaction_id.clone(),
+                    cause: Box::new(error),
+                })
+            }
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn recover(&self, state_dir: &Path) -> Result<RecoveryOutcome, InstallerError> {
+        recover(&self.platform, state_dir)
+    }
+
+    pub(crate) fn recover_with_finalization<F>(
+        &self,
+        state_dir: &Path,
+        finalize: F,
+    ) -> Result<RecoveryOutcome, InstallerError>
+    where
+        F: FnMut(&str) -> Result<(), InstallerError>,
+    {
+        super::recovery::recover_with_finalization(&self.platform, state_dir, finalize)
+    }
+
+    pub(crate) fn initialize_state(&self, state_dir: &Path) -> Result<(), InstallerError> {
+        ensure_directory_durable(&self.platform, state_dir)
+    }
+
+    pub(crate) fn has_unfinished_transaction(
+        &self,
+        state_dir: &Path,
+    ) -> Result<bool, InstallerError> {
+        match self
+            .platform
+            .no_follow_kind(state_dir)
+            .map_err(|error| filesystem_error("inspect state directory", state_dir, error))?
         {
-            let recovery_result = if matches!(
-                wal.phase,
-                TransactionPhase::Committed
-                    | TransactionPhase::CleaningUp
-                    | TransactionPhase::Complete
-            ) {
-                cleanup_committed(&self.platform, &store, &mut wal)
-            } else {
-                rollback(&self.platform, &store, &mut wal)
-            };
-            if let Err(recovery_error) = recovery_result {
-                return Err(InstallerError::Transaction {
-                    message: format!(
-                        "transaction failed and recovery also failed: {recovery_error}"
-                    ),
+            None => return Ok(false),
+            Some(EntryKind::Directory) => {}
+            Some(_) => {
+                return Err(InstallerError::InvalidWal {
+                    message: "state path is not an ordinary directory".to_owned(),
                 });
             }
         }
-        result
-    }
-
-    pub(crate) fn recover(&self, state_dir: &Path) -> Result<RecoveryOutcome, InstallerError> {
-        recover(&self.platform, state_dir)
+        Ok(WalStore::open(&self.platform, state_dir, false)?
+            .load()?
+            .is_some())
     }
 
     fn preflight(
@@ -185,7 +287,6 @@ impl<P: Platform> TransactionEngine<P> {
             });
         }
 
-        cleanup_committed(&self.platform, store, wal)?;
         Ok(TransactionOutcome {
             transaction_id: wal.transaction_id.clone(),
             applied_entries: actions.len(),

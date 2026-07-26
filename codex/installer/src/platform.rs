@@ -16,6 +16,7 @@ pub(crate) trait Platform {
     fn rename_exclusive(&self, source: &Path, destination: &Path) -> io::Result<()>;
     fn sync_file(&self, path: &Path) -> io::Result<()>;
     fn sync_directory(&self, path: &Path) -> io::Result<()>;
+    #[cfg(test)]
     fn remove_file_or_empty_directory(&self, path: &Path) -> io::Result<()>;
     fn cleanup_owned_tree(&self, path: &Path) -> io::Result<()>;
 }

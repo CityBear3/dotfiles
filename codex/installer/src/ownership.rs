@@ -91,7 +91,7 @@ pub(crate) fn stale_assets(prior: &OwnershipManifest, desired: &OwnershipManifes
     }
 }
 
-fn validate_manifest(manifest: &OwnershipManifest) -> Result<(), InstallerError> {
+pub(crate) fn validate_manifest(manifest: &OwnershipManifest) -> Result<(), InstallerError> {
     if manifest.version != MANIFEST_VERSION {
         return Err(invalid_manifest(format!(
             "unsupported ownership manifest version: {}",

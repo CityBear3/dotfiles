@@ -39,8 +39,39 @@ pub enum InstallerError {
     #[error("{message}")]
     Transaction { message: String },
 
+    #[error("transaction {transaction_id} failed and was rolled back: {cause}")]
+    TransactionRolledBack {
+        transaction_id: String,
+        cause: Box<InstallerError>,
+    },
+
+    #[error(
+        "transaction {transaction_id} rollback failed at {wal}: {rollback_cause}; original cause: {cause:?}; paths: {paths:?}"
+    )]
+    TransactionRollbackFailed {
+        transaction_id: String,
+        wal: PathBuf,
+        paths: Vec<PathBuf>,
+        cause: Option<Box<InstallerError>>,
+        rollback_cause: Box<InstallerError>,
+    },
+
+    #[error(
+        "transaction {transaction_id} committed live state, but finalization/cleanup is incomplete at {wal}; retry a mutating command: {cleanup_cause}; original cause: {cause:?}; paths: {paths:?}"
+    )]
+    CommittedCleanupIncomplete {
+        transaction_id: String,
+        wal: PathBuf,
+        paths: Vec<PathBuf>,
+        cause: Option<Box<InstallerError>>,
+        cleanup_cause: Box<InstallerError>,
+    },
+
     #[error("invalid transaction WAL: {message}")]
     InvalidWal { message: String },
+
+    #[error("invalid backup: {message}")]
+    InvalidBackup { message: String },
 
     #[error(
         "transaction {transaction_id} state cannot be classified at {wal}: {message}; paths: {paths:?}"
@@ -52,8 +83,15 @@ pub enum InstallerError {
         message: String,
     },
 
-    #[error("transaction WAL authority is unresolved at {wal}: {message}")]
-    UnresolvedWalAuthority { wal: PathBuf, message: String },
+    #[error(
+        "transaction {transaction_id} WAL authority is unresolved at {wal}: {message}; paths: {paths:?}"
+    )]
+    UnresolvedWalAuthority {
+        transaction_id: String,
+        wal: PathBuf,
+        paths: Vec<PathBuf>,
+        message: String,
+    },
 
     #[error("injected transaction fault: {point}")]
     InjectedTransactionFault { point: &'static str },
@@ -91,7 +129,11 @@ impl InstallerError {
             | Self::Filesystem { .. }
             | Self::Lock { .. }
             | Self::Transaction { .. }
+            | Self::TransactionRolledBack { .. }
+            | Self::TransactionRollbackFailed { .. }
+            | Self::CommittedCleanupIncomplete { .. }
             | Self::InvalidWal { .. }
+            | Self::InvalidBackup { .. }
             | Self::UnclassifiableTransaction { .. }
             | Self::UnresolvedWalAuthority { .. }
             | Self::InjectedTransactionFault { .. }
@@ -113,7 +155,11 @@ impl InstallerError {
             | Self::Filesystem { .. }
             | Self::Lock { .. }
             | Self::Transaction { .. }
+            | Self::TransactionRolledBack { .. }
+            | Self::TransactionRollbackFailed { .. }
+            | Self::CommittedCleanupIncomplete { .. }
             | Self::InvalidWal { .. }
+            | Self::InvalidBackup { .. }
             | Self::UnclassifiableTransaction { .. }
             | Self::UnresolvedWalAuthority { .. }
             | Self::InjectedTransactionFault { .. }
