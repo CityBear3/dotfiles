@@ -20,11 +20,41 @@ fn constrained_machine_selects_four_threads() {
 }
 
 #[test]
+fn memory_below_sixteen_gibibytes_selects_four_threads() {
+    // Arrange
+    let resources = MachineResources {
+        logical_cpus: 12,
+        memory_bytes: 15 * GIBIBYTE,
+    };
+
+    // Act
+    let result = select_max_threads(resources, "auto");
+
+    // Assert
+    assert_eq!(result, Ok(4));
+}
+
+#[test]
 fn standard_machine_selects_six_threads() {
     // Arrange
     let resources = MachineResources {
         logical_cpus: 10,
         memory_bytes: 24 * GIBIBYTE,
+    };
+
+    // Act
+    let result = select_max_threads(resources, "auto");
+
+    // Assert
+    assert_eq!(result, Ok(6));
+}
+
+#[test]
+fn memory_below_thirty_two_gibibytes_selects_six_threads() {
+    // Arrange
+    let resources = MachineResources {
+        logical_cpus: 12,
+        memory_bytes: 31 * GIBIBYTE,
     };
 
     // Act
