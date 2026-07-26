@@ -8,6 +8,7 @@ use crate::platform::{EntryKind, Platform};
 
 use super::model::{
     EntryOperation, EntryPhase, MoveKind, RecoveryOutcome, TransactionPhase, WalDocument,
+    unclassifiable_entry,
 };
 use super::move_protocol::{move_with_intent, resolve_pending};
 use super::wal::WalStore;
@@ -443,6 +444,7 @@ fn preflight_roots_and_live_ancestors<P: Platform>(
             Some(EntryKind::Directory) => {}
             _ => {
                 return Err(InstallerError::UnclassifiableTransaction {
+                    transaction_id: wal.transaction_id.clone(),
                     wal: wal.roots.state_dir.join("transaction/wal-v1.json"),
                     paths: vec![root.to_path_buf()],
                     message: "transaction root is not an ordinary directory".to_owned(),
@@ -450,18 +452,19 @@ fn preflight_roots_and_live_ancestors<P: Platform>(
             }
         }
     }
-    for entry in &wal.entries {
+    for (index, entry) in wal.entries.iter().enumerate() {
         let root = match entry.live.root {
             crate::path::RootId::CodexHome => &wal.roots.codex_home,
             crate::path::RootId::SkillsHome => &wal.roots.skills_home,
             crate::path::RootId::StateDir => &wal.roots.state_dir,
         };
         if let Err(error) = validate_destination_ancestors(root, &entry.live.relative) {
-            return Err(InstallerError::UnclassifiableTransaction {
-                wal: wal.roots.state_dir.join("transaction/wal-v1.json"),
-                paths: vec![wal.roots.resolve(&entry.live)],
-                message: format!("live destination ancestor is unsafe: {error}"),
-            });
+            return Err(unclassifiable_entry(
+                &wal.roots.state_dir.join("transaction/wal-v1.json"),
+                wal,
+                index,
+                format!("live destination ancestor is unsafe: {error}"),
+            ));
         }
     }
     Ok(())
@@ -472,7 +475,7 @@ fn preflight_work_paths<P: Platform>(
     store: &WalStore<'_, P>,
     wal: &WalDocument,
 ) -> Result<(), InstallerError> {
-    for entry in &wal.entries {
+    for (index, entry) in wal.entries.iter().enumerate() {
         for locator in [entry.stage.as_ref(), entry.tombstone.as_ref()]
             .into_iter()
             .flatten()
@@ -484,11 +487,12 @@ fn preflight_work_paths<P: Platform>(
             {
                 None | Some(EntryKind::File | EntryKind::Directory) => {}
                 Some(_) => {
-                    return Err(InstallerError::UnclassifiableTransaction {
-                        wal: store.canonical_path().to_owned(),
-                        paths: vec![path],
-                        message: "transaction work path is not ordinary".to_owned(),
-                    });
+                    return Err(unclassifiable_entry(
+                        store.canonical_path(),
+                        wal,
+                        index,
+                        "transaction work path is not ordinary",
+                    ));
                 }
             }
         }
@@ -549,19 +553,7 @@ fn unclassifiable<P: Platform>(
     index: usize,
     message: &str,
 ) -> InstallerError {
-    let entry = &wal.entries[index];
-    let mut paths = vec![wal.roots.resolve(&entry.live)];
-    paths.extend(
-        [entry.stage.as_ref(), entry.tombstone.as_ref()]
-            .into_iter()
-            .flatten()
-            .map(|locator| wal.roots.resolve(locator)),
-    );
-    InstallerError::UnclassifiableTransaction {
-        wal: store.canonical_path().to_owned(),
-        paths,
-        message: message.to_owned(),
-    }
+    unclassifiable_entry(store.canonical_path(), wal, index, message)
 }
 
 fn filesystem_error(operation: &str, path: &Path, error: io::Error) -> InstallerError {

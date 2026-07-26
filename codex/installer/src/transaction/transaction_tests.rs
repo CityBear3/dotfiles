@@ -372,6 +372,9 @@ fn unclassifiable_pending_move_leaves_wal_and_both_paths_untouched() {
     let entry = wal.entries[0].clone();
     let stage_locator = entry.stage.expect("replace stage");
     let stage = wal.roots.resolve(&stage_locator);
+    let tombstone = wal
+        .roots
+        .resolve(entry.tombstone.as_ref().expect("replace tombstone"));
     fs::write(&stage, b"desired").expect("create ambiguous stage");
     wal.entries[0].phase = EntryPhase::Isolated;
     wal.pending_move = Some(MoveIntent {
@@ -391,10 +394,16 @@ fn unclassifiable_pending_move_leaves_wal_and_both_paths_untouched() {
     let result = TransactionEngine::new(MacOsPlatform::new()).recover(&roots.state_dir);
 
     // Assert
-    assert!(matches!(
+    assert_eq!(
         result,
-        Err(crate::InstallerError::UnclassifiableTransaction { .. })
-    ));
+        Err(crate::InstallerError::UnclassifiableTransaction {
+            transaction_id: "unclassifiable".to_owned(),
+            wal: wal_path.clone(),
+            paths: vec![destination.clone(), stage.clone(), tombstone],
+            message: "pending move has neither exactly one ordinary source nor destination"
+                .to_owned(),
+        })
+    );
     assert_eq!(fs::read(destination).expect("read live"), b"desired");
     assert_eq!(fs::read(stage).expect("read stage"), b"desired");
     assert!(wal_path.exists());

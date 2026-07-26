@@ -42,8 +42,11 @@ pub enum InstallerError {
     #[error("invalid transaction WAL: {message}")]
     InvalidWal { message: String },
 
-    #[error("transaction state cannot be classified at {wal}: {message}; paths: {paths:?}")]
+    #[error(
+        "transaction {transaction_id} state cannot be classified at {wal}: {message}; paths: {paths:?}"
+    )]
     UnclassifiableTransaction {
+        transaction_id: String,
         wal: PathBuf,
         paths: Vec<PathBuf>,
         message: String,

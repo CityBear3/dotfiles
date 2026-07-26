@@ -567,3 +567,25 @@ pub(crate) fn invalid_wal(message: impl Into<String>) -> InstallerError {
         message: message.into(),
     }
 }
+
+pub(crate) fn unclassifiable_entry(
+    wal_path: &Path,
+    wal: &WalDocument,
+    entry_index: usize,
+    message: impl Into<String>,
+) -> InstallerError {
+    let entry = &wal.entries[entry_index];
+    let mut paths = vec![wal.roots.resolve(&entry.live)];
+    paths.extend(
+        [entry.stage.as_ref(), entry.tombstone.as_ref()]
+            .into_iter()
+            .flatten()
+            .map(|locator| wal.roots.resolve(locator)),
+    );
+    InstallerError::UnclassifiableTransaction {
+        transaction_id: wal.transaction_id.clone(),
+        wal: wal_path.to_owned(),
+        paths,
+        message: message.into(),
+    }
+}

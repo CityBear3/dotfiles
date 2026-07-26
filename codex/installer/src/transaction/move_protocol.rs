@@ -5,7 +5,7 @@ use crate::InstallerError;
 use crate::path::{Locator, RootId, validate_destination_ancestors};
 use crate::platform::{EntryKind, Platform};
 
-use super::model::{MoveIntent, WalDocument};
+use super::model::{MoveIntent, WalDocument, unclassifiable_entry};
 use super::wal::WalStore;
 
 pub(crate) fn move_with_intent<P: Platform>(
@@ -70,12 +70,12 @@ pub(crate) fn resolve_pending<P: Platform>(
             sync_move_parents(platform, &source, &destination)?;
             finish_intent(store, wal, &intent)
         }
-        _ => Err(InstallerError::UnclassifiableTransaction {
-            wal: store.canonical_path().to_owned(),
-            paths: vec![source, destination],
-            message: "pending move has neither exactly one ordinary source nor destination"
-                .to_owned(),
-        }),
+        _ => Err(unclassifiable_entry(
+            store.canonical_path(),
+            wal,
+            intent.entry_index,
+            "pending move has neither exactly one ordinary source nor destination",
+        )),
     }
 }
 
