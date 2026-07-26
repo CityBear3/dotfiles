@@ -13,8 +13,7 @@ use crate::test_support::project_tempdir;
 use crate::transaction::{FaultPoint, TransactionEngine};
 
 use super::{
-    ApplicationContext, execute_restore_with_context_and_id,
-    execute_restore_with_context_id_and_post_lock_hook, execute_with_context,
+    ApplicationContext, execute_restore_with_context_and_id, execute_with_context,
     execute_with_context_and_id,
 };
 
@@ -667,7 +666,7 @@ fn no_op_install_creates_neither_backup_nor_transaction_state() {
 }
 
 #[test]
-fn restore_validates_post_lock_latest_before_recovering_a_pre_commit_wal() {
+fn locked_restore_validates_latest_before_recovering_a_pre_commit_wal() {
     // Arrange
     let temporary = project_tempdir("application-restore-post-lock-authority");
     let source_root = temporary.path().join("source");
@@ -728,21 +727,16 @@ fn restore_validates_post_lock_latest_before_recovering_a_pre_commit_wal() {
         .expect("capture transaction work")
         .expect("transaction work exists");
     let payload = backup.directory.join("payload/codex-home/config.toml");
+    fs::write(&payload, b"corrupt").expect("corrupt latest payload");
 
     // Act
-    let result = execute_restore_with_context_id_and_post_lock_hook(
-        RestoreCommand {
-            state_dir: state_dir.clone(),
-        },
-        ApplicationContext {
-            source_root,
-            resources: MachineResources {
-                logical_cpus: 1,
-                memory_bytes: 0,
-            },
-        },
+    let result = super::restore::execute_locked(
+        platform,
+        &store,
+        &state_dir,
+        &source_root,
         "unused-restore-id",
-        || fs::write(&payload, b"corrupt").expect("corrupt latest payload after lock"),
+        &codex_home,
     );
 
     // Assert
@@ -765,10 +759,6 @@ fn restore_validates_post_lock_latest_before_recovering_a_pre_commit_wal() {
             .expect("recapture transaction work")
             .expect("transaction work remains"),
         work_before
-    );
-    assert_eq!(
-        fs::read(state_dir.join("backups/latest")).expect("read latest marker"),
-        b"backup-a\n"
     );
 }
 

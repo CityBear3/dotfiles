@@ -20,7 +20,7 @@ pub(super) fn execute_mutating(
     let store = BackupStore::new(&platform, &command.state_dir);
     let locked_codex_home = resolve_lock_target(&store, source_root)?;
     let _lock = OperationLock::acquire(&locked_codex_home)?;
-    execute_after_lock(
+    execute_locked(
         platform,
         &store,
         &command.state_dir,
@@ -30,32 +30,7 @@ pub(super) fn execute_mutating(
     )
 }
 
-#[cfg(test)]
-pub(super) fn execute_mutating_with_post_lock_hook<F>(
-    command: RestoreCommand,
-    source_root: &Path,
-    operation_id: &str,
-    post_lock_hook: F,
-) -> Result<String, InstallerError>
-where
-    F: FnOnce(),
-{
-    let platform = MacOsPlatform::new();
-    let store = BackupStore::new(&platform, &command.state_dir);
-    let locked_codex_home = resolve_lock_target(&store, source_root)?;
-    let _lock = OperationLock::acquire(&locked_codex_home)?;
-    post_lock_hook();
-    execute_after_lock(
-        platform,
-        &store,
-        &command.state_dir,
-        source_root,
-        operation_id,
-        &locked_codex_home,
-    )
-}
-
-fn execute_after_lock(
+pub(super) fn execute_locked(
     platform: MacOsPlatform,
     store: &BackupStore<'_, MacOsPlatform>,
     state_dir: &Path,

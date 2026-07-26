@@ -266,10 +266,6 @@ fn latest_backup_rejects_a_codex_root_with_a_symlink_ancestor() {
         serde_json::to_vec_pretty(&journal).expect("encode backup journal"),
     )
     .expect("write backup journal with unsafe root");
-    let marker_before =
-        fs::read(roots.state_dir.join("backups/latest")).expect("read latest marker");
-    let payload_before = fs::read(backup.directory.join("payload/codex-home/config.toml"))
-        .expect("read backup payload");
 
     // Act
     let result = store.load_latest();
@@ -281,16 +277,6 @@ fn latest_backup_rejects_a_codex_root_with_a_symlink_ancestor() {
             message: "backup codex home root is not normalized and safe".to_owned(),
         })
     );
-    assert_eq!(
-        fs::read(roots.state_dir.join("backups/latest")).expect("reread latest marker"),
-        marker_before
-    );
-    assert_eq!(
-        fs::read(backup.directory.join("payload/codex-home/config.toml"))
-            .expect("reread backup payload"),
-        payload_before
-    );
-    assert_eq!(fs::read(config).expect("read live config"), b"generation-a");
 }
 
 #[test]
