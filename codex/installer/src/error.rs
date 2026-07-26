@@ -1,4 +1,5 @@
 use clap::error::ErrorKind;
+use std::path::PathBuf;
 use thiserror::Error;
 
 /// Errors emitted by the installer command shell.
@@ -19,6 +20,21 @@ pub enum InstallerError {
 
     #[error("{message}")]
     InvalidConfiguration { message: String },
+
+    #[error("{message}")]
+    InvalidInventory { message: String },
+
+    #[error("{message}")]
+    InvalidManifest { message: String },
+
+    #[error("unsafe path {path}: {message}")]
+    UnsafePath { path: PathBuf, message: String },
+
+    #[error("{message}")]
+    Filesystem { message: String },
+
+    #[error("unmanaged destination conflicts: {paths:?}")]
+    UnmanagedConflict { paths: Vec<PathBuf> },
 
     #[error("{operation} is not implemented yet")]
     NotImplemented { operation: &'static str },
@@ -44,7 +60,12 @@ impl InstallerError {
             Self::MissingHome
             | Self::InvalidAgentThreads
             | Self::InvalidConfiguration { .. }
+            | Self::InvalidInventory { .. }
+            | Self::InvalidManifest { .. }
+            | Self::UnsafePath { .. }
+            | Self::Filesystem { .. }
             | Self::NotImplemented { .. } => 1,
+            Self::UnmanagedConflict { .. } => 2,
         }
     }
 
@@ -55,6 +76,11 @@ impl InstallerError {
             Self::MissingHome
             | Self::InvalidAgentThreads
             | Self::InvalidConfiguration { .. }
+            | Self::InvalidInventory { .. }
+            | Self::InvalidManifest { .. }
+            | Self::UnsafePath { .. }
+            | Self::Filesystem { .. }
+            | Self::UnmanagedConflict { .. }
             | Self::NotImplemented { .. } => true,
         }
     }

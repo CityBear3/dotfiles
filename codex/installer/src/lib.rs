@@ -1,32 +1,28 @@
 //! Rust implementation of the dotfiles Codex installer.
 
+mod application;
 mod command;
-#[allow(
-    dead_code,
-    reason = "the configuration merger is wired into application planning in Task 2"
-)]
 mod config_merge;
+mod content;
 mod error;
-#[allow(
-    dead_code,
-    reason = "machine resource selection is wired into application planning in Task 2"
-)]
+mod ownership;
+mod path;
+mod plan;
 mod resources;
+mod source;
 #[cfg(test)]
 mod test_support;
 
 pub use command::{InstallCommand, InstallerCommand, RestoreCommand};
 pub use error::InstallerError;
 
-/// Run the installer command shell.
-pub fn run_from<I, T, F>(arguments: I, environment: F) -> Result<(), InstallerError>
+/// Parse and run an installer command.
+pub fn run_from<I, T, F>(arguments: I, environment: F) -> Result<String, InstallerError>
 where
     I: IntoIterator<Item = T>,
     T: Into<std::ffi::OsString>,
     F: Fn(&str) -> Option<std::ffi::OsString>,
 {
     let command = command::parse_command_from_with_environment(arguments, environment)?;
-    Err(InstallerError::NotImplemented {
-        operation: command.operation_name(),
-    })
+    application::execute(command)
 }
