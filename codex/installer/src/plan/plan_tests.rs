@@ -112,12 +112,16 @@ fn plan_classifies_identical_owned_destinations_as_no_op() {
     let result = plan_install(fixture.request(false));
 
     // Assert
-    assert!(
-        result
-            .expect("no-op plan")
-            .actions
+    let plan = result.expect("no-op plan");
+    assert_eq!(
+        plan.actions
             .iter()
-            .all(|action| action.operation == PlanOperation::NoOp)
+            .map(|action| (action.operation, action.category))
+            .collect::<Vec<_>>(),
+        vec![
+            (PlanOperation::NoOp, AssetCategory::Config),
+            (PlanOperation::NoOp, AssetCategory::Manifest),
+        ]
     );
 }
 
