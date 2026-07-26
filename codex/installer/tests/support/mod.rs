@@ -1,7 +1,12 @@
 use std::path::PathBuf;
 
 pub(crate) fn process_tempdir(test_name: &str) -> tempfile::TempDir {
-    let parent = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let repository_root = manifest_dir
+        .parent()
+        .and_then(|path| path.parent())
+        .expect("installer crate must be nested under the repository root");
+    let parent = repository_root
         .join("target")
         .join("test-tmp")
         .join("process");
