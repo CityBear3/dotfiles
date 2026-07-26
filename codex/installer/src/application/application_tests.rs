@@ -1065,6 +1065,100 @@ fn restore_cleans_stale_backup_publication_after_committing_selected_backup() {
 }
 
 #[test]
+fn restore_rejects_user_asset_named_only_by_backup_ownership_before_mutation() {
+    // Arrange
+    let temporary = project_tempdir("application-restore-backup-ownership-conflict");
+    let source_root = temporary.path().join("source");
+    let codex_home = temporary.path().join("codex-home");
+    let skills_home = temporary.path().join("skills-home");
+    let state_dir = temporary.path().join("state");
+    for directory in [&source_root, &codex_home, &skills_home, &state_dir] {
+        fs::create_dir(directory).expect("create application root");
+    }
+    fs::write(source_root.join("config.toml"), MANAGED_CONFIG).expect("write source config");
+    fs::write(codex_home.join("config.toml"), MANAGED_CONFIG).expect("write installed config");
+    let prior_ownership = OwnershipManifest::new(false, ["retired"], []);
+    let prior_manifest = manifest_content(&prior_ownership).expect("serialize prior manifest");
+    fs::write(
+        state_dir.join("manifest-v1.json"),
+        prior_manifest.file_bytes().expect("prior manifest bytes"),
+    )
+    .expect("write prior manifest");
+    let context = || ApplicationContext {
+        source_root: source_root.clone(),
+        resources: MachineResources {
+            logical_cpus: 1,
+            memory_bytes: 0,
+        },
+    };
+    let install = InstallerCommand::Install(InstallCommand {
+        dry_run: false,
+        adopt_existing: false,
+        agent_threads: "6".to_owned(),
+        codex_home: codex_home.clone(),
+        skills_home: skills_home.clone(),
+        state_dir: state_dir.clone(),
+    });
+    execute_with_context_and_id(install, context(), "install-retired-absence")
+        .expect("install succeeds");
+    let desired_manifest =
+        manifest_content(&OwnershipManifest::new(false, [], [])).expect("serialize new manifest");
+    assert_eq!(
+        fs::read(state_dir.join("manifest-v1.json")).expect("read new manifest"),
+        desired_manifest
+            .file_bytes()
+            .expect("new manifest bytes")
+            .to_vec()
+    );
+    let platform = MacOsPlatform::new();
+    let store = BackupStore::new(&platform, &state_dir);
+    let backup = store
+        .load_latest()
+        .expect("load latest backup")
+        .expect("pre-install backup remains selected");
+    assert_eq!(backup.journal.backup_id, "install-retired-absence");
+    assert_eq!(backup.journal.ownership, Some(prior_ownership));
+    let retired = skills_home.join("retired");
+    fs::create_dir(&retired).expect("create user skill");
+    fs::write(retired.join("SKILL.md"), b"user-created").expect("write user skill");
+    let manifest_before =
+        fs::read(state_dir.join("manifest-v1.json")).expect("read manifest before restore");
+    let latest_before =
+        fs::read(state_dir.join("backups/latest")).expect("read latest before restore");
+
+    // Act
+    let result = execute_restore_with_context_and_id(
+        RestoreCommand {
+            state_dir: state_dir.clone(),
+        },
+        context(),
+        "restore-retired-conflict",
+    );
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(InstallerError::UnmanagedConflict {
+            paths: vec![retired.clone()],
+        })
+    );
+    assert_eq!(
+        (
+            fs::read(retired.join("SKILL.md")).expect("read preserved user skill"),
+            fs::read(state_dir.join("manifest-v1.json")).expect("reread new manifest"),
+            fs::read(state_dir.join("backups/latest")).expect("reread latest marker"),
+            state_dir.join("transaction/wal-v1.json").exists(),
+        ),
+        (
+            b"user-created".to_vec(),
+            manifest_before,
+            latest_before,
+            false,
+        )
+    );
+}
+
+#[test]
 fn install_restart_finalizes_a_committed_restore_without_promoting_live_state() {
     // Arrange
     let temporary = project_tempdir("application-restore-committed-restart");

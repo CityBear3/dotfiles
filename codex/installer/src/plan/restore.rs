@@ -25,6 +25,9 @@ pub(crate) fn build_restore_plan(
         .iter()
         .map(|entry| entry.locator.clone())
         .collect::<Vec<_>>();
+    if let Some(backup_ownership) = &backup.journal.ownership {
+        extend_owned_locators(&mut locators, backup_ownership)?;
+    }
     extend_owned_locators(&mut locators, &current_ownership)?;
     let mut actions = Vec::with_capacity(locators.len());
     let mut conflicts = Vec::new();
