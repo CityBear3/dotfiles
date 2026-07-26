@@ -602,6 +602,42 @@ fn synchronization_error_after_durable_commit_never_rolls_back_installed_state()
 }
 
 #[test]
+fn resolved_initial_wal_sync_failure_rolls_back_before_returning() {
+    // Arrange
+    let temporary = project_tempdir("transaction-initial-wal-sync-failure");
+    let roots = create_roots(temporary.path());
+    let destination = roots.codex_home.join("config.toml");
+    let plan = single_action_plan(
+        &roots,
+        PlanOperation::Create,
+        AssetCategory::Config,
+        Locator::new(RootId::CodexHome, "config.toml").expect("config locator"),
+        Some(CapturedContent::file(b"desired".to_vec())),
+    );
+    let platform = FailInitialWalSyncPlatform {
+        delegate: MacOsPlatform::new(),
+        transaction_dir: roots.state_dir.join("transaction"),
+        wal_path: roots.state_dir.join("transaction/wal-v1.json"),
+        failed: AtomicBool::new(false),
+    };
+
+    // Act
+    let result = TransactionEngine::new(platform).execute(
+        &plan,
+        "initial-wal-sync-failure",
+        FaultPoint::None,
+    );
+
+    // Assert
+    assert!(matches!(
+        result,
+        Err(crate::InstallerError::Filesystem { .. })
+    ));
+    assert!(!destination.exists());
+    assert_transaction_state_absent(&roots.state_dir, "initial-wal-sync-failure");
+}
+
+#[test]
 fn failed_authority_reload_prohibits_further_transaction_mutation() {
     // Arrange
     let temporary = project_tempdir("transaction-unresolved-authority");
@@ -1017,6 +1053,48 @@ struct FailCommittedWalSyncPlatform {
     transaction_dir: PathBuf,
     wal_path: PathBuf,
     failed: AtomicBool,
+}
+
+struct FailInitialWalSyncPlatform {
+    delegate: MacOsPlatform,
+    transaction_dir: PathBuf,
+    wal_path: PathBuf,
+    failed: AtomicBool,
+}
+
+impl Platform for FailInitialWalSyncPlatform {
+    fn no_follow_kind(&self, path: &Path) -> io::Result<Option<EntryKind>> {
+        self.delegate.no_follow_kind(path)
+    }
+
+    fn rename_exclusive(&self, source: &Path, destination: &Path) -> io::Result<()> {
+        self.delegate.rename_exclusive(source, destination)
+    }
+
+    fn sync_file(&self, path: &Path) -> io::Result<()> {
+        self.delegate.sync_file(path)
+    }
+
+    fn sync_directory(&self, path: &Path) -> io::Result<()> {
+        if path == self.transaction_dir
+            && !self.failed.load(Ordering::SeqCst)
+            && let Ok(bytes) = fs::read(&self.wal_path)
+            && let Ok(wal) = serde_json::from_slice::<WalDocument>(&bytes)
+            && wal.phase == TransactionPhase::Planned
+        {
+            self.failed.store(true, Ordering::SeqCst);
+            return Err(io::Error::other("injected initial WAL sync failure"));
+        }
+        self.delegate.sync_directory(path)
+    }
+
+    fn remove_file_or_empty_directory(&self, path: &Path) -> io::Result<()> {
+        self.delegate.remove_file_or_empty_directory(path)
+    }
+
+    fn cleanup_owned_tree(&self, path: &Path) -> io::Result<()> {
+        self.delegate.cleanup_owned_tree(path)
+    }
 }
 
 impl Platform for FailCommittedWalSyncPlatform {

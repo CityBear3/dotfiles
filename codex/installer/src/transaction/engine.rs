@@ -51,7 +51,25 @@ impl<P: Platform> TransactionEngine<P> {
         ensure_live_parents(&self.platform, plan, &actions)?;
         let store = WalStore::open(&self.platform, &plan.roots.state_dir, true)?;
         ensure_transaction_work_absent(&self.platform, &initial)?;
-        let mut wal = store.write_initial(initial)?;
+        let mut wal = match store.write_initial(initial) {
+            Ok(wal) => wal,
+            Err(error) if matches!(&error, InstallerError::UnresolvedWalAuthority { .. }) => {
+                return Err(error);
+            }
+            Err(error) => {
+                let Some(mut authoritative) = store.load()? else {
+                    return Err(error);
+                };
+                if let Err(recovery_error) = rollback(&self.platform, &store, &mut authoritative) {
+                    return Err(InstallerError::Transaction {
+                        message: format!(
+                            "initial WAL write failed and rollback also failed: {recovery_error}"
+                        ),
+                    });
+                }
+                return Err(error);
+            }
+        };
 
         let result = self.execute_forward(&actions, &store, &mut wal, fault);
         if result.is_err()
