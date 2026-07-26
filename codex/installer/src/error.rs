@@ -33,6 +33,28 @@ pub enum InstallerError {
     #[error("{message}")]
     Filesystem { message: String },
 
+    #[error("{message}")]
+    Lock { message: String },
+
+    #[error("{message}")]
+    Transaction { message: String },
+
+    #[error("invalid transaction WAL: {message}")]
+    InvalidWal { message: String },
+
+    #[error("transaction state cannot be classified at {wal}: {message}; paths: {paths:?}")]
+    UnclassifiableTransaction {
+        wal: PathBuf,
+        paths: Vec<PathBuf>,
+        message: String,
+    },
+
+    #[error("transaction WAL authority is unresolved at {wal}: {message}")]
+    UnresolvedWalAuthority { wal: PathBuf, message: String },
+
+    #[error("injected transaction fault: {point}")]
+    InjectedTransactionFault { point: &'static str },
+
     #[error("unmanaged destination conflicts: {paths:?}")]
     UnmanagedConflict { paths: Vec<PathBuf> },
 
@@ -64,6 +86,12 @@ impl InstallerError {
             | Self::InvalidManifest { .. }
             | Self::UnsafePath { .. }
             | Self::Filesystem { .. }
+            | Self::Lock { .. }
+            | Self::Transaction { .. }
+            | Self::InvalidWal { .. }
+            | Self::UnclassifiableTransaction { .. }
+            | Self::UnresolvedWalAuthority { .. }
+            | Self::InjectedTransactionFault { .. }
             | Self::NotImplemented { .. } => 1,
             Self::UnmanagedConflict { .. } => 2,
         }
@@ -80,6 +108,12 @@ impl InstallerError {
             | Self::InvalidManifest { .. }
             | Self::UnsafePath { .. }
             | Self::Filesystem { .. }
+            | Self::Lock { .. }
+            | Self::Transaction { .. }
+            | Self::InvalidWal { .. }
+            | Self::UnclassifiableTransaction { .. }
+            | Self::UnresolvedWalAuthority { .. }
+            | Self::InjectedTransactionFault { .. }
             | Self::UnmanagedConflict { .. }
             | Self::NotImplemented { .. } => true,
         }

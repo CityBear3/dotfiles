@@ -5,13 +5,29 @@ mod command;
 mod config_merge;
 mod content;
 mod error;
+#[allow(
+    dead_code,
+    reason = "Task 4 wires the operation lock into mutating commands"
+)]
+mod operation_lock;
 mod ownership;
 mod path;
 mod plan;
+#[allow(
+    dead_code,
+    reason = "Task 4 wires the macOS backend into the application"
+)]
+mod platform;
 mod resources;
 mod source;
 #[cfg(test)]
 mod test_support;
+#[allow(
+    dead_code,
+    unused_imports,
+    reason = "Task 4 wires transaction execution into mutating commands"
+)]
+mod transaction;
 
 pub use command::{InstallCommand, InstallerCommand, RestoreCommand};
 pub use error::InstallerError;
