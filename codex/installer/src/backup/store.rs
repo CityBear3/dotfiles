@@ -585,7 +585,7 @@ fn validate_normalized_root(
 ) -> Result<(), InstallerError> {
     let normalized = normalize_directory(root, must_exist)
         .map_err(|_| invalid_backup(format!("backup {label} root is not normalized and safe")))?;
-    if normalized != root {
+    if normalized.as_os_str() != root.as_os_str() {
         return Err(invalid_backup(format!(
             "backup {label} root is not normalized and safe"
         )));
