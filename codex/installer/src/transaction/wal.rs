@@ -32,9 +32,6 @@ impl<'a, P: Platform> WalStore<'a, P> {
                 fs::create_dir(&transaction_dir).map_err(|error| {
                     filesystem_error("create transaction directory", &transaction_dir, error)
                 })?;
-                platform.sync_directory(state_dir).map_err(|error| {
-                    filesystem_error("synchronize state directory", state_dir, error)
-                })?;
             }
             None => {}
             Some(_) => {
@@ -43,6 +40,11 @@ impl<'a, P: Platform> WalStore<'a, P> {
                     transaction_dir.display()
                 )));
             }
+        }
+        if create {
+            platform.sync_directory(state_dir).map_err(|error| {
+                filesystem_error("synchronize state directory", state_dir, error)
+            })?;
         }
         let store = Self {
             platform,

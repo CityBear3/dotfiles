@@ -12,6 +12,7 @@ use crate::platform::{EntryKind, Platform};
 use crate::test_support::project_tempdir;
 
 use super::model::{EntryPhase, MoveIntent, MoveKind, TransactionPhase, WalDocument};
+use super::wal::WalStore;
 use super::{FaultPoint, RecoveryOutcome, TransactionEngine, TransactionOutcome};
 
 #[test]
@@ -763,6 +764,88 @@ fn rolled_back_restart_accepts_an_already_removed_work_tree() {
     assert!(!wal_path.exists());
 }
 
+#[test]
+fn creating_a_selected_directory_syncs_each_new_entry_parent() {
+    // Arrange
+    let temporary = project_tempdir("transaction-create-directory-durability");
+    let source_root = temporary.path().join("source");
+    let codex_home = temporary.path().join("codex-home");
+    let skills_home = temporary.path().join("skills-home");
+    fs::create_dir(&source_root).expect("create source root");
+    fs::create_dir(&codex_home).expect("create Codex home");
+    fs::create_dir(&skills_home).expect("create skills home");
+    let first_missing = temporary.path().join("state-parent");
+    let second_missing = first_missing.join("nested");
+    let state_dir = second_missing.join("selected");
+    let roots = InstallRoots {
+        source_root,
+        codex_home,
+        skills_home,
+        state_dir: state_dir.clone(),
+    };
+    let plan = single_action_plan(
+        &roots,
+        PlanOperation::Create,
+        AssetCategory::Config,
+        Locator::new(RootId::CodexHome, "config.toml").expect("config locator"),
+        Some(CapturedContent::file(b"desired".to_vec())),
+    );
+    let synchronized = Arc::new(Mutex::new(Vec::new()));
+    let platform = RecordingSyncPlatform {
+        delegate: MacOsPlatform::new(),
+        synchronized: Arc::clone(&synchronized),
+    };
+
+    // Act
+    let result =
+        TransactionEngine::new(platform).execute(&plan, "directory-durable", FaultPoint::None);
+
+    // Assert
+    assert_eq!(
+        result,
+        Ok(TransactionOutcome {
+            transaction_id: "directory-durable".to_owned(),
+            applied_entries: 1,
+        })
+    );
+    let required_parents = vec![temporary.path().to_owned(), first_missing, second_missing];
+    let observed_required = synchronized
+        .lock()
+        .expect("lock synchronized paths")
+        .iter()
+        .filter(|path| required_parents.contains(path))
+        .cloned()
+        .collect::<Vec<_>>();
+    assert_eq!(observed_required, required_parents);
+}
+
+#[test]
+fn wal_store_syncs_state_directory_when_transaction_child_already_exists() {
+    // Arrange
+    let temporary = project_tempdir("transaction-existing-child-durability");
+    let state_dir = temporary.path().join("state");
+    fs::create_dir(&state_dir).expect("create state directory");
+    fs::create_dir(state_dir.join("transaction")).expect("create transaction child");
+    let synchronized = Arc::new(Mutex::new(Vec::new()));
+    let platform = RecordingSyncPlatform {
+        delegate: MacOsPlatform::new(),
+        synchronized: Arc::clone(&synchronized),
+    };
+
+    // Act
+    let result = WalStore::open(&platform, &state_dir, true);
+
+    // Assert
+    assert!(result.is_ok());
+    assert_eq!(
+        synchronized
+            .lock()
+            .expect("lock synchronized paths")
+            .as_slice(),
+        [state_dir]
+    );
+}
+
 fn create_roots(base: &Path) -> InstallRoots {
     let source_root = base.join("source");
     let codex_home = base.join("codex-home");
@@ -844,6 +927,41 @@ struct InspectingPlatform {
     wal_path: PathBuf,
     live_destinations: Vec<PathBuf>,
     observations: Arc<Mutex<Vec<RenameObservation>>>,
+}
+
+struct RecordingSyncPlatform {
+    delegate: MacOsPlatform,
+    synchronized: Arc<Mutex<Vec<PathBuf>>>,
+}
+
+impl Platform for RecordingSyncPlatform {
+    fn no_follow_kind(&self, path: &Path) -> io::Result<Option<EntryKind>> {
+        self.delegate.no_follow_kind(path)
+    }
+
+    fn rename_exclusive(&self, source: &Path, destination: &Path) -> io::Result<()> {
+        self.delegate.rename_exclusive(source, destination)
+    }
+
+    fn sync_file(&self, path: &Path) -> io::Result<()> {
+        self.delegate.sync_file(path)
+    }
+
+    fn sync_directory(&self, path: &Path) -> io::Result<()> {
+        self.synchronized
+            .lock()
+            .expect("lock synchronized paths")
+            .push(path.to_owned());
+        self.delegate.sync_directory(path)
+    }
+
+    fn remove_file_or_empty_directory(&self, path: &Path) -> io::Result<()> {
+        self.delegate.remove_file_or_empty_directory(path)
+    }
+
+    fn cleanup_owned_tree(&self, path: &Path) -> io::Result<()> {
+        self.delegate.cleanup_owned_tree(path)
+    }
 }
 
 impl Platform for InspectingPlatform {

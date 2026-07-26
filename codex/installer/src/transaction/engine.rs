@@ -355,28 +355,39 @@ fn ensure_live_parents<P: Platform>(
 }
 
 fn ensure_directory_durable<P: Platform>(platform: &P, path: &Path) -> Result<(), InstallerError> {
-    match platform
-        .no_follow_kind(path)
-        .map_err(|error| filesystem_error("inspect directory", path, error))?
-    {
-        Some(EntryKind::Directory) => Ok(()),
-        Some(_) => Err(InstallerError::Transaction {
-            message: format!("{} is not an ordinary directory", path.display()),
-        }),
-        None => {
-            fs::create_dir_all(path)
-                .map_err(|error| filesystem_error("create directory", path, error))?;
-            platform
-                .sync_directory(path)
-                .map_err(|error| filesystem_error("synchronize directory", path, error))?;
-            if let Some(parent) = path.parent() {
-                platform.sync_directory(parent).map_err(|error| {
-                    filesystem_error("synchronize directory parent", parent, error)
-                })?;
+    let mut current = path.to_owned();
+    let mut missing = Vec::new();
+    loop {
+        match platform
+            .no_follow_kind(&current)
+            .map_err(|error| filesystem_error("inspect directory", &current, error))?
+        {
+            Some(EntryKind::Directory) => break,
+            Some(_) => {
+                return Err(InstallerError::Transaction {
+                    message: format!("{} is not an ordinary directory", current.display()),
+                });
             }
-            Ok(())
+            None => {
+                missing.push(current.clone());
+                current = current
+                    .parent()
+                    .ok_or_else(|| transaction_error("directory has no existing parent"))?
+                    .to_owned();
+            }
         }
     }
+    for directory in missing.into_iter().rev() {
+        fs::create_dir(&directory)
+            .map_err(|error| filesystem_error("create directory", &directory, error))?;
+        let parent = directory
+            .parent()
+            .ok_or_else(|| transaction_error("created directory has no parent"))?;
+        platform
+            .sync_directory(parent)
+            .map_err(|error| filesystem_error("synchronize directory parent", parent, error))?;
+    }
+    Ok(())
 }
 
 fn require_directory<P: Platform>(
