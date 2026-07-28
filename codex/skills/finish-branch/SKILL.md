@@ -44,6 +44,25 @@ choice before every publication, pull request, local merge, keep, or discard
 disposition. Do not repeat an approval prompt once the exact choice and target are
 recorded, except for the immediate destructive confirmation required below.
 
+## Revalidate after the user choice
+
+For publication, push, pull-request creation, local merge, or discard, freshly
+reinspect all of these immediately before the state change:
+
+- the current branch and ref plus the exact selected target;
+- `HEAD` and `git status --short`;
+- the fresh verification PASS head and exact range;
+- the clean final review head and exact range;
+- the completed approved-policy gate and unresolved-finding state.
+
+Require them to match the completion evidence and target shown when the user made
+the choice. If any value differs, do not perform the operation; return the stale
+state to the coordinator.
+
+For discard, obtain the existing explicit destructive confirmation first, then
+revalidate immediately before deletion. For keep, make no state change; inspect
+and report the current state.
+
 ## Execute the choice
 
 - For publication or push, write only the exact authorized remote and ref; never
@@ -54,7 +73,7 @@ recorded, except for the immediate destructive confirmation required below.
   the required post-merge verification. Do not fetch, pull, or push without
   separate authority.
 - For keep, make no state change.
-- For discard, resolve exact targets and obtain explicit confirmation immediately before deletion.
+- For discard, delete only the confirmed and freshly revalidated exact targets.
 
 Never force-push, delete a branch, remove a worktree, or discard uncommitted data from an implied choice.
 

@@ -61,6 +61,35 @@ lightweight path. Return to `design-discussion`, preserve the evidence that caus
 the reclassification, and create a plan after the revised scope is settled. Do
 not merely strengthen review and continue.
 
+### Complete the lightweight per-task gate
+
+Before global verification, complete and record this sequence for the lightweight
+task:
+
+1. record the lightweight task base commit, complete specification, and active
+   review policy;
+2. implement only that scope, run exact task verification, and inspect the
+   pre-commit working-tree diff;
+3. create the task commit, record the new head, and inspect the exact
+   base-to-head range;
+4. run the focused combined specification-and-quality per-task gate against that
+   exact range;
+5. record the gate result, reviewer evidence, and every gap.
+
+Use one read-only `code-reviewer` with an explicit combined contract or the
+complete focused fallback prompt. If the user prohibits agents, have the lead run
+the same combined read-only pass. Route gate findings through the classification
+and bounded retry contract below rather than defining another retry limit here.
+
+After an in-scope `Fix`, require fresh task verification, inspect the pre-commit
+working-tree fix diff, create the fix commit, record its new head, inspect the
+updated exact range, and rerun the same complete gate. Do not enter global
+verification until the gate approves the current head.
+
+The planned path receives equivalent per-task commit, range, verification, and
+gate evidence from `execute-plan`; do not rerun an already-current approved
+per-task gate.
+
 ## Use approval gates on the planned path
 
 Resolve planned-path entry in this order:
@@ -119,7 +148,9 @@ speculative, or already-decided objections that lack new evidence.
 Once implementation is authorized, make these transitions without another user
 prompt:
 
-1. Send completed implementation to `verify`.
+1. Confirm all task gates are satisfied for the current head: use the recorded
+   lightweight combined gate or the planned `execute-plan` handoff. Then send the
+   current head and evidence to `verify`.
 2. On verification PASS, send the current head and evidence to `review`.
 3. Send review findings to `receiving-code-review`.
 4. Classify every surviving finding:
