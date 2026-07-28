@@ -98,8 +98,21 @@ Select the complete gate from the active review policy:
   the corresponding relative link. If the user prohibits agents, have the lead
   run distinct sequential specification and quality lead passes with the
   corresponding linked prompt's complete role contract, task context, and output
-  schema. Record the lack of agent-level independence as a review gap and
-  residual evidence.
+  schema. When the active policy does not explicitly record agent-level
+  independence as non-waivable and both passes return `APPROVED`, the sequential
+  review completion satisfies the per-task gate and perspective coverage. Record
+  the lack of agent-level independence as an accepted residual limitation and
+  evidence. It is not a mode inconsistency, unresolved review gap, unresolved
+  policy gap, or unresolved finding. Carry the satisfied gate and accepted
+  limitation through verification, final review, and `finish-branch` separately
+  from unresolved gaps.
+
+  If the active policy explicitly records agent-level independence as
+  non-waivable, direct/no-agent review conflicts with that requirement. Do not
+  waive it or claim a satisfied gate. The coordinator must stop and `Escalate` to
+  the user for the exact decision: approve a policy change that removes the
+  non-waivable requirement and accepts the residual limitation, or grant
+  permission to use agents for the required independence.
 
 Require every lightweight specification finding to be exactly `Must Fix` or
 `Should Improve`, whether it comes from the focused combined pass or an
