@@ -14,24 +14,25 @@ commits, or task acceptance here.
 
 Accept from `execute-task`:
 
-- one canonical task context;
+- one immutable canonical task context payload/reference and its identity,
+  exactly once;
 - the already-selected implementer or reviewer roles;
 - each selected role's complete prompt contract;
-- the working directory and exact task base;
-- configured capacity, observed capacity evidence, and queue rules;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, termination evidence, and partial state.
 
 Every reviewer scheduling request must also include the complete current evidence
-bundle assembled by `execute-task`:
+bundle exactly once. That bundle contains only:
 
+- the matching canonical-context identity/reference;
+- writer identity, writer status, and writer report;
 - candidate accepted/current head;
 - exact task base, head, base-to-head range, and inspected diff;
-- writer report;
-- fresh task verification commands and observed results;
-- repository guidance and working directory;
+- fresh task verification commands, expected results, observed results, and match
+  status;
 - authoritative changed files;
-- canonical task context, complete active Review policy, and provenance.
+- repository-guidance reference/snapshot;
+- commit, pre-commit, freshness, and gap evidence.
 
 Reject a request that lacks a selected role contract or would require this
 adapter to reinterpret the Review policy. Do not load or resolve prompt files in
@@ -40,10 +41,15 @@ when an implementer is actually being dispatched, and incoming reviewer
 contracts only after it has selected the active gate; unselected prompts remain
 unloaded.
 
+Read working directory, task base, capacity, queue rules, and the complete active
+Review policy only from the one canonical context. Do not copy those values into
+another scheduling envelope or evidence payload.
+
 Before reviewer dispatch, confirm the bundle is complete, repository HEAD still
-equals its head, and the requested range and changed files are unchanged. Pass
-the bundle unchanged in the reviewer message. Return `BLOCKED` for any missing or
-stale field; do not dispatch on partial evidence.
+equals its head, its context identity equals the supplied canonical context, and
+the requested range and changed files are unchanged. Pass the canonical context
+once and bundle once in the reviewer message. Return `BLOCKED` for any missing,
+duplicated, mismatched, or stale field; do not dispatch on partial evidence.
 
 ## Enforce live capacity and queueing
 
@@ -78,6 +84,31 @@ supplied exact range.
 Use bounded waits, inspect live agents regularly, and return progress evidence to
 the lead. Preserve each agent's report, identity, completion state, and observed
 errors without translating findings or deciding whether the task passed.
+
+## Validate writer responses
+
+Require each writer report to include one status, commands, expected results,
+observed results, match status, pre-commit inspection, commits, new head, changed
+files, concerns, and gaps. Return it to `execute-task` under this mapping:
+
+- `DONE`: first validate the required commit, report, expected-result matches,
+  current HEAD/status/diff, and writer ownership. If any check fails, return
+  `BLOCKED`; otherwise return validated `DONE` evidence without claiming task
+  acceptance.
+- `DONE_WITH_CONCERNS`: never present it as done. Preserve every concern and
+  complete state evidence so `execute-task` can classify correction, `BLOCKED`,
+  or `Escalate`.
+- `BLOCKED`: return the exact operational gap only after state and ownership
+  attribution.
+- `NEEDS_CONTEXT`: return the exact missing input or authority plus state
+  evidence; `execute-task` decides whether it is safely resolvable `BLOCKED` or a
+  user-owned `Escalate`.
+
+After any non-`DONE` response, or any partial edit or commit regardless of the
+reported status, establish that the writer is inactive and inspect HEAD, status,
+diff, commits, and ownership before any resume or replacement. Never overlap
+writers. If inactivity or attribution is uncertain, return `BLOCKED` with the
+partial evidence.
 
 ## Protect failure and partial state
 
