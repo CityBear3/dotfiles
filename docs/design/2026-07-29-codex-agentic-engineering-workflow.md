@@ -263,7 +263,12 @@ The following transitions are automatic once their entry conditions are satisfie
 
 - an authorized lightweight task to `execute-task`;
 - an approved plan to `execute-plan`, then to `execute-task` once per task;
-- current per-task acceptance evidence to verification;
+- current lightweight task acceptance evidence to global verification;
+- current planned nonfinal task acceptance evidence back to `execute-plan` for the
+  next dependency-ordered task;
+- acceptance evidence for every planned task to `execute-plan` aggregation, then
+  the aggregate final HEAD and complete implementation range to global
+  verification;
 - passing verification to review;
 - review findings to `receiving-code-review` triage;
 - an in-scope `Fix` to implementation, verification, and fresh review;
