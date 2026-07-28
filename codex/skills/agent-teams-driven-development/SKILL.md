@@ -85,9 +85,10 @@ otherwise queue them without reducing the approved gate.
    Acceptance threshold.
 9. Send verified in-scope findings to the existing implementer with
    `followup_task` when idle or `send_message` when already running.
-10. After fixes, require fresh task verification and a declared fix commit,
-    record the new head, inspect the updated exact base-to-head range, and rerun
-    the same complete gate against that range.
+10. After fixes, require fresh task verification, inspect the pre-commit
+    working-tree fix diff, require the declared fix commit, record the new head,
+    inspect the updated exact base-to-head range, and rerun the same complete gate
+    against that range.
 
 On plan re-entry, reload the approved Review policy and rerun the same gate; do
 not reuse a prior approval or silently change mode. Stop and return evidence to
