@@ -65,28 +65,70 @@ Before invoking `execute-task`, deterministically create one complete lightweigh
 Review policy from the approved Design default, original request authorization,
 and observed risk and capacity evidence.
 
-Use `focused` as the Design default. Use `adaptive` or `deep` only when the
-original request explicitly authorizes that mode. If observed risk would require
-a material mode or reviewer choice, conflicts with the requested mode, or is not
-covered by the default, return to design or planning for the user-owned policy
-decision.
+When the request does not explicitly approve another mode, materialize this
+complete `focused` base policy:
 
-Record every required field:
+- **Mode and rationale:** `focused`, because the Design makes it the lightweight
+  default and the recorded eligibility evidence proves a uniquely specified
+  coherent change with no material user-owned choice or qualifying material risk.
+- **Risk surfaces:** record every observed non-material surface and the evidence
+  that keeps it lightweight. An absent surface is not silently treated as
+  reviewed.
+- **Per-task gate:** one combined specification-and-quality pass using the
+  complete focused contract.
+- **Final required reviewer:** `code-reviewer`, for general correctness and
+  maintainability review of the verified current change.
+- **Final conditional reviewer:** `test-coverage-reviewer` exactly when behavior
+  or tests changed. Record that trigger and determine it from the task contract,
+  changed files, and current diff.
+- **Skipped perspectives:** classify `design-alignment-reviewer`,
+  `scope-reviewer`, `code-architect`, `adversarial-api-reviewer`,
+  `adversarial-robustness-reviewer`, `adversarial-performance-reviewer`, and
+  `adversarial-tests-reviewer` as skipped because no corresponding qualifying
+  lightweight risk is present. Classify `adversarial-integrator` as skipped
+  because no adversarial perspective is selected. Record that reason for each
+  role.
+- **Residual risk:** a combined task gate and general final review do not provide
+  independent specialist or adversarial coverage; lightweight eligibility,
+  exact task evidence, fresh global verification, final `code-reviewer`, and the
+  conditional test-coverage pass bound that risk.
+- **Capacity and queue:** use a stricter applicable repository limit when one is
+  declared, otherwise configure the workflow maximum of six total threads
+  including the lead. Record observed runtime capacity and effective capacity as
+  their minimum. Queue without reducing scope in this order: selected task
+  writer, focused per-task reviewer, final `code-reviewer`, then triggered
+  `test-coverage-reviewer`.
+- **Acceptance:** only a concrete `Must Fix` or `Should Improve` finding with a
+  cited contract, reachable consequence, and specific correction survives.
+  Drop preference-only comments, speculative future concerns, and unsupported
+  objections to approved decisions.
 
-- mode, rationale, and observed risk surfaces;
-- the mode-consistent per-task gate;
-- final required reviewers with reasons;
-- final conditional reviewers with their triggers and reasons;
-- skipped perspectives with reasons;
-- residual risk;
-- configured and observed capacity plus deterministic queue rules;
-- the Acceptance threshold;
-- field-level provenance citing the Design default, original request
-  authorization, or observed risk and capacity evidence.
+Record field-level provenance: Design default for mode, gate, final applicability,
+workflow maximum, and Acceptance; original request for implementation and any
+mode or no-agent authorization; eligibility and repository evidence for risk,
+skips, residual risk, and a stricter configured limit; current runtime evidence
+for observed/effective capacity and queue state.
 
-Reject an incomplete, contradictory, or mode-inconsistent policy. Do not resolve
-reviewer prompts, dispatch roles, normalize severity, implement, commit, or
-manage corrections in this coordinator.
+If any skipped perspective becomes applicable, the observed risk conflicts with
+the lightweight base policy. Stop for a planned policy instead of adding a
+reviewer or silently strengthening `focused`.
+
+When the request explicitly approves `adaptive` or `deep`, construct the policy
+mode-consistently from observed applicable risks and the current final-review
+applicability contract. Both modes require independent specification and quality
+task reviewers. For `adaptive`, classify every defined final perspective as
+required, conditional with an exact trigger, or skipped with a reason based only
+on recorded applicable risk. For `deep`, classify every applicable standard and
+adversarial perspective as required and require `adversarial-integrator` whenever
+an adversarial perspective runs; classify only demonstrably inapplicable
+perspectives as skipped with reasons. Apply the same capacity, queue, Acceptance,
+residual-risk, and per-field provenance requirements.
+
+Reject an incomplete, contradictory, or mode-inconsistent policy. If
+classification requires a material choice, a risk is incompletely classified, or
+the requested mode conflicts with observed risk, return to planning. Do not
+resolve reviewer prompts, dispatch roles, normalize severity, implement, commit,
+or manage corrections in this coordinator.
 
 Build the canonical lightweight task context required by `execute-task`,
 including the complete task, decision source and non-goals, discipline,
@@ -138,17 +180,29 @@ Make these cross-phase transitions automatically within approved scope:
      decided without new evidence;
    - `Escalate` when it requires a decision, authority, scope or policy change,
      or `execute-task` reports exhausted retry.
-6. For an authorized `Fix`, create a bounded canonical correction context and
-   invoke `execute-task`; after it returns `Accepted`, restart the required
-   cross-phase verification and review for its new head.
-7. For `Push back`, retain the decision and evidence and continue triage.
-8. For `Escalate`, stop and ask for the named decision or authority.
+6. Route an authorized `Fix` according to its active path:
+   - for lightweight work, create a bounded correction task and invoke
+     `execute-task`; retain the original lightweight base and restart global
+     verification and final review against the full updated lightweight range;
+   - for planned work, add a concrete authorized correction step to the current
+     plan and invoke `execute-plan` with the original implementation base,
+     ordered accepted task records, current aggregate head and full range, and
+     retained stable-key history. Require `execute-plan` to invoke
+     `execute-task`, append the accepted correction record, and return the
+     updated aggregate final HEAD and full implementation range.
+7. After the path-specific correction returns current accepted evidence, restart
+   global verification and complete final review against the full updated change
+   range, never only the correction task range.
+8. For `Push back`, retain the decision and evidence and continue triage.
+9. For `Escalate`, stop and ask for the named decision or authority.
 
 Treat an in-scope verification failure as an automatic transition through
-`systematic-debugging` to an authorized bounded `execute-task` correction.
-Preserve approved decisions, non-goals, policy, failed command, and observed
-evidence. Stop when the correction would change design, scope, policy, or
-authority.
+`systematic-debugging` to the same path-specific correction route: lightweight
+through a bounded `execute-task`, planned through a concrete `execute-plan`
+correction step and then `execute-task`. Preserve the original change base,
+ordered planned task map when present, approved decisions, non-goals, policy,
+stable-key history, failed command, and observed evidence. Stop when the
+correction would change design, scope, policy, or authority.
 
 Never advance a `BLOCKED` or incomplete handoff. Require `execute-task` to return
 its exact current head and range, and require `execute-plan` to return all task

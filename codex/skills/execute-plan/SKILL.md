@@ -21,6 +21,16 @@ Before execution, require:
 - an explicit implementation discipline and exact verification for every task;
 - settled dependencies, file responsibilities, decisions, and non-goals.
 
+For correction re-entry, also require:
+
+- the original plan implementation base;
+- every prior ordered accepted task record and its immutable exact range;
+- the previous aggregate final HEAD and full implementation range;
+- the repository HEAD equal to that previous aggregate final HEAD;
+- the concrete authorized correction step tied to its failed command or review
+  finding;
+- retained stable-key and attempt history.
+
 Validate that the complete policy records mode, rationale, risk surfaces, its
 mode-consistent per-task gate, final required reviewers with reasons, conditional
 reviewers with triggers and reasons, skipped perspectives with reasons, residual
@@ -62,6 +72,24 @@ Do not start a dependent task until its predecessor returns `Accepted`. On
 not the current repository head, stop and return the exact gap to
 `agentic-engineering-workflow`.
 
+## Re-enter for a planned correction
+
+Treat an authorized planned correction as a new concrete plan step after the
+previously accepted ordered tasks, not as a standalone lightweight task. Preserve
+the original implementation base and prior records. Build the correction's
+canonical task context with its stable key, attempt history, causal hypothesis,
+authorized action, exact verification, current aggregate head as task base, and
+the unchanged approved policy.
+
+Invoke `execute-task` for the correction. When it returns `Accepted`, append its
+task identifier, correction commits, exact correction base/head/range,
+verification, gate, normalization, and retry evidence to the ordered task map.
+Do not rewrite prior task ranges or discard prior retry history.
+
+When the correction returns `BLOCKED` or `Escalate`, retain the previous
+aggregate, partial correction evidence, and exact gap. Do not report the stale
+previous aggregate as acceptance of the current correction.
+
 ## Preserve task records and aggregate separately
 
 After each accepted task, append an ordered immutable record containing:
@@ -92,6 +120,13 @@ After every planned task is accepted:
 
 The aggregate range supports the next cross-phase check; it does not become a
 replacement per-task review range.
+
+After an accepted correction step, repeat the same aggregation from the original
+plan implementation base through the correction head. Return the updated ordered
+task map, aggregate final HEAD, and full implementation range. Global
+verification and final review must target that full updated range; the
+correction's exact task range remains separate task evidence and never shrinks
+the global target.
 
 ## Return orchestration status
 

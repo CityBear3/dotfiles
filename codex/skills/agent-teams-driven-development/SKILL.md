@@ -22,12 +22,28 @@ Accept from `execute-task`:
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, termination evidence, and partial state.
 
+Every reviewer scheduling request must also include the complete current evidence
+bundle assembled by `execute-task`:
+
+- candidate accepted/current head;
+- exact task base, head, base-to-head range, and inspected diff;
+- writer report;
+- fresh task verification commands and observed results;
+- repository guidance and working directory;
+- authoritative changed files;
+- canonical task context, complete active Review policy, and provenance.
+
 Reject a request that lacks a selected role contract or would require this
 adapter to reinterpret the Review policy. Do not load or resolve prompt files in
 this adapter. The incoming implementer contract is loaded by `execute-task` only
 when an implementer is actually being dispatched, and incoming reviewer
 contracts only after it has selected the active gate; unselected prompts remain
 unloaded.
+
+Before reviewer dispatch, confirm the bundle is complete, repository HEAD still
+equals its head, and the requested range and changed files are unchanged. Pass
+the bundle unchanged in the reviewer message. Return `BLOCKED` for any missing or
+stale field; do not dispatch on partial evidence.
 
 ## Enforce live capacity and queueing
 
@@ -39,6 +55,12 @@ Maintain a deterministic queue when selected roles exceed available slots. Do
 not reduce or replace requested roles to fit capacity. Record configured,
 observed, and effective capacity, live identities, queued roles, dispatch order,
 and every capacity gap.
+
+Keep a selected reviewer queued while only a temporary slot shortage exists. If
+the runtime cannot instantiate a required role, the queue cannot make progress,
+or the required independent role cannot otherwise be established, return
+`BLOCKED` with the exact operational availability evidence. Never convert a
+runtime shortage into policy `Escalate` or a lead-review substitution.
 
 Allow no more than one implementer and one active writer for the shared worktree.
 Every reviewer is read-only. Independent reviewers may run concurrently only
@@ -76,8 +98,8 @@ worktree, discard edits, or start another writer.
 
 For reviewer failure, preserve completed read-only reports, recheck live capacity,
 and queue only the already-requested replacement role. If the selected
-independent role cannot be provided, return the availability gap to
-`execute-task`; do not substitute the lead or another perspective.
+independent role cannot be provided, return `BLOCKED` with the availability gap
+to `execute-task`; do not substitute the lead or another perspective.
 
 ## Return scheduling evidence
 

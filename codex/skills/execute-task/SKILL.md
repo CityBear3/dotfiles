@@ -78,13 +78,40 @@ Perform this sequence for the current task:
 6. Record the new head commit.
 7. Inspect the exact base-to-head range from the preserved task base through the
    new head.
-8. Run the policy-selected per-task gate against that exact range.
-9. Apply severity normalization and the active Acceptance threshold.
-10. Record verification, commit, range, gate, normalization, and unresolved-gap
+8. Assemble and validate the current reviewer evidence bundle.
+9. Run the policy-selected per-task gate against that exact range.
+10. Apply severity normalization and the active Acceptance threshold.
+11. Record verification, commit, range, gate, normalization, and unresolved-gap
     evidence.
 
 Do not replace a task's exact range with a later aggregate plan range. Approval
 is current only for the exact head and range actually reviewed.
+
+## Assemble current reviewer evidence
+
+Before any reviewer dispatch, assemble one current evidence bundle containing:
+
+- the candidate current HEAD, which becomes the accepted/current head only when
+  this gate approves it;
+- the exact task base, head, base-to-head range, and inspected diff contents;
+- the writer report, including its identity, changed files, commits, commands,
+  observed results, and concerns;
+- every fresh task verification command and observed result for this same code
+  state;
+- applicable repository guidance and working directory;
+- the authoritative changed-file list;
+- the canonical task context, complete active Review policy, and provenance.
+
+Confirm that repository HEAD still equals the bundle head, the diff resolves
+exactly from the recorded base to that head, the changed-file list matches that
+diff, verification ran after the last content edit, the writer report identifies
+the same commit, and no current state makes the evidence stale. A lead writer
+must provide the same report fields as an implementer.
+
+Pass the complete bundle unchanged with each selected reviewer role contract to
+`agent-teams-driven-development`. Do not dispatch a reviewer with a missing,
+partial, contradictory, or stale bundle. Return `BLOCKED` with the exact evidence
+gap instead.
 
 ## Select and run only the active gate
 
@@ -92,25 +119,30 @@ Resolve the mode before loading any reviewer prompt:
 
 - For `focused`, load only
   [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md)
-  and run one combined specification-and-quality gate. When agents are allowed
-  and a reviewer is available, request one read-only combined reviewer. When
-  agents are prohibited or no reviewer is available, the lead may perform the
-  one combined pass using the complete prompt.
+  and run one combined specification-and-quality gate. When the user explicitly
+  prohibits agents, or the approved policy explicitly selects a lead combined
+  pass, the lead may run that complete pass. Otherwise request the selected
+  read-only combined reviewer, queue it deterministically while runtime capacity
+  is constrained, and return `BLOCKED` if the required reviewer cannot be
+  established. Do not substitute the lead solely because a reviewer or slot is
+  unavailable.
 - For `adaptive` and `deep`, load only
   [spec-reviewer-prompt.md](../agent-teams-driven-development/spec-reviewer-prompt.md)
   and
   [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md),
-  then require independent read-only specification and quality agents.
+  then require independent read-only specification and quality agents. An
+  explicit no-agent instruction conflicts with the approved mode: return
+  `Escalate` for agent permission or a complete approved policy change. Otherwise
+  queue both selected roles under the policy. If runtime capacity or role
+  availability cannot establish either required independent role, return
+  `BLOCKED` with the exact operational gap.
 
-Pass the canonical task context and only the selected complete role contracts to
-`agent-teams-driven-development`. Never load all reviewer prompts speculatively.
-Reviewers remain read-only and review the exact current base-to-head range.
-
-If agents are prohibited or either required independent reviewer is unavailable
-for `adaptive` or `deep`, do not substitute sequential lead passes or claim a
-satisfied gate. Return the exact independence conflict or capacity gap to the
-coordinator as `Escalate`. Resume only after the user grants agent permission or
-approves a complete policy change.
+Pass the canonical task context, current evidence bundle, and only the selected
+complete role contracts to `agent-teams-driven-development`. Never load all
+reviewer prompts speculatively. Reviewers remain read-only and review the exact
+current base-to-head range. Runtime shortage is an operational `BLOCKED` state,
+not a policy `Escalate`; explicit no-agent authority conflicts with
+`adaptive`/`deep` and is not treated as runtime unavailability.
 
 ## Normalize findings and apply Acceptance
 
@@ -165,8 +197,9 @@ Return exactly one task status:
   approves the current head;
 - `BLOCKED` when required evidence, a safe writer state, a command, permission,
   range, reviewer, or other operational prerequisite cannot be established;
-- `Escalate` for a material decision, scope or policy change, adaptive/deep
-  independence conflict, plan deviation, or exhausted stable-key retry.
+- `Escalate` for a material decision, scope or policy change, explicit
+  adaptive/deep no-agent independence conflict, plan deviation, or exhausted
+  stable-key retry.
 
 Include the writer identity, task and fix commits, exact task base, new head,
 exact base-to-head range, verification evidence, gate and normalization results,
