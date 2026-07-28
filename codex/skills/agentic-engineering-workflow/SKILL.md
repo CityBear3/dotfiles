@@ -63,14 +63,18 @@ not merely strengthen review and continue.
 
 ## Use approval gates on the planned path
 
-Use `design-discussion` whenever architecture, scope, algorithms, public
-contracts, or another material trade-off remains unresolved. Let the user make
-each material choice.
+Resolve planned-path entry in this order:
 
-Use `design-doc` when the settled work has cross-cutting architecture, durable
-contracts, or significant decisions worth preserving. Require user approval of
-the drafted Design Doc. Otherwise proceed to `create-plan` only after the user
-approves the transition from design discussion.
+1. When architecture, scope, algorithms, public contracts, or another material
+   trade-off remains unresolved, use `design-discussion` and let the user make
+   each material choice. Re-evaluate the settled result against the remaining
+   routes.
+2. For an already-approved Design Doc, use `create-plan`.
+3. For settled work with cross-cutting architecture, durable contracts, or
+   significant decisions worth preserving, use `design-doc`. Require user
+   approval of the drafted Design Doc, then use `create-plan`.
+4. For settled scope that is not lightweight-eligible and does not need a Design
+   Doc, record the user's approval to enter planning, then use `create-plan`.
 
 Require approval of the implementation plan, including its review policy, before
 using `create-workspace` and `execute-plan`. Stop for:
@@ -122,17 +126,33 @@ prompt:
    - `Fix`: valid, in scope, and compatible with approved decisions;
    - `Push back`: incorrect, unsupported, preference-only, or already decided;
    - `Escalate`: requires a new design decision, authority, or material scope
-     expansion.
+     expansion, or reaches the retry stop below.
 5. For `Fix`, execute a bounded correction, then run fresh verification and the
-   complete applicable review again.
+   complete applicable review again under the retry contract below.
 6. For `Push back`, retain the decision or code evidence and continue triage.
 7. For `Escalate`, stop and ask the user for the named decision or authority.
 
 Treat an in-scope verification failure as an automatic diagnosis-and-fix loop,
 not a user gate. Use `systematic-debugging`, correct the cause within approved
-scope, and run fresh verification. Stop when correction would change approved
-design or scope, authority is missing, or the bounded retry condition shows that
-the current approach is not working.
+scope, and run fresh verification under the retry contract below. Stop immediately
+when correction would change approved design or scope or authority is missing.
+
+For each verification failure or valid review finding, record a stable gate key
+before correction. Base the key on the failed command or review requirement and
+its concrete behavior, not a transient line number or incidental output. For every
+key, record the correction attempt number, causal hypothesis, action, and fresh
+verification or review evidence.
+
+Permit at most two causal in-scope correction attempts for the same gate or
+finding. Run the first and, if the same key remains, the second automatically,
+with fresh verification and applicable review after each. Keep the same key while
+the same failed contract or finding remains; assign a new key only to a materially
+different failure or finding.
+
+If the same gate or finding survives the second attempted correction, or the next
+attempt would repeat the same correction without new evidence, stop and
+`Escalate`. Report the stable key, attempt history, and observed evidence so the
+user can decide the next action.
 
 On re-entry, retain approved decisions, non-goals, review policy, verification
 state, and the exact unresolved failure or finding. Do not reopen settled design
