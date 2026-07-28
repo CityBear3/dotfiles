@@ -20,17 +20,23 @@ Check for:
 - a task reported complete without supporting code or evidence.
 
 Do not report general style or maintainability preferences. Approval is a valid
-result. For every issue, cite file and line, the exact requirement, observed
-implementation, and smallest compliant correction.
+result. For every finding include:
 
-Classify every finding as exactly `Must Fix` or `Should Improve`. Do not emit any
-other severity.
+- severity: exactly `Must Fix` or `Should Improve`;
+- file:line;
+- the exact requirement;
+- the observed evidence or mismatch;
+- impact;
+- the smallest compliant correction.
+
+Do not emit any other severity.
 
 Return either:
 APPROVED: <evidence inspected>
 or
 NEEDS_FIXES:
-- <Must Fix|Should Improve> <file:line> — <requirement>; <evidence>; <correction>
+- <Must Fix|Should Improve> <file:line> — <exact requirement>;
+  <observed evidence or mismatch>; <impact>; <smallest compliant correction>
 ```
 
 ## Review message

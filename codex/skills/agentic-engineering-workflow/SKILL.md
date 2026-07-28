@@ -101,6 +101,13 @@ Select the complete gate from the active review policy:
   schema. Record the lack of agent-level independence as a review gap and
   residual evidence.
 
+Require every lightweight specification finding to be exactly `Must Fix` or
+`Should Improve`, whether it comes from the focused combined pass or an
+adaptive/deep named-profile, fallback-prompt, or no-agent lead pass. Treat a
+missing or unknown specification severity as a schema gap. Do not infer,
+normalize, or translate it; require schema-compliant re-output before applying
+Acceptance or retry.
+
 Normalize quality severity at the lightweight orchestration boundary before
 applying Acceptance or retry:
 

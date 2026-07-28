@@ -41,14 +41,38 @@ incomplete policy.
 
 - Default: use `agent-teams-driven-development`.
 - If the user explicitly says not to use agents, execute each task directly in
-  this session. For `focused`, perform one combined specification-and-quality
-  pass. For `adaptive` or `deep`, perform distinct specification and quality
-  passes and evaluate each independently.
+  this session without dispatching reviewers.
 
 In direct execution, preserve the same task, commit, exact-diff, evidence,
 Acceptance, fix, fresh re-review, and plan-re-entry contracts. Do not weaken or
 replace the approved gate because subagents are unavailable. Do not spawn agents
 contrary to the user's current instruction.
+
+For direct/no-agent execution, read these complete prompts directly:
+
+- [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md);
+- [spec-reviewer-prompt.md](../agent-teams-driven-development/spec-reviewer-prompt.md);
+- [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md).
+
+Apply their complete role, context, and output contracts without dispatch:
+
+- for `focused`, perform one combined specification-and-quality pass using the
+  focused reviewer prompt;
+- for `adaptive` and `deep`, perform distinct sequential specification and
+  quality passes using the spec and code-quality reviewer prompts, and evaluate
+  each pass independently.
+
+Before applying Acceptance in direct execution:
+
+- require every specification finding to be exactly `Must Fix` or
+  `Should Improve`; treat a missing or unknown specification severity as a schema
+  gap, do not infer, normalize, or translate it, and obtain schema-compliant
+  re-output;
+- for quality findings, map an evidence-qualified `Critical` to `Must Fix` and an
+  evidence-qualified `Important` to `Should Improve`; preserve both the original
+  and normalized labels, and do not raise a lower native severity or non-finding.
+
+Keep this direct/no-agent gate contract equivalent to the agent-team path.
 
 ## Execute
 
