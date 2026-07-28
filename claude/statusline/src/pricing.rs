@@ -20,6 +20,7 @@ pub struct ModelPrice {
 const EMBEDDED: &[(&str, ModelPrice)] = &[
     ("claude-fable-5", OPUS_X2),
     ("claude-mythos-5", OPUS_X2),
+    ("claude-opus-5", OPUS),
     ("claude-opus-4-8", OPUS),
     ("claude-opus-4-7", OPUS),
     ("claude-opus-4-6", OPUS),
@@ -127,6 +128,27 @@ mod tests {
         // 日付サフィックス付きは prefix 一致
         assert_eq!(t.lookup("claude-haiku-4-5-20251001").unwrap().input, 1.0);
         assert!(t.lookup("gpt-4o").is_none());
+    }
+
+    #[test]
+    fn opus_5_uses_published_standard_price() {
+        // Arrange
+        let table = PricingTable::embedded();
+
+        // Act
+        let price = table.lookup("claude-opus-5");
+
+        // Assert
+        assert_eq!(
+            price,
+            Some(ModelPrice {
+                input: 5.0,
+                output: 25.0,
+                cache_write_5m: 6.25,
+                cache_write_1h: 10.0,
+                cache_read: 0.5,
+            })
+        );
     }
 
     #[test]
