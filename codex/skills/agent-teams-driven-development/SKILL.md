@@ -1,120 +1,92 @@
 ---
 name: agent-teams-driven-development
-description: Execute an approved implementation plan through one writer and policy-selected per-task review loops, using bounded Codex subagents and runtime-aware capacity. Use from execute-plan unless the user explicitly requests direct execution without agents.
+description: Schedule one writer and requested read-only reviewers for execute-task while enforcing live capacity, queues, and partial-state safety.
 ---
 
 # Agent-teams driven development
 
-The lead schedules all work. Subagents do not spawn descendants.
+Act only as the scheduling adapter for `execute-task`. The lead schedules all
+work, and subagents never spawn descendants. Do not select workflow paths,
+review modes, role breadth, severity mappings, Acceptance, retry semantics, task
+commits, or task acceptance here.
 
-## Inputs
+## Require a scheduling request
 
-Require:
+Accept from `execute-task`:
 
-- an approved plan path;
-- the complete approved Review policy and selected mode;
-- a non-default feature branch or approved workspace;
-- repository guidance and working directory;
-- configured maximum capacity and currently observed live agents.
+- one canonical task context;
+- the already-selected implementer or reviewer roles;
+- each selected role's complete prompt contract;
+- the working directory and exact task base;
+- configured capacity, observed capacity evidence, and queue rules;
+- whether the request is a fresh dispatch, follow-up, or replacement;
+- any prior agent identity, termination evidence, and partial state.
 
-Require the policy context to include risk surfaces, per-task gate, final
-required reviewers, conditional reviewers with triggers, skipped perspectives
-with reasons, residual risk, capacity and queue rules, and Acceptance threshold.
+Reject a request that lacks a selected role contract or would require this
+adapter to reinterpret the Review policy. Do not load or resolve prompt files in
+this adapter. The incoming implementer contract is loaded by `execute-task` only
+when an implementer is actually being dispatched, and incoming reviewer
+contracts only after it has selected the active gate; unselected prompts remain
+unloaded.
 
-Read the four task templates beside this file before dispatch:
+## Enforce live capacity and queueing
 
-- [implementer-prompt.md](implementer-prompt.md)
-- [focused-reviewer-prompt.md](focused-reviewer-prompt.md)
-- [spec-reviewer-prompt.md](spec-reviewer-prompt.md)
-- [code-quality-reviewer-prompt.md](code-quality-reviewer-prompt.md)
+Call `list_agents` before every dispatch wave. Set effective capacity to the
+lower of configured capacity and currently observed runtime capacity, count the
+lead, and never exceed six total threads.
 
-Use the `implementer` profile when selectable; otherwise include its complete
-fallback prompt in the task message.
+Maintain a deterministic queue when selected roles exceed available slots. Do
+not reduce or replace requested roles to fit capacity. Record configured,
+observed, and effective capacity, live identities, queued roles, dispatch order,
+and every capacity gap.
 
-## Select the per-task gate
+Allow no more than one implementer and one active writer for the shared worktree.
+Every reviewer is read-only. Independent reviewers may run concurrently only
+when capacity permits; otherwise queue them without changing their independence
+or contracts.
 
-Resolve the approved mode before reviewer dispatch:
+## Schedule and observe
 
-- `focused`: dispatch one read-only `code-reviewer` with an explicit combined
-  specification-compliance and code-quality contract. When that profile is
-  unavailable, use the complete focused reviewer fallback prompt.
-- `adaptive`: dispatch an independent read-only `spec-reviewer` and
-  `code-quality-reviewer`.
-- `deep`: dispatch the same independent read-only `spec-reviewer` and
-  `code-quality-reviewer`.
+Dispatch only the already-selected role with its canonical context and complete
+role contract. Explicitly tell every agent it must not spawn descendants. For an
+implementer, state its owned task and file responsibilities and that it is the
+only writer. For a reviewer, state that it is read-only and must inspect the
+supplied exact range.
 
-When either independent profile is unavailable, use its complete fallback prompt.
-Reject a missing, unknown, or mode-inconsistent per-task gate. Carry the final
-reviewer fields in the execution context, but do not dispatch final review from
-this skill.
+Use bounded waits, inspect live agents regularly, and return progress evidence to
+the lead. Preserve each agent's report, identity, completion state, and observed
+errors without translating findings or deciding whether the task passed.
 
-Treat [spec-reviewer-prompt.md](spec-reviewer-prompt.md) as the complete
-path-independent specification output contract. Require the named
-`spec-reviewer` profile message, fallback prompt, and no-agent/direct
-specification pass to use its complete output schema: every finding is exactly
-`Must Fix` or `Should Improve`. Apply this contract on planned and lightweight
-paths. Treat a missing or unknown specification severity as a schema gap. Do not
-infer, normalize, or translate the severity; require corrected schema-compliant
-output before applying Acceptance.
+## Protect failure and partial state
 
-## Capacity
+Never dispatch a replacement writer while another writer may still be active.
+After an implementer interruption, failure, timeout, or lost response:
 
-Use `list_agents` before each dispatch wave. The effective limit is the lower of
-the approved Review policy's configured capacity and capacity observed from the
-current runtime. Count the lead. Never exceed six total threads.
+1. inspect the termination result and live-agent state;
+2. inspect the repository HEAD, working-tree status, and task-base-to-current
+   diff;
+3. determine whether partial edits or commits can be attributed and whether the
+   previous writer is conclusively inactive;
+4. dispatch a replacement only when no writer overlaps and the current state is
+   understood well enough for the canonical task context to remain valid.
 
-Keep one implementer as the only writer and every reviewer read-only. For
-`focused`, run or queue the one combined reviewer. For `adaptive` and `deep`, run
-the two independent reviewers concurrently when two slots are available;
-otherwise queue them without reducing the approved gate.
+If writer termination, ownership, HEAD, status, diff, or partial state is
+uncertain, return `BLOCKED` with all partial evidence. Do not guess, clean the
+worktree, discard edits, or start another writer.
 
-## Per-task loop
+For reviewer failure, preserve completed read-only reports, recheck live capacity,
+and queue only the already-requested replacement role. If the selected
+independent role cannot be provided, return the availability gap to
+`execute-task`; do not substitute the lead or another perspective.
 
-1. Record the task's base commit.
-2. Give the implementer the full task, approved decisions, dependencies, working
-   directory, exact verification command, and output contract.
-3. Use `wait_agent` in bounded intervals and inspect `list_agents` regularly. Send the user a progress update at least every 60 seconds during long work.
-4. Require the implementer to report changed files, exact verification,
-   pre-commit working-tree diff inspection, task commit, results, and concerns.
-5. Record the new head commit and inspect the exact base-to-head diff range.
-   Include the complete task specification, relevant Design Doc and plan
-   sections, implementer report, and observed verification evidence in every
-   reviewer message.
-6. Dispatch the approved focused, adaptive, or deep per-task gate against that
-   exact range.
-7. Normalize profile-native severity at the orchestration boundary. The named
-   `code-quality-reviewer` profile and its fallback use `Critical` and
-   `Important`: map an evidence-qualified `Critical` finding to `Must Fix` and an
-   evidence-qualified `Important` finding to `Should Improve`. Preserve and
-   report both the original and normalized labels. Do not silently raise a lower
-   native severity or non-finding to `Should Improve`.
-8. Require APPROVED or evidence-based findings that cite file and line, violated
-   requirement or quality consequence, reachable evidence, impact, and a concrete
-   correction. Drop preference-only and speculative findings under the policy's
-   Acceptance threshold.
-9. Send verified in-scope findings to the existing implementer with
-   `followup_task` when idle or `send_message` when already running.
-10. After fixes, require fresh task verification, inspect the pre-commit
-    working-tree fix diff, require the declared fix commit, record the new head,
-    inspect the updated exact base-to-head range, and rerun the same complete gate
-    against that range.
+## Return scheduling evidence
 
-On plan re-entry, reload the approved Review policy and rerun the same gate; do
-not reuse a prior approval or silently change mode. Stop and return evidence to
-the coordinator when a design decision is missing, the plan must change, or its
-retry contract stops the same gate. Do not let reviewers edit or spawn
-descendants.
+Return the dispatch and queue record, agent identities, live and effective
+capacity, completion or termination states, reports, repository-state evidence
+collected after writer failure, and every partial-state or availability gap.
 
-## Completion
-
-Complete only when every plan task has:
-
-- an implementation commit;
-- observed task verification evidence;
-- approval from the focused combined reviewer, or both adaptive/deep independent
-  reviewers, as selected by the approved policy.
-
-Return task commits, exact ranges, implementer evidence, verification, gate
-approvals, and the complete Review policy to `agentic-engineering-workflow`. Do
-not start global `verify`, final review, publication, merge, or teardown from
-this skill.
+Use `BLOCKED` when safe scheduling or writer-state attribution cannot be
+established. Otherwise return scheduling evidence to `execute-task`, which alone
+interprets task results, applies the selected gate, manages retries, and decides
+task acceptance. Do not advance to another task, global verification, final
+review, publication, merge, or teardown.

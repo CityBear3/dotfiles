@@ -1,127 +1,109 @@
 ---
 name: execute-plan
-description: Execute an approved implementation plan with its approved review policy on a feature branch, normally through bounded agent teams. Use after plan approval; honor an explicit request to execute directly without subagents.
+description: Orchestrate an approved implementation plan by validating it, invoking execute-task in dependency order, and aggregating exact task evidence.
 ---
 
 # Execute an approved plan
 
-## Entry
+Own approved-plan validation, dependency ordering, canonical per-task handoff,
+ordered evidence aggregation, and plan-deviation detection. Do not edit files,
+dispatch implementers or reviewers, select prompts, normalize findings, or run
+global verification or final review from this skill.
 
-Confirm:
+## Validate plan entry
 
-- the plan is approved and current;
-- its complete Review policy is approved;
-- the working tree is on the intended non-default feature branch or workspace;
-- unresolved dirty changes are understood;
-- baseline and required tools are available.
+Before execution, require:
 
-If the current checkout is unsuitable, use `create-workspace`. Stop for missing design decisions rather than choosing them during execution.
+- an approved, current implementation plan;
+- its complete approved Review policy and provenance;
+- a suitable non-default feature branch or approved workspace;
+- understood working-tree state;
+- an explicit implementation discipline and exact verification for every task;
+- settled dependencies, file responsibilities, decisions, and non-goals.
 
-## Load the review policy
+Validate that the complete policy records mode, rationale, risk surfaces, its
+mode-consistent per-task gate, final required reviewers with reasons, conditional
+reviewers with triggers and reasons, skipped perspectives with reasons, residual
+risk, configured and observed capacity plus queue rules, Acceptance, and
+provenance. Reject missing, stale, contradictory, or mode-inconsistent fields
+rather than inferring them.
 
-Before any implementation or reviewer dispatch, read the complete approved Review
-policy and validate:
+Stop and return a plan deviation when implementation would require a new
+architecture, scope, public-contract, schema, error-model, policy, authority, or
+file-responsibility decision. The coordinator owns the transition needed to
+resolve it.
 
-- mode: `focused`, `adaptive`, or `deep`;
-- risk surfaces and rationale;
-- the mode-consistent per-task gate;
-- named final required reviewers and named conditional reviewers with triggers;
-- named skipped perspectives with reasons;
-- residual risk;
+## Materialize ordered task handoffs
+
+Resolve the plan's dependency graph before executing anything. Run tasks
+sequentially in dependency order; this contract does not authorize parallel task
+execution. Record the original plan implementation base before the first task.
+
+For each ready task, build one canonical `execute-task` context containing:
+
+- the complete task specification;
+- the original decision source and non-goals;
+- task discipline, workspace, and working directory;
+- the exact task base commit, which is the current head before that task;
+- exact verification commands and expected results;
+- the complete active Review policy and provenance;
 - configured and observed capacity plus queue rules;
-- the Acceptance threshold.
+- retained stable-key and attempt history;
+- plan context limited to the plan path, task-specific decisions, non-goals, and
+  file responsibilities.
 
-Keep the complete policy, approved task scope, Design Doc or decision source,
-non-goals, and current evidence in the execution context. Preserve that context
-across tasks, fixes, and plan re-entry. Do not infer a missing field, substitute a
-different gate, or dispatch until the coordinator resolves an invalid or
-incomplete policy.
+Do not copy the complete task specification or Review policy into the plan
+context. Invoke `execute-task` for the task and let it own the writer,
+verification, commit, exact range, selected gate, correction, and retry
+semantics.
 
-## Choose execution mode
+Do not start a dependent task until its predecessor returns `Accepted`. On
+`BLOCKED`, `Escalate`, plan deviation, missing evidence, or a task head that is
+not the current repository head, stop and return the exact gap to
+`agentic-engineering-workflow`.
 
-- Default: use `agent-teams-driven-development`.
-- If the user explicitly says not to use agents, execute each task directly in
-  this session without dispatching reviewers.
+## Preserve task records and aggregate separately
 
-In direct execution, preserve the same task, commit, exact-diff, evidence,
-Acceptance, fix, fresh re-review, and plan-re-entry contracts. Do not weaken or
-replace the approved gate because subagents are unavailable. Do not spawn agents
-contrary to the user's current instruction.
+After each accepted task, append an ordered immutable record containing:
 
-For direct/no-agent execution, read these complete prompts directly:
+- task identifier and dependency position;
+- exact task base and accepted head;
+- exact task base-to-head range;
+- task and fix commits;
+- exact verification evidence;
+- per-task gate result and normalization evidence;
+- stable-key retry history;
+- complete policy provenance and any recorded operational gaps.
 
-- [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md);
-- [spec-reviewer-prompt.md](../agent-teams-driven-development/spec-reviewer-prompt.md);
-- [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md).
+Never widen or replace an accepted task range when later tasks add commits. The
+next task uses the previous accepted head as its new base, while the earlier
+record remains unchanged.
 
-Apply their complete role, context, and output contracts without dispatch:
+After every planned task is accepted:
 
-- for `focused`, perform one combined specification-and-quality pass using the
-  focused reviewer prompt. This combined pass is the approved policy design;
-- for `adaptive` and `deep`, perform distinct sequential specification and
-  quality passes using the spec and code-quality reviewer prompts, and evaluate
-  each pass independently.
+1. retain the complete ordered task-range map;
+2. record the distinct aggregate final HEAD;
+3. calculate the full implementation range from the original plan
+   implementation base to that aggregate final HEAD;
+4. confirm the aggregate head is current and each task record still identifies
+   its own exact accepted range;
+5. report plan deviations, policy gaps, retries, and residual gaps separately
+   from successful evidence.
 
-For `adaptive` and `deep`, the same lead executing sequential passes does not
-provide agent-level independence. Do not reduce the approved review scope: run
-every required specification and quality pass. When the user explicitly
-prohibits agents, the policy does not explicitly record agent-level independence
-as a non-waivable requirement, and both passes return `APPROVED`, the sequential
-review completion satisfies the per-task gate and perspective coverage. Record
-the lack of agent-level independence as an accepted residual limitation and
-evidence. It is not a mode inconsistency, unresolved policy gap, or unresolved
-finding.
+The aggregate range supports the next cross-phase check; it does not become a
+replacement per-task review range.
 
-If the approved policy explicitly records agent-level independence as
-non-waivable, direct/no-agent execution conflicts with that requirement. Do not
-silently waive it or claim a satisfied gate. Escalate to the coordinator with the
-exact policy or user decision required before continuing.
+## Return orchestration status
 
-Before applying Acceptance in direct execution:
+Return:
 
-- require every specification finding to be exactly `Must Fix` or
-  `Should Improve`; treat a missing or unknown specification severity as a schema
-  gap, do not infer, normalize, or translate it, and obtain schema-compliant
-  re-output;
-- for quality findings, map an evidence-qualified `Critical` to `Must Fix` and an
-  evidence-qualified `Important` to `Should Improve`; preserve both the original
-  and normalized labels, and do not raise a lower native severity or non-finding.
+- `Accepted` only with all ordered accepted task records, the separate aggregate
+  final HEAD, the full implementation range, and complete policy provenance;
+- `BLOCKED` with partial ordered evidence when an operational prerequisite or
+  current-state guarantee cannot be established;
+- `Escalate` with the exact plan deviation, missing decision, policy conflict, or
+  task escalation.
 
-Keep the direct/no-agent mechanics, schema, and evidence boundaries equivalent to
-the agent-team path. The accepted independence limitation qualifies the recorded
-evidence but does not undo the satisfied gate.
-
-## Execute
-
-Follow tasks in dependency order. Apply the discipline declared by each task. Preserve unrelated changes and do not add speculative work.
-
-For every task:
-
-1. record the task's base commit, specification, and policy context;
-2. implement only its declared scope;
-3. run its exact verification;
-4. inspect the pre-commit working-tree diff;
-5. create the declared task commit;
-6. record the new head commit;
-7. inspect the exact base-to-head diff range;
-8. apply the approved per-task gate to that exact range;
-9. record implementer evidence, verification, gate result, and every gap.
-
-After an in-scope fix, run fresh task verification, inspect the working-tree fix
-diff, create the declared fix commit, record the new head, inspect the updated
-exact base-to-head range, and rerun the same complete approved gate against that
-range. Use this sequence in both direct and agent-team execution. On plan
-re-entry, reload the approved policy and reapply the same gate; do not reuse
-approval for a stale head. Return a plan deviation, missing decision, or
-persistent gate history to the coordinator under its escalation and retry
-contract.
-
-## Handoff
-
-After every task satisfies its approved gate, return control to
-`agentic-engineering-workflow` with task commits, exact diff ranges, verification
-evidence, gate results, the complete Review policy, accepted residual limitations
-and evidence, and any separately unresolved gaps. Keep a satisfied direct/no-agent
-gate distinct from its accepted independence limitation in the handoff. Do not
-start global `verify`, final review, publication, or branch disposition from this
-skill.
+Return control to `agentic-engineering-workflow` after acceptance or any stop
+condition. Do not start global `verify`, final review, publication, merge, or
+branch disposition.
