@@ -9,13 +9,14 @@ Write a plan that a fresh implementer can execute without reconstructing decisio
 
 ## Entry
 
-Proceed when one of these is true:
+Proceed when the coordinator supplies one of these entry conditions:
 
 - the user approved a Design Doc;
 - design discussion settled the scope and the user approved planning;
 - the user explicitly requested decomposition of a clear scope.
 
-Return to design discussion if architecture, public contracts, or scope remain undecided.
+Return unresolved architecture, public contracts, or scope to
+`agentic-engineering-workflow` for design discussion.
 
 ## Investigate
 
@@ -29,6 +30,7 @@ Include:
 
 - goal, architecture summary, technologies, working directory, branch, and observed baseline;
 - fixed decisions and explicit non-goals;
+- a complete Review policy;
 - one exact per-task verification command;
 - tasks ordered by dependency;
 - final verification, review iteration, and publication policy.
@@ -51,9 +53,45 @@ For each task include:
 - Require Arrange, Act, Assert; DAMP setup; returned-result assertions; and relevant side-effect assertions.
 - Do not impose source-line or test-count quotas.
 
+## Review policy
+
+Include a `Review policy` section in every plan. Use `adaptive` as the default for
+planned work. Recommend `focused` or `deep` only when repository evidence,
+approved decisions, and concrete risk surfaces justify it; never select a mode
+from file count, changed-line count, or apparent diff size. Leave the lightweight
+path, including its `focused` default, and cross-phase policy application to
+`agentic-engineering-workflow`.
+
+Resolve each mode's review contract from `agentic-engineering-workflow`. Record
+the concrete policy without reproducing cross-phase routing:
+
+- **Mode:** `focused`, `adaptive`, or `deep`, with an evidence-based rationale.
+- **Risk surfaces:** identify applicable public API, persistence or migration,
+  security or permission, concurrency, error or recovery, performance hot-path,
+  cross-component responsibility, and test-double or fixture risks.
+- **Per-task gate:** name the combined or independent reviewers required by the
+  selected mode, including a resolvable profile or complete fallback prompt.
+- **Final required reviewers:** name every reviewer that must run and why.
+- **Final conditional reviewers:** name each trigger that adds a reviewer.
+- **Explicitly skipped perspectives:** name each omission and its reason.
+- **Residual risk:** state what the selected breadth does not cover. When the user
+  selects a lighter policy, preserve the omitted perspectives and resulting risk.
+- **Capacity:** record the configured and observed limit, queue order, and how the
+  approved scope remains intact when capacity is lower.
+- **Acceptance threshold:** accept only Must Fix or Should Improve findings that
+  cite a concrete reachable behavior or contract violation, evidence, impact,
+  and a specific correction. Reject preference-only, speculative, and
+  already-decided objections without new evidence.
+
+Keep model and reasoning-effort choices in reviewer profiles, not in the plan.
+
 ## Agent capacity
 
-When execution may use subagents, identify one writer and read-only reviewers. Keep work independently assignable and ensure planned concurrency fits the configured and observed capacity. Additional reviewers requested by the plan must have either a resolvable profile or a complete fallback prompt.
+When execution may use subagents, identify one writer and read-only reviewers.
+Keep work independently assignable and ensure planned concurrency fits the
+Review policy's capacity field.
+Require every named reviewer to have a resolvable profile or a complete fallback
+prompt.
 
 ## Quality
 
@@ -65,4 +103,5 @@ When execution may use subagents, identify one writer and read-only reviewers. K
 
 Use [example-plan.md](example-plan.md) only when the output shape is unclear.
 
-Present the complete plan for user approval. Do not start implementation until it is approved.
+Return the complete plan to `agentic-engineering-workflow` for user approval. Do
+not start implementation from this skill.

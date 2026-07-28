@@ -1,22 +1,45 @@
 ---
 name: design-doc
-description: Support a user-authored formal Design Doc through structure, research, ambiguity detection, and post-draft critique. Use when settled engineering work has cross-cutting architecture, durable contracts, or significant decisions worth preserving.
+description: Draft or support a formal Design Doc from user-owned decisions through research, ambiguity detection, structured writing, and critique. Use when settled engineering work has cross-cutting architecture, durable contracts, or significant decisions worth preserving.
 ---
 
 # Design Doc support
 
-The user authors the design and its prose. Preserve ideation primacy: do not supply design-specific prose before the user has written a first draft.
+Keep every material design decision under user control. Treat prose authorship as
+separate from decision ownership.
 
-## Allowed support
+## Settle decisions before drafting
 
-- investigate codebase facts and constraints;
-- challenge assumptions and compare alternatives;
-- provide the fixed template skeleton;
-- identify ambiguity, missing rationale, duplicated concepts, and unresolved contracts;
-- critique user-authored text;
-- make targeted edits only when the user explicitly asks.
+Load the decision record from design discussion. Investigate relevant code,
+tests, documentation, and history. Challenge assumptions, compare viable
+alternatives, and ask detailed questions until no material decision remains
+unresolved.
 
-Do not invent components, name a design-specific decomposition, or ghostwrite unfinished sections.
+Require the record to identify:
+
+- the selected approach and rationale;
+- rejected alternatives and reasons;
+- scope and non-goals;
+- explicitly deferred questions.
+
+When a missing choice could change architecture, responsibilities, public
+contracts, schemas, error models, or scope, return the ambiguity and evidence to
+`agentic-engineering-workflow` for design discussion. Do not choose silently.
+
+## Draft from settled decisions
+
+After all material decisions are settled, Codex may draft the complete Design
+Doc. Derive its design-specific prose from the decision record and repository
+evidence. Do not introduce a component, responsibility, contract, or trade-off
+that those sources do not establish.
+
+If drafting reveals a material ambiguity, stop and return it to design
+discussion through the coordinator. Do not hide a new decision in polished
+prose.
+
+When the user prefers to author a draft, provide the same research, fixed
+template, ambiguity detection, critique, and explicitly requested targeted
+edits. Preserve the user's prose unless an edit is requested.
 
 ## Template
 
@@ -42,9 +65,9 @@ The detailed design should explain architecture, state transitions, invariants, 
 
 For API-heavy documents, read [references/api-section-format.md](references/api-section-format.md). For detailed-design structure and review criteria, read [references/detailed-design-guide.md](references/detailed-design-guide.md).
 
-## Review
+## Review and approval
 
-After the user completes a draft, check:
+Review every draft, whether Codex-authored or user-authored. Check:
 
 - goals and non-goals are distinguishable;
 - terms and assumptions are defined;
@@ -52,6 +75,9 @@ After the user completes a draft, check:
 - public contracts, failure behavior, and invariants are explicit;
 - alternatives include the reason they were rejected;
 - diagrams or tables clarify real relationships instead of decorating prose;
-- implementation details do not obscure design decisions.
+- implementation details do not obscure design decisions;
+- every material claim follows from the decision record and repository evidence.
 
-When the user approves the document, recommend `create-plan` and wait for approval before transitioning.
+Present the complete document for user approval. Return the approval state,
+decision record, and evidence to `agentic-engineering-workflow`; do not begin
+planning from this skill.
