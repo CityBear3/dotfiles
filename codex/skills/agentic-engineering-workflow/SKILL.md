@@ -72,19 +72,42 @@ task:
    pre-commit working-tree diff;
 3. create the task commit, record the new head, and inspect the exact
    base-to-head range;
-4. run the focused combined specification-and-quality per-task gate against that
+4. run the policy-selected per-task gate against that
    exact range;
 5. record the gate result, reviewer evidence, and every gap.
 
-Use one read-only `code-reviewer` with an explicit combined contract or the
-complete focused fallback prompt. If the user prohibits agents, have the lead run
-the same combined read-only pass. Route gate findings through the classification
-and bounded retry contract below rather than defining another retry limit here.
+Select the complete gate from the active review policy:
+
+- `focused`: read
+  [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md).
+  Use a single read-only `code-reviewer` for combined specification and quality
+  review. When the named profile is available, its reviewer message must use the
+  linked prompt's complete role contract, task context, and output schema. When
+  the named profile is unavailable, resolve and use that complete prompt directly
+  from the relative link. If the user prohibits agents, have the lead run one
+  combined pass using the linked prompt's complete role contract, task context,
+  and output schema.
+- `adaptive` and `deep`: read
+  [spec-reviewer-prompt.md](../agent-teams-driven-development/spec-reviewer-prompt.md)
+  and
+  [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md).
+  Use independent read-only `spec-reviewer` and `code-quality-reviewer` passes.
+  When the named profiles are available, each reviewer message must use its
+  linked prompt's complete role contract, task context, and output schema. When a
+  named profile is unavailable, resolve and use its complete prompt directly from
+  the corresponding relative link. If the user prohibits agents, have the lead
+  run distinct sequential specification and quality lead passes with the
+  corresponding linked prompt's complete role contract, task context, and output
+  schema. Record the lack of agent-level independence as a review gap and
+  residual evidence.
+
+Route gate findings through the classification and bounded retry contract below
+rather than defining another retry limit here.
 
 After an in-scope `Fix`, require fresh task verification, inspect the pre-commit
 working-tree fix diff, create the fix commit, record its new head, inspect the
-updated exact range, and rerun the same complete gate. Do not enter global
-verification until the gate approves the current head.
+updated exact range, and rerun the same policy-selected complete gate. Do not
+enter global verification until the gate approves the current head.
 
 The planned path receives equivalent per-task commit, range, verification, and
 gate evidence from `execute-plan`; do not rerun an already-current approved
@@ -149,8 +172,8 @@ Once implementation is authorized, make these transitions without another user
 prompt:
 
 1. Confirm all task gates are satisfied for the current head: use the recorded
-   lightweight combined gate or the planned `execute-plan` handoff. Then send the
-   current head and evidence to `verify`.
+   policy-selected lightweight gate or the planned `execute-plan` handoff. Then
+   send the current head and evidence to `verify`.
 2. On verification PASS, send the current head and evidence to `review`.
 3. Send review findings to `receiving-code-review`.
 4. Classify every surviving finding:
