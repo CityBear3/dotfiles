@@ -14,30 +14,32 @@ Inspect:
 - current branch and worktree;
 - `git status --short`;
 - commits and diff against the base branch;
-- the current head;
-- the fresh verification `PASS` head and exact range;
-- the clean final review head and exact range;
+- the exact current HEAD and immutable full implementation target identity;
+- the strict coordinator-managed fresh verification `PASS` target, head, and
+  exact full range;
+- the coordinator-managed final review `CLEAN` target, head, and exact full
+  range;
 - the complete approved review policy, reviewers run, triggered conditionals,
-  skipped perspectives with reasons, Acceptance result, and unresolved findings.
+  skipped perspectives with reasons, actual-risk reconciliation, Acceptance
+  result, and unresolved findings or gaps.
 
 Require the current head, fresh verification PASS head, and clean final review
-head to exactly match. Also require the approved policy to be fully satisfied and
-no unresolved Must Fix or Should Improve finding. A later commit or uncovered
-in-scope working-tree change makes verification and clean review evidence stale.
+head, target identity, and full range to exactly match. Require the complete
+approved policy and actual-risk inventory to be fully satisfied with no unresolved
+`Must Fix`, `Should Improve`, schema, policy, evidence, or runtime gap. A later
+commit or uncovered in-scope index, worktree, or untracked source change makes
+verification and clean review evidence stale. Standalone-only verification or
+review evidence never satisfies this gate.
 
-An accepted direct/no-agent independence limitation recorded under the approved
-policy is residual evidence and risk, not an unresolved finding or policy gap. It
-does not block completion when the policy-selected sequential passes ran and
-approved. Preserve the limitation in the completion evidence and final report.
-
-If the approved policy contains a non-waivable independence requirement and the
-current evidence used direct/no-agent passes without that independence, the
-policy is not satisfied. Do not present completion choices; return the conflict
-to the coordinator for `Escalate` with the exact policy or user decision
-required.
+An `adaptive` or `deep` policy is unsatisfied when required independent
+perspectives were replaced by sequential lead passes. Only the approved
+`focused` lead-pass contract may satisfy a no-agent completion path. Never treat
+an independence gap as completion evidence.
 
 If any condition fails, do not present completion choices. Return the stale
-evidence or policy gap to the coordinator for the appropriate workflow phase.
+evidence or policy gap to the coordinator as `BLOCKED`, or return `Escalate` when
+resolution requires a user-owned policy, authority, or target decision. Include
+the exact condition required for safe re-entry.
 
 ## Present choices
 
@@ -61,7 +63,11 @@ For publication, push, pull-request creation, local merge, or discard, freshly
 reinspect all of these immediately before the state change:
 
 - the current branch and ref plus the exact selected target;
+- exact source and target ref object IDs;
 - `HEAD` and `git status --short`;
+- index/worktree and untracked evidence;
+- absence or exact presence of merge, rebase, cherry-pick, or other operation
+  state;
 - the fresh verification PASS head and exact range;
 - the clean final review head and exact range;
 - the completed approved-policy gate and unresolved-finding state.
@@ -74,19 +80,59 @@ For discard, obtain the existing explicit destructive confirmation first, then
 revalidate immediately before deletion. For keep, make no state change; inspect
 and report the current state.
 
+## Execute a safe local merge
+
+Immediately before a user-selected local merge, record an immutable pre-merge
+snapshot containing:
+
+- exact source branch/ref and object ID;
+- exact target branch/ref and object ID;
+- checked-out branch, HEAD, index entries, worktree status and diff, and
+  untracked files;
+- absence or presence of `MERGE_HEAD`, unmerged entries, and every other active
+  Git operation;
+- the exact merge command and required post-merge verification.
+
+Require the safe precondition to be clean, attributable, and free of an active
+merge or conflicting operation. Do not start a merge from unrelated dirty state
+or when exact refs and ownership cannot be established. Return `BLOCKED` with
+the observed state and re-entry condition instead.
+
+Run only the exact authorized non-interactive local merge. On conflict or merge
+failure, inspect `MERGE_HEAD`, unmerged entries, refs, HEAD, index, worktree,
+untracked files, and status before taking recovery action.
+
+Run `git merge --abort` only when this skill started the merge from the recorded
+clean state, the repository still represents that same merge attempt, and abort
+is safe for all recorded data. After abort, require exact restoration of the
+pre-merge source and target refs, checked-out branch, HEAD, index, worktree,
+untracked inventory, and absence of merge state. If restoration cannot be proven,
+do not reset, clean, discard, or retry; preserve the partial state and return
+`Escalate` for the exact user decision, or `BLOCKED` for an external/runtime
+condition with an exact re-entry condition.
+
+After a successful merge, run the required post-merge verification against the
+resulting exact target ref and HEAD. If it fails and the same merge remains
+safely abortable, abort and prove exact pre-state restoration as above. If a
+merge commit, fast-forward, changed ref, or other resulting state means safe
+abort is unavailable, preserve every resulting ref and file. Do not reset,
+publish, retry, or clean up. Report the failed command, refs, HEAD, index/worktree
+state, merge state, and recovery limitation for the user's decision.
+
 ## Execute the choice
 
 - For publication or push, write only the exact authorized remote and ref; never
   infer a force push.
 - For a PR, use the `create-pr` skill only after that exact external write is
   authorized.
-- For a local merge, use the approved local refs, merge non-interactively, and run
-  the required post-merge verification. Do not fetch, pull, or push without
-  separate authority.
+- For a local merge, follow the safe local-merge transaction above. Do not fetch,
+  pull, or push without separate authority.
 - For keep, make no state change.
 - For discard, delete only the confirmed and freshly revalidated exact targets.
 
-Never force-push, delete a branch, remove a worktree, or discard uncommitted data from an implied choice.
+Never force-push, delete a branch, remove a worktree, reset, clean, or discard
+uncommitted data from an implied choice. Never touch unrelated dirty data.
 
-Report the resulting branch/worktree state to the coordinator. Do not choose or
-start another workflow phase from this skill.
+Report the resulting exact refs, branch/worktree, operation state, verification,
+recovery action, and every gap to the coordinator. Do not choose or start another
+workflow phase from this skill.

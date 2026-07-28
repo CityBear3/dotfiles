@@ -219,6 +219,10 @@ Resolve the mode before loading any reviewer prompt:
   availability cannot establish either required independent role, return
   `BLOCKED` with the exact operational gap.
 
+Never replace `adaptive` or `deep` independent reviewers with sequential lead
+passes or count the resulting independence gap toward completion. Only the
+approved `focused` combined lead-pass contract can satisfy a no-agent task gate.
+
 Pass the canonical task context once, current evidence bundle once, and only the
 selected complete role contracts to `agent-teams-driven-development`. Never load
 all reviewer prompts speculatively. Reviewers remain read-only and review the
@@ -244,6 +248,22 @@ Apply the complete policy's Acceptance threshold only after normalization. Keep
 only concrete reachable behavior or contract violations with cited evidence,
 impact, and a specific correction. Exclude preference-only, speculative,
 unsupported, or already-decided objections that have no new evidence.
+
+## Accept bounded global correction handoffs
+
+When the coordinator routes a verification failure or final-review `Fix` back to
+this seam, require the same complete immutable canonical task context as any
+other task plus the stable failure/finding key and retained attempt history in
+the mutable task record. The correction task must identify the exact behavior,
+authorized files and discipline, current correction base, every verification
+command and expected result, and the unchanged complete Review policy.
+
+Run the normal one-writer, verification, pre-commit, commit, evidence, and
+per-task gate lifecycle. Return a correction commit, new HEAD, exact correction
+range, and task acceptance before the coordinator can consider the `Fix`
+implemented. Do not run global verification, final review, triage, or branch
+completion here; the coordinator rebuilds the full immutable target and restarts
+those phases after acceptance.
 
 ## Fix and re-review with bounded retries
 

@@ -10,6 +10,11 @@ own investigation, task execution, plan orchestration, verification, review, and
 publication mechanics. Follow repository guidance and explicit user instructions
 when they are stricter.
 
+Treat `verify`, `review`, and `receiving-code-review` as check-only phases. They
+return evidence or classifications and never edit tracked/source state, commit a
+fix, or advance the workflow. This coordinator alone consumes their results and
+selects the next phase.
+
 ## Classify the request
 
 Inspect the relevant repository state before selecting a route.
@@ -124,6 +129,12 @@ an adversarial perspective runs; classify only demonstrably inapplicable
 perspectives as skipped with reasons. Apply the same capacity, queue, Acceptance,
 residual-risk, and per-field provenance requirements.
 
+An explicit no-agent instruction is compatible only with an approved `focused`
+lead-pass contract. It conflicts with `adaptive` or `deep` independent per-task
+and final perspectives. Never replace those perspectives with sequential lead
+passes or record waived independence as accepted completion evidence; return the
+exact policy/user conflict for `Escalate`.
+
 Reject an incomplete, contradictory, or mode-inconsistent policy. If
 classification requires a material choice, a risk is incompletely classified, or
 the requested mode conflicts with observed risk, return to planning. Do not
@@ -133,8 +144,8 @@ or manage corrections in this coordinator.
 Build the canonical lightweight task context required by `execute-task`,
 including the complete task, decision source and non-goals, discipline,
 workspace, base commit, exact verification, complete active policy and
-provenance, capacity, and prior stable-key history. Invoke `execute-task` once for
-that task.
+provenance, and capacity. Carry prior stable-key history in the mutable task
+record outside that immutable context. Invoke `execute-task` once for that task.
 
 ## Use approval gates on the planned path
 
@@ -165,22 +176,33 @@ handoff, ordered evidence aggregation, and plan-deviation detection.
 Make these cross-phase transitions automatically within approved scope:
 
 1. When lightweight `execute-task` returns `Accepted` for the current head and
-   exact task range, send that head, range, policy, and acceptance evidence to
+   exact task range, create one immutable coordinator verification target from
+   the original lightweight base through that exact current HEAD. Require no
+   in-scope index, worktree, or untracked source state outside the committed
+   target, then send the target, complete policy, and acceptance evidence to
    `verify`.
 2. When `execute-plan` returns every ordered task record plus a separate
    aggregate final HEAD and full implementation range, confirm that the
-   aggregate head is current, then send the aggregate evidence to `verify`.
-3. On verification PASS for that same head, send the current head, target range,
-   policy, and verification evidence to `review`.
-4. Send review findings to `receiving-code-review`.
-5. Classify each surviving result as:
+   aggregate head is current and the committed range contains no extra in-scope
+   index/worktree source state, then send that immutable full-range target and
+   aggregate evidence to `verify`.
+3. Accept only a coordinator-managed verification `PASS` whose target identity,
+   exact current HEAD, and full range match the immutable target. Send that same
+   target, complete approved policy, and fresh verification evidence to
+   `review`. Standalone-only snapshot or fileset evidence never advances.
+4. Accept from `review` exactly `CLEAN`, `FINDINGS`, or `BLOCKED`. Send only
+   schema-complete `FINDINGS` for the same immutable target to
+   `receiving-code-review`. A missing or unknown severity first requires
+   reviewer re-output and can never be inferred, dropped, or treated as clean.
+5. Consume from `receiving-code-review` only:
    - `Fix` when valid, authorized, in scope, and compatible with approved
      decisions;
    - `Push back` when incorrect, unsupported, preference-only, or already
      decided without new evidence;
    - `Escalate` when it requires a decision, authority, scope or policy change,
      or `execute-task` reports exhausted retry.
-6. Route an authorized `Fix` according to its active path:
+6. Require every `Fix` to include its stable key, retained attempt history, and
+   complete canonical correction input. Route it according to the active path:
    - for lightweight work, create a bounded correction task and invoke
      `execute-task`; retain the original lightweight base and restart global
      verification and final review against the full updated lightweight range;
@@ -190,31 +212,52 @@ Make these cross-phase transitions automatically within approved scope:
      retained stable-key history. Require `execute-plan` to invoke
      `execute-task`, append the accepted correction record, and return the
      updated aggregate final HEAD and full implementation range.
-7. After the path-specific correction returns current accepted evidence, restart
-   global verification and complete final review against the full updated change
-   range, never only the correction task range.
-8. For `Push back`, retain the decision and evidence and continue triage.
+7. Do not accept a final `Fix` until `execute-task` has produced a correction
+   commit, new HEAD, exact correction range, current evidence, and task
+   acceptance. After path-specific acceptance, build a new immutable full target
+   and restart global verification plus the complete final review for that
+   target, never only the correction task range. Earlier global evidence is
+   stale.
+8. For `Push back`, retain the decision and evidence and continue triage. When
+   no accepted finding remains, require a fresh complete final-review `CLEAN`
+   result for the unchanged full target; never reinterpret the earlier
+   `FINDINGS` verdict as clean.
 9. For `Escalate`, stop and ask for the named decision or authority.
 
-Treat an in-scope verification failure as an automatic transition through
-`systematic-debugging` to the same path-specific correction route: lightweight
-through a bounded `execute-task`, planned through a concrete `execute-plan`
-correction step and then `execute-task`. Preserve the original change base,
-ordered planned task map when present, approved decisions, non-goals, policy,
-stable-key history, failed command, and observed evidence. Stop when the
-correction would change design, scope, policy, or authority.
+Classify every verification `FAIL` or `BLOCKED`, review `BLOCKED`, or other
+non-success before taking another action:
 
-Never advance a `BLOCKED` or incomplete handoff. Require `execute-task` to return
-its exact current head and range, and require `execute-plan` to return all task
-acceptance records plus the distinct aggregate head and range. On re-entry,
-retain current evidence and the exact unresolved condition rather than reopening
-settled design without new evidence.
+- when a safely discoverable local input can be resolved read-only within
+  existing authority, resolve it and rerun the same phase against the unchanged
+  target;
+- when the cause is local, recoverable, within approved scope, and correction is
+  already authorized, use `systematic-debugging`, then the same path-specific
+  `execute-task` correction route;
+- when resolution needs a user-owned decision, new authority, material scope, or
+  a complete replacement Review policy, return `Escalate` with the exact choice;
+- when the cause is external or runtime state, stop with `BLOCKED`, ownership
+  evidence, and the exact condition required for re-entry.
+
+A material actual-diff risk missing from the approved policy is the third case:
+never add or skip a reviewer silently; require a complete user-approved
+replacement policy. Preserve the immutable current target, stable key and attempt
+history, successful evidence, ownership, gaps, and re-entry condition across
+every stop or rerun. Never advance `BLOCKED` verification to review, `BLOCKED`
+review to triage, or any incomplete result to `finish-branch`.
+
+Require `execute-task` to return its exact current head and range, and
+`execute-plan` to return all task acceptance records plus the distinct aggregate
+head and range. On re-entry, retain current evidence and the exact unresolved
+condition rather than reopening settled design without new evidence.
 
 ## Terminate only at a real boundary
 
-Enter `finish-branch` only when verification is current for the head commit and
-the approved final review has no remaining `Must Fix` or `Should Improve`
-finding. Then stop for the user's publication or branch-disposition choice.
+Enter `finish-branch` only when the exact current HEAD and full implementation
+range have a strict coordinator-managed fresh verification `PASS` and final
+review `CLEAN` for the same immutable target, the complete approved policy and
+actual-risk inventory are satisfied, and no finding or gap remains. Never use
+standalone-only evidence for completion. Then stop for the user's publication or
+branch-disposition choice.
 
 Never treat an edit, successful command, implementation commit, agent
 self-review, stale per-task approval, or incomplete aggregate as workflow
