@@ -22,11 +22,13 @@ favors lean prompts that state each instruction once, while retaining explicit
 autonomy, approval, success, and stopping boundaries. Codex skills provide the
 appropriate progressive-disclosure layer for a durable workflow contract.
 
-This design introduces a thin global trigger and one coordinating workflow skill.
-The coordinator owns the state machine and delegates phase mechanics to the
-existing skills. It also changes Design Doc collaboration to match the owner's
-current practice: the owner makes design decisions through detailed dialogue, and
-Codex may draft the resulting document after those decisions are settled.
+This design introduces a thin global trigger, one coordinating workflow skill,
+and one path-neutral task-execution skill. The coordinator owns path selection and
+cross-phase transitions. Planned execution owns plan-level sequencing, while the
+shared task seam owns one task's implementation and acceptance mechanics. It also
+changes Design Doc collaboration to match the owner's current practice: the owner
+makes design decisions through detailed dialogue, and Codex may draft the
+resulting document after those decisions are settled.
 
 ### Goals
 
@@ -41,6 +43,8 @@ Codex may draft the resulting document after those decisions are settled.
   match the change's risk.
 - Let Codex draft a Design Doc from an owner-approved decision record without
   inventing decisions.
+- Give lightweight and planned work one task-execution contract without
+  duplicating its acceptance mechanics.
 - Preserve fresh verification and evidence-based review before branch completion.
 
 ### Non-goals
@@ -55,19 +59,27 @@ Codex may draft the resulting document after those decisions are settled.
   quality goals.
 - Import or read `claude/` assets at Codex runtime.
 - Change publication, destructive-action, or external-write approval boundaries.
+- Execute multiple implementation-plan tasks in parallel. The task boundary may
+  support future dependency-aware scheduling, but this scope remains sequential
+  and single-writer.
 
 ## Overview
 
-The workflow has three layers:
+The workflow has five responsibility layers:
 
 1. `codex/AGENTS.global.md` contains only the durable trigger, user-ownership
    invariant, approval boundary, and requirement to use the coordinator for
    engineering changes.
 2. `agentic-engineering-workflow` is the single source of truth for entry
-   classification, state transitions, lightweight eligibility, review-policy
-   application, and escalation.
-3. Existing phase skills own their current mechanics. Their entry and transition
-   wording points back to the coordinator rather than defining competing flows.
+   classification, cross-phase transitions, lightweight eligibility, and
+   escalation.
+3. `execute-plan` owns approved-plan and policy validation, dependency ordering,
+   task handoff and evidence aggregation, and plan-deviation detection.
+4. `execute-task` owns the path-neutral discipline and acceptance contract for one
+   lightweight or planned task.
+5. `agent-teams-driven-development` owns agent scheduling and partial-state
+   safety. Other phase skills own their verification, review, triage, and branch
+   completion mechanics.
 
 Read-only requests such as explanation, diagnosis, review, and planning do not
 authorize implementation. A requested change enters one of two implementation
@@ -85,8 +97,13 @@ request -> classify intent --------------+
           v
    investigate current state
           |
-          +-- all lightweight criteria hold --> workspace --> implement
-          |                                      (focused review policy)
+          +-- all lightweight criteria hold --> workspace
+          |                                      |
+          |                                      v
+          |                              materialize policy
+          |                                      |
+          |                                      v
+          |                                 execute-task
           |
           +-- design decision remains --------> design discussion
                                                    |
@@ -99,15 +116,21 @@ request -> classify intent --------------+
                                                        workspace
                                                           |
                                                           v
-                                                        execute
+                                                     execute-plan
+                                                          |
+                                                          | each task, in
+                                                          | dependency order
+                                                          v
+                                                     execute-task
 
-implement / execute -> verify -> review -> triage
-                         ^          |
-                         |          +-- Fix ------> bounded fix
-                         |          +-- Push back -> continue triage
-                         |          +-- Escalate --> user decision
-                         |
-                         +-------------------------------+
+lightweight execute-task -----------+
+                                    |
+planned execute-plan aggregation ---+--> verify -> review -> triage
+                                                   ^          |
+                                                   |          +-- Fix --> bounded task
+                                                   |          +-- Push back
+                                                   |          +-- Escalate --> user
+                                                   +----------------------+
 
 clean review -> finish branch -> user chooses publication or disposition
 ```
@@ -120,9 +143,10 @@ Design Doc, and the implementation plan before execution.
 
 ### Coordinator responsibility
 
-The coordinator determines the current workflow state and the next phase. It does
-not duplicate how a phase investigates, writes tests, edits files, dispatches
-agents, verifies commands, or publishes a branch.
+The coordinator determines the current path, workflow phase, and next cross-phase
+transition. It does not own task discipline, implementation handoff, plan
+sequencing, agent scheduling, verification commands, review mechanics, or branch
+publication.
 
 For each transition it records or reports:
 
@@ -136,6 +160,44 @@ An explicit user instruction to skip a phase or execute directly takes precedenc
 when it does not violate repository guidance or an approval boundary. Skipping a
 phase does not permit Codex to invent missing design decisions or claim unobserved
 verification.
+
+### Task execution seam and component responsibilities
+
+Both implementation paths use `execute-task` as the only task-execution seam. The
+lightweight path invokes it directly after workspace confirmation and complete
+policy materialization. The planned path invokes `execute-plan`, which invokes
+`execute-task` once per task in dependency order.
+
+`execute-plan` owns:
+
+- validation of the approved plan and its complete approved review policy;
+- dependency ordering and construction of each complete task handoff;
+- aggregation of task commits, accepted ranges, verification, gate results, retry
+  history, and gaps;
+- detection of a plan deviation or missing decision before handing control back
+  to the coordinator.
+
+`execute-task` owns one task's:
+
+- declared discipline and implementation handoff to the actual writer;
+- exact task verification and pre-commit working-tree diff inspection;
+- task commit, new head, and exact base-to-head range;
+- policy-selected per-task gate;
+- in-scope fix, fresh verification, re-review, stable retry-key, attempt, and stop
+  evidence.
+
+The actual writer is either the lead or one `implementer`. This design does not
+introduce multiple concurrent writers. `agent-teams-driven-development` owns only
+agent scheduling, one-writer/read-only-reviewer enforcement, capacity and queue
+management, and safe handling of agent failure or partial state. It refers to
+`execute-task` for task and policy semantics rather than redefining them.
+
+Each accepted task retains its own base-to-head range and gate evidence. For
+planned work, `execute-plan` also reports the aggregate final HEAD and complete
+implementation range after all tasks. The aggregate HEAD proves the cumulative
+branch state; it does not replace or widen any task-specific accepted range.
+Global verification and final review use the aggregate final HEAD and complete
+range, while per-task acceptance remains attached to each task's exact range.
 
 ### Lightweight path
 
@@ -157,14 +219,22 @@ may remain lightweight.
 Before implementation, Codex confirms that the current workspace and branch are
 suitable. Production-behavior changes use TDD; content, configuration, and
 mechanical migrations use an explicit discipline appropriate to their contract.
-The path then runs fresh verification and a `focused` review before branch
-completion.
+Before invoking `execute-task`, the coordinator deterministically materializes a
+complete lightweight `focused` policy from the Design default, the original
+change authorization, and observed risk and runtime capacity. It records every
+policy field required by the shared task seam; it does not infer an unknown field
+later during execution.
 
-The user may explicitly request `adaptive` or `deep` review for a lightweight
-change. If implementation reveals a disqualifying risk surface or a material
-decision, Codex does not silently strengthen review and continue. It stops the
-lightweight path and returns to design discussion, followed by planning when the
-revised scope is settled.
+An explicit user-approved `adaptive` or `deep` mode replaces the default. If
+materializing a complete policy would require a material choice, or observed risk
+makes `focused` inappropriate, the coordinator returns to the planned path instead
+of silently choosing or strengthening policy. The task then runs fresh global
+verification and final review before branch completion.
+
+If implementation reveals a disqualifying risk surface or a material decision,
+Codex does not silently strengthen review and continue. It stops the lightweight
+path and returns to design discussion, followed by planning when the revised scope
+is settled.
 
 Security or permission boundaries, persistent-data migration, concurrency or
 recovery guarantees, and data-loss risk are disqualifying risk surfaces unless
@@ -191,7 +261,9 @@ The following remain user-controlled gates:
 
 The following transitions are automatic once their entry conditions are satisfied:
 
-- approved implementation or an approved plan to verification;
+- an authorized lightweight task to `execute-task`;
+- an approved plan to `execute-plan`, then to `execute-task` once per task;
+- current per-task acceptance evidence to verification;
 - passing verification to review;
 - review findings to `receiving-code-review` triage;
 - an in-scope `Fix` to implementation, verification, and fresh review;
@@ -206,6 +278,12 @@ Verification failure is not itself a user gate. Codex diagnoses and fixes an
 in-scope failure, then re-runs verification. It stops when resolution would change
 the approved design or scope, required authority is missing, or the workflow's
 bounded retry condition demonstrates that the current correction is not working.
+
+During planned execution, `execute-plan` invokes `execute-task` sequentially in
+dependency order and returns its aggregate evidence only after every task gate is
+current. The boundary intentionally permits future scheduling of
+dependency-independent tasks without moving task semantics, but parallel task
+execution is outside the current scope.
 
 ### Collaborative Design Doc drafting
 
@@ -240,6 +318,7 @@ The policy records:
 - the per-task review gate;
 - required and conditional final reviewers;
 - explicitly skipped review perspectives and their rationale;
+- residual risk plus capacity and queue rules;
 - the evidence and finding threshold for acceptance.
 
 The three modes have these contracts:
@@ -252,6 +331,14 @@ The three modes have these contracts:
 
 `adaptive` is the default for planned work. `focused` is the default for the
 lightweight path.
+
+Independent specification and quality review is part of the `adaptive` and `deep`
+mode contracts, not an optional implementation detail. A direct/no-agent
+instruction conflicts with either mode. The workflow must `Escalate` for agent
+permission or a user-approved policy change, such as changing to `focused`; it
+must not silently waive independence or treat sequential lead passes as
+equivalent. `focused` permits a no-agent combined lead pass using the same complete
+role, evidence, and output contract.
 
 Risk surfaces include, when applicable, public APIs, persistence and migration,
 security and permissions, concurrency, error and recovery behavior, performance
@@ -272,7 +359,9 @@ Every mode retains the same finding standard. A surviving finding must identify 
 concrete reachable behavior or contract violation, cite evidence, state impact,
 and propose a specific correction. Preference-only comments, speculative future
 concerns, and objections to an approved decision without new evidence are removed.
-Capacity limits may queue reviewers but never silently reduce the approved scope.
+Capacity limits may queue reviewers but never silently reduce the approved scope
+or independence. An unavailable required gate remains a reported gap and cannot
+be converted into an implicit waiver.
 
 ### Review feedback and loop completion
 
@@ -283,9 +372,10 @@ Every review item is classified as:
 - `Escalate`: requires a new design decision or material scope expansion.
 
 For planned work, a `Fix` becomes a concrete plan step. For lightweight work, it
-becomes a bounded fix step attached to the current change. Both routes re-run
-relevant verification and fresh review; editing the code does not resolve a
-finding by itself.
+becomes a bounded fix step attached to the current change. Both routes return the
+bounded task to `execute-task`, re-run relevant verification, create and inspect
+the correction commit and exact range, and run fresh review; editing the code does
+not resolve a finding by itself.
 
 A workflow reaches `finish-branch` only when verification is current for the head
 commit and the approved review policy has produced no remaining Must Fix or Should
@@ -294,9 +384,17 @@ the final review required by that policy.
 
 ### Source-of-truth and compatibility rules
 
-The coordinator is the sole source of truth for cross-phase transitions. Phase
-skills may state their entry requirements, work contract, output evidence, and
-handoff, but do not reproduce the complete state machine.
+The coordinator is the sole source of truth for path selection and cross-phase
+transitions. `execute-plan` is the source of truth for plan-level validation,
+dependency order, handoff aggregation, and deviation detection. `execute-task` is
+the source of truth for one task's discipline, commit/range evidence,
+policy-selected gate, and bounded correction loop.
+
+`agent-teams-driven-development` is the source of truth only for scheduling,
+capacity, queueing, one-writer/read-only-reviewer enforcement, and agent
+failure/partial-state safety. It and other phase skills may state their entry,
+evidence, and handoff contracts, but do not reproduce task or cross-phase
+semantics.
 
 Repository-local `AGENTS.md` files remain authoritative for project-specific
 commands and stricter constraints. The global guidance and coordinator do not
@@ -312,9 +410,11 @@ tests rather than assuming discovery succeeded.
 
 ### Prompt size and drift
 
-The always-loaded global file contains only stable policy. The coordinator contains
-the workflow state machine, and phase skills contain mechanics. Each rule has one
-authoritative home, with short references at boundaries. This limits prompt
+The always-loaded global file contains only stable policy. The coordinator
+contains path and cross-phase routing, `execute-plan` contains plan orchestration,
+`execute-task` contains the shared task contract, and agent-team and phase skills
+contain their specialized mechanics. Each rule has one authoritative home, with
+short references and lazily loaded role prompts at boundaries. This limits prompt
 repetition and makes drift detectable during review.
 
 ### Autonomy and safety
@@ -334,10 +434,11 @@ completion requires the phase's behavioral contract.
 ### Failure and re-entry
 
 The workflow may re-enter implementation after verification or review. Re-entry
-retains the approved decisions, non-goals, review policy, and exact unresolved
-finding. It does not reopen settled design without evidence. Repeated failure of
-the same gate triggers diagnosis and then escalation when further progress would
-require a changed design or unbounded retries.
+retains the approved decisions, non-goals, review policy, exact unresolved
+finding, task range, stable retry key, and attempt evidence. It does not reopen
+settled design without evidence. Repeated failure of the same gate follows the
+shared `execute-task` stop contract and then escalates rather than creating an
+unbounded retry loop.
 
 ## Alternatives considered
 
