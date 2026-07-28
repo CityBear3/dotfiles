@@ -101,8 +101,21 @@ Select the complete gate from the active review policy:
   schema. Record the lack of agent-level independence as a review gap and
   residual evidence.
 
-Route gate findings through the classification and bounded retry contract below
-rather than defining another retry limit here.
+Normalize quality severity at the lightweight orchestration boundary before
+applying Acceptance or retry:
+
+- for `adaptive` and `deep`, apply normalization to named-profile,
+  fallback-prompt, and no-agent lead-pass output alike;
+- map an evidence-qualified quality `Critical` finding to `Must Fix` and an
+  evidence-qualified quality `Important` finding to `Should Improve`;
+- record both the original and normalized labels;
+- do not raise a lower native severity or non-finding to `Should Improve`;
+- preserve the focused gate's existing `Must Fix` and `Should Improve` labels
+  without remapping them.
+
+After normalization, apply the active Review policy's Acceptance threshold, then
+route surviving gate findings through the classification and bounded retry
+contract below rather than defining another retry limit here.
 
 After an in-scope `Fix`, require fresh task verification, inspect the pre-commit
 working-tree fix diff, create the fix commit, record its new head, inspect the
