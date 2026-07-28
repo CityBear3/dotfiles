@@ -1,23 +1,46 @@
 ---
 name: verify
-description: Perform fresh post-implementation verification of an approved change, including build, tests, lint, formatting, diff, and readability checks. Use after execute-plan or when the user asks for a completion check.
+description: Verify the current implementation head with fresh project commands and return PASS, FAIL, or BLOCKED evidence to the workflow coordinator. Use after approved implementation or when the user asks for a completion check.
 ---
 
-# Verify implementation
+# Verify the current implementation head
 
 No completion claim without fresh observed evidence.
 
-## Scope
+Remain read-only. Do not edit files, create commits, or repair failures from this
+skill.
 
-Read repository guidance, the approved plan, changed files, and the current diff. Resolve authoritative project commands before running generic defaults.
+## Entry
 
-If agents are allowed and a named profile is selectable, use `implementation-verifier`. If it is not selectable, give a generic subagent the complete verification contract. When the user prohibits agents, perform the same checks directly.
+Require the coordinator to supply:
+
+- the current head commit and exact base-to-head range;
+- the approved scope, decision source, and active review policy;
+- the approved implementation plan when present;
+- authoritative final verification commands;
+- prior stable gate keys and bounded retry history on re-entry.
+
+Read repository guidance, approved scope and decision source, active review
+policy, changed files, and the current diff. Read the approved implementation
+plan when present. Record the current head immediately before verification.
+Resolve authoritative project commands before running generic defaults. Return
+`BLOCKED` with the missing evidence as an unverified gap when an entry input
+cannot be established.
+
+Record unrelated dirty state separately. Treat any uncommitted change that can
+affect the required commands or inspected files as an unverified current-head
+gap.
+
+If agents are allowed and the `implementation-verifier` profile is selectable,
+use it as a read-only verifier. If it is not selectable, give a generic read-only
+subagent the complete verification contract. When the user prohibits agents,
+perform the same checks directly.
 
 ## Checks
 
-Run, as applicable:
+Run fresh, as applicable:
 
-1. the plan's final verification command;
+1. the approved final verification commands, using the plan when present;
 2. focused tests for changed behavior;
 3. owning package or workspace tests;
 4. build or type check;
@@ -28,27 +51,44 @@ Run, as applicable:
 
 Do not replace repository wrappers with broader commands that change semantics. Ask before unusually expensive full-workspace checks when repository policy requires it.
 
+Read the current head again after the checks. A commit added after a command makes
+that command's evidence stale for the new head. Do not return `PASS` unless every
+required result applies to the unchanged current head and exact range.
+
 ## Evaluate
 
-Distinguish:
+Return exactly one verdict:
 
-- implementation failure;
-- test or tooling failure;
-- unavailable dependency or permission;
-- unrelated pre-existing failure;
-- skipped or unverified check.
+- `PASS` — every required command and inspection succeeded with fresh evidence
+  for the unchanged current head;
+- `FAIL` — a required command or contract check produced an observed failure;
+- `BLOCKED` — a required command, dependency, permission, input, or current-head
+  guarantee was unavailable, so the result cannot be established.
 
-Do not mark a failure as acceptable without evidence that it is unrelated and outside scope.
+For every `FAIL` or `BLOCKED`, record:
 
-## Report
+- a stable gate key based on the failed command or contract and concrete behavior,
+  not a transient line number;
+- the exact command, output, and affected range;
+- likely ownership: approved implementation scope, unrelated existing state, or
+  scope, design, or authority outside the approval;
+- every unverified gap.
+
+Do not mark a failure acceptable without evidence that it is unrelated and
+outside scope.
+
+## Return to the coordinator
 
 Return:
 
 - verdict: PASS, FAIL, or BLOCKED;
-- commit/range and files inspected;
+- starting and ending current head, exact range, and files inspected;
 - every command and observed result;
-- plan criteria satisfied;
-- failures and likely ownership;
-- checks not run and why.
+- approved criteria and review policy inspected;
+- stable gate keys, failures, and likely ownership;
+- checks not run and every unverified gap.
 
-Transition to review only on PASS.
+On `PASS`, return the evidence without starting review. On `FAIL`, let the
+coordinator use the bounded retry contract to diagnose, fix, and reverify only
+when ownership is within approved scope; return scope, design, or new-authority
+needs for `Escalate`. Do not initiate either path from this skill.

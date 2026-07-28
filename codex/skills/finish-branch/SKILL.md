@@ -1,41 +1,62 @@
 ---
 name: finish-branch
-description: Complete verified work on a feature branch by presenting publication, local merge, keep, or discard choices and carrying out the selected option. Use after review is clean or when the user explicitly asks to finish the branch.
+description: Complete a feature branch only when its current head matches fresh verification PASS and clean final review evidence, then carry out the user's publication or disposition choice.
 ---
 
 # Finish a branch
 
 Do not choose the disposition of the branch for the user.
 
-## Verify the state
+## Require current-head completion evidence
 
 Inspect:
 
 - current branch and worktree;
 - `git status --short`;
 - commits and diff against the base branch;
-- fresh test, lint, format, and review evidence required by the repository.
+- the current head;
+- the fresh verification `PASS` head and exact range;
+- the clean final review head and exact range;
+- the complete approved review policy, reviewers run, triggered conditionals,
+  skipped perspectives with reasons, Acceptance result, and unresolved findings.
 
-If commits were added after the latest clean review, report that verification/review is stale before offering completion.
+Require the current head, fresh verification PASS head, and clean final review
+head to exactly match. Also require the approved policy to be fully satisfied and
+no unresolved Must Fix or Should Improve finding. A later commit or uncovered
+in-scope working-tree change makes verification and clean review evidence stale.
+
+If any condition fails, do not present completion choices. Return the stale
+evidence or policy gap to the coordinator for the appropriate workflow phase.
 
 ## Present choices
 
-Offer only applicable choices:
+Only after the current-head completion gate passes, offer the applicable
+user-controlled publication or branch disposition choices:
 
-1. create a pull request;
-2. merge locally into the base branch;
-3. keep the branch/worktree as-is;
-4. discard the branch/worktree.
+1. publish or push the branch;
+2. create a pull request;
+3. merge locally into the base branch;
+4. keep the branch/worktree as-is;
+5. discard the branch/worktree.
 
-Explain dirty-state, publication, and cleanup consequences. Wait for the user's choice.
+Explain dirty-state, publication, and cleanup consequences. Wait for the user's
+choice before every publication, pull request, local merge, keep, or discard
+disposition. Do not repeat an approval prompt once the exact choice and target are
+recorded, except for the immediate destructive confirmation required below.
 
 ## Execute the choice
 
-- For a PR, use the `create-pr` skill.
-- For a local merge, update the base safely, merge non-interactively, and run the required post-merge verification.
+- For publication or push, write only the exact authorized remote and ref; never
+  infer a force push.
+- For a PR, use the `create-pr` skill only after that exact external write is
+  authorized.
+- For a local merge, use the approved local refs, merge non-interactively, and run
+  the required post-merge verification. Do not fetch, pull, or push without
+  separate authority.
 - For keep, make no state change.
 - For discard, resolve exact targets and obtain explicit confirmation immediately before deletion.
 
 Never force-push, delete a branch, remove a worktree, or discard uncommitted data from an implied choice.
 
-Report the resulting branch/worktree state and then use session teardown if the work is finished.
+Report the resulting branch/worktree state to the coordinator. Do not choose or
+start another workflow phase from this skill.

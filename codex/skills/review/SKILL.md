@@ -1,41 +1,93 @@
 ---
 name: review
-description: Run an evidence-based, capacity-aware review of a branch or file set using applicable Codex reviewer profiles and language hints, then synthesize and triage findings. Use after verification passes or when the user requests comprehensive review.
+description: Run the approved policy-aware, capacity-aware final review against a freshly verified current head and return evidence-backed findings to the workflow coordinator. Use after verification passes or when the user requests comprehensive review.
 ---
 
-# Review
+# Review the verified current head
 
 Review the requested scope, not the entire repository by default.
+Remain read-only and keep every dispatched reviewer read-only.
 
-## Build the context
+## Validate entry and review policy
 
-Resolve:
+Require:
 
-- base and head commits or explicit file set;
+- the current head commit and exact base-to-head range;
+- fresh verification with a `PASS` verdict for that same current head and range;
 - changed files and primary language;
-- approved Design Doc, plan, alternatives, and non-goals;
+- approved scope, decision source, and non-goals;
+- the approved Design Doc and implementation plan when present;
 - repository `AGENTS.md` guidance;
-- fresh verification evidence.
+- the complete approved review policy.
+
+Validate that the review policy records:
+
+- mode: `focused`, `adaptive`, or `deep`, with rationale and risk surfaces;
+- the per-task gate and its current-head completion evidence;
+- final required reviewers;
+- final conditional reviewers with exact triggers;
+- explicitly skipped perspectives with reasons;
+- residual risk;
+- configured capacity and queue rules;
+- the Acceptance threshold.
+
+Reject stale verification, a missing field, an unknown mode, or a
+mode-inconsistent reviewer inventory. Return the gap to the coordinator without
+dispatching reviewers. Record the current head before dispatch and require it to
+remain unchanged throughout review. Treat an uncommitted change in reviewed scope
+as stale current-head verification evidence.
 
 Load `hints/<primary-language>.md` when present. Treat hints as prompts for investigation, not mandatory findings.
 
-## Select reviewers
+## Select final reviewers
 
-Always consider:
+Use these standard perspectives when the approved mode and recorded risk make
+them applicable:
 
-- `code-reviewer` for correctness and maintainability;
-- `test-coverage-reviewer` when behavior or tests changed.
+- `code-reviewer`;
+- `test-coverage-reviewer`;
+- `design-alignment-reviewer`;
+- `scope-reviewer`;
+- `code-architect`.
 
-Add only when applicable:
+Use these adversarial perspectives when applicable:
 
-- `design-alignment-reviewer` for an approved Design Doc;
-- `scope-reviewer` for an implementation plan or narrow migration;
-- `code-architect` for material responsibility or dependency changes;
-- adversarial API, robustness, performance, and tests reviewers when those surfaces changed or the plan explicitly requests them.
+- `adversarial-api-reviewer`;
+- `adversarial-robustness-reviewer`;
+- `adversarial-performance-reviewer`;
+- `adversarial-tests-reviewer`.
 
-Use `list_agents` to build a queue. Count the lead, respect configured maximum six and lower observed runtime capacity, and run independent read-only reviewers concurrently only while slots are free. Never reduce review scope silently because capacity is lower; queue remaining reviewers.
+Apply the approved mode exactly:
 
-When a named profile is selectable, use it. Otherwise provide a complete fallback prompt containing the profile's role, context, constraints, evidence rules, and output schema.
+- `focused`: require `code-reviewer`; require `test-coverage-reviewer` when
+  behavior or tests changed; and run each additional risk reviewer recorded in
+  the active review policy as required or when its conditional trigger holds.
+- `adaptive`: run only required standard or adversarial reviewers supported by
+  recorded risk, plus conditional reviewers whose recorded trigger holds. Do not
+  add a perspective for an unrecorded risk.
+- `deep`: run all applicable standard and adversarial perspectives. Require the
+  policy inventory to classify each perspective as required, conditional with a
+  trigger, or skipped with a reason; reject the policy if it skips an applicable
+  perspective. Whenever any adversarial reviewer runs, require and run
+  `adversarial-integrator`.
+
+Do not run an explicitly skipped perspective. Preserve its reason and residual
+risk in the report. Do not silently omit a required reviewer or a conditional
+reviewer whose trigger holds.
+
+## Capacity and dispatch
+
+Use `list_agents` before each dispatch wave. The effective capacity is the lower
+of the approved configured capacity and the currently observed runtime capacity.
+Count the lead. Run independent read-only reviewers concurrently only while slots
+are free, and queue every remaining required reviewer without reducing review
+scope. Do not return a clean verdict while a required reviewer remains queued; if
+the queue cannot complete, report the reviewer as an unverified gap.
+
+When a named profile is selectable, use it. Otherwise provide a complete fallback
+prompt containing the profile's role, context, constraints, evidence rules, and
+output schema. Reviewers and the integrator do not edit files or spawn
+descendants.
 
 ## Evidence standard
 
@@ -52,23 +104,24 @@ Do not manufacture findings. Drop preference-only comments and findings that mer
 
 ## Adversarial integration
 
-After applicable adversarial reviewers finish, use `adversarial-integrator` or its complete fallback prompt to deduplicate, verify evidence, normalize severity, and resolve contradictions. The integrator remains read-only and does not invent new findings.
+After any adversarial reviewers finish, use `adversarial-integrator` or its
+complete fallback prompt to deduplicate, verify evidence, normalize severity, and
+resolve contradictions. The integrator remains read-only and does not invent new
+findings.
 
-## Synthesize and triage
+## Return to the coordinator
 
-Merge duplicates and classify each surviving item with `receiving-code-review`:
+Apply the approved Acceptance threshold, merge duplicates, and report in Japanese:
 
-- push back with decision/evidence;
-- fix within approved scope;
-- escalate when a design or scope decision is required.
-
-Report in Japanese:
-
-- scope and context loaded;
-- reviewers run and queued/skipped with reasons;
+- mode, recorded risk surfaces, and current exact range;
+- fresh verification `PASS` head inspected;
+- reviewers run, queued, and skipped with reasons;
 - Must Fix and Should Improve findings;
 - positive observations only when useful;
-- triage outcome;
-- clean or changes-required verdict.
+- every unverified or policy gap;
+- clean review or changes-required verdict.
 
-Do not edit code from this skill unless the user separately authorizes fixes.
+Read the current head again before reporting. If it changed, mark verification
+and review evidence stale and return that gap. Do not classify findings as
+`Fix`, `Push back`, or `Escalate`, start triage, edit code, or advance phases from
+this skill; return all findings and evidence to the coordinator.
