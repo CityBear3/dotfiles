@@ -62,8 +62,22 @@ from file count, changed-line count, or apparent diff size. Leave the lightweigh
 path, including its `focused` default, and cross-phase policy application to
 `agentic-engineering-workflow`.
 
-Resolve each mode's review contract from `agentic-engineering-workflow`. Record
-the concrete policy without reproducing cross-phase routing:
+Resolve combined-versus-independent per-task gate semantics from
+`agentic-engineering-workflow`. Resolve final-reviewer baseline and perspective
+applicability from the `review` skill. Apply these mode overlays without
+reproducing cross-phase routing:
+
+- `focused`: use one combined specification-and-quality per-task gate. Require
+  `code-reviewer` in final review and require `test-coverage-reviewer` when
+  behavior or tests change. Add final perspectives only for recorded risk
+  surfaces.
+- `adaptive`: use independent specification and quality per-task gates. Select
+  only risk-applicable standard and adversarial final perspectives.
+- `deep`: use independent specification and quality per-task gates. Select all
+  applicable standard and adversarial final perspectives, and require
+  `adversarial-integrator` whenever any adversarial reviewer runs.
+
+Record the resulting concrete policy:
 
 - **Mode:** `focused`, `adaptive`, or `deep`, with an evidence-based rationale.
 - **Risk surfaces:** identify applicable public API, persistence or migration,

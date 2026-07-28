@@ -49,7 +49,7 @@
   specific correction. Drop preference-only, speculative, and already-decided
   objections without new evidence.
 
-### Task 1: Parse the new form
+## Task 1: Parse the new form
 
 **Why:** The library currently rejects a supported representation.
 

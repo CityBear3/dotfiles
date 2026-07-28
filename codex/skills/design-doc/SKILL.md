@@ -8,12 +8,14 @@ description: Draft or support a formal Design Doc from user-owned decisions thro
 Keep every material design decision under user control. Treat prose authorship as
 separate from decision ownership.
 
-## Settle decisions before drafting
+## Validate decisions before drafting
 
-Load the decision record from design discussion. Investigate relevant code,
-tests, documentation, and history. Challenge assumptions, compare viable
-alternatives, and ask detailed questions until no material decision remains
-unresolved.
+Accept from `agentic-engineering-workflow` any one of these inputs:
+
+- an owner-approved decision record;
+- an existing approved design artifact that establishes an equivalent record;
+- a user-authored draft from which an equivalent owner-approved record can be
+  verified.
 
 Require the record to identify:
 
@@ -22,9 +24,15 @@ Require the record to identify:
 - scope and non-goals;
 - explicitly deferred questions.
 
-When a missing choice could change architecture, responsibilities, public
-contracts, schemas, error models, or scope, return the ambiguity and evidence to
-`agentic-engineering-workflow` for design discussion. Do not choose silently.
+Investigate relevant code, tests, documentation, and history. Challenge
+assumptions and compare viable alternatives to validate the supplied record. Ask
+detailed questions for factual or other non-material document clarification only
+when the answer cannot change architecture, responsibilities, public contracts,
+schemas, error models, or scope.
+
+Do not settle a missing material decision from this skill. When a missing or
+unapproved choice could change those contracts, return the ambiguity and evidence
+to `agentic-engineering-workflow` for design discussion. Do not choose silently.
 
 ## Draft from settled decisions
 
