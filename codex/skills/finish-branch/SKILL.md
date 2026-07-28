@@ -9,13 +9,34 @@ Do not choose the disposition of the branch for the user.
 
 ## Require current-head completion evidence
 
+Use `coordinator-target-manifest/v1` with exactly this field set:
+
+```text
+schema_version
+scope_kind
+base_commit_oid
+head_commit_oid
+range_ref
+base_tree_oid
+head_tree_oid
+changed_path_manifest
+changed_path_manifest_digest
+index_state_digest
+worktree_state_digest
+in_scope_untracked_state_digest
+strict_clean_assertion
+```
+
 Inspect:
 
 - current branch and worktree;
 - `git status --short`;
 - commits and diff against the base branch;
 - the exact current HEAD, coordinator-frozen immutable full implementation
-  target identity, and coordinator target request passed verbatim;
+  target identity, and coordinator target manifest passed verbatim with every
+  field above, `schema_version` equal to `coordinator-target-manifest/v1`,
+  `scope_kind` equal to `committed-range`, and no literal diff, patch, or file
+  content payload;
 - the strict coordinator-managed fresh verification `PASS` target, head, and
   exact full range;
 - the coordinator-managed final review `CLEAN` target, head, and exact full
@@ -32,9 +53,15 @@ commit or uncovered in-scope index, worktree, or untracked source change makes
 verification and clean review evidence stale. Standalone-only verification or
 review evidence never satisfies this gate.
 
-Validate the frozen identity against its bound base and head Git objects, range
-and diff contents, changed files, and current repository state. Never rename,
-regenerate, or substitute the identity or target request in this skill.
+Locally re-resolve the frozen manifest's commit and tree object IDs, exact range,
+canonically ordered bounded changed-path object records, every schema-defined
+digest, current index/worktree/in-scope untracked state, clean assertion, and
+identity. Never require or re-inline a literal patch or file-content payload, or
+rename, regenerate, or substitute the identity or manifest in this skill. A
+missing or stale object, tree, range, path record/digest, repository-state
+digest, clean assertion, identity, schema version, or field set returns
+`BLOCKED` before completion choices with a stable gap key, likely ownership, and
+exact re-entry condition.
 
 An `adaptive` or `deep` policy is unsatisfied when required independent
 perspectives were replaced by sequential lead passes. Only the approved
@@ -68,7 +95,7 @@ For publication, push, pull-request creation, local merge, or discard, freshly
 reinspect all of these immediately before the state change:
 
 - the current branch and ref plus the exact selected target;
-- the coordinator-frozen target identity and exact target request verbatim;
+- the coordinator-frozen target identity and exact target manifest verbatim;
 - exact source and target ref object IDs;
 - `HEAD` and `git status --short`;
 - index/worktree and untracked evidence;
@@ -81,6 +108,11 @@ reinspect all of these immediately before the state change:
 Require them to match the completion evidence and target shown when the user made
 the choice. If any value differs, do not perform the operation; return the stale
 state to the coordinator.
+
+As part of this immediate revalidation, locally re-resolve and compare every
+manifest object, tree, range, changed-path record/digest, repository-state
+digest, clean assertion, and identity. Do not start the selected operation when
+any field is stale or cannot be resolved.
 
 For discard, obtain the existing explicit destructive confirmation first, then
 revalidate immediately before deletion. For keep, make no state change; inspect
@@ -157,7 +189,7 @@ decision.
 Never force-push, delete a branch, remove a worktree, reset, clean, or discard
 uncommitted data from an implied choice. Never touch unrelated dirty data.
 
-Report the coordinator-frozen target identity and target request verbatim, the
+Report the coordinator-frozen target identity and target manifest verbatim, the
 resulting exact refs, branch/worktree, operation state, verification, recovery
 action, and every gap to the coordinator. Do not choose or start another workflow
 phase from this skill.

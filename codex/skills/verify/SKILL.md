@@ -17,8 +17,8 @@ in-scope source state.
 
 Use exactly one target form:
 
-- an exact committed range identified by base commit, head commit, range, and
-  diff;
+- an exact committed range identified by base/head commit and tree object IDs,
+  range reference, and a bounded changed-path object manifest;
 - a captured current index/worktree snapshot identified by HEAD, index state,
   staged diff, worktree diff, and path/content identities for in-scope untracked
   files;
@@ -26,22 +26,40 @@ Use exactly one target form:
   identities for every inspected file.
 
 Identity ownership depends on the entry route. For a coordinator-managed entry,
-the coordinator supplies an exact target request and this skill resolves the
-content-bound immutable identity exactly once as defined below. For a standalone
-entry, this skill creates its own standalone-only stable identity under the
-selected target schema. In both routes, record HEAD, index/worktree and in-scope
-untracked evidence, unrelated dirty state, applicable repository guidance, every
-authoritative command and expected result, and known limitations before running
-any command.
+the coordinator supplies an exact target manifest request and this skill resolves
+the content-bound immutable identity exactly once as defined below. For a
+standalone entry, this skill creates its own standalone-only stable identity
+under the selected target schema. In both routes, record HEAD, index/worktree and
+in-scope untracked evidence, unrelated dirty state, applicable repository
+guidance, every authoritative command and expected result, and known limitations
+before running any command.
 
 ## Coordinator-managed entry
 
+Use `coordinator-target-manifest/v1` with exactly this field set:
+
+```text
+schema_version
+scope_kind
+base_commit_oid
+head_commit_oid
+range_ref
+base_tree_oid
+head_tree_oid
+changed_path_manifest
+changed_path_manifest_digest
+index_state_digest
+worktree_state_digest
+in_scope_untracked_state_digest
+strict_clean_assertion
+```
+
 When the workflow coordinator invokes this skill, require:
 
-- one exact coordinator target request containing the implementation base Git
-  object, current HEAD Git object, full base-to-HEAD range and authoritative diff
-  contents, changed-file inventory, and strict entry HEAD, index, worktree, and
-  in-scope untracked path/content state;
+- one exact coordinator target manifest request containing every field above,
+  with `schema_version` equal to `coordinator-target-manifest/v1`,
+  `scope_kind` equal to `committed-range`, and no literal diff, patch, or file
+  content payload;
 - no in-scope index, worktree, or untracked source state outside that committed
   range;
 - the approved scope, decision source, non-goals, and complete active Review
@@ -50,21 +68,31 @@ When the workflow coordinator invokes this skill, require:
 - every authoritative final verification command and expected result;
 - prior stable gate keys and bounded retry history on re-entry.
 
-At entry, resolve the request's base and head as Git objects and validate its
-range, diff contents, changed-file inventory, current HEAD, index, worktree, and
-in-scope untracked path/content evidence. From those exact content and
-strict-state fields, create one content-bound immutable target identity exactly
-once. Return that identity with the unchanged request fields, and use it for
-every check and report in this invocation. Never accept a coordinator-supplied
-identity, rename or regenerate the resolved identity, or substitute another
-identity later in the phase.
+At entry, locally resolve `base_commit_oid`, `head_commit_oid`, their tree object
+IDs, and `range_ref`. Recompute the canonically ordered bounded changed-path
+records from the Git objects, including status, old/new paths when applicable,
+modes, and base/head blob or tree object IDs. Recompute every schema-defined
+SHA-256 digest from canonical serialization and validate the current index,
+tracked worktree, in-scope untracked state, and `strict_clean_assertion`. Never
+require or accept a literal patch or file-content payload.
+
+Return `BLOCKED` before checks with a stable gap key, likely ownership, and exact
+re-entry condition when a commit or tree object is missing or stale, the range
+does not resolve, a changed-path record or digest differs, a repository-state
+digest differs, or the clean assertion is false. Only after all fields validate,
+derive one content-bound immutable target identity exactly once as the
+schema-tagged SHA-256 digest of the complete canonical manifest. Return that
+identity with the unchanged manifest fields and use both for every check and
+report in this invocation. Never accept a coordinator-supplied identity, rename
+or regenerate the resolved identity or manifest, or substitute another field set
+later in the phase.
 
 Read repository guidance, approved scope and decision source, active review
 policy, changed files, and the current diff. Read the approved implementation
 plan when present. Resolve authoritative project commands before generic
 defaults. Standalone snapshot or fileset evidence never satisfies this entry and
 cannot authorize current-head completion. Return `BLOCKED` without running checks
-when the exact request, strict current state, complete policy, commands, or
+when the exact manifest, strict current state, complete policy, commands, or
 another entry input cannot be established.
 
 ## Standalone read-only entry
@@ -112,7 +140,7 @@ the contract.
 Immediately before the first command, capture:
 
 - HEAD, the target identity, and, for coordinator-managed verification, the
-  unchanged coordinator target request;
+  unchanged coordinator target manifest;
 - index entries plus the complete staged and unstaged status and diffs;
 - immutable identities for tracked and in-scope source contents;
 - path/content identities for in-scope untracked files and unrelated dirty
@@ -176,7 +204,7 @@ Return:
 
 - verdict: PASS, FAIL, or BLOCKED;
 - target form and identity; for coordinator-managed verification, the exact
-  unchanged coordinator target request and confirmation that the identity was
+  unchanged coordinator target manifest and confirmation that the identity was
   resolved once at entry; starting and ending HEAD; exact range, snapshot, or
   fileset; and files inspected;
 - starting and ending index/worktree, tracked/source, in-scope untracked

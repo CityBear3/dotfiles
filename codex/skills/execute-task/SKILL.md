@@ -255,23 +255,37 @@ unsupported, or already-decided objections that have no new evidence.
 ## Accept bounded global correction handoffs
 
 When the coordinator routes a verification failure or final-review `Fix` back to
-this seam, require exactly two non-overlapping inputs:
+this seam, never accept the raw path-neutral correction specification directly
+from `receiving-code-review`. Require exactly two non-overlapping inputs from the
+authorized path-specific builder:
 
-1. one immutable canonical correction context using the canonical task-context
-   schema above, containing the exact correction task and expected behavior,
-   decision source and non-goals, discipline, file responsibilities, workspace
-   and working directory, current correction base, every verification command
-   and expected result, unchanged complete Review policy and provenance,
+1. one immutable canonical `execute-task` correction context using the canonical
+   task-context schema above, containing one reference to the immutable
+   correction specification plus the exact correction task and expected
+   behavior, decision source and non-goals, discipline, file responsibilities,
+   workspace and working directory, current correction base, every verification
+   command and expected result, unchanged complete Review policy and provenance,
    capacity and queue rules, and any non-duplicative plan-task context;
-2. one mutable correction/task record containing only one reference to that
-   context identity plus the stable failure/finding key, retained attempt
-   history, lifecycle phase, attributable partial execution evidence, gaps, and
-   exact re-entry condition.
+2. one mutable correction record containing the correction-specification
+   identity/reference, exactly one reference to this canonical context identity,
+   the preserved stable failure/finding key, retained attempt history, lifecycle
+   phase, attributable partial execution evidence, gaps, and exact re-entry
+   condition.
 
-Reject a handoff that puts key, history, lifecycle, or partial evidence into the
-immutable context, duplicates a context field in the mutable record, or supplies
-either field from two authorities. Preserve and return both records separately;
-never merge them into a new correction envelope.
+Validate builder provenance before execution. For lightweight work,
+`agentic-engineering-workflow` is the sole canonical context builder and invokes
+this skill. For planned work, `execute-plan` is the sole canonical context
+builder and invokes this skill after converting the specification to an
+authorized plan correction step; a coordinator-built planned context is invalid.
+The correction-specification identity is never treated as the canonical context
+identity.
+
+Reject a handoff produced by triage, with no or multiple path-specific builders,
+that puts key, history, lifecycle, or partial evidence into the immutable
+context, duplicates a context field in the mutable record, changes the preserved
+stable key, or supplies any field from two authorities. Preserve and return the
+canonical context and mutable record separately; never merge them into a new
+correction envelope.
 
 Run the normal one-writer, verification, pre-commit, commit, evidence, and
 per-task gate lifecycle. Return a correction commit, new HEAD, exact correction
@@ -288,11 +302,15 @@ command or review requirement and concrete behavior, not a transient line number
 For each key, record the attempt number, causal hypothesis, planned action, and
 fresh verification or review evidence.
 
-Permit attempt 1 and, if the same stable key remains, one materially informed
-attempt 2. Assign a new key only when the failed contract or behavior is
-materially different. If the same key survives attempt 2, or another action would
-repeat a correction without new evidence, do not attempt a third correction;
-return `Escalate` with the key and complete attempt history.
+Preserve a coordinator-managed review key verbatim through every correction and
+retry. Treat materially new evidence as a delta under that same
+requirement/behavior key. Permit attempt 1 and, if the same stable key remains,
+one materially informed attempt 2. Assign a new key only for a newly observed
+failure with a materially different contract or reachable behavior under the
+coordinator retry rules; never re-key the original finding. If the same key
+survives attempt 2, or another action would repeat a correction without new
+evidence, do not attempt a third correction; return `Escalate` with the exact
+preserved key and complete attempt history.
 
 For every authorized in-scope correction:
 
@@ -324,7 +342,7 @@ verification and pre-commit evidence, evidence-bundle identity, gate and
 normalization results, policy provenance, capacity or queue evidence, stable-key
 attempt history, every remaining gap, and the exact re-entry condition.
 For a correction, return the immutable canonical correction context
-identity/reference and the mutable correction/task record as separate
+identity/reference and the mutable correction record as separate
 authorities; satisfy lifecycle, attempt-history, partial-evidence, gap, and
 re-entry report fields through that mutable record only, and do not inline the
 context fields into the record.

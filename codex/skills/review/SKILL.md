@@ -15,8 +15,8 @@ another workflow phase.
 
 Use exactly one target form:
 
-- an exact committed range identified by base commit, head commit, range, and
-  diff;
+- an exact committed range identified by base/head commit and tree object IDs,
+  range reference, and a bounded changed-path object manifest;
 - a captured current index/worktree snapshot identified by HEAD, index state,
   staged diff, worktree diff, and path/content identities for in-scope untracked
   files;
@@ -24,12 +24,14 @@ Use exactly one target form:
   identities for every reviewed file.
 
 For coordinator-managed review, receive the exact content-bound identity that
-`verify` resolved plus the coordinator target request verbatim. Validate the
-identity-bound Git objects, range and diff content, changed files, current HEAD,
-index, worktree, and in-scope untracked evidence before dispatch and immediately
-before reporting. Never rename, regenerate, or substitute that identity. For
-standalone review, create one separate standalone-only stable identity from every
-immutable field required by the selected target schema.
+`verify` resolved plus the coordinator target manifest verbatim. Locally
+re-resolve and validate the identity-bound Git objects, trees, range, bounded
+changed-path records/digest, current index, worktree and in-scope untracked
+digests, and clean assertion before dispatch and immediately before reporting.
+Never require or re-inline a literal patch or file-content payload, or rename,
+regenerate, or substitute that identity or manifest. For standalone review,
+create one separate standalone-only stable identity from every immutable field
+required by the selected target schema.
 
 Record the target form and identity, HEAD, index/worktree and in-scope untracked
 evidence, unrelated dirty state, changed files, primary language, repository
@@ -37,11 +39,31 @@ guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
+Use `coordinator-target-manifest/v1` with exactly this field set:
+
+```text
+schema_version
+scope_kind
+base_commit_oid
+head_commit_oid
+range_ref
+base_tree_oid
+head_tree_oid
+changed_path_manifest
+changed_path_manifest_digest
+index_state_digest
+worktree_state_digest
+in_scope_untracked_state_digest
+strict_clean_assertion
+```
+
 When the workflow coordinator invokes this skill, require:
 
 - the coordinator-frozen content-bound immutable target identity and exact
-  coordinator target request containing base, current HEAD, full range, diff
-  contents, changed files, and strict repository-state evidence;
+  coordinator target manifest containing every field above, with
+  `schema_version` equal to `coordinator-target-manifest/v1`,
+  `scope_kind` equal to `committed-range`, and no literal diff, patch, or file
+  content payload;
 - fresh coordinator-managed verification with a `PASS` verdict for that same
   target identity, current HEAD, and full range;
 - no in-scope index, worktree, or untracked source state outside the committed
@@ -57,6 +79,14 @@ When the workflow coordinator invokes this skill, require:
 
 Never accept a standalone-only verification or review target as coordinator
 completion evidence.
+
+Before dispatch, locally resolve both commit and tree object IDs and the exact
+range, reproduce the canonically ordered changed-path records from Git object
+metadata, and recompute the schema-defined digests and clean assertion. Return
+`BLOCKED` without dispatch for a missing or stale commit/tree object, unresolved
+range, changed path or digest mismatch, repository-state digest mismatch, false
+clean assertion, identity mismatch, or a manifest field-set/version difference.
+Include a stable gap key, likely ownership, and exact re-entry condition.
 
 ## Standalone read-only entry
 
@@ -211,8 +241,12 @@ When dispatching and a named profile is selectable, use it. Otherwise provide a
 complete fallback prompt containing the profile's role, context, constraints,
 evidence rules, and output schema. Reviewers and the integrator do not edit files
 or spawn descendants. For coordinator-managed review, pass the exact target
-identity and the complete resolved-finding registry or its one immutable
-reference to every reviewer and integrator dispatch.
+identity, bounded target manifest or one immutable resolvable reference to it,
+and the complete resolved-finding registry or its one immutable reference to
+every reviewer and integrator dispatch. Require a reviewer or integrator whose
+finding matches a registry entry's concrete requirement/behavior identity to use
+that entry's exact stable key; a different key is a schema gap, not a new
+finding. Never inline a literal diff payload.
 
 ## Require one final finding schema
 
@@ -221,7 +255,8 @@ adversarial, and integrator messages, must require every returned finding to
 include:
 
 - one stable finding key based on the violated requirement and reachable
-  behavior, not a transient line number;
+  behavior, not a transient line number, and preserved verbatim after first
+  emission;
 - final severity exactly `Must Fix` or `Should Improve`;
 - file and line as `file:line`;
 - concrete observed behavior or reachable scenario;
@@ -241,6 +276,13 @@ target identity, stable schema-gap key, and exact re-entry condition.
 
 Do not manufacture findings. Drop preference-only comments and findings that merely contest an approved decision without new evidence.
 
+During deduplication and synthesis, preserve every accepted stable key verbatim.
+If outputs attach different keys to the same concrete requirement/behavior,
+request schema-corrected output or return `BLOCKED` with a stable schema-gap key;
+never choose, merge, normalize, or regenerate a key locally. A materially
+different requirement or reachable behavior may receive a new key only under the
+coordinator's bounded retry rules.
+
 ## Apply the resolved-finding registry
 
 For coordinator-managed review, apply the registry independently at reviewer
@@ -250,13 +292,20 @@ re-emit it and synthesis must drop it unless the output cites materially new
 code, test, Design, plan, or approved-decision evidence. A changed line number,
 rephrasing, confidence, or repeated assertion is not new evidence.
 
+Also compare each output's concrete requirement/behavior identity with registry
+entries. If it matches an entry but uses another key, request schema-corrected
+output with the preserved key or return `BLOCKED`; never let re-keying bypass
+registry suppression.
+
 When materially new evidence exists, permit re-evaluation only when the finding
-identifies the registry entry and cites the exact evidence delta. Preserve that
-delta through integration and the final report. Do not use the registry to drop
-a different key, suppress new evidence, reset bounded `Fix` attempts, or convert
-an earlier `FINDINGS` result to `CLEAN`. A clean result after pushback requires
-this complete fresh review and its normal dispatch, synthesis, and current-state
-checks.
+identifies the registry entry using the same stable key and cites the exact
+evidence delta. Treat it as a delta under that same requirement/behavior key
+unless the concrete behavior is materially different under the coordinator retry
+rules. Preserve the key and delta through integration and the final report. Do
+not use the registry to drop a different key, suppress new evidence, reset
+bounded `Fix` attempts, or convert an earlier `FINDINGS` result to `CLEAN`. A
+clean result after pushback requires this complete fresh review and its normal
+dispatch, synthesis, and current-state checks.
 
 ## Adversarial integration
 
@@ -274,7 +323,7 @@ final finding schema above and report the missing policy as a limitation. Merge
 duplicates and report in Japanese:
 
 - target form and identity; for coordinator-managed review, the exact target
-  request received verbatim from the coordinator; starting and ending HEAD;
+  manifest received verbatim from the coordinator; starting and ending HEAD;
   exact range, snapshot, or fileset; index/worktree and in-scope untracked
   path/content evidence; and unrelated dirty state;
 - approved mode or `none`, recorded or observed risk surfaces, and actual-risk
