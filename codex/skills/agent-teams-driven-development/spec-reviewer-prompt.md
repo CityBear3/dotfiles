@@ -23,11 +23,14 @@ Do not report general style or maintainability preferences. Approval is a valid
 result. For every issue, cite file and line, the exact requirement, observed
 implementation, and smallest compliant correction.
 
+Classify every finding as exactly `Must Fix` or `Should Improve`. Do not emit any
+other severity.
+
 Return either:
 APPROVED: <evidence inspected>
 or
 NEEDS_FIXES:
-- <severity, file:line, requirement, evidence, correction>
+- <Must Fix|Should Improve> <file:line> — <requirement>; <evidence>; <correction>
 ```
 
 ## Review message

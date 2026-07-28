@@ -48,6 +48,15 @@ Reject a missing, unknown, or mode-inconsistent per-task gate. Carry the final
 reviewer fields in the execution context, but do not dispatch final review from
 this skill.
 
+Treat [spec-reviewer-prompt.md](spec-reviewer-prompt.md) as the complete
+path-independent specification output contract. Require the named
+`spec-reviewer` profile message, fallback prompt, and no-agent/direct
+specification pass to use its complete output schema: every finding is exactly
+`Must Fix` or `Should Improve`. Apply this contract on planned and lightweight
+paths. Treat a missing or unknown specification severity as a schema gap. Do not
+infer, normalize, or translate the severity; require corrected schema-compliant
+output before applying Acceptance.
+
 ## Capacity
 
 Use `list_agents` before each dispatch wave. The effective limit is the lower of
