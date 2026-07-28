@@ -56,6 +56,19 @@ mode-inconsistent reviewer inventory. In coordinator-managed review, return the
 gap to the coordinator without dispatching reviewers. In standalone review,
 report the policy limitation and do not claim a policy-complete verdict.
 
+For direct/no-agent per-task evidence, accept both approved sequential
+specification and quality passes as mode-consistent current-head completion
+evidence when the user explicitly prohibited agents and the approved policy does
+not make agent-level independence non-waivable. Preserve the recorded lack of
+agent-level independence as an accepted residual limitation and risk, not an
+unresolved finding or policy gap.
+
+If the approved policy explicitly makes agent-level independence non-waivable,
+reject direct/no-agent evidence. Do not waive the requirement or dispatch agents
+contrary to the user instruction. Return the conflict to the coordinator with the
+exact policy or user decision required for `Escalate`; in standalone review,
+report that conflict and do not claim a policy-complete verdict.
+
 Record the current head before review and require it to remain unchanged. Treat
 an uncommitted change in reviewed scope as stale current-head verification
 evidence.
@@ -123,8 +136,12 @@ distinct sequential read-only pass using the named profile's complete role
 contract or its complete fallback prompt, and evaluate each pass separately.
 Preserve the complete required scope without reducing it. When any adversarial
 pass runs, perform adversarial integration as a separate lead pass afterward.
-Report the lack of agent-level independence as residual evidence and a review
-limitation.
+When every required or triggered perspective and any required adversarial
+integration run and return clean results, final perspective coverage is satisfied.
+Report the lack of agent-level independence as an accepted residual limitation,
+evidence, and risk. It does not prevent a clean verdict and is not an unresolved
+finding or policy gap unless the approved policy explicitly makes independence
+non-waivable.
 
 Otherwise, use `list_agents` before each dispatch wave. With an approved policy,
 the effective capacity is the lower of its configured capacity and the currently
@@ -172,6 +189,8 @@ duplicates and report in Japanese:
 - reviewers run, queued, and skipped with reasons;
 - Must Fix and Should Improve findings;
 - positive observations only when useful;
+- accepted direct/no-agent independence limitations and residual risk, separately
+  from gaps;
 - every unverified or policy gap;
 - clean review or changes-required verdict.
 

@@ -25,6 +25,17 @@ head to exactly match. Also require the approved policy to be fully satisfied an
 no unresolved Must Fix or Should Improve finding. A later commit or uncovered
 in-scope working-tree change makes verification and clean review evidence stale.
 
+An accepted direct/no-agent independence limitation recorded under the approved
+policy is residual evidence and risk, not an unresolved finding or policy gap. It
+does not block completion when the policy-selected sequential passes ran and
+approved. Preserve the limitation in the completion evidence and final report.
+
+If the approved policy contains a non-waivable independence requirement and the
+current evidence used direct/no-agent passes without that independence, the
+policy is not satisfied. Do not present completion choices; return the conflict
+to the coordinator for `Escalate` with the exact policy or user decision
+required.
+
 If any condition fails, do not present completion choices. Return the stale
 evidence or policy gap to the coordinator for the appropriate workflow phase.
 

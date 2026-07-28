@@ -64,9 +64,18 @@ Apply their complete role, context, and output contracts without dispatch:
 
 For `adaptive` and `deep`, the same lead executing sequential passes does not
 provide agent-level independence. Do not reduce the approved review scope: run
-every required specification and quality pass. Record the independence
-limitation as a review gap and residual evidence, and include it in the
-coordinator handoff.
+every required specification and quality pass. When the user explicitly
+prohibits agents, the policy does not explicitly record agent-level independence
+as a non-waivable requirement, and both passes return `APPROVED`, the sequential
+review completion satisfies the per-task gate and perspective coverage. Record
+the lack of agent-level independence as an accepted residual limitation and
+evidence. It is not a mode inconsistency, unresolved policy gap, or unresolved
+finding.
+
+If the approved policy explicitly records agent-level independence as
+non-waivable, direct/no-agent execution conflicts with that requirement. Do not
+silently waive it or claim a satisfied gate. Escalate to the coordinator with the
+exact policy or user decision required before continuing.
 
 Before applying Acceptance in direct execution:
 
@@ -78,9 +87,9 @@ Before applying Acceptance in direct execution:
   evidence-qualified `Important` to `Should Improve`; preserve both the original
   and normalized labels, and do not raise a lower native severity or non-finding.
 
-Keep only the direct/no-agent mechanics, schema, and evidence boundaries
-equivalent to the agent-team path; exclude the recorded independence limitation
-from that equivalence.
+Keep the direct/no-agent mechanics, schema, and evidence boundaries equivalent to
+the agent-team path. The accepted independence limitation qualifies the recorded
+evidence but does not undo the satisfied gate.
 
 ## Execute
 
@@ -111,7 +120,8 @@ contract.
 
 After every task satisfies its approved gate, return control to
 `agentic-engineering-workflow` with task commits, exact diff ranges, verification
-evidence, gate results, the complete Review policy, and unresolved gaps,
-including any recorded direct/no-agent independence limitation. Do not start
-global `verify`, final review, publication, or branch disposition from this
+evidence, gate results, the complete Review policy, accepted residual limitations
+and evidence, and any separately unresolved gaps. Keep a satisfied direct/no-agent
+gate distinct from its accepted independence limitation in the handoff. Do not
+start global `verify`, final review, publication, or branch disposition from this
 skill.
