@@ -11,7 +11,7 @@ read-only. Do not mutate the index, tracked files, or in-scope source; create a
 commit; implement or stage a fix; classify findings for triage; or advance
 another workflow phase.
 
-## Resolve one immutable review target
+## Use one immutable review target
 
 Use exactly one target form:
 
@@ -23,16 +23,25 @@ Use exactly one target form:
 - a bounded explicit fileset identified by path inventory and immutable content
   identities for every reviewed file.
 
-Record the target form and stable target identity, HEAD, index/worktree and
-in-scope untracked evidence, unrelated dirty state, changed files, primary
-language, repository guidance, and limitations before dispatch.
+For coordinator-managed review, receive the exact content-bound identity that
+`verify` resolved plus the coordinator target request verbatim. Validate the
+identity-bound Git objects, range and diff content, changed files, current HEAD,
+index, worktree, and in-scope untracked evidence before dispatch and immediately
+before reporting. Never rename, regenerate, or substitute that identity. For
+standalone review, create one separate standalone-only stable identity from every
+immutable field required by the selected target schema.
+
+Record the target form and identity, HEAD, index/worktree and in-scope untracked
+evidence, unrelated dirty state, changed files, primary language, repository
+guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
 When the workflow coordinator invokes this skill, require:
 
-- the exact current HEAD and full implementation base-to-HEAD range as one
-  immutable committed-range target;
+- the coordinator-frozen content-bound immutable target identity and exact
+  coordinator target request containing base, current HEAD, full range, diff
+  contents, changed files, and strict repository-state evidence;
 - fresh coordinator-managed verification with a `PASS` verdict for that same
   target identity, current HEAD, and full range;
 - no in-scope index, worktree, or untracked source state outside the committed
@@ -41,7 +50,10 @@ When the workflow coordinator invokes this skill, require:
 - approved scope, decision source, and non-goals;
 - the approved Design Doc and implementation plan when present;
 - repository `AGENTS.md` guidance;
-- the complete approved Review policy and provenance.
+- the complete approved Review policy and provenance;
+- the coordinator-owned resolved-finding registry for this target identity, or
+  one immutable resolvable reference to it, including an explicitly empty
+  registry.
 
 Never accept a standalone-only verification or review target as coordinator
 completion evidence.
@@ -198,7 +210,9 @@ re-entry condition.
 When dispatching and a named profile is selectable, use it. Otherwise provide a
 complete fallback prompt containing the profile's role, context, constraints,
 evidence rules, and output schema. Reviewers and the integrator do not edit files
-or spawn descendants.
+or spawn descendants. For coordinator-managed review, pass the exact target
+identity and the complete resolved-finding registry or its one immutable
+reference to every reviewer and integrator dispatch.
 
 ## Require one final finding schema
 
@@ -206,6 +220,8 @@ Every named-profile or fallback dispatch message, including standard,
 adversarial, and integrator messages, must require every returned finding to
 include:
 
+- one stable finding key based on the violated requirement and reachable
+  behavior, not a transient line number;
 - final severity exactly `Must Fix` or `Should Improve`;
 - file and line as `file:line`;
 - concrete observed behavior or reachable scenario;
@@ -225,13 +241,31 @@ target identity, stable schema-gap key, and exact re-entry condition.
 
 Do not manufacture findings. Drop preference-only comments and findings that merely contest an approved decision without new evidence.
 
+## Apply the resolved-finding registry
+
+For coordinator-managed review, apply the registry independently at reviewer
+output and again during final synthesis. When the same target identity and stable
+finding key already has a `Push back` entry, the reviewer or integrator must not
+re-emit it and synthesis must drop it unless the output cites materially new
+code, test, Design, plan, or approved-decision evidence. A changed line number,
+rephrasing, confidence, or repeated assertion is not new evidence.
+
+When materially new evidence exists, permit re-evaluation only when the finding
+identifies the registry entry and cites the exact evidence delta. Preserve that
+delta through integration and the final report. Do not use the registry to drop
+a different key, suppress new evidence, reset bounded `Fix` attempts, or convert
+an earlier `FINDINGS` result to `CLEAN`. A clean result after pushback requires
+this complete fresh review and its normal dispatch, synthesis, and current-state
+checks.
+
 ## Adversarial integration
 
 When the applicable mode rule above requires integration, use
 `adversarial-integrator` or its complete fallback prompt to deduplicate, verify
 evidence, and resolve contradictions. Require the same final finding schema.
 The integrator remains read-only, does not invent findings, and does not infer or
-normalize a missing final severity.
+normalize a missing final severity. For coordinator-managed review, it also
+receives and applies the exact same resolved-finding registry or reference.
 
 ## Report
 
@@ -239,15 +273,19 @@ Apply the approved Acceptance threshold when a policy exists. Otherwise apply th
 final finding schema above and report the missing policy as a limitation. Merge
 duplicates and report in Japanese:
 
-- target form and identity; starting and ending HEAD; exact range, snapshot, or
-  fileset; index/worktree and in-scope untracked path/content evidence; and
-  unrelated dirty state;
+- target form and identity; for coordinator-managed review, the exact target
+  request received verbatim from the coordinator; starting and ending HEAD;
+  exact range, snapshot, or fileset; index/worktree and in-scope untracked
+  path/content evidence; and unrelated dirty state;
 - approved mode or `none`, recorded or observed risk surfaces, and actual-risk
   reconciliation;
 - verification evidence inspected and whether it is fresh;
 - inspection or dispatch commands and evidence, checks not run, standalone-only
   status, and limitations;
 - reviewers run, queued, and skipped with reasons;
+- resolved-finding registry identity/reference, every registry key supplied to
+  dispatches, suppressed keys, and any materially new evidence delta that
+  permitted re-evaluation;
 - Must Fix and Should Improve findings;
 - positive observations only when useful;
 - residual risk separately from gaps;
@@ -262,8 +300,9 @@ Do not advance a `BLOCKED` result or treat missing schema output as clean.
 Read the current head again before reporting. If it changed, mark verification
 and review evidence stale and return `BLOCKED`. Recheck index/worktree and
 in-scope source evidence and return `BLOCKED` for an unattributed mutation. Do
-not classify findings as `Fix`, `Push back`, or `Escalate`, start triage, edit
-code, commit, or advance phases from this skill.
+not regenerate or rename a coordinator-frozen target identity, classify findings
+as `Fix`, `Push back`, or `Escalate`, start triage, edit code, commit, or advance
+phases from this skill.
 
 For coordinator-managed review, return all findings and evidence to the
 coordinator. For standalone review, report them directly to the requester; do not

@@ -171,61 +171,109 @@ Pass the approved plan, complete policy and provenance, workspace, and retained
 decision context to `execute-plan`. That skill owns dependency order, per-task
 handoff, ordered evidence aggregation, and plan-deviation detection.
 
+## Own target requests and resolved-finding history
+
+For each coordinator-managed global gate, create an exact verification target
+request, not a target identity. Include the implementation base, exact current
+HEAD, full base-to-HEAD range, authoritative changed-file inventory, and the
+strict current repository state: HEAD, index, worktree, and in-scope untracked
+path/content evidence proving that no in-scope source state exists outside the
+committed range.
+
+Require `verify` to validate that request at entry and resolve exactly once one
+content-bound immutable target identity from the Git base and head objects, exact
+range and diff contents, changed files, and strict clean-state evidence. Accept
+the identity only when `verify` returns it with the matching request fields.
+Freeze that returned identity. Pass the exact identity and target request
+verbatim to `review`, `receiving-code-review`, and `finish-branch`; those phases
+validate the bound content and current repository state but never rename,
+regenerate, or substitute the identity. A later accepted correction creates a
+new request and lets the next coordinator-managed verification resolve a new
+identity. Standalone `verify` and `review` may create their own identities only
+under their explicit standalone target schemas; those identities remain
+standalone-only.
+
+Maintain a resolved-finding registry keyed by the frozen target identity plus
+stable finding key. For every `Push back`, store the classification and the
+controlling code, test, Design, plan, or other approved-decision evidence. An
+empty registry is still explicit input. Pass the registry or one immutable
+resolvable reference to it with every fresh final-review request and every
+reviewer or integrator dispatch. A finding with the same target and stable key
+must not survive dispatch or synthesis without materially new evidence. New
+evidence permits re-evaluation only when the reviewer cites the exact evidence
+delta. Retain bounded attempt history for `Fix` separately; the resolved-finding
+registry never resets or waives that retry contract.
+
 ## Advance only on current evidence
 
 Make these cross-phase transitions automatically within approved scope:
 
 1. When lightweight `execute-task` returns `Accepted` for the current head and
-   exact task range, create one immutable coordinator verification target from
-   the original lightweight base through that exact current HEAD. Require no
+   exact task range, create the exact coordinator verification target request
+   from the original lightweight base through that current HEAD. Require no
    in-scope index, worktree, or untracked source state outside the committed
-   target, then send the target, complete policy, and acceptance evidence to
+   range, then send the request, complete policy, and acceptance evidence to
    `verify`.
 2. When `execute-plan` returns every ordered task record plus a separate
    aggregate final HEAD and full implementation range, confirm that the
    aggregate head is current and the committed range contains no extra in-scope
-   index/worktree source state, then send that immutable full-range target and
-   aggregate evidence to `verify`.
-3. Accept only a coordinator-managed verification `PASS` whose target identity,
-   exact current HEAD, and full range match the immutable target. Send that same
-   target, complete approved policy, and fresh verification evidence to
-   `review`. Standalone-only snapshot or fileset evidence never advances.
+   index/worktree source state, then send the exact full-range target request
+   and aggregate evidence to `verify`.
+3. Accept only a coordinator-managed verification `PASS` that resolves one
+   content-bound identity once and whose returned request fields, exact current
+   HEAD, and full range match the coordinator request. Freeze that identity and
+   pass it verbatim with the same request, complete approved policy, fresh
+   verification evidence, and current resolved-finding registry to `review`.
+   Standalone-only snapshot or fileset evidence never advances.
 4. Accept from `review` exactly `CLEAN`, `FINDINGS`, or `BLOCKED`. Send only
-   schema-complete `FINDINGS` for the same immutable target to
-   `receiving-code-review`. A missing or unknown severity first requires
-   reviewer re-output and can never be inferred, dropped, or treated as clean.
-5. Consume from `receiving-code-review` only:
+   schema-complete `FINDINGS`, the frozen target identity and request verbatim,
+   evidence for that same target, and the current resolved-finding registry to
+   `receiving-code-review`. A missing or unknown severity first requires reviewer
+   re-output and can never be inferred, dropped, or treated as clean.
+5. Consume from `receiving-code-review` only a top-level `TRIAGED` whose target
+   and entry/exit repository-state checks succeeded and whose every item is
+   exactly one of:
    - `Fix` when valid, authorized, in scope, and compatible with approved
      decisions;
    - `Push back` when incorrect, unsupported, preference-only, or already
      decided without new evidence;
    - `Escalate` when it requires a decision, authority, scope or policy change,
      or `execute-task` reports exhausted retry.
-6. Require every `Fix` to include its stable key, retained attempt history, and
-   complete canonical correction input. Route it according to the active path:
+   A triage `BLOCKED` never supplies item classifications and never advances.
+6. Require every `Fix` to return exactly two non-overlapping records: one
+   immutable canonical correction context excluding stable key, attempt history,
+   lifecycle, and mutable execution evidence; and one mutable correction/task
+   record containing the context identity/reference, stable key, retained
+   attempt history, lifecycle and partial evidence, gaps, and re-entry condition.
+   Route both according to the active path:
    - for lightweight work, create a bounded correction task and invoke
      `execute-task`; retain the original lightweight base and restart global
      verification and final review against the full updated lightweight range;
    - for planned work, add a concrete authorized correction step to the current
      plan and invoke `execute-plan` with the original implementation base,
      ordered accepted task records, current aggregate head and full range, and
-     retained stable-key history. Require `execute-plan` to invoke
-     `execute-task`, append the accepted correction record, and return the
-     updated aggregate final HEAD and full implementation range.
+     the mutable correction/task record as the sole stable-key and attempt-history
+     authority. Require `execute-plan` to invoke `execute-task`, append the
+     accepted correction record, and return the updated aggregate final HEAD and
+     full implementation range.
 7. Do not accept a final `Fix` until `execute-task` has produced a correction
    commit, new HEAD, exact correction range, current evidence, and task
-   acceptance. After path-specific acceptance, build a new immutable full target
-   and restart global verification plus the complete final review for that
-   target, never only the correction task range. Earlier global evidence is
-   stale.
-8. For `Push back`, retain the decision and evidence and continue triage. When
-   no accepted finding remains, require a fresh complete final-review `CLEAN`
-   result for the unchanged full target; never reinterpret the earlier
-   `FINDINGS` verdict as clean.
+   acceptance. After path-specific acceptance, build a new exact full target
+   request and restart global verification plus the complete final review for
+   that target, never only the correction task range. Earlier identity and
+   global evidence are stale.
+8. For `Push back`, write the target identity, stable key, classification, and
+   controlling evidence to the resolved-finding registry and continue triage.
+   When no accepted finding remains, run a fresh complete final review of the
+   unchanged full target with that registry supplied to every reviewer and
+   integrator. Require its report to show registry application and return
+   `CLEAN`; never reinterpret the earlier `FINDINGS` verdict as clean. Suppress
+   the same key without materially new evidence; when new evidence exists,
+   require the exact delta before re-evaluation.
 9. For `Escalate`, stop and ask for the named decision or authority.
 
-Classify every verification `FAIL` or `BLOCKED`, review `BLOCKED`, or other
-non-success before taking another action:
+Classify every verification `FAIL` or `BLOCKED`, review `BLOCKED`, triage
+`BLOCKED`, or other non-success before taking another action:
 
 - when a safely discoverable local input can be resolved read-only within
   existing authority, resolve it and rerun the same phase against the unchanged
@@ -241,9 +289,10 @@ non-success before taking another action:
 A material actual-diff risk missing from the approved policy is the third case:
 never add or skip a reviewer silently; require a complete user-approved
 replacement policy. Preserve the immutable current target, stable key and attempt
-history, successful evidence, ownership, gaps, and re-entry condition across
-every stop or rerun. Never advance `BLOCKED` verification to review, `BLOCKED`
-review to triage, or any incomplete result to `finish-branch`.
+history, resolved-finding registry, successful evidence, ownership, gaps, and
+re-entry condition across every stop or rerun. Never advance `BLOCKED`
+verification to review, `BLOCKED` review to triage, `BLOCKED` triage to a
+correction, or any incomplete result to `finish-branch`.
 
 Require `execute-task` to return its exact current head and range, and
 `execute-plan` to return all task acceptance records plus the distinct aggregate
@@ -254,10 +303,11 @@ condition rather than reopening settled design without new evidence.
 
 Enter `finish-branch` only when the exact current HEAD and full implementation
 range have a strict coordinator-managed fresh verification `PASS` and final
-review `CLEAN` for the same immutable target, the complete approved policy and
-actual-risk inventory are satisfied, and no finding or gap remains. Never use
-standalone-only evidence for completion. Then stop for the user's publication or
-branch-disposition choice.
+review `CLEAN` for the same coordinator-frozen immutable target identity, the
+complete approved policy and actual-risk inventory are satisfied, and no finding
+or gap remains. Pass that identity and its target request verbatim to
+`finish-branch`. Never use standalone-only evidence for completion. Then stop
+for the user's publication or branch-disposition choice.
 
 Never treat an edit, successful command, implementation commit, agent
 self-review, stale per-task approval, or incomplete aggregate as workflow

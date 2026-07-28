@@ -14,7 +14,8 @@ Inspect:
 - current branch and worktree;
 - `git status --short`;
 - commits and diff against the base branch;
-- the exact current HEAD and immutable full implementation target identity;
+- the exact current HEAD, coordinator-frozen immutable full implementation
+  target identity, and coordinator target request passed verbatim;
 - the strict coordinator-managed fresh verification `PASS` target, head, and
   exact full range;
 - the coordinator-managed final review `CLEAN` target, head, and exact full
@@ -30,6 +31,10 @@ approved policy and actual-risk inventory to be fully satisfied with no unresolv
 commit or uncovered in-scope index, worktree, or untracked source change makes
 verification and clean review evidence stale. Standalone-only verification or
 review evidence never satisfies this gate.
+
+Validate the frozen identity against its bound base and head Git objects, range
+and diff contents, changed files, and current repository state. Never rename,
+regenerate, or substitute the identity or target request in this skill.
 
 An `adaptive` or `deep` policy is unsatisfied when required independent
 perspectives were replaced by sequential lead passes. Only the approved
@@ -63,6 +68,7 @@ For publication, push, pull-request creation, local merge, or discard, freshly
 reinspect all of these immediately before the state change:
 
 - the current branch and ref plus the exact selected target;
+- the coordinator-frozen target identity and exact target request verbatim;
 - exact source and target ref object IDs;
 - `HEAD` and `git status --short`;
 - index/worktree and untracked evidence;
@@ -88,26 +94,42 @@ snapshot containing:
 - exact source branch/ref and object ID;
 - exact target branch/ref and object ID;
 - checked-out branch, HEAD, index entries, worktree status and diff, and
-  untracked files;
+  tracked content identities;
+- every preexisting untracked or ignored path that the exact merge command,
+  configured hooks, or required post-merge checks can touch, with bounded path
+  inventory and immutable content identity;
+- a separate inventory of artifacts that explicit repository policy identifies
+  as disposable, with the policy evidence; never infer disposability from an
+  ignored status alone;
 - absence or presence of `MERGE_HEAD`, unmerged entries, and every other active
   Git operation;
 - the exact merge command and required post-merge verification.
 
-Require the safe precondition to be clean, attributable, and free of an active
-merge or conflicting operation. Do not start a merge from unrelated dirty state
-or when exact refs and ownership cannot be established. Return `BLOCKED` with
-the observed state and re-entry condition instead.
+Require the safe precondition to have clean tracked/index/worktree state,
+attributable bounded untracked and ignored state, and no active merge or
+conflicting operation. Relevant untracked or ignored content need not be absent,
+but do not start a merge from unrelated or unidentified material state or when
+exact refs and ownership cannot be established. Before starting the merge,
+return `BLOCKED` when any relevant material untracked or ignored state cannot be
+safely bounded and content-identified. Include the stable gap key, likely
+ownership, observed state, and exact re-entry condition; never claim that
+unrecorded content can be restored exactly.
 
 Run only the exact authorized non-interactive local merge. On conflict or merge
 failure, inspect `MERGE_HEAD`, unmerged entries, refs, HEAD, index, worktree,
-untracked files, and status before taking recovery action.
+the bounded untracked and ignored path/content identities, policy-declared
+disposable artifacts, and status before taking recovery action.
 
 Run `git merge --abort` only when this skill started the merge from the recorded
 clean state, the repository still represents that same merge attempt, and abort
 is safe for all recorded data. After abort, require exact restoration of the
-pre-merge source and target refs, checked-out branch, HEAD, index, worktree,
-untracked inventory, and absence of merge state. If restoration cannot be proven,
-do not reset, clean, discard, or retry; preserve the partial state and return
+pre-merge source and target refs, checked-out branch, HEAD, tracked contents,
+index entries, worktree status and diff, every bounded untracked and ignored
+path/content identity, and the exact absence or preexisting presence of each Git
+operation state. Compare policy-declared disposable artifacts separately and
+report any change without using them as proof for material-state restoration.
+If exact restoration of recorded material state cannot be proven, never claim
+it; do not reset, clean, discard, or retry. Preserve the partial state and return
 `Escalate` for the exact user decision, or `BLOCKED` for an external/runtime
 condition with an exact re-entry condition.
 
@@ -116,8 +138,10 @@ resulting exact target ref and HEAD. If it fails and the same merge remains
 safely abortable, abort and prove exact pre-state restoration as above. If a
 merge commit, fast-forward, changed ref, or other resulting state means safe
 abort is unavailable, preserve every resulting ref and file. Do not reset,
-publish, retry, or clean up. Report the failed command, refs, HEAD, index/worktree
-state, merge state, and recovery limitation for the user's decision.
+publish, retry, or clean up, including untracked or ignored state. Report the
+failed command, refs, HEAD, tracked/index/worktree state, bounded untracked and
+ignored content identities, merge state, and recovery limitation for the user's
+decision.
 
 ## Execute the choice
 
@@ -133,6 +157,7 @@ state, merge state, and recovery limitation for the user's decision.
 Never force-push, delete a branch, remove a worktree, reset, clean, or discard
 uncommitted data from an implied choice. Never touch unrelated dirty data.
 
-Report the resulting exact refs, branch/worktree, operation state, verification,
-recovery action, and every gap to the coordinator. Do not choose or start another
-workflow phase from this skill.
+Report the coordinator-frozen target identity and target request verbatim, the
+resulting exact refs, branch/worktree, operation state, verification, recovery
+action, and every gap to the coordinator. Do not choose or start another workflow
+phase from this skill.

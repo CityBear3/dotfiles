@@ -13,7 +13,7 @@ fix, or advance another workflow phase. Verification commands may create their
 normal ignored build or test artifacts, but they must not mutate tracked or
 in-scope source state.
 
-## Resolve one immutable verification target
+## Resolve one verification target
 
 Use exactly one target form:
 
@@ -25,32 +25,47 @@ Use exactly one target form:
 - a bounded explicit fileset identified by path inventory and immutable content
   identities for every inspected file.
 
-Record the target form and a stable target identity before running any command.
-Also record HEAD, index/worktree and in-scope untracked evidence, unrelated dirty
-state, applicable repository guidance, every authoritative command and expected
-result, and known limitations.
+Identity ownership depends on the entry route. For a coordinator-managed entry,
+the coordinator supplies an exact target request and this skill resolves the
+content-bound immutable identity exactly once as defined below. For a standalone
+entry, this skill creates its own standalone-only stable identity under the
+selected target schema. In both routes, record HEAD, index/worktree and in-scope
+untracked evidence, unrelated dirty state, applicable repository guidance, every
+authoritative command and expected result, and known limitations before running
+any command.
 
 ## Coordinator-managed entry
 
 When the workflow coordinator invokes this skill, require:
 
-- the exact current HEAD and full implementation base-to-HEAD range as one
-  immutable committed-range target;
+- one exact coordinator target request containing the implementation base Git
+  object, current HEAD Git object, full base-to-HEAD range and authoritative diff
+  contents, changed-file inventory, and strict entry HEAD, index, worktree, and
+  in-scope untracked path/content state;
 - no in-scope index, worktree, or untracked source state outside that committed
-  target;
+  range;
 - the approved scope, decision source, non-goals, and complete active Review
   policy with provenance;
 - the approved implementation plan when present;
 - every authoritative final verification command and expected result;
 - prior stable gate keys and bounded retry history on re-entry.
 
+At entry, resolve the request's base and head as Git objects and validate its
+range, diff contents, changed-file inventory, current HEAD, index, worktree, and
+in-scope untracked path/content evidence. From those exact content and
+strict-state fields, create one content-bound immutable target identity exactly
+once. Return that identity with the unchanged request fields, and use it for
+every check and report in this invocation. Never accept a coordinator-supplied
+identity, rename or regenerate the resolved identity, or substitute another
+identity later in the phase.
+
 Read repository guidance, approved scope and decision source, active review
 policy, changed files, and the current diff. Read the approved implementation
 plan when present. Resolve authoritative project commands before generic
 defaults. Standalone snapshot or fileset evidence never satisfies this entry and
 cannot authorize current-head completion. Return `BLOCKED` without running checks
-when the exact current target, complete policy, commands, or another entry input
-cannot be established.
+when the exact request, strict current state, complete policy, commands, or
+another entry input cannot be established.
 
 ## Standalone read-only entry
 
@@ -67,6 +82,10 @@ Do not require an active review policy, implementation authorization, or
 coordinator-owned retry history for standalone verification. Return `BLOCKED`
 with the exact missing input when the target identity, requested scope, or
 authoritative commands cannot be resolved safely.
+
+Create the standalone target identity once from every immutable field required
+by its selected target schema. Label it `standalone-only`; it is separate from
+and cannot be promoted to a coordinator-resolved identity.
 
 Label an index/worktree snapshot or explicit fileset result `standalone-only`.
 It may answer the requested verification question, but it cannot satisfy the
@@ -92,7 +111,8 @@ the contract.
 
 Immediately before the first command, capture:
 
-- HEAD and the target identity;
+- HEAD, the target identity, and, for coordinator-managed verification, the
+  unchanged coordinator target request;
 - index entries plus the complete staged and unstaged status and diffs;
 - immutable identities for tracked and in-scope source contents;
 - path/content identities for in-scope untracked files and unrelated dirty
@@ -155,7 +175,9 @@ outside scope.
 Return:
 
 - verdict: PASS, FAIL, or BLOCKED;
-- target form and identity; starting and ending HEAD; exact range, snapshot, or
+- target form and identity; for coordinator-managed verification, the exact
+  unchanged coordinator target request and confirmation that the identity was
+  resolved once at entry; starting and ending HEAD; exact range, snapshot, or
   fileset; and files inspected;
 - starting and ending index/worktree, tracked/source, in-scope untracked
   path/content, and unrelated dirty-state evidence;

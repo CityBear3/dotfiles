@@ -33,6 +33,9 @@ digest plus schema version. The identity changes whenever any context field
 changes. Pass either this one complete payload or one resolvable immutable
 reference to it; never inline another copy of the complete task or policy in an
 evidence bundle, scheduler envelope, reviewer message, or optional plan context.
+Never place a stable failure/finding key, attempt history, lifecycle phase,
+partial execution evidence, mutable gap, or re-entry state in this immutable
+context.
 
 An `execute-task` invocation may additionally carry one validated partial task
 record and lifecycle phase for the same context identity. Retry history and
@@ -252,11 +255,23 @@ unsupported, or already-decided objections that have no new evidence.
 ## Accept bounded global correction handoffs
 
 When the coordinator routes a verification failure or final-review `Fix` back to
-this seam, require the same complete immutable canonical task context as any
-other task plus the stable failure/finding key and retained attempt history in
-the mutable task record. The correction task must identify the exact behavior,
-authorized files and discipline, current correction base, every verification
-command and expected result, and the unchanged complete Review policy.
+this seam, require exactly two non-overlapping inputs:
+
+1. one immutable canonical correction context using the canonical task-context
+   schema above, containing the exact correction task and expected behavior,
+   decision source and non-goals, discipline, file responsibilities, workspace
+   and working directory, current correction base, every verification command
+   and expected result, unchanged complete Review policy and provenance,
+   capacity and queue rules, and any non-duplicative plan-task context;
+2. one mutable correction/task record containing only one reference to that
+   context identity plus the stable failure/finding key, retained attempt
+   history, lifecycle phase, attributable partial execution evidence, gaps, and
+   exact re-entry condition.
+
+Reject a handoff that puts key, history, lifecycle, or partial evidence into the
+immutable context, duplicates a context field in the mutable record, or supplies
+either field from two authorities. Preserve and return both records separately;
+never merge them into a new correction envelope.
 
 Run the normal one-writer, verification, pre-commit, commit, evidence, and
 per-task gate lifecycle. Return a correction commit, new HEAD, exact correction
@@ -308,6 +323,11 @@ status, task and fix commits, exact task base, new head, exact base-to-head rang
 verification and pre-commit evidence, evidence-bundle identity, gate and
 normalization results, policy provenance, capacity or queue evidence, stable-key
 attempt history, every remaining gap, and the exact re-entry condition.
+For a correction, return the immutable canonical correction context
+identity/reference and the mutable correction/task record as separate
+authorities; satisfy lifecycle, attempt-history, partial-evidence, gap, and
+re-entry report fields through that mutable record only, and do not inline the
+context fields into the record.
 
 For post-commit reviewer or capacity `BLOCKED`, return at least the task base,
 committed current head, commits, validated verification/pre-commit/range/evidence
