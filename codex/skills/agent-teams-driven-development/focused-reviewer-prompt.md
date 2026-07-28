@@ -22,8 +22,10 @@ unjustified abstractions, behavioral test quality, relevant edge cases, unrelate
 cleanup, and stale evidence.
 
 Apply the plan's Acceptance threshold. Exclude preference-only, speculative,
-already-decided, and unsupported findings. Approval is valid only when both
-specification and quality pass.
+unsupported findings, and already-decided objections without new evidence. Treat
+new reachable evidence as a finding when it is concrete, even when it revisits
+an approved decision. Approval is valid only when both specification and quality
+pass.
 
 For every finding include:
 - severity: Must Fix or Should Improve;

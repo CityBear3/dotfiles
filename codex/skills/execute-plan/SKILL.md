@@ -59,16 +59,21 @@ For every task:
 1. record the task's base commit, specification, and policy context;
 2. implement only its declared scope;
 3. run its exact verification;
-4. inspect the exact base-to-head diff;
+4. inspect the pre-commit working-tree diff;
 5. create the declared task commit;
-6. apply the approved per-task gate to that exact range;
-7. record implementer evidence, verification, gate result, and every gap.
+6. record the new head commit;
+7. inspect the exact base-to-head diff range;
+8. apply the approved per-task gate to that exact range;
+9. record implementer evidence, verification, gate result, and every gap.
 
-After an in-scope fix, run fresh task verification and the same approved gate
-against the updated exact range. On plan re-entry, reload the approved policy and
-reapply the same gate; do not reuse approval for a stale head. Return a plan
-deviation, missing decision, or persistent gate history to the coordinator under
-its escalation and retry contract.
+After an in-scope fix, run fresh task verification, inspect the working-tree fix
+diff, create the declared fix commit, record the new head, inspect the updated
+exact base-to-head range, and rerun the same complete approved gate against that
+range. Use this sequence in both direct and agent-team execution. On plan
+re-entry, reload the approved policy and reapply the same gate; do not reuse
+approval for a stale head. Return a plan deviation, missing decision, or
+persistent gate history to the coordinator under its escalation and retry
+contract.
 
 ## Handoff
 

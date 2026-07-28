@@ -65,20 +65,29 @@ otherwise queue them without reducing the approved gate.
 2. Give the implementer the full task, approved decisions, dependencies, working
    directory, exact verification command, and output contract.
 3. Use `wait_agent` in bounded intervals and inspect `list_agents` regularly. Send the user a progress update at least every 60 seconds during long work.
-4. Require the implementer to report changed files, commit, commands, results, and concerns.
-5. Record the head commit and exact base-to-head diff range. Include the complete
-   task specification, relevant Design Doc and plan sections, implementer report,
-   and observed verification evidence in every reviewer message.
+4. Require the implementer to report changed files, exact verification,
+   pre-commit working-tree diff inspection, task commit, results, and concerns.
+5. Record the new head commit and inspect the exact base-to-head diff range.
+   Include the complete task specification, relevant Design Doc and plan
+   sections, implementer report, and observed verification evidence in every
+   reviewer message.
 6. Dispatch the approved focused, adaptive, or deep per-task gate against that
    exact range.
-7. Require APPROVED or evidence-based findings that cite file and line, violated
+7. Normalize profile-native severity at the orchestration boundary. The named
+   `code-quality-reviewer` profile and its fallback use `Critical` and
+   `Important`: map an evidence-qualified `Critical` finding to `Must Fix` and an
+   evidence-qualified `Important` finding to `Should Improve`. Preserve and
+   report both the original and normalized labels. Do not silently raise a lower
+   native severity or non-finding to `Should Improve`.
+8. Require APPROVED or evidence-based findings that cite file and line, violated
    requirement or quality consequence, reachable evidence, impact, and a concrete
    correction. Drop preference-only and speculative findings under the policy's
    Acceptance threshold.
-8. Send verified in-scope findings to the existing implementer with
+9. Send verified in-scope findings to the existing implementer with
    `followup_task` when idle or `send_message` when already running.
-9. After fixes, require fresh task verification, record the new head, and rerun
-   the same complete gate against the updated exact base-to-head range.
+10. After fixes, require fresh task verification and a declared fix commit,
+    record the new head, inspect the updated exact base-to-head range, and rerun
+    the same complete gate against that range.
 
 On plan re-entry, reload the approved Review policy and rerun the same gate; do
 not reuse a prior approval or silently change mode. Stop and return evidence to
