@@ -57,10 +57,16 @@ For direct/no-agent execution, read these complete prompts directly:
 Apply their complete role, context, and output contracts without dispatch:
 
 - for `focused`, perform one combined specification-and-quality pass using the
-  focused reviewer prompt;
+  focused reviewer prompt. This combined pass is the approved policy design;
 - for `adaptive` and `deep`, perform distinct sequential specification and
   quality passes using the spec and code-quality reviewer prompts, and evaluate
   each pass independently.
+
+For `adaptive` and `deep`, the same lead executing sequential passes does not
+provide agent-level independence. Do not reduce the approved review scope: run
+every required specification and quality pass. Record the independence
+limitation as a review gap and residual evidence, and include it in the
+coordinator handoff.
 
 Before applying Acceptance in direct execution:
 
@@ -72,7 +78,9 @@ Before applying Acceptance in direct execution:
   evidence-qualified `Important` to `Should Improve`; preserve both the original
   and normalized labels, and do not raise a lower native severity or non-finding.
 
-Keep this direct/no-agent gate contract equivalent to the agent-team path.
+Keep only the direct/no-agent mechanics, schema, and evidence boundaries
+equivalent to the agent-team path; exclude the recorded independence limitation
+from that equivalence.
 
 ## Execute
 
@@ -103,6 +111,7 @@ contract.
 
 After every task satisfies its approved gate, return control to
 `agentic-engineering-workflow` with task commits, exact diff ranges, verification
-evidence, gate results, the complete Review policy, and unresolved gaps. Do not
-start global `verify`, final review, publication, or branch disposition from
-this skill.
+evidence, gate results, the complete Review policy, and unresolved gaps,
+including any recorded direct/no-agent independence limitation. Do not start
+global `verify`, final review, publication, or branch disposition from this
+skill.
