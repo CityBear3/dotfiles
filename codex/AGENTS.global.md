@@ -18,6 +18,11 @@
 - Prefer one writer per shared worktree. Keep review agents read-only unless they are explicitly assigned implementation.
 - Use bounded subagents only for concrete independent work. The lead owns scheduling, capacity, synthesis, and completion.
 
+## Engineering workflow
+
+- Use `agentic-engineering-workflow` for engineering requests that may cross investigation, design, planning, implementation, verification, review, and branch completion. Treat it as the source of truth for path selection, approval gates, and cross-phase transitions; phase skills retain their own mechanics.
+- Continue authorized local implementation, verification, review, and in-scope correction without repeated approval prompts. Stop when the coordinator identifies a user-owned decision, missing authority, plan deviation, material scope expansion, or publication or branch-disposition choice.
+
 ## Verification
 
 - Do not report work as complete without fresh observed evidence.
