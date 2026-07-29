@@ -53,6 +53,10 @@ action. For discard, also require immediate destructive confirmation.
 
 ## Revalidate after the user choice
 
+When the user selects a local merge, freeze the selection-time source ref and
+object ID plus the selected base destination ref and object ID. Keep that source
+ref and object ID fixed throughout the authorized merge attempt.
+
 Immediately before a state-changing operation, recheck:
 
 - current source and destination refs and exact object IDs;
@@ -74,7 +78,20 @@ targets.
 
 ## Execute a safe local merge
 
-Immediately before an authorized local merge, record:
+After revalidating the selection evidence and before merging, explicitly
+establish the destination checkout. Use an existing worktree for the selected
+destination ref when one is available and safe. Otherwise, as normal preparation
+for the authorized merge, use the exact recorded non-interactive checkout or
+switch command to move the clean current worktree to that destination ref. Do not
+start this preparation unless the frozen source ref and object ID, destination
+ref and object ID, clean state, and absence of active operations still match the
+selection-time evidence.
+
+If the destination checkout or worktree cannot be established safely, return
+`BLOCKED` without starting the merge. Preserve the observed refs and files and
+report the exact re-entry condition.
+
+Once the destination is established, record:
 
 - exact source and destination refs and object IDs;
 - checked-out branch, HEAD, index entries, worktree status, and diff;
@@ -84,16 +101,19 @@ Immediately before an authorized local merge, record:
   operations;
 - exact non-interactive merge command and required post-merge verification.
 
-Require clean tracked, index, and worktree prestate; exact refs; no active or
-conflicting Git operation; and no unidentified relevant untracked or ignored
+Require the checked-out destination branch and HEAD to equal the selected
+destination ref and object ID, the source ref to resolve to the unchanged frozen
+source object ID, clean tracked, index, and worktree prestate, no active or
+conflicting Git operation, and no unidentified relevant untracked or ignored
 material that the merge, hooks, or checks could overwrite. If a precondition
-cannot be established, return `BLOCKED` with observed state and the exact re-entry
-condition. Do not reset, clean, move, or discard material to manufacture a clean
-prestate.
+cannot be established, return `BLOCKED` with observed state and the exact
+re-entry condition. Do not reset, clean, move, or discard material to manufacture
+a clean prestate.
 
-Run only the authorized merge command. On conflict or merge failure, inspect
-refs, HEAD, `MERGE_HEAD`, unmerged entries, index, worktree, relevant untracked
-and ignored paths, and status before any recovery.
+From that destination worktree, run only the recorded exact non-interactive merge
+command naming the frozen source ref. On conflict or merge failure, inspect refs,
+HEAD, `MERGE_HEAD`, unmerged entries, index, worktree, relevant untracked and
+ignored paths, and status before any recovery.
 
 Run `git merge --abort` only when:
 

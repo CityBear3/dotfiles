@@ -72,6 +72,12 @@ and interpretation or execution model, material quality criteria and realistic
 failures, approved non-problems, and inapplicable assumptions. Keep it separate
 from the Review policy.
 
+Materialize the complete lightweight policy before implementation. If completing
+that policy requires a material user-owned choice, or observed risk makes
+`focused` inappropriate, return to the planned path before invoking
+`execute-task`. Do not silently select or strengthen policy to keep the
+lightweight path.
+
 Use `focused` as the lightweight default:
 
 - one combined specification-and-quality per-task gate;
@@ -178,6 +184,16 @@ Advance automatically within approved scope:
    evidence to `receiving-code-review` for `Fix`, `Push back`, or `Escalate`
    classification. Do not reinterpret blocked or incomplete evidence as clean.
 
+When global verification returns `FAIL`, use `systematic-debugging` evidence to
+establish and classify the cause. For a local, in-scope failure whose correction
+is within existing authority, retain the failed command, evidence, and observed
+attempts and route one bounded correction through the active path: lightweight
+work returns to `execute-task`; planned work uses the `execute-plan` correction
+seam. After acceptance, rerun the complete global verification freshly and start
+the complete final review only after `PASS`. Use `Escalate` when correction needs
+a design, scope, policy, or authority decision. Return `BLOCKED` when external,
+runtime, or other operational state cannot be established.
+
 For `Fix`, route one bounded correction through the active path. Retain the
 approved decisions, non-goals, Review context, Review policy, exact finding,
 current task base and head, and the observed correction attempts. Lightweight
@@ -186,9 +202,12 @@ work returns directly to `execute-task`; planned work returns through
 global verification and the complete final review over the full updated range.
 
 For `Push back`, retain the concrete finding, classification, and controlling
-approved evidence. A fresh review of the unchanged range may reject the same
-finding unless materially new evidence shows a reachable failure or approved
-contract violation.
+approved evidence. Complete triage for every final finding. If no `Fix` or
+`Escalate` remains and every surviving item is `Push back`, give the controlling
+evidence and prior triage decisions to a complete final review of the unchanged
+full range. Do not enter `finish-branch` until that fresh review returns `CLEAN`.
+The same finding may be reconsidered only when materially new evidence shows a
+reachable failure or approved-contract violation.
 
 If the same concrete problem repeats without progress or another action would
 repeat an observed failed correction, stop and report the attempts and remaining

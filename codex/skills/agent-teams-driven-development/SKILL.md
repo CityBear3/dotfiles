@@ -15,20 +15,21 @@ correction semantics, task commits, or task acceptance here.
 Accept from `execute-task`:
 
 - the already-selected implementer or reviewer role;
-- that role's complete prompt contract;
+- exactly one resolved role contract: a selectable named profile, or a complete
+  fallback contract when that named profile is unavailable;
 - the complete writer or reviewer message already prepared by `execute-task`;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, interruption result, and observed Git state.
 
-Reject a request that lacks its selected role contract or would require this
-adapter to reinterpret task or policy semantics. Do not load prompt files here.
-`execute-task` loads an implementer prompt only when dispatching a writer and
-reviewer prompts only after selecting the active gate. Unselected prompts remain
-unloaded.
+Reject a request that lacks exactly one resolved role contract, supplies both a
+named profile and fallback, or would require this adapter to reinterpret task or
+policy semantics. Do not load prompt files here. `execute-task` resolves named
+profile availability first and loads a fallback only for an unavailable selected
+profile. Unselected prompts remain unloaded.
 
-Pass the supplied role contract and message unchanged. `execute-task` owns
-completeness and freshness checks; this adapter does not add another wrapper or
-field list.
+Pass the resolved named profile and message, or the supplied fallback contract
+and message, unchanged. `execute-task` owns completeness and freshness checks;
+this adapter does not add another wrapper or field list.
 
 ## Enforce live capacity and a deterministic queue
 
@@ -52,10 +53,11 @@ shortage into policy `Escalate` or substitute the lead or another perspective.
 
 ## Schedule and observe
 
-Dispatch only the already-selected role and supplied contract. Tell every agent
-not to spawn descendants. Tell an implementer its owned task and exact file
-responsibilities and that it is the only writer. Tell a reviewer it is read-only
-and must inspect the supplied task base, current head, range, and diff.
+Dispatch only the already-selected role using its resolved named profile or
+complete fallback contract. Tell every agent not to spawn descendants. Tell an
+implementer its owned task and exact file responsibilities and that it is the
+only writer. Tell a reviewer it is read-only and must inspect the supplied task
+base, current head, range, and diff.
 
 Use bounded waits, inspect live agents regularly, and return progress evidence to
 the lead. Preserve reports, identities, completion state, and observed errors
@@ -73,13 +75,16 @@ report, partial edit, or partial commit:
 1. inspect the interruption result and live-agent state;
 2. confirm the prior writer is inactive;
 3. inspect repository HEAD, status, commits, and task-base-to-current diff;
-4. determine whether every in-scope edit and commit is attributable to the task.
+4. confirm the exact task base is an ancestor of the current head;
+5. determine whether every in-scope edit and commit is attributable to the task.
 
 Resume the same writer or dispatch a replacement only when no writer overlaps,
-the observed Git state is attributable, and the unchanged task handoff still
-applies. If inactivity or attribution is uncertain, preserve all state and return
-`BLOCKED` with the evidence and exact re-entry condition. Never guess, clean,
-reset, discard edits, or start another writer to force progress.
+the exact task base remains an ancestor of the current head, the observed Git
+state is attributable, and the unchanged task handoff still applies. If
+inactivity, ancestry, or attribution is uncertain or fails, preserve all state
+and return `BLOCKED` with the evidence and exact re-entry condition. Never guess,
+clean, reset, rebase, amend, discard edits, or start another writer to force
+progress.
 
 For reviewer failure, preserve completed read-only reports, recheck live
 capacity, and queue only the already-requested replacement role. If the required
