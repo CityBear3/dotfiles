@@ -139,6 +139,11 @@ user prohibits agents. `Adaptive` and `deep` independent perspectives cannot be
 replaced by sequential lead passes. A no-agent conflict is `Escalate` for
 coordinator review or a standalone limitation.
 
+For standalone review without an approved policy, when the user prohibits
+agents, the lead may execute each selected read-only perspective and any required
+adversarial integration sequentially. Report the result as `standalone-only`; it
+is never approved-policy completion or coordinator completion evidence.
+
 Otherwise call `list_agents` before each dispatch wave. Use the lower of approved
 configured capacity and observed capacity, count the lead, and queue remaining
 required reviewers in deterministic policy order. Do not reduce scope,
