@@ -184,30 +184,20 @@ Advance automatically within approved scope:
    evidence to `receiving-code-review` for `Fix`, `Push back`, or `Escalate`
    classification. Do not reinterpret blocked or incomplete evidence as clean.
 
-When global verification returns `FAIL`, use `systematic-debugging` evidence to
-establish and classify the cause. For a local, in-scope failure whose correction
-is within existing authority, retain the failed command, evidence, and observed
-attempts and route one bounded correction through the active path: lightweight
-work returns to `execute-task`; planned work uses the `execute-plan` correction
-seam. After acceptance, rerun the complete global verification freshly and start
-the complete final review only after `PASS`. Use `Escalate` when correction needs
-a design, scope, policy, or authority decision. Return `BLOCKED` when external,
-runtime, or other operational state cannot be established.
+When global verification fails, diagnose it before acting. Route an authorized
+in-scope correction through the active path, then rerun global verification.
+Use `Escalate` for a user-owned decision or missing authority; return `BLOCKED`
+when the required operational state cannot be established.
 
-For `Fix`, route one bounded correction through the active path. Retain the
-approved decisions, non-goals, Review context, Review policy, exact finding,
-current task base and head, and the observed correction attempts. Lightweight
-work returns directly to `execute-task`; planned work returns through
-`execute-plan` as a concrete plan correction step. After acceptance, rerun fresh
-global verification and the complete final review over the full updated range.
+For `Fix`, route one bounded correction through the active path using the finding
+and current evidence. After acceptance, rerun fresh global verification and the
+final review for the updated range.
 
-For `Push back`, retain the concrete finding, classification, and controlling
-approved evidence. Complete triage for every final finding. If no `Fix` or
-`Escalate` remains and every surviving item is `Push back`, give the controlling
-evidence and prior triage decisions to a complete final review of the unchanged
-full range. Do not enter `finish-branch` until that fresh review returns `CLEAN`.
-The same finding may be reconsidered only when materially new evidence shows a
-reachable failure or approved-contract violation.
+A `Push back` remains resolved while the reviewed target and controlling evidence
+are unchanged; do not repeat the same review solely to reproduce that decision.
+After all findings are triaged, continue only when no `Fix`, `Escalate`, or
+surviving finding remains. Reconsider a pushed-back finding only with materially
+new evidence.
 
 If the same concrete problem repeats without progress or another action would
 repeat an observed failed correction, stop and report the attempts and remaining
@@ -221,10 +211,10 @@ triage, unresolved triage to correction, or incomplete evidence to
 
 ## Terminate only at a real boundary
 
-Enter `finish-branch` only when fresh verification passes and final review is
-clean for the exact current head and full implementation range, the approved
-Review policy is satisfied, current status still matches the reviewed evidence,
-and no finding or gap remains. Pass the concise final-gate evidence to
+Enter `finish-branch` only when fresh verification passes for the exact current
+head and full implementation range, the approved Review policy is satisfied,
+final review and triage leave no surviving finding or gap, and current status
+still matches the reviewed evidence. Pass the concise final-gate evidence to
 `finish-branch`, then stop for the user's publication or branch-disposition
 choice.
 

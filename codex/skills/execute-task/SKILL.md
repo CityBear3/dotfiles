@@ -34,24 +34,19 @@ Reject missing, stale, contradictory, or mode-inconsistent input. Return the
 named gap to the invoking skill; do not infer a decision, expand scope, duplicate
 the handoff in a new wrapper, or weaken evidence.
 
-Require the exact task base to resolve and to be an ancestor of every current
-head used for task evidence or acceptance. For a fresh task, require the starting
-head to equal the task base before implementation. Recheck ancestry after every
-task or correction commit and before acceptance. On failure, preserve all state
-and return `BLOCKED` with the observed refs and exact re-entry condition. Never
-reset, rebase, amend, or rewrite history to manufacture ancestry.
+Require the task base to resolve, equal the starting head for fresh work, and
+remain an ancestor of every head used as evidence. Recheck it after commits and
+before acceptance. On failure, preserve state and return `BLOCKED`; never rewrite
+history to manufacture ancestry.
 
 ## Choose one writer
 
-Keep exactly one writer: either the lead or one `implementer`. Use the lead when
-direct execution is authorized. Before dispatching an implementer, resolve
-whether the named `implementer` profile is selectable. When it is selectable,
-use that profile with the task handoff and do not load or inline
-[implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md).
-Only when the named profile is unavailable, load that fallback file and pass its
-complete contract with the task handoff. Give `agent-teams-driven-development`
-exactly the resolved named profile or the complete fallback contract for
-scheduling, not both.
+Keep exactly one writer: the lead when direct execution is authorized, otherwise
+one `implementer`. Resolve the role before loading its prompt: use the named
+profile when available, or
+[implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md)
+as its fallback. Pass only the selected role and task handoff to
+`agent-teams-driven-development`.
 
 Require production behavior changes to use red, green, refactor and report the
 observed red failure. For content, configuration, refactoring, or mechanical
@@ -92,11 +87,10 @@ For a fresh task:
 4. Inspect the working-tree diff, including unrelated state.
 5. Create only the declared task commit.
 6. Record the new current head.
-7. Confirm the exact task base is an ancestor of the current head.
-8. Inspect the exact task-base-to-current-head range and diff.
-9. Run the policy-selected per-task gate against that current range.
-10. Apply the common Acceptance threshold.
-11. Record the commit, range, verification, gate, concerns, and gaps.
+7. Inspect the exact task-base-to-current-head range and diff.
+8. Run the policy-selected per-task gate against that current range.
+9. Apply the common Acceptance threshold.
+10. Record the commit, range, verification, gate, concerns, and gaps.
 
 Approval remains attached to the exact task base, current head, and range that
 were reviewed. Never replace them with a later aggregate range.
@@ -107,9 +101,8 @@ Before resuming after an interruption:
 
 1. confirm the prior writer is inactive and no writer overlaps;
 2. inspect the current HEAD, status, commits, and task-base-to-current diff;
-3. confirm the exact task base is an ancestor of the current head;
-4. attribute all in-scope edits and commits to this task;
-5. confirm the original handoff still applies.
+3. attribute all in-scope edits and commits to this task;
+4. confirm the original handoff still applies.
 
 When all checks pass, continue from the observed state. If implementation is
 already committed and its verification remains fresh for that unchanged head,
@@ -133,39 +126,30 @@ Every task reviewer receives, without another identity or duplicate record:
 - every fresh verification command, expected result, and observed result;
 - commits, pre-commit inspection, repository guidance, concerns, and gaps.
 
-Before dispatch, confirm current HEAD still equals the reported head, the exact
-task base is its ancestor, the range and changed files resolve to the inspected
-diff, and verification ran after the last content edit. Missing, contradictory,
-or stale evidence returns `BLOCKED`.
+Before dispatch, apply the ancestry invariant above and confirm that HEAD, range,
+changed files, inspected diff, and post-edit verification still agree. Missing,
+contradictory, or stale evidence returns `BLOCKED`.
 
 ## Load only the selected review contract
 
-Resolve the mode and each selected named profile's availability before loading a
-reviewer fallback:
+For every selected reviewer, use its named profile when available; otherwise load
+only its corresponding fallback:
 
 - For `focused`, select `code-reviewer` for one combined
-  specification-and-quality gate. When the named profile is selectable, use it
-  with the task and review evidence and do not load or inline
-  [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md).
-  Only when the named profile is unavailable, load that file and use its complete
-  fallback contract. An explicitly approved no-agent policy may instead use the
-  lead for this complete pass.
+  specification-and-quality gate, with
+  [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md)
+  as fallback. An approved no-agent policy may instead use the lead.
 - For `adaptive` and `deep`, select independent `spec-reviewer` and
-  `code-quality-reviewer` roles. Resolve availability for each role separately.
-  Use a selectable named profile with the task and review evidence without
-  loading its fallback. Only for an unavailable named profile, load the
-  corresponding
+  `code-quality-reviewer` roles, with
   [spec-reviewer-prompt.md](../agent-teams-driven-development/spec-reviewer-prompt.md)
-  or
+  and
   [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md)
-  and use its complete fallback contract.
+  as their fallbacks.
 
-Never load unselected prompts speculatively or replace `adaptive` or `deep`
-independent reviewers with lead passes. When a selected role contract is resolved
-but a runtime slot is temporarily unavailable, queue that reviewer
-deterministically. If a required role cannot be established, return `BLOCKED`. If
-an explicit no-agent instruction conflicts with an approved independent gate,
-return `Escalate` for permission or an approved policy change.
+Never load unselected prompts or replace `adaptive` or `deep` independent
+reviewers with lead passes. Queue a selected role when capacity is temporarily
+unavailable. Return `BLOCKED` when a required role cannot be established, or
+`Escalate` when a no-agent instruction conflicts with the approved gate.
 
 `agent-teams-driven-development` schedules only the selected contracts. This
 skill remains responsible for the task meaning, review mode, finding
@@ -209,9 +193,8 @@ gap. Do not create another identifier or tracking schema for the finding.
 
 Return:
 
-- `Accepted` only when the exact task base is an ancestor of the current head,
-  every exact verification passes, and the complete selected gate approves that
-  head;
+- `Accepted` only when the ancestry invariant holds, every exact verification
+  passes, and the complete selected gate approves the current head;
 - `BLOCKED` when a safe writer state, command, permission, range, reviewer, or
   other operational prerequisite cannot be established;
 - `Escalate` for a material decision, scope or policy change, explicit

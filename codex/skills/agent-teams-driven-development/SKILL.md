@@ -14,22 +14,14 @@ correction semantics, task commits, or task acceptance here.
 
 Accept from `execute-task`:
 
-- the already-selected implementer or reviewer role;
-- exactly one resolved role contract: a selectable named profile, or a complete
-  fallback contract when that named profile is unavailable;
+- one already-selected named role or fallback contract;
 - the complete writer or reviewer message already prepared by `execute-task`;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, interruption result, and observed Git state.
 
-Reject a request that lacks exactly one resolved role contract, supplies both a
-named profile and fallback, or would require this adapter to reinterpret task or
-policy semantics. Do not load prompt files here. `execute-task` resolves named
-profile availability first and loads a fallback only for an unavailable selected
-profile. Unselected prompts remain unloaded.
-
-Pass the resolved named profile and message, or the supplied fallback contract
-and message, unchanged. `execute-task` owns completeness and freshness checks;
-this adapter does not add another wrapper or field list.
+Reject an unresolved or ambiguous role, or a request that requires task or policy
+interpretation. Pass the selected role and message unchanged; do not load prompts
+or add another wrapper here.
 
 ## Enforce live capacity and a deterministic queue
 
@@ -75,15 +67,12 @@ report, partial edit, or partial commit:
 1. inspect the interruption result and live-agent state;
 2. confirm the prior writer is inactive;
 3. inspect repository HEAD, status, commits, and task-base-to-current diff;
-4. confirm the exact task base is an ancestor of the current head;
-5. determine whether every in-scope edit and commit is attributable to the task.
+4. determine whether every in-scope edit and commit is attributable to the task.
 
-Resume the same writer or dispatch a replacement only when no writer overlaps,
-the exact task base remains an ancestor of the current head, the observed Git
-state is attributable, and the unchanged task handoff still applies. If
-inactivity, ancestry, or attribution is uncertain or fails, preserve all state
-and return `BLOCKED` with the evidence and exact re-entry condition. Never guess,
-clean, reset, rebase, amend, discard edits, or start another writer to force
+Return that evidence to `execute-task` before another writer is dispatched.
+Resume or replace only after a fresh request confirms that no writer overlaps,
+the state is safe and attributable, and the handoff still applies. Otherwise
+preserve state and return `BLOCKED`; never rewrite or discard state to force
 progress.
 
 For reviewer failure, preserve completed read-only reports, recheck live
