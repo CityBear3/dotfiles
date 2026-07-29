@@ -5,160 +5,99 @@ description: Run a read-only, evidence-based review of a current head using an a
 
 # Review the verified current head
 
-Review the requested scope, not the entire repository by default.
-Remain check-only and read-only. Keep every dispatched reviewer and integrator
-read-only. Do not mutate the index, tracked files, or in-scope source; create a
-commit; implement or stage a fix; classify findings for triage; or advance
-another workflow phase.
+Review the requested scope, not the entire repository by default. Remain
+check-only and read-only. Keep every reviewer and integrator read-only. Do not
+mutate source or Git state, implement or stage a fix, classify findings for
+triage, or advance another workflow phase.
 
-## Use one immutable review target
+## Resolve the review target
 
-Use exactly one target form:
+Use one target form:
 
-- an exact committed range identified by base/head commit and tree object IDs,
-  range reference, and a bounded changed-path object manifest;
-- a captured current index/worktree snapshot identified by HEAD, index state,
-  staged diff, worktree diff, and path/content identities for in-scope untracked
-  files;
-- a bounded explicit fileset identified by path inventory and immutable content
-  identities for every reviewed file.
+- a coordinator-managed committed range with exact base, current head, and
+  `base..head` range;
+- a standalone committed range;
+- a standalone current index/worktree snapshot;
+- a standalone bounded explicit fileset.
 
-For coordinator-managed review, receive the exact content-bound identity that
-`verify` resolved plus the coordinator target manifest verbatim. Locally
-re-resolve and validate the identity-bound Git objects, trees, range, bounded
-changed-path records/digest, current index, worktree and in-scope untracked
-digests, and clean assertion before dispatch and immediately before reporting.
-Never require or re-inline a literal patch or file-content payload, or rename,
-regenerate, or substitute that identity or manifest. For standalone review,
-create one separate standalone-only stable identity from every immutable field
-required by the selected target schema.
-
-Record the target form and identity, HEAD, index/worktree and in-scope untracked
-evidence, unrelated dirty state, changed files, primary language, repository
-guidance, and limitations before dispatch.
+Record target form, base and head when applicable, current status, exact range or
+bounded files, diff, changed files, relevant untracked paths, primary language,
+repository guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
-Use `coordinator-target-manifest/v1` with exactly this field set:
+Require:
 
-```text
-schema_version
-scope_kind
-base_commit_oid
-head_commit_oid
-range_ref
-base_tree_oid
-head_tree_oid
-changed_path_manifest
-changed_path_manifest_digest
-index_state_digest
-worktree_state_digest
-in_scope_untracked_state_digest
-strict_clean_assertion
-```
+- exact implementation base, current head, full range, diff, current status, and
+  changed files;
+- fresh coordinator verification `PASS` for that same unchanged head and range;
+- no unexplained in-scope source state outside the committed range;
+- approved scope, decisions, non-goals, Review context, and complete Review
+  policy;
+- Design Doc and implementation plan when present;
+- task-review outcomes, observed commands, concerns, prior triage decisions, and
+  known gaps.
 
-When the workflow coordinator invokes this skill, require:
+Resolve base, head, range, diff, and changed files directly from Git. Require
+repository HEAD and status to match the supplied evidence. Return `BLOCKED`
+without dispatch when the range does not resolve, evidence is stale, in-scope
+state falls outside the range, or a required input is missing.
 
-- the coordinator-frozen content-bound immutable target identity and exact
-  coordinator target manifest containing every field above, with
-  `schema_version` equal to `coordinator-target-manifest/v1`,
-  `scope_kind` equal to `committed-range`, and no literal diff, patch, or file
-  content payload;
-- fresh coordinator-managed verification with a `PASS` verdict for that same
-  target identity, current HEAD, and full range;
-- no in-scope index, worktree, or untracked source state outside the committed
-  target;
-- changed files and primary language;
-- approved scope, decision source, and non-goals;
-- the approved Design Doc and implementation plan when present;
-- repository `AGENTS.md` guidance;
-- the complete approved Review policy and provenance;
-- the coordinator-owned resolved-finding registry for this target identity, or
-  one immutable resolvable reference to it, including an explicitly empty
-  registry.
-
-Never accept a standalone-only verification or review target as coordinator
-completion evidence.
-
-Before dispatch, locally resolve both commit and tree object IDs and the exact
-range, reproduce the canonically ordered changed-path records from Git object
-metadata, and recompute the schema-defined digests and clean assertion. Return
-`BLOCKED` without dispatch for a missing or stale commit/tree object, unresolved
-range, changed path or digest mismatch, repository-state digest mismatch, false
-clean assertion, identity mismatch, or a manifest field-set/version difference.
-Include a stable gap key, likely ownership, and exact re-entry condition.
+Standalone verification or review evidence never satisfies this coordinator
+completion gate.
 
 ## Standalone read-only entry
 
-When the user invokes review outside the coordinator, resolve the explicitly
-requested target as one of the three target forms above through local read-only
-investigation:
+Resolve the requested committed range, index/worktree, or bounded fileset through
+local read-only investigation. Record available verification, design, decision,
+plan, and repository-guidance evidence. Absent or stale verification is a
+limitation.
 
-- the requested scope;
-- changed files and primary language;
-- applicable repository guidance;
-- available verification evidence;
-- available design, decision, and plan evidence.
+Use an approved Review policy when one is available. Without one, select only
+perspectives applicable to observed risk and report the missing policy; do not
+present the result as policy-complete coordinator evidence.
 
-Record absent or stale verification as a limitation. Use an approved review
-policy when one is available. Without an approved review policy, do not invent
-one; select evidence-based applicable perspectives under the standalone contract
-below and report the missing policy.
+Derive the smallest reasonable Review context from the requested artifact,
+repository evidence, and available decisions. State:
 
-Label an index/worktree snapshot or explicit fileset result `standalone-only`.
-It can answer the requested review question but cannot satisfy the coordinator's
-immutable current-HEAD completion gate.
+- artifact and purpose;
+- consumers and execution or interpretation model;
+- material quality criteria and realistic failures;
+- approved or inferred non-problems;
+- inapplicable assumptions;
+- every material assumption made because approved context was unavailable.
 
-## Validate an available review policy
+A standalone worktree or fileset review may answer the direct request, but never
+substitutes for current-head coordinator review.
 
-For coordinator-managed review, and for standalone review with an approved policy,
-validate that the review policy records:
+## Validate policy and actual risk
+
+When a Review policy exists, require:
 
 - mode: `focused`, `adaptive`, or `deep`, with rationale and risk surfaces;
-- the per-task gate and its current-head completion evidence;
+- the per-task gate and current outcomes; `adaptive` and `deep` require
+  independent specification and quality review;
 - final required reviewers with reasons;
-- final conditional reviewers with exact triggers;
+- conditional reviewers with exact triggers;
 - explicitly skipped perspectives with reasons;
-- `adversarial-integrator` as required, conditional with an exact trigger, or
-  skipped with a reason;
-- residual risk;
-- configured capacity and queue rules;
-- the Acceptance threshold.
+- adversarial integration rules;
+- residual risk, capacity, deterministic queue order, and Acceptance.
 
-Reject stale verification, a missing field, an unknown mode, or a
-mode-inconsistent reviewer inventory. In coordinator-managed review, return the
-gap as `BLOCKED` without dispatching reviewers. In standalone review, report the
-policy limitation and do not claim a policy-complete verdict.
+Compare the actual artifact, diff, behavior, tests, public seams, responsibilities,
+and failure paths with the recorded risks and skips. A material risk absent from
+an approved policy is a policy gap, not permission to add or omit a reviewer.
+For coordinator review, return `BLOCKED` so the coordinator can `Escalate` for a
+replacement policy. For standalone review, report the limitation.
 
 Record the current head before review and require it to remain unchanged. Treat
-an uncommitted change in reviewed scope as stale current-head verification
-evidence.
+an uncommitted in-scope change as stale coordinator verification.
 
-Load `hints/<primary-language>.md` when present. Treat hints as prompts for investigation, not mandatory findings.
+Load `hints/<primary-language>.md` when present. Treat hints as investigation
+prompts, not mandatory findings.
 
-## Reconcile actual risk before dispatch
+## Select applicable final perspectives
 
-When an approved policy exists, compare the immutable target's actual diff,
-files, behavior, tests, public seams, state transitions, and failure paths with
-the policy's recorded risk surfaces and complete required, conditional, and
-skipped reviewer inventory.
-
-When a material observed risk is absent from the approved policy, return a named
-policy gap before dispatch. Do not add a reviewer, ignore the risk, reinterpret a
-skip, or mutate the policy. A coordinator-managed policy gap requires the
-coordinator to `Escalate` for a complete user-approved replacement policy. In
-standalone review with a policy, report the gap and do not claim policy-complete
-coverage. Record non-material evidence and limitations without changing policy.
-
-For standalone review without a policy, build an observed risk inventory from
-that same target evidence and reconcile it with the selected standalone
-perspectives. Report the missing policy as a limitation, not as permission to
-omit an applicable perspective or as an approved-policy gap.
-
-## Select final reviewers
-
-Use these standard perspectives when the approved mode and recorded risk make
-them applicable:
+Standard perspectives:
 
 - `code-reviewer`;
 - `test-coverage-reviewer`;
@@ -166,193 +105,125 @@ them applicable:
 - `scope-reviewer`;
 - `code-architect`.
 
-Use these adversarial perspectives when applicable:
+Adversarial perspectives:
 
 - `adversarial-api-reviewer`;
 - `adversarial-robustness-reviewer`;
 - `adversarial-performance-reviewer`;
 - `adversarial-tests-reviewer`.
 
-Apply the approved mode exactly:
+Apply the approved mode:
 
-- `focused`: require `code-reviewer`; require `test-coverage-reviewer` when
-  behavior or tests changed; and run each additional risk reviewer recorded in
-  the active review policy as required or when its conditional trigger holds.
-- `adaptive`: run only required standard or adversarial reviewers supported by
-  recorded risk, plus conditional reviewers whose recorded trigger holds. Do not
-  add a perspective for an unrecorded risk.
-- `deep`: run all applicable standard and adversarial perspectives. Require the
-  policy inventory to classify each perspective as required, conditional with a
-  trigger, or skipped with a reason; reject the policy if it skips an applicable
-  perspective.
+- `focused`: require `code-reviewer`, require `test-coverage-reviewer` when
+  behavior or tests changed, and run only additional recorded risk perspectives.
+- `adaptive`: run required and triggered perspectives selected for recorded
+  risk.
+- `deep`: run every perspective applicable to the artifact and observed risks.
+  Do not run an inapplicable profile merely to maximize reviewer count.
 
-For coordinator-managed `focused` or `adaptive`, run
-`adversarial-integrator` only when the complete approved required inventory
-contains it or its approved conditional trigger holds. For coordinator-managed
-`deep`, require and run it whenever any adversarial reviewer runs; a skipped
-integrator in that case is a mode-inconsistent policy gap. Do not run an
-explicitly skipped integrator.
+For every mode, preserve skipped perspectives and their reasons. Reject a `deep`
+policy that skips an applicable perspective. Whenever any adversarial
+perspective runs, require `adversarial-integrator`.
 
-Do not run an explicitly skipped perspective. Preserve its reason and residual
-risk in the report. Do not silently omit a required reviewer or a conditional
-reviewer whose trigger holds.
+Without an approved policy, select the same perspectives by observed
+applicability: general review always; test coverage for behavior or test changes;
+design alignment when an approved Design Doc exists; scope review for a plan or
+narrow migration; architecture for material responsibility changes; adversarial
+profiles only for their corresponding concrete risk. Record every run and skip
+with reasons.
 
-## Standalone selection without an approved policy
+## Preserve independence and capacity
 
-Select only perspectives applicable to the observed scope:
+An approved `focused` policy may use a complete lead final-review pass when the
+user prohibits agents. `Adaptive` and `deep` independent perspectives cannot be
+replaced by sequential lead passes. A no-agent conflict is `Escalate` for
+coordinator review or a standalone limitation.
 
-- run `code-reviewer` for correctness and maintainability;
-- run `test-coverage-reviewer` when behavior or tests changed;
-- run `design-alignment-reviewer` when an approved Design Doc is available;
-- run `scope-reviewer` for an implementation plan or narrow migration;
-- run `code-architect` for material responsibility or dependency changes;
-- run adversarial API, robustness, performance, or tests perspectives only when
-  their corresponding risk surface is present.
+Otherwise call `list_agents` before each dispatch wave. Use the lower of approved
+configured capacity and observed capacity, count the lead, and queue remaining
+required reviewers in deterministic policy order. Do not reduce scope,
+independence, or applicable breadth. An unavailable required reviewer returns
+`BLOCKED` with the role, observed capacity, gap, and re-entry condition.
 
-Whenever any adversarial perspective runs, require adversarial integration.
-Report that no approved review policy exists, every perspective run or skipped
-with its reason, and the resulting coverage limitations. Do not present this
-selection as an approved policy.
+Use named profiles when selectable; otherwise provide a complete fallback role
+prompt. Reviewers and integrators do not edit files or spawn descendants.
 
-## Capacity and dispatch
+## Give every reviewer artifact-aware evidence
 
-When the user prohibits agents, do not call `list_agents` or dispatch subagents.
-For an approved `focused` policy, the lead may execute its complete approved
-combined final-review pass with the same target, evidence, and output schema.
-For `adaptive` or `deep`, required independent perspectives cannot be replaced by
-sequential lead passes. Return the exact no-agent/policy conflict for coordinator
-`Escalate`, or as a standalone policy limitation, and do not claim a clean
-policy-complete verdict. Never count waived independence toward completion.
-For standalone review without a policy, the lead may execute each selected
-read-only perspective and any required adversarial integration, but the result
-remains standalone-only and is never approved-policy completion evidence.
+Pass directly to every final reviewer:
 
-Otherwise, use `list_agents` before each dispatch wave. With an approved policy,
-the effective capacity is the lower of its configured capacity and the currently
-observed runtime capacity. Without an approved policy, use observed runtime
-capacity and report the absence of an approved configured limit. Count the lead.
-Run independent read-only reviewers concurrently only while slots are free, and
-queue every remaining required reviewer without reducing review scope. Do not
-return a clean verdict while a required reviewer remains queued; if the queue
-cannot complete, return `BLOCKED` with a stable availability-gap key and exact
-re-entry condition.
+- exact base, current head, range or bounded standalone files, diff, status, and
+  changed files;
+- approved scope, decisions, and non-goals;
+- the same Review context and Review policy when available;
+- fresh verification commands and observed results;
+- relevant task-review outcomes, prior triage decisions, concerns, and gaps;
+- that reviewer's selected perspective and output expectations.
 
-When dispatching and a named profile is selectable, use it. Otherwise provide a
-complete fallback prompt containing the profile's role, context, constraints,
-evidence rules, and output schema. Reviewers and the integrator do not edit files
-or spawn descendants. For coordinator-managed review, pass the exact target
-identity, bounded target manifest or one immutable resolvable reference to it,
-and the complete resolved-finding registry or its one immutable reference to
-every reviewer and integrator dispatch. Require a reviewer or integrator whose
-finding matches a registry entry's concrete requirement/behavior identity to use
-that entry's exact stable key; a different key is a schema gap, not a new
-finding. Never inline a literal diff payload.
+Do not create another wrapper identity or repeat the evidence in competing
+formats. Before dispatch, confirm the current head, range, diff, status, and
+changed files are unchanged.
 
-## Require one final finding schema
+## Apply the common Acceptance threshold
 
-Every named-profile or fallback dispatch message, including standard,
-adversarial, and integrator messages, must require every returned finding to
-include:
+Every finding must include severity `Must Fix` or `Should Improve`, file and
+line, concrete observed or reachable behavior, violated requirement or quality
+consequence, evidence, impact, proportionate correction, and confidence.
 
-- one stable finding key based on the violated requirement and reachable
-  behavior, not a transient line number, and preserved verbatim after first
-  emission;
-- final severity exactly `Must Fix` or `Should Improve`;
-- file and line as `file:line`;
-- concrete observed behavior or reachable scenario;
-- violated requirement or quality consequence;
-- concrete evidence;
-- impact;
-- specific correction;
-- confidence.
+Keep a finding only when it:
 
-A native or suggested role label may be retained as evidence only when that
-finding also supplies an accepted final severity explicitly. Missing or unknown
-final severity is a schema gap: request schema-compliant re-output from the same
-reviewer or integrator before Acceptance, deduplication, triage, or a clean
-verdict. Never infer, drop, promote, or normalize the missing label. If
-schema-compliant re-output cannot be obtained, return `BLOCKED` with the role,
-target identity, stable schema-gap key, and exact re-entry condition.
+- applies to the artifact and consumer model in the Review context;
+- identifies a concrete reachable behavior or approved-contract violation;
+- cites evidence and a material consequence;
+- proposes a proportionate correction.
 
-Do not manufacture findings. Drop preference-only comments and findings that merely contest an approved decision without new evidence.
+`Should Improve` requires a concrete maintainability consequence or measurable
+repeated cost. Drop preference-only, speculative, second-order,
+artifact-inapplicable, optional-polish, generic-best-practice, and unsupported
+findings.
 
-During deduplication and synthesis, preserve every accepted stable key verbatim.
-If outputs attach different keys to the same concrete requirement/behavior,
-request schema-corrected output or return `BLOCKED` with a stable schema-gap key;
-never choose, merge, normalize, or regenerate a key locally. A materially
-different requirement or reachable behavior may receive a new key only under the
-coordinator's bounded retry rules.
+An approved non-problem may be revisited only with materially new evidence of a
+concrete reachable failure or contract violation. A rephrasing, changed line
+number, or imagined future consumer is not new evidence. Apply the same rule to
+prior `Push back` decisions.
 
-## Apply the resolved-finding registry
+A suggestion to add a state machine, schema, identity mechanism, or another
+architectural system is not a `Fix` without a proven in-scope violation and
+proportionate need. Drop it when it is unsupported optional design. When it
+exposes a material user-owned architecture choice, return `BLOCKED` with a
+design gap so the coordinator can `Escalate`; do not label it `Must Fix` or
+`Should Improve`.
 
-For coordinator-managed review, apply the registry independently at reviewer
-output and again during final synthesis. When the same target identity and stable
-finding key already has a `Push back` entry, the reviewer or integrator must not
-re-emit it and synthesis must drop it unless the output cites materially new
-code, test, Design, plan, or approved-decision evidence. A changed line number,
-rephrasing, confidence, or repeated assertion is not new evidence.
+## Integrate adversarial review
 
-Also compare each output's concrete requirement/behavior identity with registry
-entries. If it matches an entry but uses another key, request schema-corrected
-output with the preserved key or return `BLOCKED`; never let re-keying bypass
-registry suppression.
-
-When materially new evidence exists, permit re-evaluation only when the finding
-identifies the registry entry using the same stable key and cites the exact
-evidence delta. Treat it as a delta under that same requirement/behavior key
-unless the concrete behavior is materially different under the coordinator retry
-rules. Preserve the key and delta through integration and the final report. Do
-not use the registry to drop a different key, suppress new evidence, reset
-bounded `Fix` attempts, or convert an earlier `FINDINGS` result to `CLEAN`. A
-clean result after pushback requires this complete fresh review and its normal
-dispatch, synthesis, and current-state checks.
-
-## Adversarial integration
-
-When the applicable mode rule above requires integration, use
-`adversarial-integrator` or its complete fallback prompt to deduplicate, verify
-evidence, and resolve contradictions. Require the same final finding schema.
-The integrator remains read-only, does not invent findings, and does not infer or
-normalize a missing final severity. For coordinator-managed review, it also
-receives and applies the exact same resolved-finding registry or reference.
+When required, give `adversarial-integrator` the same Review context, target
+evidence, verification, policy, prior triage decisions, and adversarial reports.
+The integrator remains read-only, deduplicates, verifies evidence, resolves
+contradictions, and drops unsupported, second-order, and artifact-inapplicable
+findings. It does not invent findings or lower the Acceptance threshold.
 
 ## Report
 
-Apply the approved Acceptance threshold when a policy exists. Otherwise apply the
-final finding schema above and report the missing policy as a limitation. Merge
-duplicates and report in Japanese:
+Merge duplicates and report in Japanese:
 
-- target form and identity; for coordinator-managed review, the exact target
-  manifest received verbatim from the coordinator; starting and ending HEAD;
-  exact range, snapshot, or fileset; index/worktree and in-scope untracked
-  path/content evidence; and unrelated dirty state;
-- approved mode or `none`, recorded or observed risk surfaces, and actual-risk
-  reconciliation;
-- verification evidence inspected and whether it is fresh;
-- inspection or dispatch commands and evidence, checks not run, standalone-only
-  status, and limitations;
+- target form; base, starting and ending head, exact range or bounded fileset;
+- starting and ending status, diff scope, and changed files;
+- Review context and disclosed standalone assumptions;
+- approved mode or `none`, observed risks, and policy reconciliation;
+- fresh verification commands and results inspected;
 - reviewers run, queued, and skipped with reasons;
-- resolved-finding registry identity/reference, every registry key supplied to
-  dispatches, suppressed keys, and any materially new evidence delta that
-  permitted re-evaluation;
-- Must Fix and Should Improve findings;
-- positive observations only when useful;
-- residual risk separately from gaps;
-- every unverified or policy gap;
+- reviewer and integrator outcomes;
+- accepted Must Fix and Should Improve findings;
+- separate policy or design gaps requiring coordinator `Escalate`;
+- residual risk, limitations, every gap, and exact re-entry condition;
 - verdict exactly `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
-For `BLOCKED`, include a stable gap key, likely ownership, immutable target
-identity, preserved reviewer/queue evidence, and the exact condition required for
-safe re-entry. For `FINDINGS`, preserve a stable key for each accepted finding.
-Do not advance a `BLOCKED` result or treat missing schema output as clean.
+Return `CLEAN` only when all required applicable perspectives completed, the
+common Acceptance threshold leaves no finding, verification is fresh, and the
+target is unchanged, with no policy or design gap. A clean review is a valid
+result.
 
-Read the current head again before reporting. If it changed, mark verification
-and review evidence stale and return `BLOCKED`. Recheck index/worktree and
-in-scope source evidence and return `BLOCKED` for an unattributed mutation. Do
-not regenerate or rename a coordinator-frozen target identity, classify findings
-as `Fix`, `Push back`, or `Escalate`, start triage, edit code, commit, or advance
-phases from this skill.
-
-For coordinator-managed review, return all findings and evidence to the
-coordinator. For standalone review, report them directly to the requester; do not
-automatically fix findings or advance another phase.
+Read current head and status again before reporting. If either changed, return
+`BLOCKED` with preserved reviewer evidence and the stale-state gap. Do not start
+triage, edit code, commit, or advance phases. Coordinator review returns evidence
+to the coordinator; standalone review reports directly to the requester.

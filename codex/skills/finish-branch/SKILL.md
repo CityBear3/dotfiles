@@ -5,78 +5,41 @@ description: Complete a feature branch only when its current head matches fresh 
 
 # Finish a branch
 
-Do not choose the disposition of the branch for the user.
+Do not choose publication or branch disposition for the user.
 
 ## Require current-head completion evidence
 
-Use `coordinator-target-manifest/v1` with exactly this field set:
-
-```text
-schema_version
-scope_kind
-base_commit_oid
-head_commit_oid
-range_ref
-base_tree_oid
-head_tree_oid
-changed_path_manifest
-changed_path_manifest_digest
-index_state_digest
-worktree_state_digest
-in_scope_untracked_state_digest
-strict_clean_assertion
-```
-
 Inspect:
 
-- current branch and worktree;
-- `git status --short`;
-- commits and diff against the base branch;
-- the exact current HEAD, coordinator-frozen immutable full implementation
-  target identity, and coordinator target manifest passed verbatim with every
-  field above, `schema_version` equal to `coordinator-target-manifest/v1`,
-  `scope_kind` equal to `committed-range`, and no literal diff, patch, or file
-  content payload;
-- the strict coordinator-managed fresh verification `PASS` target, head, and
-  exact full range;
-- the coordinator-managed final review `CLEAN` target, head, and exact full
-  range;
-- the complete approved review policy, reviewers run, triggered conditionals,
-  skipped perspectives with reasons, actual-risk reconciliation, Acceptance
-  result, and unresolved findings or gaps.
+- current branch, exact implementation base, current head, and full range;
+- `git status --short`, full diff, and changed files;
+- approved scope, decisions, non-goals, and Review context;
+- fresh coordinator verification `PASS`, including observed commands and results,
+  for the same current head and range;
+- final review `CLEAN` for that same head and range;
+- approved Review policy, reviewer and integrator outcomes, triggered
+  conditionals, skipped perspectives with reasons, Acceptance result, residual
+  risk, and every gap.
 
-Require the current head, fresh verification PASS head, and clean final review
-head, target identity, and full range to exactly match. Require the complete
-approved policy and actual-risk inventory to be fully satisfied with no unresolved
-`Must Fix`, `Should Improve`, schema, policy, evidence, or runtime gap. A later
-commit or uncovered in-scope index, worktree, or untracked source change makes
-verification and clean review evidence stale. Standalone-only verification or
-review evidence never satisfies this gate.
+Resolve base, head, range, diff, and changed files directly from Git. Require the
+current head, verification head, and review head and range to match exactly.
+Require no unexplained in-scope index, worktree, or untracked source change
+outside the committed range.
 
-Locally re-resolve the frozen manifest's commit and tree object IDs, exact range,
-canonically ordered bounded changed-path object records, every schema-defined
-digest, current index/worktree/in-scope untracked state, clean assertion, and
-identity. Never require or re-inline a literal patch or file-content payload, or
-rename, regenerate, or substitute the identity or manifest in this skill. A
-missing or stale object, tree, range, path record/digest, repository-state
-digest, clean assertion, identity, schema version, or field set returns
-`BLOCKED` before completion choices with a stable gap key, likely ownership, and
-exact re-entry condition.
+An `adaptive` or `deep` policy is incomplete when required independent
+perspectives were replaced by lead passes. Only an approved `focused` lead pass
+can satisfy a no-agent path. Standalone verification or review never substitutes
+for coordinator completion evidence.
 
-An `adaptive` or `deep` policy is unsatisfied when required independent
-perspectives were replaced by sequential lead passes. Only the approved
-`focused` lead-pass contract may satisfy a no-agent completion path. Never treat
-an independence gap as completion evidence.
-
-If any condition fails, do not present completion choices. Return the stale
-evidence or policy gap to the coordinator as `BLOCKED`, or return `Escalate` when
-resolution requires a user-owned policy, authority, or target decision. Include
-the exact condition required for safe re-entry.
+If verification is stale, review is not clean, policy is incomplete, or a
+finding or gap remains, do not present completion choices. Return `BLOCKED` with
+the observed state and exact re-entry condition, or `Escalate` when resolution
+requires a user-owned policy, authority, scope, or design decision.
 
 ## Present choices
 
-Only after the current-head completion gate passes, offer the applicable
-user-controlled publication or branch disposition choices:
+Only after the current-head gate passes, offer applicable user-controlled
+choices:
 
 1. publish or push the branch;
 2. create a pull request;
@@ -86,110 +49,87 @@ user-controlled publication or branch disposition choices:
 
 Explain dirty-state, publication, and cleanup consequences. Wait for the user's
 choice before every publication, pull request, local merge, keep, or discard
-disposition. Do not repeat an approval prompt once the exact choice and target are
-recorded, except for the immediate destructive confirmation required below.
+action. For discard, also require immediate destructive confirmation.
 
 ## Revalidate after the user choice
 
-For publication, push, pull-request creation, local merge, or discard, freshly
-reinspect all of these immediately before the state change:
+Immediately before a state-changing operation, recheck:
 
-- the current branch and ref plus the exact selected target;
-- the coordinator-frozen target identity and exact target manifest verbatim;
-- exact source and target ref object IDs;
-- `HEAD` and `git status --short`;
-- index/worktree and untracked evidence;
+- current source and destination refs and exact object IDs;
+- current branch, HEAD, base, range, diff, changed files, and
+  `git status --short`;
+- relevant untracked and ignored paths;
 - absence or exact presence of merge, rebase, cherry-pick, or other operation
   state;
-- the fresh verification PASS head and exact range;
-- the clean final review head and exact range;
-- the completed approved-policy gate and unresolved-finding state.
+- fresh verification and final review head/range;
+- approved-policy completion and unresolved findings or gaps.
 
-Require them to match the completion evidence and target shown when the user made
-the choice. If any value differs, do not perform the operation; return the stale
-state to the coordinator.
+Require these values to match the evidence shown when the user chose. If any
+value differs, preserve state and return the stale evidence without starting the
+operation.
 
-As part of this immediate revalidation, locally re-resolve and compare every
-manifest object, tree, range, changed-path record/digest, repository-state
-digest, clean assertion, and identity. Do not start the selected operation when
-any field is stale or cannot be resolved.
-
-For discard, obtain the existing explicit destructive confirmation first, then
-revalidate immediately before deletion. For keep, make no state change; inspect
-and report the current state.
+For keep, make no state change and report current refs and status. For discard,
+revalidate again after explicit confirmation and delete only the exact confirmed
+targets.
 
 ## Execute a safe local merge
 
-Immediately before a user-selected local merge, record an immutable pre-merge
-snapshot containing:
+Immediately before an authorized local merge, record:
 
-- exact source branch/ref and object ID;
-- exact target branch/ref and object ID;
-- checked-out branch, HEAD, index entries, worktree status and diff, and
-  tracked content identities;
-- every preexisting untracked or ignored path that the exact merge command,
-  configured hooks, or required post-merge checks can touch, with bounded path
-  inventory and immutable content identity;
-- a separate inventory of artifacts that explicit repository policy identifies
-  as disposable, with the policy evidence; never infer disposability from an
-  ignored status alone;
-- absence or presence of `MERGE_HEAD`, unmerged entries, and every other active
-  Git operation;
-- the exact merge command and required post-merge verification.
+- exact source and destination refs and object IDs;
+- checked-out branch, HEAD, index entries, worktree status, and diff;
+- relevant pre-existing untracked and ignored paths and their understood
+  ownership;
+- absence or presence of `MERGE_HEAD`, unmerged entries, and other active Git
+  operations;
+- exact non-interactive merge command and required post-merge verification.
 
-Require the safe precondition to have clean tracked/index/worktree state,
-attributable bounded untracked and ignored state, and no active merge or
-conflicting operation. Relevant untracked or ignored content need not be absent,
-but do not start a merge from unrelated or unidentified material state or when
-exact refs and ownership cannot be established. Before starting the merge,
-return `BLOCKED` when any relevant material untracked or ignored state cannot be
-safely bounded and content-identified. Include the stable gap key, likely
-ownership, observed state, and exact re-entry condition; never claim that
-unrecorded content can be restored exactly.
+Require clean tracked, index, and worktree prestate; exact refs; no active or
+conflicting Git operation; and no unidentified relevant untracked or ignored
+material that the merge, hooks, or checks could overwrite. If a precondition
+cannot be established, return `BLOCKED` with observed state and the exact re-entry
+condition. Do not reset, clean, move, or discard material to manufacture a clean
+prestate.
 
-Run only the exact authorized non-interactive local merge. On conflict or merge
-failure, inspect `MERGE_HEAD`, unmerged entries, refs, HEAD, index, worktree,
-the bounded untracked and ignored path/content identities, policy-declared
-disposable artifacts, and status before taking recovery action.
+Run only the authorized merge command. On conflict or merge failure, inspect
+refs, HEAD, `MERGE_HEAD`, unmerged entries, index, worktree, relevant untracked
+and ignored paths, and status before any recovery.
 
-Run `git merge --abort` only when this skill started the merge from the recorded
-clean state, the repository still represents that same merge attempt, and abort
-is safe for all recorded data. After abort, require exact restoration of the
-pre-merge source and target refs, checked-out branch, HEAD, tracked contents,
-index entries, worktree status and diff, every bounded untracked and ignored
-path/content identity, and the exact absence or preexisting presence of each Git
-operation state. Compare policy-declared disposable artifacts separately and
-report any change without using them as proof for material-state restoration.
-If exact restoration of recorded material state cannot be proven, never claim
-it; do not reset, clean, discard, or retry. Preserve the partial state and return
-`Escalate` for the exact user decision, or `BLOCKED` for an external/runtime
-condition with an exact re-entry condition.
+Run `git merge --abort` only when:
+
+- this skill started the currently active merge from the recorded clean prestate;
+- refs, operation state, and observed files show it is the same attributable
+  attempt;
+- abort is available and does not risk unrelated or pre-existing data.
+
+After abort, recheck source and destination refs, checked-out branch, HEAD, index,
+worktree status and diff, relevant untracked and ignored paths, and Git operation
+state against the recorded prestate. If restoration cannot be established, do
+not claim success, reset, clean, retry, or discard anything. Preserve and report
+the partial state for the user's decision.
 
 After a successful merge, run the required post-merge verification against the
-resulting exact target ref and HEAD. If it fails and the same merge remains
-safely abortable, abort and prove exact pre-state restoration as above. If a
-merge commit, fast-forward, changed ref, or other resulting state means safe
-abort is unavailable, preserve every resulting ref and file. Do not reset,
-publish, retry, or clean up, including untracked or ignored state. Report the
-failed command, refs, HEAD, tracked/index/worktree state, bounded untracked and
-ignored content identities, merge state, and recovery limitation for the user's
-decision.
+resulting destination ref and head. If it fails, abort only when the same merge
+attempt is still active and the safety conditions above hold. When a merge
+commit, fast-forward, changed ref, or other state makes safe abort unavailable,
+preserve every ref and file and report the failed command, status, partial
+result, and recovery limitation. Do not reset, clean, retry, or publish.
 
-## Execute the choice
+## Execute the selected choice
 
 - For publication or push, write only the exact authorized remote and ref; never
-  infer a force push.
-- For a PR, use the `create-pr` skill only after that exact external write is
+  infer force push.
+- For a pull request, use `create-pr` only after that external write is
   authorized.
-- For a local merge, follow the safe local-merge transaction above. Do not fetch,
-  pull, or push without separate authority.
+- For local merge, follow the safe merge procedure above. Do not fetch, pull, or
+  push without separate authority.
 - For keep, make no state change.
-- For discard, delete only the confirmed and freshly revalidated exact targets.
+- For discard, remove only freshly revalidated and explicitly confirmed targets.
 
 Never force-push, delete a branch, remove a worktree, reset, clean, or discard
-uncommitted data from an implied choice. Never touch unrelated dirty data.
+uncommitted data from an implied choice. Never touch unrelated state.
 
-Report the coordinator-frozen target identity and target manifest verbatim, the
-resulting exact refs, branch/worktree, operation state, verification, recovery
-action, and every gap to the coordinator. Do not choose or start another workflow
-phase from this skill.
+Report resulting refs, branch/worktree, current head, range, status, changed
+files, commands and observed results, verification, any abort or recovery action,
+preserved partial state, concerns, and every gap. Do not choose or start another
+workflow phase.

@@ -5,7 +5,8 @@ description: Decompose an approved design or otherwise settled scope into self-c
 
 # Create an implementation plan
 
-Write a plan that a fresh implementer can execute without reconstructing decisions from the conversation.
+Write a plan that a fresh implementer can execute without reconstructing
+decisions from the conversation.
 
 ## Entry
 
@@ -20,92 +21,121 @@ Return unresolved architecture, public contracts, or scope to
 
 ## Investigate
 
-Read the relevant design, current implementation, tests, repository guidance, and recent history. Map files by responsibility before splitting tasks.
+Read the relevant design, current implementation, tests, repository guidance, and
+recent history. Map files by responsibility before splitting tasks.
 
 ## Plan structure
 
-Store the plan at `docs/plans/YYYY-MM-DD-<feature>.md` unless repository guidance specifies another location.
+Store the plan at `docs/plans/YYYY-MM-DD-<feature>.md` unless repository guidance
+specifies another location.
 
 Include:
 
-- goal, architecture summary, technologies, working directory, branch, and observed baseline;
+- goal, architecture summary, technologies, working directory, branch, and
+  observed baseline;
 - fixed decisions and explicit non-goals;
-- a complete Review policy;
-- one exact per-task verification command;
+- a Review context;
+- a separate complete Review policy;
 - tasks ordered by dependency;
 - final verification, review iteration, and publication policy.
 
 For each task include:
 
-- why the task exists;
-- whether behavior changes;
-- discipline: TDD for behavior, existing green tests for refactoring, or an explicit content/configuration migration discipline;
+- why the task exists and whether behavior changes;
+- discipline: TDD for behavior, existing green tests for refactoring, or an
+  explicit content/configuration migration discipline;
 - exact files created, modified, and tested;
-- concrete steps, commands, and expected results;
-- an exact commit scope and message.
+- concrete steps, exact commands, and expected results;
+- exact commit scope and message.
 
 ## Test planning
 
 - Define tests by behavioral viewpoint.
-- For behavior changes, specify the failing test and expected red result before implementation.
-- Prefer unit tests for module or component behavior, including filesystem behavior.
-- Use Cargo integration tests only for public-crate, multi-component, or real process journeys.
-- Require Arrange, Act, Assert; DAMP setup; returned-result assertions; and relevant side-effect assertions.
+- For behavior changes, specify the failing test and expected red result before
+  implementation.
+- Prefer unit tests for module or component behavior, including filesystem
+  behavior.
+- Use integration tests only for public-crate, multi-component, or real process
+  journeys.
+- Require Arrange, Act, Assert; DAMP setup; returned-result assertions; and
+  relevant side-effect assertions.
 - Do not impose source-line or test-count quotas.
+
+## Review context
+
+Record a concise `Review context` section before the Review policy. Describe in
+plain language:
+
+- the artifact type and its purpose;
+- its consumers and execution or interpretation model;
+- behavior and quality characteristics that materially matter;
+- realistic failures with material consequences;
+- approved trade-offs and conditions that are non-problems by themselves;
+- assumptions or reviewer perspectives that are inapplicable.
+
+Base the context on approved decisions and repository evidence. Do not turn it
+into a machine-readable schema or repeat command results that belong to later
+verification. An approved non-problem may be reconsidered only with materially
+new evidence of a concrete reachable failure or approved-contract violation.
 
 ## Review policy
 
-Include a `Review policy` section in every plan. Use `adaptive` as the default for
-planned work. Recommend `focused` or `deep` only when repository evidence,
-approved decisions, and concrete risk surfaces justify it; never select a mode
-from file count, changed-line count, or apparent diff size. Leave the lightweight
-path, including its `focused` default, and cross-phase policy application to
-`agentic-engineering-workflow`.
+Include a separate `Review policy` section in every plan. The policy controls
+breadth, independence, capacity, and Acceptance; it references the Review context
+without repeating it.
 
-Resolve combined-versus-independent per-task gate semantics from
-`agentic-engineering-workflow`. Resolve final-reviewer baseline and perspective
-applicability from the `review` skill. Apply these mode overlays without
-reproducing cross-phase routing:
+Use `adaptive` as the default for planned work. Recommend `focused` or `deep`
+only when repository evidence, approved decisions, and concrete risk surfaces
+justify it. Never select a mode from file count, changed-line count, or apparent
+diff size.
 
-- `focused`: use one combined specification-and-quality per-task gate. Require
-  `code-reviewer` in final review and require `test-coverage-reviewer` when
-  behavior or tests change. Add final perspectives only for recorded risk
-  surfaces.
-- `adaptive`: use independent specification and quality per-task gates. Select
-  only risk-applicable standard and adversarial final perspectives.
-- `deep`: use independent specification and quality per-task gates. Select all
-  applicable standard and adversarial final perspectives, and require
-  `adversarial-integrator` whenever any adversarial reviewer runs.
+Apply these mode contracts:
 
-Record the resulting concrete policy:
+- `focused`: one combined specification-and-quality per-task gate; final
+  `code-reviewer`; `test-coverage-reviewer` when behavior or tests changed; plus
+  only additional perspectives justified by recorded risk.
+- `adaptive`: independent specification and quality per-task gates; final
+  standard and adversarial perspectives selected for recorded risk.
+- `deep`: independent specification and quality per-task gates; every final
+  perspective applicable to the artifact and observed risks; adversarial
+  integration whenever any adversarial perspective runs.
 
-- **Mode:** `focused`, `adaptive`, or `deep`, with an evidence-based rationale.
-- **Risk surfaces:** identify applicable public API, persistence or migration,
-  security or permission, concurrency, error or recovery, performance hot-path,
-  cross-component responsibility, and test-double or fixture risks.
-- **Per-task gate:** name the combined or independent reviewers required by the
-  selected mode, including a resolvable profile or complete fallback prompt.
-- **Final required reviewers:** name every reviewer that must run and why.
-- **Final conditional reviewers:** name each trigger that adds a reviewer.
-- **Explicitly skipped perspectives:** name each omission and its reason.
-- **Residual risk:** state what the selected breadth does not cover. When the user
-  selects a lighter policy, preserve the omitted perspectives and resulting risk.
-- **Capacity:** record the configured and observed limit, queue order, and how the
-  approved scope remains intact when capacity is lower.
-- **Acceptance threshold:** accept only Must Fix or Should Improve findings that
-  cite a concrete reachable behavior or contract violation, evidence, impact,
-  and a specific correction. Reject preference-only, speculative, and
-  already-decided objections without new evidence.
+For every mode, name explicitly skipped perspectives and why they are
+inapplicable. `Deep` means broad applicable coverage, not every configured
+reviewer.
+
+Record:
+
+- **Mode and rationale**
+- **Risk surfaces**
+- **Per-task gate**
+- **Final required reviewers and reasons**
+- **Final conditional reviewers with exact triggers**
+- **Explicitly skipped perspectives and reasons**
+- **Residual risk**
+- **Capacity and deterministic queue order**
+- **Acceptance threshold**
+
+Use the same proportional Acceptance threshold in every mode. A finding survives
+only when it applies to the artifact and consumer model, cites an approved
+requirement, identifies concrete reachable evidence, states a material
+consequence, and proposes a proportionate correction. `Should Improve` requires
+a concrete maintainability consequence or measurable repeated cost.
+
+Drop preference-only, speculative, second-order, artifact-inapplicable, optional
+polish, and objections to approved decisions without new evidence. A proposed
+state machine, schema, identity system, or other architectural mechanism is
+`Escalate` unless it is necessary and proportionate to a proven in-scope
+violation.
 
 Keep model and reasoning-effort choices in reviewer profiles, not in the plan.
 
 ## Agent capacity
 
 When execution may use subagents, identify one writer and read-only reviewers.
-Keep work independently assignable and ensure planned concurrency fits the
-Review policy's capacity field.
-Require every named reviewer to have a resolvable profile or a complete fallback
-prompt.
+Require every named reviewer to have a resolvable profile or complete fallback
+prompt. Queue selected reviewers when capacity is lower; never reduce approved
+scope or independence silently.
 
 ## Quality
 

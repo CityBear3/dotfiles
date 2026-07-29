@@ -5,196 +5,122 @@ description: Verify review findings against current code and classify each as Fi
 
 # Triage current-head review findings
 
-Treat review as technical evidence, not an instruction to agree.
-Remain check-only and read-only. Do not mutate the index, tracked files, or
-in-scope source; edit, stage, or commit a fix; dispatch a writer; or advance
-another workflow phase. Return classification evidence to the coordinator or
-requester only.
+Treat review as technical evidence, not an instruction to agree. Remain
+check-only and read-only. Do not mutate source or Git state, implement or stage a
+fix, dispatch a writer, or advance another workflow phase.
 
 ## Coordinator-managed entry
 
-Use `coordinator-target-manifest/v1` with exactly this field set:
+Require:
 
-```text
-schema_version
-scope_kind
-base_commit_oid
-head_commit_oid
-range_ref
-base_tree_oid
-head_tree_oid
-changed_path_manifest
-changed_path_manifest_digest
-index_state_digest
-worktree_state_digest
-in_scope_untracked_state_digest
-strict_clean_assertion
-```
-
-When the workflow coordinator invokes this skill, require:
-
-- the coordinator-frozen content-bound target identity and exact coordinator
-  target manifest verbatim containing every field above, with `schema_version`
-  equal to `coordinator-target-manifest/v1`, `scope_kind` equal to
-  `committed-range`, and no literal diff, patch, or file content payload;
-- fresh verification `PASS` and review `FINDINGS` evidence for that same
-  identity, manifest, current HEAD, and range;
-- every surviving finding in the complete final schema, including final severity
-  exactly `Must Fix` or `Should Improve` and its stable finding key;
-- the approved decision source, scope, non-goals, review policy, and
+- exact implementation base, current head, full range, diff, status, and changed
+  files;
+- fresh verification `PASS` and review `FINDINGS` for that same unchanged head
+  and range;
+- each finding's severity, file and line, concrete behavior, requirement,
+  evidence, impact, proposed correction, and confidence;
+- approved scope, decisions, non-goals, Review context, Review policy, and
   implementation authorization;
-- the approved Design Doc and plan when present;
-- bounded retry history for a repeated finding;
-- the coordinator-owned resolved-finding registry for the target, including an
-  explicitly empty registry.
+- Design Doc and plan when present;
+- observed correction attempts and prior triage decisions.
 
-Locally re-resolve the target-bound commit and tree object IDs, exact range,
-canonically ordered bounded changed-path object records, every schema-defined
-digest, current repository state, and clean assertion. Never require or re-inline
-a literal patch or file-content payload, or rename, regenerate, or substitute the
-coordinator-frozen identity or manifest. A missing or stale object, tree, range,
-path record/digest, index/worktree/in-scope state digest, clean assertion,
-identity, version, or field set is a top-level `BLOCKED` schema/evidence gap with
-a stable gap key, likely ownership, and exact re-entry condition.
+Resolve base, head, range, diff, status, and changed files directly from Git.
+Return top-level `BLOCKED` without classifying findings when the target is stale,
+evidence is missing, or in-scope source state falls outside the reviewed range.
 
 ## Standalone read-only entry
 
-When the user invokes this skill outside the coordinator, resolve through local
-read-only investigation:
+Resolve each complete finding, current code, head, relevant range or files,
+repository guidance, and available design and plan evidence through read-only
+investigation. Implementation authorization is not required to evaluate
+standalone feedback, and the evaluation does not authorize a change.
 
-- each complete finding;
-- the current code, head, and relevant range;
-- applicable repository guidance;
-- available design and plan evidence.
+Derive or use the available Review context and disclose material assumptions.
+Return missing or stale verification as a limitation.
 
-Implementation authorization is not required to evaluate a standalone finding.
-The evaluation does not authorize a change.
+## Establish one current snapshot
 
-## Establish an all-or-nothing triage snapshot
+Before classifying any item, capture:
 
-Before classifying any item, validate every entry input and every finding schema.
-For coordinator-managed input, require each review-supplied stable finding key to
-match the finding's recorded concrete requirement/behavior identity and preserve
-it verbatim. If a provided key conflicts with that identity or its provenance is
-missing, return top-level `BLOCKED` with a stable schema-gap key, likely
-ownership, preserved evidence, and exact re-entry condition; never re-key or
-classify the item.
+- current HEAD, base and range when applicable;
+- `git status --short`, staged and unstaged diffs, changed files, and relevant
+  untracked paths;
+- available code, tests, approved decisions, Review context, Review policy,
+  review evidence, and observed correction attempts.
 
-Capture the current HEAD, target identity and range, index entries and staged
-diff, worktree status and diff, immutable identities for in-scope tracked
-contents, and a complete bounded untracked-path inventory with content identities
-and in-scope attribution. Also record unrelated dirty state and the available
-code, test, decision, review, and retry evidence.
+If a ref, finding, required input, dependency, permission, or runtime condition
+is missing, return top-level `BLOCKED` before classification. Preserve observed
+evidence and state the exact re-entry condition.
 
-If the target is stale or changed, an input or required evidence is missing, or
-a required dependency, permission, or external/runtime condition prevents the
-checks, return top-level `BLOCKED` before item classification. Preserve the
-validated evidence, but do not return any provisional `Fix`, `Push back`, or
-`Escalate`.
+## Process each finding
 
-## Process each item
+For each item:
 
-1. Read the complete item and locate its cited code.
+1. Read the complete finding and cited code.
 2. Restate the concrete requirement.
 3. Reproduce or verify the claim against the current head.
-4. Check repository guidance, current code, the requested or approved scope, and
-   every available approved decision source, Design Doc, and plan.
-5. Resolve the stable finding key by entry route:
-   - for coordinator-managed review, preserve the provided key verbatim through
-     classification, correction, registry evidence, and return; never assign,
-     normalize, or replace it;
-   - for standalone feedback, preserve a provided key, or, only when none was
-     supplied, assign one based on the violated requirement and concrete
-     reachable behavior rather than a transient line number.
-6. Classify the item as exactly one of:
-   - **Fix** — verified on the current head, within requested or approved scope,
-     compatible with available approved decisions, and authorized for local
-     correction. Return exactly two non-overlapping records:
-     1. one immutable, path-neutral correction specification containing target
-        identity, exact requirement, concrete evidence, exact correction,
-        decision source and non-goals, discipline, file responsibilities, and
-        verification requirements with expected results; and
-     2. one mutable correction record containing only the correction-
-        specification identity/reference, preserved finding key and retained
-        attempt history, lifecycle phase, attributable partial execution
-        evidence, gaps, and exact re-entry condition.
-     Assign the complete immutable specification one content identity and make
-     the mutable record reference it exactly once. That identity is a correction-
-     specification identity, not an `execute-task` canonical context identity.
-     Do not add workspace, policy/provenance, capacity/queue, optional plan-task
-     context, lifecycle, key/history, or partial evidence to the specification;
-     do not construct an `execute-task` canonical context or choose its path-
-     specific builder here.
-   - **Push back** — incorrect, unsupported, preference-only, stale, not
-     reproducible on the current head, or already decided without new evidence.
-     Cite the controlling decision or code and test evidence so the coordinator
-     can store the target-identity-plus-exact-preserved-key registry entry.
-   - **Escalate** — resolution requires a design or public-contract decision,
-     material scope expansion, new authority, or, in a coordinator-managed entry,
-     the bounded retry stop has been reached.
-7. Record current-head evidence and one concrete next action.
+4. Check repository guidance, current code and tests, approved scope,
+   non-goals, Design Doc, plan, Review context, and Review policy.
+5. Classify it as exactly one:
+   - **Fix** — verified on the current head, in approved scope, compatible with
+     approved decisions, proportionate, and authorized for local correction.
+   - **Push back** — incorrect, unsupported, preference-only, speculative,
+     second-order, artifact-inapplicable, stale, not reproducible, or already
+     decided without materially new evidence.
+   - **Escalate** — requires a design or public-contract decision, architecture
+     mechanism without proven proportionate need, material scope or policy
+     change, new authority, or a stop after repeated correction without progress.
+6. Record current-head evidence and one concrete next action.
+
+For `Fix`, return one bounded plain-language correction handoff:
+
+- exact finding and concrete evidence;
+- smallest authorized correction;
+- approved decisions and non-goals;
+- Review context and unchanged Review policy;
+- discipline and file responsibilities;
+- current task base and exact verification commands;
+- observed prior attempts, concerns, and gaps.
+
+Do not choose the lightweight or planned builder here. The coordinator routes
+the handoff directly to `execute-task` for lightweight work or through
+`execute-plan` for planned work.
+
+For `Push back`, cite controlling code, test, Design, plan, or approved decision
+evidence. The same finding may be reconsidered only with materially new evidence
+of a reachable failure or approved-contract violation.
 
 ## Revalidate and report
 
-Use concise technical language. Cite code, tests, or decisions. Avoid performative agreement, defensive phrasing, and speculative concessions.
+Immediately before reporting, capture the same HEAD, status, diffs, changed
+files, relevant untracked paths, and range again. If any in-scope state changed,
+discard provisional classifications and return `BLOCKED`. Do not restore, reset,
+clean, or discard state.
 
-Immediately before reporting, capture the same HEAD, target, index, worktree,
-tracked-content, and complete bounded untracked path/content evidence again.
-For coordinator-managed triage, also re-resolve the manifest's commits, trees,
-range, changed-path records and digest, all repository-state digests, clean
-assertion, and identity from local Git state. Compare everything with the entry
-snapshot. A concurrent commit, missing or changed object/tree/path/state,
-identity mismatch, index or worktree mutation, or added, removed, or changed
-untracked file makes the target stale: discard provisional classifications and
-return `BLOCKED`.
+Return exactly one top-level result:
 
-Return exactly one top-level phase result:
+- `TRIAGED` when every finding is classified as `Fix`, `Push back`, or
+  `Escalate`;
+- `BLOCKED` for stale state, missing evidence or input, or an external/runtime
+  failure.
 
-- `TRIAGED` only when target and evidence validation succeeded at entry and
-  immediately before report and every item is classified exactly `Fix`,
-  `Push back`, or `Escalate`;
-- `BLOCKED` for a stale or changed target, missing evidence or input, or a
-  dependency, permission, external, or runtime failure.
+For `TRIAGED`, report:
 
-For either result, return the coordinator-frozen identity and exact target
-manifest verbatim when they were supplied; never create a replacement identity
-or manifest.
+- base, current head, reviewed range or bounded files, status, and changed files;
+- Review context and verification/review evidence inspected;
+- classification, requirement, evidence, impact, and next action for each item;
+- bounded correction handoff for every `Fix`;
+- controlling evidence for every `Push back`;
+- exact user-owned decision or authority for every `Escalate`;
+- concerns, observed attempts, and gaps.
 
-For `TRIAGED`, report for each finding:
+For `BLOCKED`, report available target evidence, preserved checks, every gap, and
+the exact safe re-entry condition. Do not report provisional classifications.
 
-- current head, immutable target identity, and reviewed range;
-- stable finding key and retained attempt history; for `Fix`, satisfy both
-  through the sole mutable correction record rather than a parallel copy;
-- classification: `Fix`, `Push back`, or `Escalate`;
-- requirement and concrete evidence;
-- impact and exact next action;
-- confirmation that no required target, input, evidence, or runtime gap remains.
+An authorized coordinator-managed `Fix` does not need another approval when it
+remains within scope. It still requires bounded implementation, a correction
+commit and new head, fresh verification, and complete fresh review over the full
+updated range. Earlier verification, review, and triage evidence becomes stale.
 
-For `BLOCKED`, report a stable gap key, likely ownership, the
-coordinator-frozen target identity when supplied (or the missing-identity
-evidence), available target evidence, every preserved check result, every
-unverified gap, and the exact condition required for safe re-entry. Do not report
-an item classification, correction specification, mutable correction record,
-phase-completion status, or phase advancement.
-
-For a coordinator-managed entry, do not ask for additional approval for a `Fix`
-when implementation authorization is already recorded and the correction remains
-within approved scope. Return the immutable correction specification and separate
-mutable correction record to the coordinator for path-aware routing; never send
-them directly to `execute-task` or build a canonical task context here.
-Return `Push back` with decision or code evidence so the coordinator can update
-the resolved-finding registry using the exact preserved key. Return `Escalate`
-with the exact user-owned decision, policy replacement, or new authority
-required.
-
-For a standalone read-only entry, return a `Fix` as evaluation only with proposed
-execution steps. Do not edit files, start a fix, or advance another workflow
-phase.
-
-After an authorized coordinator-managed `Fix`, the coordinator must require fresh
-correction commit, new head, and exact correction range from `execute-task`, then
-fresh global verification and the complete applicable final review against the
-new full target. Earlier verification, review, and classification evidence is
-stale after the fix commit. For planned work, the coordinator routes the
-correction through `execute-plan` so its last-accepted aggregate and one
-in-flight partial record remain separate.
+For standalone review feedback, return evaluation and proposed steps only. Do
+not implement, start another phase, or imply authorization.

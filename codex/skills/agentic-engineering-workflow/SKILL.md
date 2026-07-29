@@ -139,69 +139,44 @@ workspace, task base, and retained decisions to `execute-plan`. That skill owns
 dependency order, per-task handoff, ordered evidence aggregation, and
 plan-deviation detection.
 
-## Preserve the bounded global review target
+## Prepare concise final-gate evidence
 
-For every coordinator-managed global gate, create one
-`coordinator-target-manifest/v1` request with:
+For a coordinator-managed final gate, retain one current evidence summary:
 
-```text
-schema_version
-scope_kind
-base_commit_oid
-head_commit_oid
-range_ref
-base_tree_oid
-head_tree_oid
-changed_path_manifest
-changed_path_manifest_digest
-index_state_digest
-worktree_state_digest
-in_scope_untracked_state_digest
-strict_clean_assertion
-```
+- lightweight or planned path;
+- original implementation base, current head, and exact full range;
+- current `git status --short` and changed files;
+- approved scope, decisions, and non-goals;
+- Review context and complete Review policy;
+- task commits and reviewer outcomes;
+- observed verification commands and results;
+- concerns, unresolved findings, and every gap.
 
-Set `scope_kind` to `committed-range` and `range_ref` to the exact
-`base_commit_oid..head_commit_oid` reference. Resolve changed paths locally from
-those Git objects and record status, old and new path when applicable, modes, and
-base/head object IDs without embedding file contents. Use SHA-256 over canonical
-serialization for the changed-path and repository-state digests. Set
-`strict_clean_assertion` only when no in-scope content exists outside the
-committed range.
-
-Require `verify` to re-resolve the commits, trees, range, changed paths, and
-current repository state before deriving the content-bound target identity.
-Freeze the validated manifest and returned identity for `review`,
-`receiving-code-review`, and `finish-branch`. A missing or stale object, digest,
-or clean assertion is `BLOCKED`.
-
-A later accepted correction creates a new manifest request and target identity.
-Standalone verification and review targets never advance this coordinated flow.
-
-For a `Push back`, retain the concrete finding and controlling approved evidence
-with the current target. Give that decision evidence to a fresh review of the
-unchanged target. The same finding does not survive again without materially new
-evidence. Do not assign finding keys or create another finding protocol.
+Require no unexplained in-scope index, worktree, or untracked source change
+outside the committed range. Re-read the current head and status before every
+cross-phase transition. Standalone verification or review can answer its direct
+request, but never substitutes for coordinator evidence against the current
+implementation head.
 
 ## Advance only on current evidence
 
 Advance automatically within approved scope:
 
 1. Accept from lightweight `execute-task` only an `Accepted` result for the
-   current head and exact task base-to-head range. Build the target request from
-   the original lightweight base through that head.
+   current head and exact task base-to-head range.
 2. Accept from `execute-plan` only all ordered task results plus the distinct
-   aggregate current head and full implementation range. Build the target request
-   from the original plan base through that head.
-3. Require no unexplained in-scope work outside the requested range. Pass the
-   target request, Review context, Review policy, task evidence, changed files,
-   and observed commands to `verify`.
-4. Advance to `review` only on a fresh verification `PASS` whose returned
-   manifest, target identity, current head, and range match the request. Pass the
-   same frozen target, Review context, policy, and verification evidence to every
-   selected final reviewer and adversarial integrator.
-5. Send concrete current findings with the same frozen target and current
+   aggregate current head and full implementation range.
+3. Build the concise evidence summary and pass it to `verify`. Accept only a
+   fresh `PASS` for the same base, current head, full range, changed files, and
+   unchanged status.
+4. Pass that verification result, Review context, Review policy, exact range,
+   diff, changed files, commands, task outcomes, and gaps to `review`. Require
+   every selected final reviewer and adversarial integrator to receive the same
+   Review context.
+5. Accept from `review` only `CLEAN`, `FINDINGS`, or `BLOCKED` for that unchanged
+   current head and range. Send concrete current `FINDINGS` and supporting
    evidence to `receiving-code-review` for `Fix`, `Push back`, or `Escalate`
-   classification. Do not reinterpret a blocked or incomplete result as clean.
+   classification. Do not reinterpret blocked or incomplete evidence as clean.
 
 For `Fix`, route one bounded correction through the active path. Retain the
 approved decisions, non-goals, Review context, Review policy, exact finding,
@@ -209,6 +184,11 @@ current task base and head, and the observed correction attempts. Lightweight
 work returns directly to `execute-task`; planned work returns through
 `execute-plan` as a concrete plan correction step. After acceptance, rerun fresh
 global verification and the complete final review over the full updated range.
+
+For `Push back`, retain the concrete finding, classification, and controlling
+approved evidence. A fresh review of the unchanged range may reject the same
+finding unless materially new evidence shows a reachable failure or approved
+contract violation.
 
 If the same concrete problem repeats without progress or another action would
 repeat an observed failed correction, stop and report the attempts and remaining
@@ -224,9 +204,10 @@ triage, unresolved triage to correction, or incomplete evidence to
 
 Enter `finish-branch` only when fresh verification passes and final review is
 clean for the exact current head and full implementation range, the approved
-Review policy is satisfied, the frozen target still matches, and no finding or
-gap remains. Pass that target to `finish-branch`, then stop for the user's
-publication or branch-disposition choice.
+Review policy is satisfied, current status still matches the reviewed evidence,
+and no finding or gap remains. Pass the concise final-gate evidence to
+`finish-branch`, then stop for the user's publication or branch-disposition
+choice.
 
 Never treat an edit, successful command, implementation commit, agent
 self-review, stale per-task approval, or incomplete aggregate as workflow

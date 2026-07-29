@@ -9,216 +9,131 @@ No completion claim without fresh observed evidence.
 
 Remain check-only and read-only with respect to the index, tracked files, and
 in-scope source files. Do not edit source, stage changes, create commits, run a
-fix, or advance another workflow phase. Verification commands may create their
-normal ignored build or test artifacts, but they must not mutate tracked or
-in-scope source state.
+fix, or advance another workflow phase. Verification commands may create normal
+ignored build or test artifacts, but must not mutate tracked or in-scope source
+state.
 
-## Resolve one verification target
+## Resolve the requested target
 
-Use exactly one target form:
+Use one target form:
 
-- an exact committed range identified by base/head commit and tree object IDs,
-  range reference, and a bounded changed-path object manifest;
-- a captured current index/worktree snapshot identified by HEAD, index state,
-  staged diff, worktree diff, and path/content identities for in-scope untracked
-  files;
-- a bounded explicit fileset identified by path inventory and immutable content
-  identities for every inspected file.
+- a coordinator-managed committed range with exact base, current head, and
+  `base..head` range;
+- a standalone committed range;
+- a standalone current index/worktree snapshot;
+- a standalone bounded explicit fileset.
 
-Identity ownership depends on the entry route. For a coordinator-managed entry,
-the coordinator supplies an exact target manifest request and this skill resolves
-the content-bound immutable identity exactly once as defined below. For a
-standalone entry, this skill creates its own standalone-only stable identity
-under the selected target schema. In both routes, record HEAD, index/worktree and
-in-scope untracked evidence, unrelated dirty state, applicable repository
-guidance, every authoritative command and expected result, and known limitations
-before running any command.
+For any target, inspect applicable repository guidance and record current HEAD,
+`git status --short`, changed files, requested scope, authoritative commands, and
+known limitations before running checks.
 
 ## Coordinator-managed entry
 
-Use `coordinator-target-manifest/v1` with exactly this field set:
+Require:
 
-```text
-schema_version
-scope_kind
-base_commit_oid
-head_commit_oid
-range_ref
-base_tree_oid
-head_tree_oid
-changed_path_manifest
-changed_path_manifest_digest
-index_state_digest
-worktree_state_digest
-in_scope_untracked_state_digest
-strict_clean_assertion
-```
-
-When the workflow coordinator invokes this skill, require:
-
-- one exact coordinator target manifest request containing every field above,
-  with `schema_version` equal to `coordinator-target-manifest/v1`,
-  `scope_kind` equal to `committed-range`, and no literal diff, patch, or file
-  content payload;
-- no in-scope index, worktree, or untracked source state outside that committed
+- the original implementation base, current head, and exact full committed
   range;
-- the approved scope, decision source, non-goals, and complete active Review
-  policy with provenance;
-- the approved implementation plan when present;
+- current status and changed files, with no unexplained in-scope index,
+  worktree, or untracked source change outside that range;
+- approved scope, decisions, non-goals, Review context, and Review policy;
+- the implementation plan when present;
 - every authoritative final verification command and expected result;
-- prior stable gate keys and bounded retry history on re-entry.
+- task commits, task-review outcomes, concerns, and known gaps.
 
-At entry, locally resolve `base_commit_oid`, `head_commit_oid`, their tree object
-IDs, and `range_ref`. Recompute the canonically ordered bounded changed-path
-records from the Git objects, including status, old/new paths when applicable,
-modes, and base/head blob or tree object IDs. Recompute every schema-defined
-SHA-256 digest from canonical serialization and validate the current index,
-tracked worktree, in-scope untracked state, and `strict_clean_assertion`. Never
-require or accept a literal patch or file-content payload.
+Resolve the base, head, range, changed files, and diff directly from Git. Require
+repository HEAD to equal the supplied current head. Return `BLOCKED` before
+checks when a ref or range is missing, status does not match, an in-scope change
+exists outside the range, or another required input cannot be established.
 
-Return `BLOCKED` before checks with a stable gap key, likely ownership, and exact
-re-entry condition when a commit or tree object is missing or stale, the range
-does not resolve, a changed-path record or digest differs, a repository-state
-digest differs, or the clean assertion is false. Only after all fields validate,
-derive one content-bound immutable target identity exactly once as the
-schema-tagged SHA-256 digest of the complete canonical manifest. Return that
-identity with the unchanged manifest fields and use both for every check and
-report in this invocation. Never accept a coordinator-supplied identity, rename
-or regenerate the resolved identity or manifest, or substitute another field set
-later in the phase.
-
-Read repository guidance, approved scope and decision source, active review
-policy, changed files, and the current diff. Read the approved implementation
-plan when present. Resolve authoritative project commands before generic
-defaults. Standalone snapshot or fileset evidence never satisfies this entry and
-cannot authorize current-head completion. Return `BLOCKED` without running checks
-when the exact manifest, strict current state, complete policy, commands, or
-another entry input cannot be established.
+Coordinator completion requires fresh evidence for this exact current head.
+Standalone evidence never substitutes for this entry.
 
 ## Standalone read-only entry
 
-When the user invokes this skill outside the coordinator, resolve the explicitly
-requested target as one of the three target forms above through local read-only
-investigation. Require:
+Resolve the user's requested scope through local read-only investigation:
 
-- the requested scope;
-- applicable repository guidance;
-- authoritative verification commands;
-- available plan, decision, and review-policy evidence when present.
+- For a committed range, record base, head, range, diff, changed files, and
+  current status.
+- For an index/worktree review, record HEAD, staged and unstaged status and
+  diffs, relevant untracked paths, and bounded changed files.
+- For an explicit fileset, record the exact bounded paths, current status, and
+  what content was inspected.
 
-Do not require an active review policy, implementation authorization, or
-coordinator-owned retry history for standalone verification. Return `BLOCKED`
-with the exact missing input when the target identity, requested scope, or
-authoritative commands cannot be resolved safely.
+Require applicable repository guidance and authoritative verification commands.
+Use available plan, decision, Review context, and policy evidence when present.
+Do not require implementation authorization or an approved policy for a
+standalone check.
 
-Create the standalone target identity once from every immutable field required
-by its selected target schema. Label it `standalone-only`; it is separate from
-and cannot be promoted to a coordinator-resolved identity.
+Return `BLOCKED` when the requested scope or authoritative commands cannot be
+resolved safely. Report assumptions and limitations. A worktree or fileset result
+may answer the direct request, but cannot satisfy the coordinator's committed
+current-head gate.
 
-Label an index/worktree snapshot or explicit fileset result `standalone-only`.
-It may answer the requested verification question, but it cannot satisfy the
-coordinator's immutable current-HEAD completion gate. Report this limitation
-even when all commands pass.
+## Select a compatible executor
 
-## Select only a compatible verification executor
-
-Before selecting any named verifier, inspect its effective sandbox and complete
+Before selecting a named verifier, inspect its effective sandbox and complete
 instructions. A compatible verifier must prohibit index, tracked-file, and
 in-scope source mutation and must not permit formatter output into those files.
-Do not select or dispatch a named profile whose effective contract permits such
-mutation.
 
 The current `implementation-verifier` profile uses a workspace-write sandbox and
-permits formatter output, so it is incompatible with this check-only phase. Do
-not rely on or dispatch it. Use a compatible read-only route when one is
-available; otherwise the lead runs the checks directly under this complete
-check-only contract. An unavailable compatible route is not permission to weaken
-the contract.
+permits formatter output, so it is incompatible with this check-only phase. Use
+a compatible read-only route when available; otherwise the lead runs the checks
+under this contract. Unavailability is not permission to weaken the boundary.
 
 ## Snapshot and run checks
 
 Immediately before the first command, capture:
 
-- HEAD, the target identity, and, for coordinator-managed verification, the
-  unchanged coordinator target manifest;
-- index entries plus the complete staged and unstaged status and diffs;
-- immutable identities for tracked and in-scope source contents;
-- path/content identities for in-scope untracked files and unrelated dirty
-  state;
-- absence or presence of pre-existing command artifacts that matter to the
-  checks.
+- current HEAD and target base/range or bounded standalone files;
+- index entries, `git status --short`, and staged and unstaged diffs;
+- relevant in-scope untracked paths and unrelated dirty state;
+- pre-existing command artifacts that matter to the checks.
 
 Run fresh, as applicable:
 
-1. the approved final verification commands, using the plan when present;
+1. approved final verification commands;
 2. focused tests for changed behavior;
 3. owning package or workspace tests;
 4. build or type check;
-5. lint with warnings treated according to project policy;
-6. format check;
+5. lint;
+6. format check using only a documented non-mutating mode;
 7. relevant smoke or snapshot checks;
 8. `git diff --check`, diff inspection, and final status.
 
-Use only a formatter's documented check-only form, such as `--check` or an
-equivalent no-write mode. If the required formatter offers only a mutating form,
-return `BLOCKED` with that exact tool gap without running it. Do not replace
-repository wrappers with broader commands that change semantics. Ask before
-unusually expensive full-workspace checks when repository policy requires it.
+Do not replace repository wrappers with broader commands that change semantics.
+If a required formatter has no check-only form, return `BLOCKED` without running
+it.
 
-After the final command, capture the same HEAD, index, status, diff, tracked
-content, in-scope source, and untracked evidence again. Compare the snapshots and
-attribute every change. Normal newly created ignored build artifacts are allowed
-when recorded. An attributable tracked or in-scope source mutation is a
-verification contract failure; uncertain ownership is `BLOCKED`. Do not repair,
-restore, stage, commit, or clean either state from this skill.
+After the final command, capture the same HEAD, status, diffs, untracked paths,
+and relevant source state. Attribute every change. Normal ignored build artifacts
+are allowed when recorded. A tracked or in-scope source mutation caused by
+verification is `FAIL`; uncertain ownership is `BLOCKED`. Do not restore, stage,
+commit, reset, or clean either state.
 
-A commit or target-content change after a command makes that command's evidence
-stale. Do not return `PASS` unless every required result applies to the unchanged
-target and no verification-caused tracked or in-scope source mutation occurred.
+A commit or target-content change makes earlier command evidence stale. Do not
+return `PASS` unless every required result applies to the unchanged target.
 
-## Evaluate
+## Evaluate and report
 
 Return exactly one verdict:
 
-- `PASS` — every required command and inspection succeeded with fresh evidence
-  for the unchanged current head;
+- `PASS` — every required command and inspection succeeded for the unchanged
+  target;
 - `FAIL` — a required command or contract check produced an observed failure;
-- `BLOCKED` — a required command, dependency, permission, input, or current-head
-  guarantee was unavailable, so the result cannot be established.
+- `BLOCKED` — a command, dependency, permission, input, range, or current-head
+  guarantee could not be established.
 
-For every `FAIL` or `BLOCKED`, record:
+Report:
 
-- a stable gate key based on the failed command or contract and concrete behavior,
-  not a transient line number;
-- the exact command, output, target identity, and affected range or snapshot;
-- likely ownership: requested or approved implementation scope, unrelated
-  existing state, or scope, design, or authority outside the approval;
-- every unverified gap and the exact condition required for safe re-entry.
-
-Do not mark a failure acceptable without evidence that it is unrelated and
-outside scope.
-
-## Report
-
-Return:
-
-- verdict: PASS, FAIL, or BLOCKED;
-- target form and identity; for coordinator-managed verification, the exact
-  unchanged coordinator target manifest and confirmation that the identity was
-  resolved once at entry; starting and ending HEAD; exact range, snapshot, or
-  fileset; and files inspected;
-- starting and ending index/worktree, tracked/source, in-scope untracked
-  path/content, and unrelated dirty-state evidence;
+- verdict and coordinator-managed or standalone status;
+- base, starting and ending head, exact range, snapshot, or bounded fileset;
+- starting and ending `git status --short`, changed files, and unrelated state;
+- Review context and approved criteria inspected when available;
 - every command, expected result, observed result, and match status;
-- approved criteria and review policy inspected when available;
-- stable gate keys, failures, and likely ownership;
-- checks not run, standalone-only limitations, every unverified gap, and exact
-  re-entry conditions.
+- checks not run and why;
+- for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely
+  ownership, every gap, and the exact condition for safe re-entry.
 
-For a coordinator-managed entry, return all evidence to the coordinator. On
-`PASS`, do not start review or advance phases. On `FAIL` or `BLOCKED`, do not
-diagnose or fix; return the stable key, ownership, target, gap, and re-entry
-condition for coordinator classification.
-
-For a standalone read-only entry, report the verdict and evidence directly to the
-requester. Do not fix failures, start review, or advance another workflow phase.
+For coordinator-managed verification, return evidence to the coordinator and do
+not start review. For standalone verification, report directly to the requester.
+Never diagnose or implement a fix from this skill.
