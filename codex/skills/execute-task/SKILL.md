@@ -1,356 +1,202 @@
 ---
 name: execute-task
-description: Execute and accept one path-neutral implementation task with one writer, exact evidence, a policy-selected gate, and bounded retries.
+description: Execute and accept one path-neutral implementation task with one writer, exact evidence, a policy-selected gate, and bounded correction.
 ---
 
 # Execute one task
 
-Own the complete lifecycle and acceptance of exactly one implementation task.
-Use the same contract for a lightweight task, one task from an approved plan, or
-an authorized bounded correction. Do not select a workflow path, schedule plan
+Own implementation and acceptance of exactly one lightweight task, approved-plan
+task, or bounded correction. Do not select a workflow path, schedule plan
 dependencies, run global verification or final review, publish, merge, or choose
 branch disposition from this skill.
 
-## Require one immutable canonical task context
+## Require one task handoff
 
-Before implementation, require exactly one immutable canonical task context
-containing:
+Before implementation, require one concise plain-language handoff containing:
 
-- the complete task specification;
-- the original request, Design Doc, or other approved decision source, including
-  explicit non-goals;
-- the required implementation discipline;
-- the approved workspace and working directory;
+- the complete task and expected behavior;
+- approved decisions and explicit non-goals;
+- the separate Review context and complete active Review policy;
+- the required discipline and applicable repository guidance;
+- approved workspace and working directory;
 - the exact task base commit;
-- every exact task verification command and expected result;
-- the complete active Review policy and its provenance;
-- configured and observed capacity plus queue rules;
-- when present, approved-plan task context limited to the plan path,
-  task-specific decisions, non-goals, and file responsibilities.
+- file responsibilities and boundaries;
+- every exact task verification command and expected result.
 
-Assign the complete serialized context one stable identity, such as a content
-digest plus schema version. The identity changes whenever any context field
-changes. Pass either this one complete payload or one resolvable immutable
-reference to it; never inline another copy of the complete task or policy in an
-evidence bundle, scheduler envelope, reviewer message, or optional plan context.
-Never place a stable failure/finding key, attempt history, lifecycle phase,
-partial execution evidence, mutable gap, or re-entry state in this immutable
-context.
+The Review context describes the artifact, purpose, consumers, interpretation or
+execution model, material quality criteria and realistic failures, approved
+non-problems, and inapplicable assumptions. The Review policy records mode,
+rationale, risk surfaces, per-task gate, final required and conditional
+perspectives, skips with reasons, residual risk, capacity and queue rules, and
+the common Acceptance threshold.
 
-An `execute-task` invocation may additionally carry one validated partial task
-record and lifecycle phase for the same context identity. Retry history and
-mutable execution evidence belong to that partial record, not the immutable
-canonical context.
+Reject missing, stale, contradictory, or mode-inconsistent input. Return the
+named gap to the invoking skill; do not infer a decision, expand scope, duplicate
+the handoff in a new wrapper, or weaken evidence.
 
-Reject missing, stale, contradictory, or mode-inconsistent input. Return a named
-gap through the invoking skill to `agentic-engineering-workflow`; do not infer a
-decision, expand scope, or weaken evidence.
-
-The complete Review policy must record:
-
-- mode: `focused`, `adaptive`, or `deep`, with rationale and risk surfaces;
-- the mode-consistent per-task gate;
-- final required reviewers with reasons and conditional reviewers with triggers
-  and reasons;
-- skipped perspectives with reasons;
-- residual risk;
-- configured and observed capacity plus queue rules;
-- the Acceptance threshold;
-- provenance for each material field, including the Design default, original
-  request authorization, and observed risk or capacity evidence.
-
-## Enter or resume the task lifecycle
-
-Record exactly one current lifecycle phase:
-
-- `pre-implementation`: no task-owned edit or commit exists;
-- `implementation/working-tree pending`: attributable task edits exist and no
-  accepted task commit/evidence bundle is ready;
-- `committed evidence ready/gate pending`: task commits, fresh verification,
-  pre-commit inspection, exact range, and the current evidence bundle are
-  validated, but one or more selected gate roles remain pending;
-- `correction pending`: an authorized stable-key correction is ready or has
-  attributable partial writer state.
-
-A partial task record contains:
-
-- canonical context identity and lifecycle phase;
-- exact task base, current HEAD, task/fix commits, and exact ranges;
-- writer identity, writer status, confirmed inactivity, and ownership attribution
-  for HEAD, status, working-tree diff, and commits;
-- completed verification commands, expected and observed results, match status,
-  pre-commit evidence, and current evidence-bundle identity;
-- exact pending gate and roles, stable-key attempt history, gaps, and the
-  condition required for safe re-entry.
-
-On re-entry, validate that the context identity and payload, active policy,
-repository HEAD and status, commit ancestry, recorded range and diff, evidence
-bundle, and writer ownership remain unchanged. For
-`committed evidence ready/gate pending`, reuse the same validated committed
-evidence, skip implementation and commit, and resume only the pending gate. Never
-create a duplicate commit or discard partial work.
-
-For `implementation/working-tree pending` or `correction pending`, resume the
-existing attributable state only after confirming the prior writer is inactive
-and no writer overlaps. If a safely resolvable operational or evidence mismatch
-exists, return `BLOCKED` with a new exact re-entry condition. If the mismatch
-requires a material decision, scope, policy, or authority change, return
-`Escalate`. Never silently restart from `pre-implementation`.
-
-## Choose one writer and hand off implementation
+## Choose one writer
 
 Keep exactly one writer: either the lead or one `implementer`. Use the lead when
 direct execution is authorized. When dispatching an implementer, load
 [implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md)
-only at that point, pass its complete role contract with the canonical task
-context exactly once, and send that already-selected contract to
+only at that point. Pass the task handoff and selected role contract to
 `agent-teams-driven-development` for scheduling.
 
-Do not repeat canonical fields in the scheduling envelope. Require the writer to
-preserve unrelated changes and report status, files, commands, expected results,
-observed results, whether each matched, pre-commit inspection, concerns, and
-every commit it creates.
+Require production behavior changes to use red, green, refactor and report the
+observed red failure. For content, configuration, refactoring, or mechanical
+migrations, apply the declared discipline and preserve the relevant green
+baseline. Preserve unrelated changes.
 
-For production behavior, use a red-green-refactor loop and record the observed
-red failure. For content, configuration, refactoring, or mechanical migrations,
-apply the declared discipline and preserve the relevant green baseline.
+Require the writer to report:
 
-## Consume writer status
+- `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`;
+- changed files and implemented behavior;
+- every command with its expected and observed result;
+- pre-commit diff inspection and self-review;
+- when complete, the commit and new head;
+- concerns and every known gap.
 
-Require the lead or implementer to return exactly one status and map it as
-follows:
+Interpret the report as follows:
 
-- `DONE` advances only after the requested commit exists and current-state,
-  ownership, verification, expected-result matching, pre-commit, report, and
-  evidence checks all pass. `DONE` alone is not task acceptance.
-- `DONE_WITH_CONCERNS` never advances directly. Classify every concern: an
-  authorized in-scope correction enters the stable-key loop; an operational or
-  evidence gap returns `BLOCKED`; a material decision, scope, policy, or
-  authority issue returns `Escalate`.
-- `BLOCKED` returns an operational gap only after writer inactivity and exact
-  HEAD, status, diff, commit, and ownership attribution are established.
-- `NEEDS_CONTEXT` becomes `BLOCKED` when the missing input is safely resolvable
-  within approved authority, or `Escalate` when it is a user-owned decision or
-  missing authority.
+- `DONE` advances only after the requested commit, current-state checks,
+  verification, report, and ownership evidence all agree. It is not task
+  acceptance by itself.
+- `DONE_WITH_CONCERNS` requires classification of every concern as an authorized
+  correction, operational `BLOCKED` gap, or user-owned `Escalate` decision.
+- `BLOCKED` preserves the operational gap and observed state.
+- `NEEDS_CONTEXT` is `BLOCKED` when the missing input is safely discoverable
+  within current authority, otherwise `Escalate`.
 
-After any non-`DONE` response, or any response accompanied by partial edits or a
-partial commit, require the scheduling adapter or direct lead to establish writer
-inactivity and repository-state ownership before resume or replacement. Never
-allow overlapping writers.
+After any incomplete response, partial edit, partial commit, interruption, or
+lost response, do not start or replace a writer until the prior writer is
+confirmed inactive.
 
-## Produce task evidence
+## Produce current task evidence
 
-From `pre-implementation`, perform this sequence for the current task:
+For a fresh task:
 
-1. Record and validate the exact task base commit and starting status.
+1. Record the exact task base and starting status.
 2. Implement only the declared scope with the selected discipline.
-3. Run every exact task verification command and record observed results.
-4. Inspect the pre-commit working-tree diff, including unrelated state.
+3. Run every exact verification command and record the observed result.
+4. Inspect the working-tree diff, including unrelated state.
 5. Create only the declared task commit.
-6. Record the new head commit.
-7. Inspect the exact base-to-head range from the preserved task base through the
-   new head.
-8. Assemble and validate the current reviewer evidence bundle.
-9. Run the policy-selected per-task gate against that exact range.
-10. Apply severity normalization and the active Acceptance threshold.
-11. Record verification, commit, range, gate, normalization, and unresolved-gap
-    evidence.
+6. Record the new current head.
+7. Inspect the exact task-base-to-current-head range and diff.
+8. Run the policy-selected per-task gate against that current range.
+9. Apply the common Acceptance threshold.
+10. Record the commit, range, verification, gate, concerns, and gaps.
 
-From another validated lifecycle phase, perform only its unfinished suffix. In
-particular, a committed gate-pending record resumes at step 9 with the same
-commit, range, and evidence bundle.
+Approval remains attached to the exact task base, current head, and range that
+were reviewed. Never replace them with a later aggregate range.
 
-After a task commit and validated evidence bundle, transition to
-`committed evidence ready/gate pending` before dispatching the gate. A surviving
-authorized finding transitions to `correction pending`; attributable unfinished
-edits remain `implementation/working-tree pending`. Only a completed selected
-gate can produce `Accepted`.
+## Resume only safe attributable state
 
-Do not replace a task's exact range with a later aggregate plan range. Approval
-is current only for the exact head and range actually reviewed.
+Before resuming after an interruption:
 
-## Assemble current reviewer evidence
+1. confirm the prior writer is inactive and no writer overlaps;
+2. inspect the current HEAD, status, commits, and task-base-to-current diff;
+3. attribute all in-scope edits and commits to this task;
+4. confirm the original handoff still applies.
 
-Before any reviewer dispatch, assemble one current evidence bundle containing:
+When all checks pass, continue from the observed state. If implementation is
+already committed and its verification remains fresh for that unchanged head,
+resume only the pending read-only gate; do not create a duplicate commit. If any
+check is uncertain, preserve all state and return `BLOCKED` with the observed
+agent and Git evidence plus the exact re-entry condition. Never clean, reset,
+discard, or silently restart to force progress.
 
-- the canonical task context identity/reference, without another inline task or
-  policy copy;
-- writer identity, writer status, and the complete writer report;
-- the candidate current HEAD, which becomes the accepted/current head only when
-  this gate approves it;
-- the exact task base, head, base-to-head range, and inspected diff contents;
-- every fresh task verification command, expected result, observed result, and
-  whether it matched for this same code state;
-- the authoritative changed-file list;
-- repository-guidance identity/reference or an immutable snapshot;
-- task/fix commits, pre-commit inspection evidence, unresolved gaps, and evidence
-  timestamps or sequence identity needed to establish freshness.
+Use `Escalate` only when resumption requires a material architecture, public
+contract, scope, policy, file-responsibility, or authority decision.
 
-Confirm that the bundle context reference resolves to the one canonical context,
-repository HEAD still equals the bundle head, the diff resolves exactly from the
-recorded base to that head, the changed-file list matches that diff, verification
-ran after the last content edit and matched every expected result, the writer
-report identifies the same commit, and no current state makes the evidence stale.
-A lead writer must provide the same report fields as an implementer.
+## Give reviewers direct current evidence
 
-Pass the canonical context once and complete evidence bundle once with each
-selected reviewer role contract to `agent-teams-driven-development`. Do not
-dispatch a reviewer with a missing, partial, contradictory, duplicated, or stale
-bundle. Return `BLOCKED` with the exact evidence gap instead.
+Every task reviewer receives, without another identity or duplicate record:
 
-## Select and run only the active gate
+- the task, approved decisions, and non-goals;
+- the Review context and active Review policy;
+- working directory, task base, current head, exact range, and inspected diff;
+- file responsibilities and actual changed files;
+- the complete writer report;
+- every fresh verification command, expected result, and observed result;
+- commits, pre-commit inspection, repository guidance, concerns, and gaps.
 
-Resolve the mode before loading any reviewer prompt:
+Before dispatch, confirm current HEAD still equals the reported head, the range
+and changed files resolve to the inspected diff, and verification ran after the
+last content edit. Missing, contradictory, or stale evidence returns `BLOCKED`.
+
+## Load only the selected review contract
+
+Resolve the mode before loading a reviewer prompt:
 
 - For `focused`, load only
   [focused-reviewer-prompt.md](../agent-teams-driven-development/focused-reviewer-prompt.md)
-  and run one combined specification-and-quality gate. When the user explicitly
-  prohibits agents, or the approved policy explicitly selects a lead combined
-  pass, the lead may run that complete pass. Otherwise request the selected
-  read-only combined reviewer, queue it deterministically while runtime capacity
-  is constrained, and return `BLOCKED` if the required reviewer cannot be
-  established. Do not substitute the lead solely because a reviewer or slot is
-  unavailable.
+  and run one combined specification-and-quality gate. An explicitly approved
+  no-agent policy may use the lead for this complete pass. Otherwise schedule the
+  selected read-only reviewer.
 - For `adaptive` and `deep`, load only
   [spec-reviewer-prompt.md](../agent-teams-driven-development/spec-reviewer-prompt.md)
   and
-  [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md),
-  then require independent read-only specification and quality agents. An
-  explicit no-agent instruction conflicts with the approved mode: return
-  `Escalate` for agent permission or a complete approved policy change. Otherwise
-  queue both selected roles under the policy. If runtime capacity or role
-  availability cannot establish either required independent role, return
-  `BLOCKED` with the exact operational gap.
+  [code-quality-reviewer-prompt.md](../agent-teams-driven-development/code-quality-reviewer-prompt.md).
+  Require independent read-only specification and quality reviewers.
 
-Never replace `adaptive` or `deep` independent reviewers with sequential lead
-passes or count the resulting independence gap toward completion. Only the
-approved `focused` combined lead-pass contract can satisfy a no-agent task gate.
+Never load unselected prompts speculatively or replace `adaptive` or `deep`
+independent reviewers with lead passes. Queue a temporarily unavailable selected
+reviewer deterministically. If a required role cannot be established, return
+`BLOCKED`. If an explicit no-agent instruction conflicts with an approved
+independent gate, return `Escalate` for permission or an approved policy change.
 
-Pass the canonical task context once, current evidence bundle once, and only the
-selected complete role contracts to `agent-teams-driven-development`. Never load
-all reviewer prompts speculatively. Reviewers remain read-only and review the
-exact current base-to-head range. Runtime shortage is an operational `BLOCKED`
-state, not a policy `Escalate`; explicit no-agent authority conflicts with
-`adaptive`/`deep` and is not treated as runtime unavailability.
+`agent-teams-driven-development` schedules only the selected contracts. This
+skill remains responsible for the task meaning, review mode, finding
+normalization, Acceptance, corrections, and acceptance.
 
-## Normalize findings and apply Acceptance
+## Apply the common finding threshold
 
-Before applying Acceptance:
+Specification findings use `Must Fix` or `Should Improve`. For `adaptive` and
+`deep`, map an evidence-qualified quality `Critical` to `Must Fix` and
+`Important` to `Should Improve`; do not promote lower labels or non-findings.
 
-- require every specification finding to use exactly `Must Fix` or
-  `Should Improve`; missing or unknown severity is a schema gap that requires
-  schema-compliant reviewer re-output, not inference;
-- for adaptive and deep quality findings, map an evidence-qualified `Critical`
-  to `Must Fix` and an evidence-qualified `Important` to `Should Improve`, while
-  preserving both original and normalized labels;
-- do not promote a lower native severity or a non-finding;
-- preserve the focused gate's native `Must Fix` and `Should Improve` labels
-  without remapping.
+Keep only findings that apply to the Review context, identify a concrete
+reachable behavior or approved-contract violation, cite evidence, state a
+material consequence, and propose a proportionate correction. `Should Improve`
+requires a concrete maintainability consequence or measurable repeated cost.
+Drop preference-only, speculative, unsupported, inapplicable, or already-decided
+objections without materially new evidence.
 
-Apply the complete policy's Acceptance threshold only after normalization. Keep
-only concrete reachable behavior or contract violations with cited evidence,
-impact, and a specific correction. Exclude preference-only, speculative,
-unsupported, or already-decided objections that have no new evidence.
+## Correct and re-review without an open-ended loop
 
-## Accept bounded global correction handoffs
+For each authorized correction, retain the exact concrete finding or failed
+command and every observed correction attempt. Give the existing writer only the
+bounded correction, unchanged decisions and non-goals, Review context, Review
+policy, current task base, file responsibilities, and exact verification.
 
-When the coordinator routes a verification failure or final-review `Fix` back to
-this seam, never accept the raw path-neutral correction specification directly
-from `receiving-code-review`. Require exactly two non-overlapping inputs from the
-authorized path-specific builder:
+Then:
 
-1. one immutable canonical `execute-task` correction context using the canonical
-   task-context schema above, containing one reference to the immutable
-   correction specification plus the exact correction task and expected
-   behavior, decision source and non-goals, discipline, file responsibilities,
-   workspace and working directory, current correction base, every verification
-   command and expected result, unchanged complete Review policy and provenance,
-   capacity and queue rules, and any non-duplicative plan-task context;
-2. one mutable correction record containing the correction-specification
-   identity/reference, exactly one reference to this canonical context identity,
-   the preserved stable failure/finding key, retained attempt history, lifecycle
-   phase, attributable partial execution evidence, gaps, and exact re-entry
-   condition.
+1. run fresh exact task verification;
+2. inspect the correction diff;
+3. create only the declared correction commit;
+4. record the new current head;
+5. inspect the updated exact task-base-to-head range;
+6. rerun the same complete policy-selected gate against that range.
 
-Validate builder provenance before execution. For lightweight work,
-`agentic-engineering-workflow` is the sole canonical context builder and invokes
-this skill. For planned work, `execute-plan` is the sole canonical context
-builder and invokes this skill after converting the specification to an
-authorized plan correction step; a coordinator-built planned context is invalid.
-The correction-specification identity is never treated as the canonical context
-identity.
-
-Reject a handoff produced by triage, with no or multiple path-specific builders,
-that puts key, history, lifecycle, or partial evidence into the immutable
-context, duplicates a context field in the mutable record, changes the preserved
-stable key, or supplies any field from two authorities. Preserve and return the
-canonical context and mutable record separately; never merge them into a new
-correction envelope.
-
-Run the normal one-writer, verification, pre-commit, commit, evidence, and
-per-task gate lifecycle. Return a correction commit, new HEAD, exact correction
-range, and task acceptance before the coordinator can consider the `Fix`
-implemented. Do not run global verification, final review, triage, or branch
-completion here; the coordinator rebuilds the full immutable target and restarts
-those phases after acceptance.
-
-## Fix and re-review with bounded retries
-
-For each verification failure or surviving finding, record a stable gate key
-before any implementer follow-up or lead correction. Base the key on the failed
-command or review requirement and concrete behavior, not a transient line number.
-For each key, record the attempt number, causal hypothesis, planned action, and
-fresh verification or review evidence.
-
-Preserve a coordinator-managed review key verbatim through every correction and
-retry. Treat materially new evidence as a delta under that same
-requirement/behavior key. Permit attempt 1 and, if the same stable key remains,
-one materially informed attempt 2. Assign a new key only for a newly observed
-failure with a materially different contract or reachable behavior under the
-coordinator retry rules; never re-key the original finding. If the same key
-survives attempt 2, or another action would repeat a correction without new
-evidence, do not attempt a third correction; return `Escalate` with the exact
-preserved key and complete attempt history.
-
-For every authorized in-scope correction:
-
-1. give the existing writer the stable key, attempt record, and correction;
-2. run fresh exact task verification;
-3. inspect the pre-commit fix diff;
-4. create only the declared fix commit;
-5. record the new head;
-6. inspect the updated exact task base-to-head range;
-7. rerun the same complete policy-selected gate against that current range.
-
-Do not reuse a stale verification result, gate approval, head, or range.
+Do not reuse stale verification, approval, head, or range. If the same concrete
+problem repeats without progress or another action would repeat an observed
+failed correction, stop with `Escalate` and report the attempts and remaining
+gap. Do not create another identifier or tracking schema for the finding.
 
 ## Return task acceptance
 
-Return exactly one task status:
+Return:
 
-- `Accepted` when exact verification passes and the complete selected gate
-  approves the current head;
-- `BLOCKED` when required evidence, a safe writer state, a command, permission,
-  range, reviewer, or other operational prerequisite cannot be established;
+- `Accepted` only when every exact verification passes and the complete selected
+  gate approves the current head;
+- `BLOCKED` when a safe writer state, command, permission, range, reviewer, or
+  other operational prerequisite cannot be established;
 - `Escalate` for a material decision, scope or policy change, explicit
-  adaptive/deep no-agent independence conflict, plan deviation, or exhausted
-  stable-key retry.
+  independent-gate/no-agent conflict, plan deviation, or repeated correction
+  without progress.
 
-Include the canonical context identity, lifecycle phase, writer identity and
-status, task and fix commits, exact task base, new head, exact base-to-head range,
-verification and pre-commit evidence, evidence-bundle identity, gate and
-normalization results, policy provenance, capacity or queue evidence, stable-key
-attempt history, every remaining gap, and the exact re-entry condition.
-For a correction, return the immutable canonical correction context
-identity/reference and the mutable correction record as separate
-authorities; satisfy lifecycle, attempt-history, partial-evidence, gap, and
-re-entry report fields through that mutable record only, and do not inline the
-context fields into the record.
-
-For post-commit reviewer or capacity `BLOCKED`, return at least the task base,
-committed current head, commits, validated verification/pre-commit/range/evidence
-bundle, writer status and confirmed inactivity, exact pending gate and roles,
-operational gaps, and re-entry condition under
-`committed evidence ready/gate pending`. Return this partial task record to the
-invoking coordinator or `execute-plan`; do not advance to another task or
-cross-phase gate.
+Include writer status, task and correction commits, exact task base, current
+head, exact range, changed files, commands and observed results, pre-commit
+inspection, gate result, capacity or queue evidence, concerns, gaps, and exact
+re-entry condition. Return this evidence to the invoking coordinator or
+`execute-plan`; do not advance another task or cross-phase gate.

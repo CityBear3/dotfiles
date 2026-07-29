@@ -5,50 +5,26 @@ description: Orchestrate an approved implementation plan by validating it, invok
 
 # Execute an approved plan
 
-Own approved-plan validation, dependency ordering, canonical per-task handoff,
-ordered evidence aggregation, and plan-deviation detection. Do not edit files,
-dispatch implementers or reviewers, select prompts, normalize findings, or run
-global verification or final review from this skill.
+Own approved-plan validation, dependency ordering, per-task handoff, ordered
+evidence aggregation, and plan-deviation detection. Do not edit files, dispatch
+implementers or reviewers, select prompts, normalize findings, or run global
+verification or final review from this skill.
 
 ## Validate plan entry
 
 Before execution, require:
 
 - an approved, current implementation plan;
-- its complete approved Review policy and provenance;
+- its separate Review context and complete approved Review policy;
 - a suitable non-default feature branch or approved workspace;
 - understood working-tree state;
-- an explicit implementation discipline and exact verification for every task;
+- an explicit discipline and exact verification for every task;
 - settled dependencies, file responsibilities, decisions, and non-goals.
 
-For initial execution or any re-entry, preserve separately:
-
-- the original plan implementation base;
-- the last-accepted ordered task map with every immutable exact range;
-- the last-accepted aggregate final HEAD and full implementation range;
-- at most one in-flight partial task record with its canonical context identity,
-  lifecycle phase, task base, partial head, commits, evidence, writer state,
-  pending gate, gaps, and exact re-entry condition.
-
-Without an in-flight partial record, require repository HEAD to equal the
-last-accepted aggregate head. With one, permit repository HEAD to equal the
-attributable validated partial head only when its task base equals the
-last-accepted aggregate head, its commits descend from that base, and its
-HEAD/status/diff ownership is established. An unattributed, non-descendant,
-duplicated, or mismatched partial state returns `BLOCKED`.
-
-For correction re-entry, additionally require:
-
-- the concrete authorized correction step tied to its failed command or review
-  finding;
-- retained stable-key and attempt history.
-
-Validate that the complete policy records mode, rationale, risk surfaces, its
-mode-consistent per-task gate, final required reviewers with reasons, conditional
-reviewers with triggers and reasons, skipped perspectives with reasons, residual
-risk, configured and observed capacity plus queue rules, Acceptance, and
-provenance. Reject missing, stale, contradictory, or mode-inconsistent fields
-rather than inferring them.
+Record the original plan implementation base and the current head. On re-entry,
+also retain every already accepted task with its exact base, head, range, commit,
+verification, gate result, and gaps. Do not widen an earlier task range when a
+later task adds commits.
 
 Stop and return a plan deviation when implementation would require a new
 architecture, scope, public-contract, schema, error-model, policy, authority, or
@@ -57,130 +33,103 @@ resolve it.
 
 ## Materialize ordered task handoffs
 
-Resolve the plan's dependency graph before executing anything. Run tasks
-sequentially in dependency order; this contract does not authorize parallel task
-execution. Record the original plan implementation base before the first task.
+Resolve the dependency graph before executing anything. Use its deterministic
+order and run tasks sequentially; this contract does not authorize parallel plan
+tasks or more than one active writer.
 
-For each ready task, build one canonical `execute-task` context containing:
+For each ready task, give `execute-task` one concise plain-language handoff:
 
-- the complete task specification;
-- the original decision source and non-goals;
-- task discipline, workspace, and working directory;
-- the exact task base commit, which is the current head before that task;
-- exact verification commands and expected results;
-- the complete active Review policy and provenance;
-- configured and observed capacity plus queue rules;
-- plan context limited to the plan path, task-specific decisions, non-goals, and
-  file responsibilities.
+- the complete task and expected behavior;
+- approved decisions and non-goals;
+- the Review context and complete Review policy;
+- the declared discipline and applicable repository guidance;
+- the working directory and approved workspace;
+- the exact task base, which is the current head before this task;
+- task-specific file responsibilities and boundaries;
+- every exact verification command and expected result.
 
-Do not copy the complete task specification or Review policy into the plan
-context. Carry retained stable-key and attempt history only in the mutable task
-record alongside the canonical context. Invoke `execute-task` for the task and
-let it own the writer, verification, commit, exact range, selected gate,
-correction, and retry semantics.
+Invoke `execute-task` once for the task and let it own the writer, verification,
+commit, exact range, policy-selected gate, correction, and stop condition.
 
 Do not start a dependent task until its predecessor returns `Accepted`. On
-`BLOCKED`, `Escalate`, plan deviation, missing evidence, or a task head that is
-not the current repository head, stop and return the exact gap to
-`agentic-engineering-workflow`.
+`BLOCKED`, `Escalate`, plan deviation, missing evidence, or a returned head that
+is not the current repository head, preserve the observed state and return the
+exact gap to `agentic-engineering-workflow`.
 
-## Preserve one in-flight partial task
+## Resume only attributable work
 
-When an `execute-task` invocation first returns `BLOCKED` with attributable task
-state, validate and retain its returned partial task record as the sole in-flight
-partial. Keep the last-accepted task map and aggregate unchanged.
+After an interrupted or incomplete task, retain the last accepted aggregate
+separately from the observed in-flight work. Before resuming:
 
-Pass the in-flight partial record and lifecycle phase back to `execute-task` with
-the same canonical context identity. Do not add its commits or range to the
-accepted task map, recalculate the accepted aggregate, or advance a dependency
-while its status is `BLOCKED` or otherwise not `Accepted`.
+1. confirm through the scheduling result that the prior writer is inactive and
+   no writer overlaps;
+2. inspect current HEAD, status, commits, and the task-base-to-current diff;
+3. confirm the observed edits and commits are attributable to that task and
+   descend from its task base;
+4. confirm the unchanged task handoff still applies.
 
-When `execute-task` returns `Accepted`, validate the returned head, range,
-context identity, and completion of the pending gate. Append that task record
-exactly once, clear the in-flight partial, and only then recalculate the aggregate
-and release dependent tasks. Reject an already-appended task identity or commit
-instead of duplicating it.
+Resume the unfinished work or pending read-only gate only when all four checks
+pass. If state is uncertain, mismatched, or unattributable, do not clean, reset,
+recommit, or dispatch a replacement. Return `BLOCKED` with the observed agent and
+Git state plus the exact condition required for re-entry. Use `Escalate` only
+when resumption needs a material decision, scope, policy, or authority change.
 
-On a partial-state mismatch, retain the last-accepted aggregate unchanged and
-return `BLOCKED` with the partial record, observed HEAD/status/diff, ownership
-evidence, and exact condition required for re-entry. Return `Escalate` only when
-resumption requires a material decision, scope, policy, or authority change.
+An interrupted task remains unaccepted. Do not add its commits or range to the
+accepted task results, recalculate the aggregate, or release a dependent task
+until `execute-task` returns current acceptance evidence.
 
 ## Re-enter for a planned correction
 
-Treat an authorized planned correction as a new concrete plan step after the
-previously accepted ordered tasks, not as a standalone lightweight task. Preserve
-the original implementation base and prior records. Build the correction's
-canonical task context with the complete correction task, causal hypothesis,
-authorized action, exact verification, last-accepted aggregate head as task base,
-and the unchanged approved policy. Carry its stable key and complete attempt
-history in the mutable task record outside the canonical context. When a partial
-correction record already exists, pass that same record and lifecycle phase back
-to `execute-task` rather than rebuilding or recommitting it.
+Treat an authorized correction as one concrete plan step after the previously
+accepted tasks. Preserve the original implementation base and prior task ranges.
+Give `execute-task` the exact finding or failed command, approved correction,
+observed attempts and results, unchanged decisions and non-goals, Review context,
+Review policy, last accepted head as the correction task base, file
+responsibilities, and exact verification.
 
-Invoke `execute-task` for the correction. When it returns `Accepted`, append its
-task identifier, correction commits, exact correction base/head/range,
-verification, gate, normalization, and retry evidence to the ordered task map.
-Append once, then recalculate the aggregate. Do not rewrite prior task ranges or
-discard prior retry history.
+When the same concrete problem repeats without progress, or the next action would
+repeat an observed failed correction, stop and return the attempt evidence. Do
+not invent another tracking protocol or silently expand the correction.
 
-When the correction returns `BLOCKED` or `Escalate`, retain the previous
-last-accepted aggregate separately from the one in-flight partial correction
-record, including its lifecycle phase and exact re-entry condition. Do not append
-the partial record, advance dependencies, or report the last-accepted aggregate
-as acceptance of the current correction.
+After `Accepted`, append the correction once with its commit, exact base, current
+head, range, fresh verification, gate result, and gaps. Recalculate the aggregate
+from the original implementation base without rewriting prior task ranges.
 
-## Preserve task records and aggregate separately
+## Aggregate accepted tasks
 
-After each accepted task, append an ordered immutable record containing:
+After each accepted task, append an ordered result containing:
 
-- task identifier and dependency position;
-- exact task base and accepted head;
-- exact task base-to-head range;
-- task and fix commits;
-- exact verification evidence;
-- per-task gate result and normalization evidence;
-- stable-key retry history;
-- complete policy provenance and any recorded operational gaps.
-
-Never widen or replace an accepted task range when later tasks add commits. The
-next task uses the previous accepted head as its new base, while the earlier
-record remains unchanged.
+- task name and dependency position;
+- exact task base, accepted current head, and base-to-head range;
+- task and correction commits;
+- fresh verification commands and observed results;
+- per-task gate result;
+- changed files, concerns, and gaps.
 
 After every planned task is accepted:
 
-1. retain the complete ordered task-range map;
-2. record the distinct aggregate final HEAD;
-3. calculate the full implementation range from the original plan
-   implementation base to that aggregate final HEAD;
-4. confirm the aggregate head is current and each task record still identifies
-   its own exact accepted range;
-5. report plan deviations, policy gaps, retries, and residual gaps separately
+1. retain the complete ordered task results;
+2. record the distinct aggregate final current head;
+3. calculate the full implementation range from the original plan base;
+4. confirm the aggregate head is current and each task still identifies its own
+   exact accepted range;
+5. report plan deviations, correction attempts, and residual gaps separately
    from successful evidence.
 
-The aggregate range supports the next cross-phase check; it does not become a
-replacement per-task review range.
-
-After an accepted correction step, repeat the same aggregation from the original
-plan implementation base through the correction head. Return the updated ordered
-task map, aggregate final HEAD, and full implementation range. Global
-verification and final review must target that full updated range; the
-correction's exact task range remains separate task evidence and never shrinks
-the global target.
+The aggregate range supports global verification and final review. It never
+replaces a task-specific reviewed range.
 
 ## Return orchestration status
 
 Return:
 
-- `Accepted` only with all ordered accepted task records, the separate aggregate
-  final HEAD, the full implementation range, and complete policy provenance;
-- `BLOCKED` with partial ordered evidence when an operational prerequisite or
-  current-state guarantee cannot be established, including the separate
-  last-accepted aggregate, one in-flight partial record, lifecycle phase, and
-  exact re-entry condition;
+- `Accepted` only with every ordered accepted task result, aggregate current
+  head, full implementation range, Review context, and complete Review policy;
+- `BLOCKED` with the last accepted aggregate, observed in-flight agent and Git
+  state, gaps, and exact re-entry condition;
 - `Escalate` with the exact plan deviation, missing decision, policy conflict, or
   task escalation.
 
 Return control to `agentic-engineering-workflow` after acceptance or any stop
-condition. Do not start global `verify`, final review, publication, merge, or
+condition. Do not start global verification, final review, publication, merge, or
 branch disposition.
