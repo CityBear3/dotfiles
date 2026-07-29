@@ -1,35 +1,126 @@
 ---
 name: receiving-code-review
-description: Evaluate code-review feedback against the approved design and codebase before accepting, rejecting, or escalating it. Use whenever review feedback arrives, especially when it is ambiguous or technically questionable.
+description: Verify review findings against current code and classify each as Fix, Push back, or Escalate. Use from the workflow coordinator for authorized review loops or standalone for read-only feedback evaluation.
 ---
 
-# Receive code review
+# Triage current-head review findings
 
-Treat review as technical evidence, not an instruction to agree.
+Treat review as technical evidence, not an instruction to agree. Remain
+check-only and read-only. Do not mutate source or Git state, implement or stage a
+fix, dispatch a writer, or advance another workflow phase.
 
-## Process each item
+## Coordinator-managed entry
 
-1. Read the complete item and locate its cited code.
+Require:
+
+- exact implementation base, current head, full range, diff, status, and changed
+  files;
+- fresh verification `PASS` and review `FINDINGS` for that same unchanged head
+  and range;
+- each finding's severity, file and line, concrete behavior, requirement,
+  evidence, impact, proposed correction, and confidence;
+- approved scope, decisions, non-goals, Review context, Review policy, and
+  implementation authorization;
+- Design Doc and plan when present;
+- observed correction attempts and prior triage decisions.
+
+Resolve base, head, range, diff, status, and changed files directly from Git.
+Return top-level `BLOCKED` without classifying findings when the target is stale,
+evidence is missing, or in-scope source state falls outside the reviewed range.
+
+## Standalone read-only entry
+
+Resolve each complete finding, current code, head, relevant range or files,
+repository guidance, and available design and plan evidence through read-only
+investigation. Implementation authorization is not required to evaluate
+standalone feedback, and the evaluation does not authorize a change.
+
+Derive or use the available Review context and disclose material assumptions.
+Return missing or stale verification as a limitation.
+
+## Establish one current snapshot
+
+Before classifying any item, capture:
+
+- current HEAD, base and range when applicable;
+- `git status --short`, staged and unstaged diffs, changed files, and relevant
+  untracked paths;
+- available code, tests, approved decisions, Review context, Review policy,
+  review evidence, and observed correction attempts.
+
+If a ref, finding, required input, dependency, permission, or runtime condition
+is missing, return top-level `BLOCKED` before classification. Preserve observed
+evidence and state the exact re-entry condition.
+
+## Process each finding
+
+For each item:
+
+1. Read the complete finding and cited code.
 2. Restate the concrete requirement.
-3. Reproduce or verify the claim against current behavior.
-4. Check repository guidance, the approved design, plan, and scope.
-5. Classify it:
-   - **Fix** — valid, in scope, and does not change the approved design.
-   - **Push back** — incorrect, already decided, unsupported, or unnecessary.
-   - **Escalate** — requires a new architecture, public contract, or material scope expansion.
-6. Record the evidence and next action.
+3. Reproduce or verify the claim against the current head.
+4. Check repository guidance, current code and tests, approved scope,
+   non-goals, Design Doc, plan, Review context, and Review policy.
+5. Classify it as exactly one:
+   - **Fix** — verified on the current head, in approved scope, compatible with
+     approved decisions, proportionate, and authorized for local correction.
+   - **Push back** — incorrect, unsupported, preference-only, speculative,
+     second-order, artifact-inapplicable, stale, not reproducible, or already
+     decided without materially new evidence.
+   - **Escalate** — requires a design or public-contract decision, architecture
+     mechanism without proven proportionate need, material scope or policy
+     change, new authority, or a stop after repeated correction without progress.
+6. Record current-head evidence and one concrete next action.
 
-Ask the reviewer or user only when missing information materially changes the classification.
+For `Fix`, return one bounded plain-language correction handoff:
 
-## Applying fixes
+- exact finding and concrete evidence;
+- smallest authorized correction;
+- approved decisions and non-goals;
+- Review context and unchanged Review policy;
+- discipline and file responsibilities;
+- current task base and exact verification commands;
+- observed prior attempts, concerns, and gaps.
 
-- Convert valid items into concrete plan steps.
-- Use TDD for behavior changes.
-- Address one independent item at a time and run focused verification.
-- Re-run the relevant review after fixes; a fix is not proven merely because it was edited.
+Do not choose the lightweight or planned builder here. The coordinator routes
+the handoff directly to `execute-task` for lightweight work or through
+`execute-plan` for planned work.
 
-## Responding
+For `Push back`, cite controlling code, test, Design, plan, or approved decision
+evidence. The same finding may be reconsidered only with materially new evidence
+of a reachable failure or approved-contract violation.
 
-Use concise technical language. Cite code, tests, or decisions. Avoid performative agreement, defensive phrasing, and speculative concessions.
+## Revalidate and report
 
-When pushing back, explain the mismatch and provide evidence. When escalating, name the decision the user must make and why existing authority is insufficient.
+Immediately before reporting, capture the same HEAD, status, diffs, changed
+files, relevant untracked paths, and range again. If any in-scope state changed,
+discard provisional classifications and return `BLOCKED`. Do not restore, reset,
+clean, or discard state.
+
+Return exactly one top-level result:
+
+- `TRIAGED` when every finding is classified as `Fix`, `Push back`, or
+  `Escalate`;
+- `BLOCKED` for stale state, missing evidence or input, or an external/runtime
+  failure.
+
+For `TRIAGED`, report:
+
+- base, current head, reviewed range or bounded files, status, and changed files;
+- Review context and verification/review evidence inspected;
+- classification, requirement, evidence, impact, and next action for each item;
+- bounded correction handoff for every `Fix`;
+- controlling evidence for every `Push back`;
+- exact user-owned decision or authority for every `Escalate`;
+- concerns, observed attempts, and gaps.
+
+For `BLOCKED`, report available target evidence, preserved checks, every gap, and
+the exact safe re-entry condition. Do not report provisional classifications.
+
+An authorized coordinator-managed `Fix` does not need another approval when it
+remains within scope. It still requires bounded implementation, a correction
+commit and new head, fresh verification, and complete fresh review over the full
+updated range. Earlier verification, review, and triage evidence becomes stale.
+
+For standalone review feedback, return evaluation and proposed steps only. Do
+not implement, start another phase, or imply authorization.

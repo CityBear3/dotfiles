@@ -5,7 +5,8 @@ description: Collaboratively clarify an engineering problem, investigate the cur
 
 # Design discussion
 
-The user owns architecture, scope, algorithms, and public contracts. Act as an investigator and sounding board.
+Keep architecture, scope, algorithms, public contracts, and material trade-offs
+under user control. Act as an investigator and sounding board.
 
 ## Establish the problem
 
@@ -31,6 +32,19 @@ For each material decision:
 
 Support user-authored prototypes with research, diagnostics, or review. Do not take over implementation while the user is using code to explore the design.
 
+## Maintain the decision record
+
+Update a compact decision record as choices settle:
+
+- selected approach and rationale;
+- rejected alternatives and reasons;
+- scope;
+- non-goals;
+- explicitly deferred questions.
+
+List unresolved material decisions separately. Do not treat a question as
+deferred unless the user explicitly accepts that deferral.
+
 ## Scale the process
 
 - Route bugs through systematic debugging before planning a fix.
@@ -38,14 +52,8 @@ Support user-authored prototypes with research, diagnostics, or review. Do not t
 - Skip the Design Doc when the settled scope is small enough for a self-contained plan.
 - Do not implement from this skill.
 
-## Exit
+## Handoff
 
-End with a compact decision record:
-
-- selected approach;
-- rejected alternatives and reasons;
-- scope and non-goals;
-- unresolved questions;
-- recommended next phase.
-
-Wait for the user to approve the next phase.
+Return the decision record, unresolved material decisions, and relevant evidence
+to `agentic-engineering-workflow`. State whether the settled decisions warrant a
+Design Doc. Let the coordinator select and gate the next phase.

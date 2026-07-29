@@ -1,55 +1,93 @@
 ---
 name: agent-teams-driven-development
-description: Execute an approved implementation plan through one writer and independent spec and quality review loops, using bounded Codex subagents and runtime-aware capacity. Use from execute-plan unless the user explicitly requests direct execution without agents.
+description: Schedule one writer and requested read-only reviewers for execute-task while enforcing live capacity, queues, and interruption safety.
 ---
 
 # Agent-teams driven development
 
-The lead schedules all work. Subagents do not spawn descendants.
+Act only as the scheduling adapter for `execute-task`. The lead schedules all
+work, and subagents never spawn descendants. Do not select workflow paths,
+Review context, review modes, role breadth, severity mappings, Acceptance,
+correction semantics, task commits, or task acceptance here.
 
-## Inputs
+## Require a bounded scheduling request
 
-Require:
+Accept from `execute-task`:
 
-- an approved plan path;
-- a non-default feature branch or approved workspace;
-- repository guidance and working directory;
-- configured maximum capacity and currently observed live agents.
+- one already-selected named role or fallback contract;
+- the complete writer or reviewer message already prepared by `execute-task`;
+- whether the request is a fresh dispatch, follow-up, or replacement;
+- any prior agent identity, interruption result, and observed Git state.
 
-Read the three task templates beside this file before dispatch:
+Reject an unresolved or ambiguous role, or a request that requires task or policy
+interpretation. Pass the selected role and message unchanged; do not load prompts
+or add another wrapper here.
 
-- [implementer-prompt.md](implementer-prompt.md)
-- [spec-reviewer-prompt.md](spec-reviewer-prompt.md)
-- [code-quality-reviewer-prompt.md](code-quality-reviewer-prompt.md)
+## Enforce live capacity and a deterministic queue
 
-If the runtime can select named profiles, use `implementer`, `spec-reviewer`, and `code-quality-reviewer`. Otherwise include the complete corresponding fallback prompt in the `spawn_agent` message.
+Call `list_agents` before every dispatch wave. Set effective capacity to the
+lower of configured and currently observed runtime capacity, count the lead, and
+never exceed six total threads.
 
-## Capacity
+Queue already-selected roles in request order when available slots are
+insufficient. Record configured, observed, and effective capacity, live agent
+identities, queued roles, dispatch order, and every capacity gap. Do not reduce,
+replace, or reorder selected roles to fit capacity.
 
-Use `list_agents` before each dispatch wave. The effective limit is the lower of configured capacity and capacity observed from the current runtime. Count the lead. Never exceed six total threads.
+Allow no more than one implementer and one active writer for the shared worktree.
+Every reviewer is read-only. Independent reviewers may run concurrently when
+capacity permits; otherwise queue them without changing their independence or
+contracts.
 
-Keep one implementer as the only writer. Run the two read-only reviewers concurrently after implementation when two slots are available; otherwise queue them.
+If a required role cannot be instantiated or the queue cannot make progress,
+return `BLOCKED` with observed availability evidence. Do not turn a runtime
+shortage into policy `Escalate` or substitute the lead or another perspective.
 
-## Per-task loop
+## Schedule and observe
 
-1. Record the task's base commit.
-2. Give the implementer the full task, dependencies, working directory, verification command, and output contract.
-3. Use `wait_agent` in bounded intervals and inspect `list_agents` regularly. Send the user a progress update at least every 60 seconds during long work.
-4. Require the implementer to report changed files, commit, commands, results, and concerns.
-5. Record the head commit and dispatch spec and quality review against the exact range.
-6. Require reviewers to inspect the diff independently and return verified file/line findings or approval.
-7. Send valid findings to the existing implementer with `followup_task` when idle or `send_message` when already running.
-8. Re-run both reviews after fixes.
+Dispatch only the already-selected role using its resolved named profile or
+complete fallback contract. Tell every agent not to spawn descendants. Tell an
+implementer its owned task and exact file responsibilities and that it is the
+only writer. Tell a reviewer it is read-only and must inspect the supplied task
+base, current head, range, and diff.
 
-Stop and report when a design decision is missing, the plan must change, or the same gate fails twice after attempted correction. Do not let reviewers edit.
+Use bounded waits, inspect live agents regularly, and return progress evidence to
+the lead. Preserve reports, identities, completion state, and observed errors
+without translating findings or deciding whether the task passed.
 
-## Completion
+Return every writer response unchanged with the observed agent completion state.
+`execute-task` validates status, report fields, commit, current head, range, and
+verification. This adapter never claims task acceptance.
 
-Complete only when every plan task has:
+## Inspect interruption state before resuming
 
-- an implementation commit;
-- observed task verification evidence;
-- spec approval;
-- quality approval.
+After an implementer interruption, failure, timeout, lost response, incomplete
+report, partial edit, or partial commit:
 
-Report task commits and evidence, then transition to `verify`. Do not push, merge, or tear down the session from this skill.
+1. inspect the interruption result and live-agent state;
+2. confirm the prior writer is inactive;
+3. inspect repository HEAD, status, commits, and task-base-to-current diff;
+4. determine whether every in-scope edit and commit is attributable to the task.
+
+Return that evidence to `execute-task` before another writer is dispatched.
+Resume or replace only after a fresh request confirms that no writer overlaps,
+the state is safe and attributable, and the handoff still applies. Otherwise
+preserve state and return `BLOCKED`; never rewrite or discard state to force
+progress.
+
+For reviewer failure, preserve completed read-only reports, recheck live
+capacity, and queue only the already-requested replacement role. If the required
+independent role remains unavailable, return `BLOCKED`; do not substitute
+another perspective.
+
+## Return scheduling evidence
+
+Return dispatch and queue order, agent identities, live and effective capacity,
+completion or interruption states, reports, inspected Git state after writer
+failure, and every availability or attribution gap.
+
+Use `BLOCKED` whenever safe scheduling or writer-state attribution cannot be
+established. Otherwise return scheduling evidence to `execute-task`, which alone
+interprets results, applies the selected gate, manages corrections, and decides
+task acceptance. Do not advance another task, global verification, final review,
+publication, merge, or teardown.
