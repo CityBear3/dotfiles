@@ -111,9 +111,10 @@ re-entry condition. Do not reset, clean, move, or discard material to manufactur
 a clean prestate.
 
 From that destination worktree, run only the recorded exact non-interactive merge
-command naming the frozen source ref. On conflict or merge failure, inspect refs,
-HEAD, `MERGE_HEAD`, unmerged entries, index, worktree, relevant untracked and
-ignored paths, and status before any recovery.
+command naming the frozen selection-time source object ID. Keep the source ref
+for provenance, identity revalidation, and reporting. On conflict or merge
+failure, inspect refs, HEAD, `MERGE_HEAD`, unmerged entries, index, worktree,
+relevant untracked and ignored paths, and status before any recovery.
 
 Run `git merge --abort` only when:
 
