@@ -3,7 +3,7 @@
 - Owner: Repository owner
 - Drafted by: Codex from owner-approved design decisions
 - Date: 2026-07-29
-- Status: Approved
+- Status: Approved; review-calibration amendment approved 2026-07-29
 
 ## Context and scope
 
@@ -41,6 +41,10 @@ resulting document after those decisions are settled.
 - Provide a lightweight path for uniquely determined, low-risk changes.
 - Let an implementation plan declare review intensity so review cost and breadth
   match the change's risk.
+- Give every reviewer enough artifact-specific context to distinguish material
+  defects from inapplicable code-oriented concerns.
+- Keep the finding threshold proportional and evidence-based even when `deep`
+  review broadens the perspectives consulted.
 - Let Codex draft a Design Doc from an owner-approved decision record without
   inventing decisions.
 - Give lightweight and planned work one task-execution contract without
@@ -57,6 +61,10 @@ resulting document after those decisions are settled.
 - Encode GPT-5.6 model names or reasoning effort in implementation plans.
 - Treat reviewer count, maximal reasoning effort, or speculative findings as
   quality goals.
+- Turn natural-language skill handoffs into machine-protocol schemas, content
+  identities, or serialization contracts without a real runtime consumer that
+  requires them.
+- Lower the finding threshold merely because `deep` review was selected.
 - Import or read `claude/` assets at Codex runtime.
 - Change publication, destructive-action, or external-write approval boundaries.
 - Execute multiple implementation-plan tasks in parallel. The task boundary may
@@ -172,8 +180,8 @@ policy materialization. The planned path invokes `execute-plan`, which invokes
 
 - validation of the approved plan and its complete approved review policy;
 - dependency ordering and construction of each complete task handoff;
-- aggregation of task commits, accepted ranges, verification, gate results, retry
-  history, and gaps;
+- aggregation of task commits, accepted ranges, verification, gate results,
+  correction outcomes, and gaps;
 - detection of a plan deviation or missing decision before handing control back
   to the coordinator.
 
@@ -183,8 +191,8 @@ policy materialization. The planned path invokes `execute-plan`, which invokes
 - exact task verification and pre-commit working-tree diff inspection;
 - task commit, new head, and exact base-to-head range;
 - policy-selected per-task gate;
-- in-scope fix, fresh verification, re-review, stable retry-key, attempt, and stop
-  evidence.
+- bounded in-scope correction, fresh verification, re-review, and a clear stop
+  condition.
 
 The actual writer is either the lead or one `implementer`. This design does not
 introduce multiple concurrent writers. `agent-teams-driven-development` owns only
@@ -219,11 +227,11 @@ may remain lightweight.
 Before implementation, Codex confirms that the current workspace and branch are
 suitable. Production-behavior changes use TDD; content, configuration, and
 mechanical migrations use an explicit discipline appropriate to their contract.
-Before invoking `execute-task`, the coordinator deterministically materializes a
-complete lightweight `focused` policy from the Design default, the original
-change authorization, and observed risk and runtime capacity. It records every
-policy field required by the shared task seam; it does not infer an unknown field
-later during execution.
+Before invoking `execute-task`, the coordinator selects the lightweight
+`focused` policy from the Design default, the original change authorization, and
+observed risk and runtime capacity. It records the rationale, applicable review
+perspectives, omissions, and Acceptance threshold together with the lightweight
+Review context.
 
 An explicit user-approved `adaptive` or `deep` mode replaces the default. If
 materializing a complete policy would require a material choice, or observed risk
@@ -310,6 +318,40 @@ The user reviews and approves the document before plan creation. When the user
 prefers to author a draft, the skill continues to support structure, research,
 critique, and targeted edits.
 
+### Review context
+
+Review policy controls breadth and independence. A separate, concise Review
+context tells reviewers how to interpret the artifact being reviewed. Every plan
+records one, and the lightweight path derives one from the approved request,
+repository evidence, and any settled decisions before implementation.
+
+The Review context describes in plain language:
+
+- the artifact type and its purpose;
+- its consumers and execution or interpretation model;
+- the behavior and quality characteristics that matter;
+- realistic failure modes with material impact;
+- approved trade-offs and conditions that are not problems by themselves;
+- perspectives or assumptions that do not apply to this artifact.
+
+The Review context is not a versioned schema, content identity, or duplicated
+evidence envelope. It is passed with the task or final-review request to every
+reviewer and integrator. For standalone review, Codex derives the smallest
+reasonable context from the requested files and repository evidence and reports
+any material assumption.
+
+Approved non-problems do not make an artifact immune from review. A reviewer may
+revisit one only with materially new evidence showing a concrete reachable
+failure or an approved-contract violation. A preference, a generic best practice,
+or an imagined future consumer is not such evidence.
+
+For Markdown skills and role prompts, reviewers treat the artifact as
+natural-language instructions interpreted by Codex unless an actual machine
+consumer is identified. They review responsibility boundaries, approval and
+safety rules, contradictory or unusable instructions, prompt size, and realistic
+tool-loop behavior. The absence of canonical serialization, content digests,
+protocol identities, or a fully explicit state machine is not a defect by itself.
+
 ### Review policy
 
 Every implementation plan contains a `Review policy` section. The planner proposes
@@ -326,13 +368,15 @@ The policy records:
 - residual risk plus capacity and queue rules;
 - the evidence and finding threshold for acceptance.
 
+The policy references the Review context but does not repeat it.
+
 The three modes have these contracts:
 
 | Mode | Per-task review | Final review |
 | --- | --- | --- |
 | `focused` | One reviewer checks both specification compliance and code quality. | General code review, plus test coverage when behavior or tests changed. |
 | `adaptive` | Specification and code quality are reviewed independently. | Standard and adversarial reviewers are selected only for identified risk surfaces. |
-| `deep` | Specification and code quality are reviewed independently. | All applicable standard and adversarial perspectives run, followed by adversarial integration. |
+| `deep` | Specification and code quality are reviewed independently. | All perspectives applicable to the artifact and observed risks run, followed by adversarial integration when adversarial review runs. |
 
 `adaptive` is the default for planned work. `focused` is the default for the
 lightweight path.
@@ -353,20 +397,34 @@ or `deep` when these risks make `focused` inappropriate. If the user chooses a
 lighter policy, the plan records omitted perspectives and residual risk rather
 than silently dropping them.
 
-Review strength controls breadth, independence, and required evidence. Model and
-reasoning-effort selection remain properties of reviewer profiles so plans do not
-become coupled to a particular current model. In the existing GPT-5.6 Sol setup,
-selecting `deep` activates the detailed specialist profiles already configured for
-high or xhigh reasoning; the plan does not add generic instructions to “think
-harder.”
+Review strength controls breadth and independence, not the threshold for accepting
+a finding. Model and reasoning-effort selection remain properties of reviewer
+profiles so plans do not become coupled to a particular current model. In the
+existing GPT-5.6 Sol setup, selecting `deep` may activate detailed specialist
+profiles already configured for high or xhigh reasoning when their perspective is
+applicable; the plan does not add generic instructions to “think harder” or run an
+irrelevant profile merely to maximize reviewer count.
 
-Every mode retains the same finding standard. A surviving finding must identify a
-concrete reachable behavior or contract violation, cite evidence, state impact,
-and propose a specific correction. Preference-only comments, speculative future
-concerns, and objections to an approved decision without new evidence are removed.
-Capacity limits may queue reviewers but never silently reduce the approved scope
-or independence. An unavailable required gate remains a reported gap and cannot
-be converted into an implicit waiver.
+Every mode retains the same finding standard. A surviving finding must be
+applicable to the artifact described by the Review context, identify a concrete
+reachable behavior or approved-contract violation, cite evidence, state a
+material consequence, and propose a proportionate correction. `Should Improve`
+requires a concrete maintainability consequence or measurable repeated cost; it
+is not a label for optional polish. Preference-only comments, speculative future
+concerns, inapplicable code-oriented assumptions, and objections to an approved
+decision without new evidence are removed.
+
+A suggestion that introduces a new state machine, schema, identity system, or
+other architectural mechanism is not an automatic `Fix` unless that mechanism is
+the proportionate correction for a proven in-scope violation. Otherwise it is a
+design proposal and therefore `Escalate`. The adversarial integrator applies the
+same Review context and actively rejects unsupported, second-order, and
+artifact-inapplicable findings instead of treating reviewer output volume as a
+quality signal.
+
+Capacity limits may queue reviewers but never silently reduce the approved
+applicable scope or independence. An unavailable required gate remains a reported
+gap and cannot be converted into an implicit waiver.
 
 ### Review feedback and loop completion
 
@@ -431,19 +489,19 @@ step but stops when a new user-owned decision is required.
 
 ### Evidence and observability
 
-Progress and completion reports identify the active phase, approved scope, review
-policy, reviewers run or skipped, commands observed, and any unverified gap. A
-successful tool call, edit, build, or subagent message is intermediate evidence;
-completion requires the phase's behavioral contract.
+Progress and completion reports identify the active phase, approved scope, Review
+context, review policy, reviewers run or skipped, commands observed, and any
+unverified gap. A successful tool call, edit, build, or subagent message is
+intermediate evidence; completion requires the phase's behavioral contract.
 
 ### Failure and re-entry
 
 The workflow may re-enter implementation after verification or review. Re-entry
-retains the approved decisions, non-goals, review policy, exact unresolved
-finding, task range, stable retry key, and attempt evidence. It does not reopen
-settled design without evidence. Repeated failure of the same gate follows the
-shared `execute-task` stop contract and then escalates rather than creating an
-unbounded retry loop.
+retains the approved decisions, non-goals, Review context, review policy, exact
+unresolved finding, task range, and observed correction attempts. It does not
+reopen settled design without evidence. If the same concrete problem survives a
+bounded correction attempt, the workflow stops and explains the remaining gap
+instead of inventing a more elaborate protocol or creating an unbounded loop.
 
 ## Alternatives considered
 
@@ -479,6 +537,15 @@ This exploits model judgment and avoids plan detail. It was rejected because the
 expected cost, skipped perspectives, and residual risk would be invisible at plan
 approval. The selected design lets the plan establish risk and policy while
 reviewer profiles retain tactical judgment.
+
+### Treat every handoff as a machine protocol
+
+This can make every intermediate state mechanically distinguishable, but the
+artifacts in this design are primarily natural-language skills interpreted by an
+agent. It was rejected because canonical encodings, content identities, manifest
+digests, and exhaustive lifecycle schemas add prompt cost and new consistency
+failure modes without a matching runtime requirement. Exact Git ranges, observed
+commands, concise state, and explicit gaps provide sufficient evidence here.
 
 ### Require the user to author all Design Doc prose
 
