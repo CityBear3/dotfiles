@@ -76,9 +76,11 @@ behavior, scope, or another material trade-off, return that exact ambiguity to
 design discussion. Do not fill it in while drafting.
 
 Return the complete Feature Contract to the coordinator for separate user
-approval and persistence at
-`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. This skill does not approve
-the contract, enter planning, or combine it with an Implementation Plan.
+approval and workspace-only storage at
+`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
+force-add, stage, or commit it unless the user explicitly chooses archival. This
+skill does not approve the contract, enter planning, or combine it with an
+Implementation Plan.
 
 ## Handoff
 

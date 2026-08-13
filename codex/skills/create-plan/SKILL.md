@@ -78,7 +78,9 @@ the preserved current head an unreviewed baseline.
 Store the plan beside its Feature Contract at
 `docs/plans/YYYY-MM-DD-<feature>/implementation-plan.md` unless stricter
 repository guidance specifies another location. Reference the approved contract;
-do not copy or mutate its meaning.
+do not copy or mutate its meaning. Treat both files as ignored, workspace-only
+execution artifacts. Do not force-add, stage, or commit either file unless the
+user explicitly chooses archival.
 
 Include:
 

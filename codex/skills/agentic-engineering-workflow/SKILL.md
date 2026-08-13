@@ -156,7 +156,7 @@ Resolve planned-path entry in this order:
    each material choice.
 2. As soon as investigation makes the purpose and initial feature boundary
    identifiable, use `create-workspace` to establish or confirm the feature
-   workspace before writing the first durable planned-path design artifact.
+   workspace before writing the first recoverable planned-path artifact.
 3. For settled work with cross-cutting architecture, durable contracts, or
    significant decisions worth preserving, use `design-doc`. Require separate
    user approval of the drafted Design Doc.
@@ -164,14 +164,18 @@ Resolve planned-path entry in this order:
    `design-doc` to derive it from that source. Without a Design Doc, use
    `design-discussion` to derive it from the approved decision record and
    repository evidence.
-5. Persist the Feature Contract at
-   `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` and require its separate
-   user approval. Do not treat Design Doc approval, artifact existence, or a
+5. Write the Feature Contract at
+   `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
+   workspace-only execution artifact and require its separate user approval.
+   Do not force-add, stage, or commit it unless the user explicitly chooses
+   archival. Do not treat Design Doc approval, artifact existence, or a
    conversation summary as Feature Contract approval.
 6. Only after the Feature Contract is approved and current, use `create-plan` to
-   create `implementation-plan.md` beside it. Require separate approval of the
-   complete Implementation Plan, its Task Contract set, Review context, and
-   Review policy before using `execute-plan`.
+   create the ignored, workspace-only `implementation-plan.md` beside it.
+   Require separate approval of the complete Implementation Plan, its Task
+   Contract set, Review context, and Review policy before using `execute-plan`.
+   Do not force-add, stage, or commit the plan unless the user explicitly
+   chooses archival.
 
 For a promotion with preserved unaccepted work, also give `create-plan` the
 recorded lightweight base-to-current range and evidence. Require the new plan to
@@ -316,8 +320,11 @@ Enter `finish-branch` only when fresh verification passes for the exact current
 head and full implementation range, the approved Review policy is satisfied,
 final review and triage leave no surviving finding or gap, and current status
 still matches the reviewed evidence. Pass the concise final-gate evidence to
-`finish-branch`, then stop for the user's publication or branch-disposition
-choice.
+`finish-branch`. Let it inspect the active workspace contracts, remove the
+ignored Feature Contract and Implementation Plan after their evidence is no
+longer needed, preserve any durable Design Doc, then stop for the user's
+publication or branch-disposition choice. Retain or archive plan artifacts only
+when the user explicitly requests it.
 
 Never treat an edit, successful command, implementation commit, agent
 self-review, stale per-task approval, or incomplete aggregate as workflow

@@ -47,7 +47,7 @@ ordering, signatures, and commands when their identity is part of correctness.
   while allowing autonomous implementation, verification, and correction inside
   the contract.
 - Preserve exact approved contracts across context compaction, fresh sessions,
-  and agent handoffs through workspace files.
+  and agent handoffs through workspace files while work remains active.
 - Keep interface detail at the earliest layer where another consumer, task, or
   architectural boundary depends on it.
 - Make verification obligations describe observable proof of correctness and use
@@ -80,8 +80,8 @@ The workflow uses three design layers and one derived review view:
 | Layer | Purpose | Approval and storage |
 | --- | --- | --- |
 | Design Doc | Durable architecture, component and context boundaries, public contracts, state transitions, schemas, and significant trade-offs | Required only when warranted; separately approved and stored under `docs/design/` |
-| Feature Contract | The current feature's goal, observable behavior, applied design sources, responsibilities, protected constraints, and verification obligations | Required for every implementation; separately approved on the planned path and stored in the feature plan directory |
-| Task Contract | The projection of the Feature Contract onto one independently implementable and verifiable task | Approved together with all other Task Contracts as part of the Implementation Plan |
+| Feature Contract | The current feature's goal, observable behavior, applied design sources, responsibilities, protected constraints, and verification obligations | Required for every implementation; separately approved on the planned path and kept in the ignored feature plan directory while work is active |
+| Task Contract | The projection of the Feature Contract onto one independently implementable and verifiable task | Approved together with all other Task Contracts as part of the workspace-only Implementation Plan |
 | Review context | A concise artifact- and consumer-aware interpretation for reviewers | Derived from the approved contracts; not a competing source of requirements |
 
 The planned path becomes:
@@ -273,7 +273,8 @@ authority.
 ### Implementation Plan and physical artifacts
 
 Feature Contract and Implementation Plan are different artifacts because their
-approval and mutation lifecycles differ. Planned work uses:
+approval and mutation lifecycles differ. During active planned work, the feature
+workspace uses:
 
 ```text
 docs/plans/YYYY-MM-DD-<feature>/
@@ -292,6 +293,15 @@ contractually necessary files or ordering, reusable verification routes, Review
 context, Review policy, integration verification, commit scope, and final
 completion policy.
 
+Both files are ignored, workspace-only execution artifacts. They are not
+force-added, staged, or committed by default. Their purpose is to survive
+conversation compaction, fresh agent sessions, and task handoffs while the
+feature is active—not to become permanent repository documentation. After the
+final verification and review evidence has been derived from them,
+`finish-branch` removes them before publication or final handoff. The repository
+retains a Design Doc only when the architectural decisions are independently
+worth preserving. Explicit user-requested archival is the exception.
+
 Task Contracts remain distinct normative sections inside the Implementation
 Plan; they are not separate files and are not synonymous with the entire plan.
 This lets the plan validate cross-task coverage and ownership in one place while
@@ -299,15 +309,16 @@ keeping each task's contract directly extractable for handoff.
 
 The workflow establishes a suitable feature branch or worktree after initial
 investigation makes the purpose and feature boundary identifiable and before it
-writes the first durable design artifact. Existing user and repository workspace
-rules still apply, and `create-workspace` retains its branch-change approval
-boundary. An already suitable workspace requires no additional transition.
+writes the first recoverable planned-path artifact. Existing user and repository
+workspace rules still apply, and `create-workspace` retains its branch-change
+approval boundary. An already suitable workspace requires no additional
+transition.
 
-Drafts and approved artifacts are written in that workspace so a fresh session
-can recover them without chat history. The coordinator records which exact
-artifact is approved and does not treat later edits as approved automatically.
-An implementation plan may reference but must not silently rewrite an approved
-Feature Contract.
+Drafts and approved execution artifacts are written in that workspace so a
+fresh session can recover them without chat history while work remains active.
+The coordinator records which exact artifact is approved and does not treat
+later edits as approved automatically. An implementation plan may reference but
+must not silently rewrite an approved Feature Contract.
 
 ### Contract detail versus implementation procedure
 
@@ -416,21 +427,27 @@ approval evidence before advancing. If it cannot establish which content was
 approved or finds a material edit after approval, it returns to the relevant
 gate instead of inferring approval.
 
+This recovery guarantee applies while planned work is active. After completion,
+the ignored Feature Contract and Implementation Plan are retired; durable design
+decisions remain in the Design Doc, and implemented behavior and verification
+remain in code, tests, Git history, and completion or pull-request evidence.
+
 ### Duplication and drift
 
-The Design Doc remains the source of durable architectural decisions. Feature
-Contract references those decisions and adds only feature-scoped application and
-success criteria. The Implementation Plan references the Feature Contract and
-contains Task Contracts plus orchestration. Review context is derived and
-concise. Each layer avoids copying prose that can be referenced without losing
-the meaning needed by its consumer.
+The Design Doc remains the source of durable architectural decisions. During
+active work, the Feature Contract references those decisions and adds only
+feature-scoped application and success criteria. The Implementation Plan
+references the Feature Contract and contains Task Contracts plus orchestration.
+Review context is derived and concise. Each layer avoids copying prose that can
+be referenced without losing the meaning needed by its consumer.
 
 ### Existing plans and compatibility
 
-Historical plans remain historical evidence and are not migrated. New planned
-work uses the directory format. A currently executing approved legacy plan may
-finish under its approved contract unless a user explicitly asks to migrate it
-or a material ambiguity prevents safe continuation.
+Previously tracked historical plans are not migrated automatically. New planned
+work uses the ignored workspace directory format and retires it after completion.
+A currently executing approved legacy plan may finish under its approved
+contract unless a user explicitly asks to migrate it or a material ambiguity
+prevents safe continuation.
 
 ### Sensitive information
 

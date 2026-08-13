@@ -118,6 +118,9 @@ scope, or trade-off, return the gap to the coordinator so the Design Doc or
 design discussion can be reopened. Do not silently supplement an approved Design
 Doc during contract drafting.
 
-Return the complete Feature Contract for separate user approval and persistence
-at `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Design Doc approval does
-not approve this artifact, and this skill does not enter planning.
+Return the complete Feature Contract for separate user approval and
+workspace-only storage at
+`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
+force-add, stage, or commit it unless the user explicitly chooses archival.
+Design Doc approval does not approve this artifact, and this skill does not
+enter planning.

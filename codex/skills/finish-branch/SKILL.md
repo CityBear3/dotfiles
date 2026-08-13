@@ -67,6 +67,24 @@ an integration-only obligation is unproved, or a material artifact edit
 invalidated approval. For any authority form, a successful task-local command or
 aggregate task count is not feature completion.
 
+## Retire workspace-only plan artifacts
+
+After the current-head completion gate passes, retire the current feature's
+ignored `feature-contract.md` and `implementation-plan.md` before publication,
+merge, or final handoff. First record their exact paths and the completion
+evidence derived from them. Confirm that both paths are ignored and neither is
+tracked, staged, or modified outside the current feature plan directory. Remove
+only those two workspace execution artifacts and the feature plan directory when
+it becomes empty. Preserve every Design Doc.
+
+If either artifact is tracked, staged, outside the expected directory, contains
+unattributed user changes, or the user explicitly requested archival, do not
+remove it. Return `Escalate` for an explicit retention decision or a bounded
+cleanup change. Re-read HEAD and status after retirement; because ignored plan
+artifacts are outside the implementation range, their expected removal must not
+change either. Report what was removed and that the files are not recoverable
+from Git.
+
 ## Present choices
 
 Only after the current-head gate passes, offer applicable user-controlled

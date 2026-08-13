@@ -1,6 +1,6 @@
 ---
 name: create-workspace
-description: Verify or establish feature work on the intended Git branch, a Codex-managed worktree, or a herdr-managed worktree. Resolve the work branch and its base ref separately. Use before the first durable planned-path design artifact or implementation when the current checkout may be unsuitable or isolation is required.
+description: Verify or establish feature work on the intended Git branch, a Codex-managed worktree, or a herdr-managed worktree. Resolve the work branch and its base ref separately. Use before the first recoverable planned-path artifact or implementation when the current checkout may be unsuitable or isolation is required.
 ---
 
 # Prepare a feature workspace
