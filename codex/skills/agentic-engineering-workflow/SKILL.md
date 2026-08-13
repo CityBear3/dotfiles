@@ -80,7 +80,11 @@ policy and continue.
 Also promote to the planned path when the work no longer fits one coherent task,
 needs durable cross-session coordination, or a material part of the in-memory
 contract cannot be recovered after interruption or context compaction. Preserve
-observed work and state; do not improvise another lightweight task.
+observed work and state; do not improvise another lightweight task. Record the
+original lightweight task base, current head, exact unaccepted range and commits,
+changed files, writer and gate evidence, ownership attribution, concerns, and
+gaps. Never let preserved unaccepted work become the new plan's invisible
+baseline.
 
 ## Prepare the lightweight task
 
@@ -169,6 +173,17 @@ Resolve planned-path entry in this order:
    complete Implementation Plan, its Task Contract set, Review context, and
    Review policy before using `execute-plan`.
 
+For a promotion with preserved unaccepted work, also give `create-plan` the
+recorded lightweight base-to-current range and evidence. Require the new plan to
+map every preserved behavior and changed file to its owning Task Contract and a
+first promotion-reconciliation step. Keep the original lightweight base as the
+aggregate implementation base. If attribution is incomplete, conflicting, or
+unsafe, preserve state and stop; do not bless the current head as a clean base.
+Immediately before execution, refresh the current head and status. Extend the
+reconciliation envelope beyond the recorded promotion head only for attributable
+approved design, contract, or plan artifact state; any intervening feature-source
+change is a new gap and stops execution.
+
 When an applicable Design Doc or Feature Contract already exists, verify its
 exact content, source, approval state, and currentness rather than repeating the
 completed gate. A material change to goal, scope, responsibility, public or
@@ -178,16 +193,26 @@ design source when it is insufficient, then reapprove the Feature Contract and
 revalidate the complete plan. A meaning change confined to a Task Contract
 invalidates Implementation Plan approval.
 
+Before presenting a revised plan, identify every previously accepted task whose
+exact Task Contract content, dependency, or consumed shared-interface meaning
+changed. Mark those results and any transitively dependent results stale. A
+reapproved plan does not revive them: require fresh acceptance against the
+current exact Task Contract before releasing dependents, aggregating completion,
+or entering final gates. Retain an accepted result only when its owning contract
+and every relied-on interface and dependency remain semantically unchanged.
+
 Stop for an unresolved design choice, approval gate, plan deviation, material
 scope expansion, external write, publication, merge, discard, destructive
 action, or other missing authority. Do not repeat an approval prompt while its
 exact decision and artifact remain applicable.
 
-Pass the approved Feature Contract, Implementation Plan and applicable Task
-Contracts, Review context, complete policy, working directory, workspace, task
-base, and retained decisions to `execute-plan`. That skill owns dependency
-order, per-task handoff, ordered evidence aggregation, and plan-deviation
-detection.
+Pass exact authority paths and approval/currentness evidence, applicable Feature
+Contract clauses and Task Contracts, Review context, complete policy, working
+directory, workspace, task base, retained decisions, and any promoted
+unaccepted range to `execute-plan`. Reference unchanged source prose instead of
+copying unrelated sections into every handoff. That skill owns dependency order,
+per-task handoff, promotion reconciliation, ordered evidence aggregation, and
+plan-deviation detection.
 
 ### Continue an eligible legacy plan
 
@@ -219,9 +244,10 @@ For a coordinator-managed final gate, retain one current evidence summary:
 - original implementation base, current head, and exact full range;
 - current `git status --short` and changed files;
 - approved scope, decisions, and non-goals;
-- approved Design Doc when applicable and either the Feature Contract, complete
-  Task Contract set, and integration-only obligations or the exact eligible
-  legacy plan authority and its completion criteria;
+- one exact authority form: the planned Design Doc when applicable, Feature
+  Contract, complete Task Contract set, and integration-only obligations; the
+  complete lightweight combined Feature/Task Contract and its accepted task
+  evidence; or the exact eligible legacy plan authority and completion criteria;
 - Review context and complete Review policy;
 - task commits and reviewer outcomes;
 - observed verification commands and results;
@@ -246,9 +272,10 @@ Advance automatically within approved scope:
    unchanged status, and every applicable Feature Contract observation or
    eligible legacy completion criterion, including obligations provable only
    after aggregation.
-4. Pass that verification result, the applicable new-format contract artifacts
-   or exact eligible legacy authority, Review context, Review policy, exact
-   range, diff, changed files, commands, task outcomes, and gaps to `review`.
+4. Pass that verification result, the applicable planned contract artifacts,
+   complete lightweight combined contract, or exact eligible legacy authority,
+   plus Review context, Review policy, exact range, diff, changed files,
+   commands, task outcomes, and gaps to `review`.
    Require every selected final reviewer and adversarial integrator to receive
    the same authority and Review context.
 5. Accept from `review` only `CLEAN`, `FINDINGS`, or `BLOCKED` for that unchanged

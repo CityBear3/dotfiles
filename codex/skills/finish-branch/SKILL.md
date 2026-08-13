@@ -9,23 +9,33 @@ Do not choose publication or branch disposition for the user.
 
 ## Require current-head completion evidence
 
-Inspect the exact target and one approved authority form.
-
-For new-format work inspect:
+Inspect the exact target, current evidence shared by all authority forms, and one
+authority form. Shared evidence is:
 
 - current branch, exact implementation base, current head, and full range;
 - `git status --short`, full diff, and changed files;
-- approved Design Doc when applicable, Feature Contract, complete Task Contract
-  set, Implementation Plan, and their approval state;
-- complete Feature Contract coverage, integration-only obligations, approved
-  scope, non-goals, and Review context;
+- approved scope, non-goals, and Review context;
 - fresh coordinator verification `PASS`, including observed commands and results,
-  and explicit proof of every applicable Feature Contract observation for the
-  same current head and range;
+  for the same current head and range;
 - final review and triage for that same head and range, with no surviving finding;
-- approved Review policy, reviewer and integrator outcomes, triggered
+- complete Review policy, reviewer and integrator outcomes, triggered
   conditionals, skipped perspectives with reasons, Acceptance result, residual
   risk, and every gap.
+
+For new-format planned work also inspect:
+
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, and their approval state;
+- complete Feature Contract coverage, integration-only obligations, and explicit
+  proof of every applicable Feature Contract observation;
+- a current accepted result bound to the exact approved content of every Task
+  Contract; no stale result may satisfy this evidence.
+
+For lightweight work, accept the complete recoverable combined in-memory
+Feature/Task Contract, its original request authority and design sources, exact
+accepted-task evidence, and proof of every Feature Contract observation. Require
+no unresolved material change or promotion condition. Do not require an
+Implementation Plan, contract file, or separate artifact approval.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature
@@ -50,11 +60,11 @@ not present completion choices. Return `BLOCKED` with the observed state and exa
 re-entry condition, or `Escalate` when resolution requires a user-owned policy,
 authority, scope, or design decision.
 
-For new-format work, also stop when a Task Contract lacks an accepted result,
-Feature Contract coverage is incomplete, an integration-only obligation is
-unproved, or a material artifact edit invalidated approval. For either authority
-form, a successful task-local command or aggregate task count is not feature
-completion.
+For new-format work, also stop when a Task Contract lacks a current accepted
+result for its exact approved content, Feature Contract coverage is incomplete,
+an integration-only obligation is unproved, or a material artifact edit
+invalidated approval. For any authority form, a successful task-local command or
+aggregate task count is not feature completion.
 
 ## Present choices
 

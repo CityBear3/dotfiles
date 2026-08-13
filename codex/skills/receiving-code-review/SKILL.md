@@ -21,9 +21,10 @@ Require:
   evidence, impact, proposed correction, and confidence;
 - approved scope, decisions, non-goals, Review context, Review policy, and
   implementation authorization;
-- approved Design Doc when present and either the Feature Contract,
-  Implementation Plan, and applicable Task Contracts or the exact eligible
-  legacy plan authority;
+- one exact authority form: approved Design Doc when present, Feature Contract,
+  Implementation Plan, and applicable Task Contracts; the complete lightweight
+  combined Feature/Task Contract with original request authority and exact
+  accepted-task evidence; or the exact eligible legacy plan authority;
 - observed correction attempts and prior triage decisions.
 
 Resolve base, head, range, diff, status, and changed files directly from Git.
@@ -79,8 +80,9 @@ For `Fix`, return one bounded plain-language correction handoff:
 
 - exact finding and concrete evidence;
 - smallest authorized correction;
-- unchanged Feature Contract, applicable Task Contract and shared interfaces, or
-  unchanged eligible legacy task authority, plus constraints and non-goals;
+- unchanged planned Feature and applicable Task Contract, unchanged lightweight
+  combined contract, or unchanged eligible legacy task authority, plus shared
+  interfaces when applicable, constraints, and non-goals;
 - Review context and unchanged Review policy;
 - discipline and responsibility boundaries;
 - a correction commit intent bounded to the finding and either its fixed message

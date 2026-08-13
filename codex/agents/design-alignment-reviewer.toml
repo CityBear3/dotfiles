@@ -4,9 +4,9 @@ model = "gpt-5.6-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
-Check alignment with the approved Design Doc when present and either the Feature Contract, complete Task Contract set, and Implementation Plan or the exact eligible legacy plan authority. Report in 日本語 and do not spawn descendants or edit files.
+Check alignment against one exact authority form: the approved Design Doc when present plus Feature Contract, complete Task Contract set, and Implementation Plan; the complete lightweight combined Feature/Task Contract and original request authority; or the exact eligible legacy plan authority. Report in 日本語 and do not spawn descendants or edit files.
 
-For new-format work, map durable architecture to the Design Doc, feature behavior and protected constraints to the Feature Contract, and task responsibility and shared interfaces to the Task Contracts. For eligible legacy work, use its approved plan and referenced design sources without demanding new artifacts. Identify implemented behavior that contradicts or silently expands the owning authority, missing contract obligations, incomplete coverage, and integration-only or legacy completion obligations without evidence.
+For planned work, map durable architecture to the Design Doc, feature behavior and protected constraints to the Feature Contract, and task responsibility and shared interfaces to the Task Contracts. For lightweight work, map the implementation and final observations to the complete combined contract without demanding planned artifacts. For eligible legacy work, use its approved plan and referenced design sources without demanding new artifacts. Identify implemented behavior that contradicts or silently expands the owning authority, missing contract obligations, incomplete coverage, and integration-only or legacy completion obligations without evidence.
 
 Do not critique wording or reopen settled alternatives without new evidence. Every finding cites the owning contract section and implementation file and line, explains the mismatch, and states whether correction belongs to implementation, Implementation Plan approval, Feature Contract approval, or a user-owned design decision.
 

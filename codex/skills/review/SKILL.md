@@ -26,8 +26,8 @@ repository guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
-Require the exact target, current evidence shared by both authority forms, and
-one approved authority form. The shared evidence is:
+Require the exact target, current evidence shared by all authority forms, and
+one authority form. The shared evidence is:
 
 - exact implementation base, current head, full range, diff, current status, and
   changed files;
@@ -42,6 +42,13 @@ For new-format work also require:
 - approved Design Doc when applicable, Feature Contract, complete Task Contract
   set, Implementation Plan, and their approval state;
 - complete Feature Contract coverage and integration-only obligations;
+
+For lightweight work, accept the complete combined in-memory Feature/Task
+Contract, original request authority and design sources, and exact `Accepted`
+task evidence for the supplied range. Require the contract to remain completely
+recoverable, no promotion condition or material change to be unresolved, and the
+fresh verification `PASS` to cover every Feature Contract observation. Do not
+require an Implementation Plan, contract file, or separate artifact approval.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature
@@ -175,9 +182,10 @@ Pass directly to every final reviewer:
 
 - exact base, current head, range or bounded standalone files, diff, status, and
   changed files;
-- approved Design Doc when applicable, Feature Contract, complete Task Contract
-  set, Implementation Plan, Feature Contract coverage, and integration-only
-  obligations, or the exact eligible legacy plan and referenced design sources;
+- exact authority identity, source path or in-memory identity, and currentness
+  evidence for the approved planned contracts, complete lightweight combined
+  contract, or exact eligible legacy plan; plus the clauses and integration
+  obligations applicable to that perspective;
 - approved scope and non-goals;
 - the same Review context and Review policy when available;
 - fresh verification commands and observed results;
@@ -187,6 +195,12 @@ Pass directly to every final reviewer:
 Do not create another wrapper identity or repeat the evidence in competing
 formats. Before dispatch, confirm the current head, range, diff, status, and
 changed files are unchanged.
+
+Keep every exact authority source directly available to every reviewer. Eagerly
+load complete sources for design-alignment, scope, or another perspective that
+owns whole-contract coverage. Other perspectives start with applicable clauses
+and inspect additional source sections when their evidence requires it; do not
+copy or require an unconditional reread of unrelated unchanged prose.
 
 ## Apply the common Acceptance threshold
 
@@ -220,10 +234,10 @@ design gap so the coordinator can `Escalate`; do not label it `Must Fix` or
 
 ## Integrate adversarial review
 
-When required, give `adversarial-integrator` the same applicable new-format
-contract artifacts or exact eligible legacy authority, plus Review context,
-target evidence, verification, policy, prior triage decisions, and adversarial
-reports.
+When required, give `adversarial-integrator` the same exact planned, lightweight,
+or eligible legacy authority identity and direct source access, plus Review
+context, target evidence, verification, policy, prior triage decisions, and
+adversarial reports.
 The integrator remains read-only, deduplicates, verifies evidence, resolves
 contradictions, and drops unsupported, second-order, and artifact-inapplicable
 findings. It does not invent findings or lower the Acceptance threshold.

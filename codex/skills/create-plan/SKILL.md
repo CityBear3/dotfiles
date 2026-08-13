@@ -16,6 +16,11 @@ Require the coordinator to supply:
 - its approved Design Doc or decision record sources;
 - approval evidence for the exact contract content;
 - working directory, feature workspace, and current repository state.
+- when replanning, every prior accepted task with its exact contract content,
+  dependencies, consumed interfaces, base, head, range, and gate evidence;
+- when promoted from lightweight work, its original task base, current head,
+  exact unaccepted range and commits, changed files, writer and gate evidence,
+  ownership attribution, concerns, and gaps.
 
 Reject a missing, draft, materially edited, contradicted, or source-incomplete
 Feature Contract. Return unresolved architecture, responsibility, public or
@@ -52,6 +57,21 @@ Build a Feature Contract coverage table. Map every contract obligation to one or
 more Task Contracts or to an explicitly integration-only proof. Explain
 deliberate overlap. Reject unexplained gaps or duplicated ownership.
 
+For replanning, add a `Re-entry impact` section. Retain a prior accepted result
+only when its exact Task Contract, dependencies, and relied-on shared interfaces
+remain semantically unchanged. Mark every affected or transitively dependent
+result stale and map it to the current Task Contract that must obtain fresh
+acceptance.
+
+For a lightweight promotion with preserved committed work, keep the original
+lightweight base as the implementation base. Map every preserved change and file
+to the complete new Task Contract set and define a first promotion-reconciliation
+step that owns attribution and current-contract acceptance of the unaccepted
+range. Distinguish later approved design and plan artifact state and include it
+in the attributable reconciliation envelope at execution; do not absorb later
+feature-source edits. Reject conflicting or incomplete attribution; do not make
+the preserved current head an unreviewed baseline.
+
 ## Plan structure
 
 Store the plan beside its Feature Contract at
@@ -69,6 +89,7 @@ Include:
 - a Review context;
 - a separate complete Review policy;
 - Task Contracts ordered by dependency;
+- re-entry impact and promotion reconciliation when either applies;
 - final verification, review iteration, and publication policy.
 
 For each Task Contract include:
@@ -206,6 +227,9 @@ scope or independence silently.
   feature contract.
 - Make every Task Contract directly extractable for handoff while retaining
   cross-task coverage and interface ownership in the complete plan.
+- Reference exact authority paths and approval evidence. Put applicable clauses
+  in an extractable task handoff, but do not duplicate unrelated source prose
+  that an agent can read directly when needed.
 - Make destructive or external actions explicit approval gates.
 
 Use [example-plan.md](example-plan.md) only when the output shape is unclear.

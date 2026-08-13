@@ -29,21 +29,31 @@ known limitations before running checks.
 
 ## Coordinator-managed entry
 
-Require the exact target and one approved authority form.
-
-For new-format work require:
+Require the exact target, current evidence shared by all authority forms, and one
+authority form. Shared evidence is:
 
 - the original implementation base, current head, and exact full committed
   range;
 - current status and changed files, with no unexplained in-scope index,
   worktree, or untracked source change outside that range;
-- the approved Design Doc when applicable, Feature Contract, complete
-  Implementation Plan and Task Contract set, and their approval state;
-- Feature Contract coverage and every integration-only verification obligation;
 - approved scope, non-goals, Review context, and Review policy;
 - every authoritative final verification route and expected observation, with
   exact commands where their identity is contractually significant;
 - task commits, task-review outcomes, concerns, and known gaps.
+
+For new-format planned work also require:
+
+- the approved Design Doc when applicable, Feature Contract, complete
+  Implementation Plan and Task Contract set, and their approval state;
+- Feature Contract coverage and every integration-only verification obligation;
+
+For lightweight work, accept the complete combined in-memory Feature/Task
+Contract, its original request authority and design sources, and the exact
+`Accepted` task result for the supplied base, head, and range. Require that the
+contract remains completely recoverable, no promotion condition or material
+change is unresolved, and every Feature Contract observation is mapped to fresh
+final evidence. Do not require an Implementation Plan, contract file, or separate
+artifact approval.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature
@@ -116,8 +126,8 @@ Run fresh, as applicable:
 8. relevant integration, smoke, browser, API, or snapshot checks;
 9. `git diff --check`, diff inspection, and final status.
 
-For new-format work, map each Feature Contract verification obligation to fresh
-observed evidence.
+For planned or lightweight work, map each Feature Contract verification
+obligation to fresh observed evidence.
 Distinguish obligations already supported by accepted task results from those
 provable only at the integrated boundary. Task acceptance is supporting evidence,
 not a substitute for an integration-only observation. An unobserved required
@@ -158,8 +168,9 @@ Report:
 - starting and ending `git status --short`, changed files, and unrelated state;
 - Review context and approved criteria inspected when available;
 - approved Design Doc, Feature Contract, Task Contract coverage, and
-  integration-only obligations, or eligible legacy authority and original
-  completion criteria, inspected when applicable;
+  integration-only obligations; complete lightweight combined contract and
+  accepted task evidence; or eligible legacy authority and original completion
+  criteria, inspected when applicable;
 - each Feature Contract verification obligation or legacy completion criterion,
   its evidence, and pass, fail, or blocked result;
 - every command, expected result, observed result, and match status;

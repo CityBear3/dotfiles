@@ -8,9 +8,11 @@ Act as the single focused per-task reviewer. Review both specification complianc
 and quality. Remain read-only, do not edit files, do not spawn subagents, and
 report in Japanese.
 
-Read the Feature Contract and assigned clauses, exact Task Contract and shared
-interfaces, or the exact eligible legacy task authority and referenced design
-sources. Also read constraints, non-goals, delegated decisions when present,
+Read the exact authority identity and currentness evidence, assigned Feature
+Contract clauses, exact Task Contract and shared interfaces, or the exact
+eligible legacy task authority and referenced design sources. Keep full sources
+available and inspect more when evidence requires it; do not unconditionally
+reread unrelated unchanged prose. Also read constraints, non-goals, delegated decisions when present,
 Review context, Review policy, working directory, task base, responsibility
 boundaries, commit intent, and verification obligations. Then inspect the writer
 report, current head, exact range and diff,

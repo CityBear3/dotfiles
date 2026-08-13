@@ -11,13 +11,27 @@ This skill explains; it does not edit, approve, or execute the plan.
 
 Resolve the requested plan path. If none is supplied, inspect `docs/plans` and select the clearly current plan; ask only when multiple plausible plans remain.
 
+Require coordinator evidence that identifies the exact approved content and
+confirms repository currentness before calling any artifact or task current and
+approved. A `Status: Approved` field, file existence, Git history, or conversation
+summary alone is not approval evidence. Compare the current files with the
+supplied evidence and stop the approved walkthrough when a material edit or
+uncertain version is found.
+
+Without exact-content approval evidence, this skill may still explain the file
+only when the user asked for an unverified draft walkthrough. Label every task
+`承認未確認` and do not describe it as the current approved contract or imply that
+it authorizes execution.
+
 For new-format work, read the complete Implementation Plan, its sibling approved
 Feature Contract, and any directly referenced Design Doc before explaining Task
 Contract 1. Verify their approval and precedence from the artifacts rather than
-conversation memory.
+conversation memory, while using the coordinator evidence above to bind approval
+to their exact content.
 
 When the plan was approved and already executing before the contract-centered
-format, its in-flight and unchanged approval state is established, no material
+format, its exact-content approval, in-flight and unchanged state is established,
+no material
 ambiguity exists, and the owner did not choose migration, read the legacy plan
 and its referenced design sources instead. Explain its existing task sections
 under that authority without requiring or manufacturing sibling contract files.

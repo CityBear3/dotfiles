@@ -182,8 +182,8 @@ it does not replace observed repository evidence.
 | 5. Contract-aware task handoff and acceptance | Task 3 and integration scenario 4 |
 | 6. Conditional exact detail | Tasks 2–3 and integration scenario 5 |
 | 7. Feature-level verification and review | Task 4 and integration scenario 6 |
-| 8. Lightweight combined contract and promotion | Tasks 1 and 3, integration scenario 7 |
-| 9. Fresh-session reconstruction | Tasks 1–4 and integration scenario 8 |
+| 8. Lightweight combined contract and promotion | Tasks 1, 3–4 and integration scenarios 7, 10, and 13 |
+| 9. Fresh-session reconstruction | Tasks 1–4 and integration scenarios 8 and 11 |
 | 10. Installer, whitespace, and sensitive-data regression | Final verification commands |
 | Compatibility: approved in-flight legacy plans may finish without migration | Tasks 1, 3–4 and integration scenario 9 |
 
@@ -314,6 +314,9 @@ approved Design Doc, Feature Contract, and this approved plan in the branch.
   Contract.
 - Lightweight work creates no artifact file and promotes to planned work on a
   material change or unrecoverable long-lived context.
+- Promotion preserves the original lightweight base, current head, unaccepted
+  range and commits, ownership evidence, writer and gate results, and gaps so the
+  planned path cannot hide them in its baseline.
 - The three approved artifacts are tracked despite the repository-wide
   `docs/plans/` ignore rule.
 - The coordinator recognizes the narrowly eligible legacy continuation before
@@ -402,8 +405,11 @@ private implementation procedure.
 - The example demonstrates responsibility-centered detail and at least one
   delegated local choice.
 - Plan walkthrough reads Feature Contract, Implementation Plan, and referenced
-  Design Doc, and explains obligations rather than assuming an exhaustive file
-  recipe.
+  Design Doc, requires approval/currentness evidence for their exact content,
+  and explains obligations rather than assuming an exhaustive file recipe.
+- Replanning records which existing task results remain current and which are
+  stale because their Task Contract, dependency, or shared-interface meaning
+  changed.
 
 ### Dependencies
 
@@ -465,6 +471,9 @@ mandatory.
 - Pass the Feature Contract, applicable Task Contract, shared interfaces,
   Review context, Review policy, task base, responsibility boundary, and
   verification obligations without inventing a wrapper contract.
+- Pass exact authority identity, path, approval/currentness evidence, and
+  applicable clauses eagerly; keep the exact source available for direct lookup
+  instead of repeatedly copying unrelated prose.
 - Return actual files, commands, results, commit, head, range, review outcome,
   concerns, and gaps.
 
@@ -494,6 +503,12 @@ mandatory.
 - An eligible legacy plan remains authoritative for its task specifications,
   verification, review, and correction; material ambiguity returns to design or
   owner-selected migration.
+- A changed Task Contract, dependency, or shared interface stales every affected
+  accepted result until the current approved plan receives fresh task
+  acceptance.
+- A promoted lightweight range is reconciled from its original base, mapped to
+  the complete new Task Contract set, reviewed under current authority, and
+  included in the aggregate range before dependent tasks advance.
 
 ### Dependencies
 
@@ -542,6 +557,8 @@ the exact current head.
 - Current, recoverable completion evidence for a fresh coordinator session.
 - Completion of an eligible legacy plan against its original approved authority
   without weakening current Git, verification, review, or safety evidence.
+- Completion of a lightweight task through the same feature verification,
+  review, triage, and branch gates without requiring planned artifacts.
 
 ### Responsibility and ownership boundaries
 
@@ -580,6 +597,13 @@ the exact current head.
 - Legacy final gates accept the approved in-flight plan and its referenced design
   sources in place of new-format artifacts only when eligibility and unchanged
   authority are established.
+- Lightweight final gates accept the complete combined in-memory Feature/Task
+  Contract and exact accepted-task evidence, but no Implementation Plan or
+  separate artifact approval.
+- Final reviewers receive the same exact authority identity and direct source;
+  only perspectives responsible for complete alignment must eagerly read every
+  section, while other reviewers start from applicable clauses and may inspect
+  more when evidence requires it.
 
 ### Dependencies
 
@@ -637,6 +661,22 @@ without conversation reconstruction.
    task execution, verification, review, and branch completion under its
    original authority; a material ambiguity or owner migration choice returns it
    to the new planned path.
+10. A lightweight task is accepted, then completes feature verification, final
+    review, finding triage when needed, and branch completion using its combined
+    in-memory contract without an Implementation Plan.
+11. A plan or contract whose exact-content approval/currentness cannot be
+    established may be explained only as unverified; walkthrough never calls it
+    the current approved Task Contract based on its own status field.
+12. A Task Contract, dependency, or shared-interface meaning changes after an
+    earlier task was accepted; the affected result becomes stale and cannot
+    release dependents, enter the aggregate, or satisfy finish until fresh
+    acceptance under the reapproved plan exists.
+13. A lightweight task commits work but its gate escalates to the planned path;
+    the original base, unaccepted range and commits are assigned and reconciled
+    under the new Task Contracts and remain inside the final aggregate range.
+14. Task and final handoffs share exact authority identity and approval evidence,
+    eagerly include applicable clauses, and avoid copying unrelated prose while
+    complete-alignment consumers retain direct access to the whole source.
 
 ### Required final commands and observations
 
