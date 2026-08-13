@@ -252,9 +252,10 @@ the final integration scenarios.
   a state machine. Representative scenarios and independent review reduce but do
   not eliminate interpretation variance.
 - **Capacity and queue order:** Use at most six total threads including the lead,
-  or lower observed capacity. Per-task reviewers run together when possible.
-  Final standard reviewers run before adversarial reviewers; the adversarial
-  integrator runs last. Queue without reducing approved scope or independence.
+  or lower observed capacity. No per-task reviewer is dispatched for this direct
+  implementation. Final standard reviewers run before adversarial reviewers;
+  the adversarial integrator runs last. Queue without reducing approved scope or
+  independence.
 - **Acceptance:** Keep only artifact-applicable `Must Fix` or `Should Improve`
   findings with an approved requirement, concrete reachable evidence, material
   consequence, and proportionate correction. `Should Improve` requires a
