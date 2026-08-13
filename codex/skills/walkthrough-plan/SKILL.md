@@ -11,20 +11,29 @@ This skill explains; it does not edit, approve, or execute the plan.
 
 Resolve the requested plan path. If none is supplied, inspect `docs/plans` and select the clearly current plan; ask only when multiple plausible plans remain.
 
-Read the complete plan and any directly referenced Design Doc before explaining Task 1.
+Read the complete Implementation Plan, its sibling approved Feature Contract,
+and any directly referenced Design Doc before explaining Task Contract 1. Verify
+their approval and precedence from the artifacts rather than conversation
+memory.
 
 ## Explain one task
 
-For the current task, present:
+For the current Task Contract, present:
 
 1. the outcome and why it exists;
-2. files created, modified, or tested;
-3. the behavioral or structural change;
-4. test and verification strategy;
-5. dependency on earlier and later tasks;
-6. recorded trade-offs or rejected alternatives.
+2. the Feature Contract clauses it satisfies;
+3. responsibility, ownership, and shared-interface boundaries;
+4. protected constraints and observable verification obligations;
+5. dependency on earlier and later tasks, including integration-only proof;
+6. local decisions delegated to the implementation agent;
+7. contractually significant files, signatures, ordering, or commands when
+   present.
 
 Ground claims in the plan and current files. Label any additional interpretation as `補足（Codexの解説）`. Do not invent rationale that the plan does not record.
+
+Do not present a Task Contract as an exhaustive file recipe. Explain the
+distinction between required responsibility and delegated private implementation
+when it matters.
 
 When a real current-to-planned diff helps, inspect the target file and show a compact diff. State when the working tree no longer matches the plan baseline.
 
