@@ -14,14 +14,19 @@ branch disposition from this skill.
 
 Before implementation, require one concise plain-language handoff containing:
 
-- the complete task and expected behavior;
-- approved decisions and explicit non-goals;
+- the approved Feature Contract or lightweight in-memory Feature Contract and
+  its clauses assigned to this task;
+- the exact Task Contract, or the same combined contract for lightweight work;
+- applicable shared interfaces, adjacent-task obligations, protected
+  constraints, and delegated local decisions;
 - the separate Review context and complete active Review policy;
 - the required discipline and applicable repository guidance;
 - approved workspace and working directory;
 - the exact task base commit;
-- file responsibilities and boundaries;
-- every exact task verification command and expected result.
+- responsibility and ownership boundaries;
+- verification routes and observable obligations;
+- contractually significant files, signatures, ordering, and exact commands
+  only when the contract fixes them.
 
 The Review context describes the artifact, purpose, consumers, interpretation or
 execution model, material quality criteria and realistic failures, approved
@@ -33,6 +38,13 @@ the common Acceptance threshold.
 Reject missing, stale, contradictory, or mode-inconsistent input. Return the
 named gap to the invoking skill; do not infer a decision, expand scope, duplicate
 the handoff in a new wrapper, or weaken evidence.
+
+Stop with `Escalate` when implementation needs a new or changed goal, scope,
+responsibility owner, public or shared interface semantic, invariant, material
+failure behavior, compatibility promise, verification obligation, Review
+policy, or authority. A newly discovered private file or local interface inside
+the approved responsibility is not a deviation by itself; an unexpected owner
+or shared seam is.
 
 Require the task base to resolve, equal the starting head for fresh work, and
 remain an ancestor of every head used as evidence. Recheck it after commits and
@@ -53,11 +65,18 @@ observed red failure. For content, configuration, refactoring, or mechanical
 migrations, apply the declared discipline and preserve the relevant green
 baseline. Preserve unrelated changes.
 
+Inside the Task Contract, let the writer choose private files, helpers, local
+types and interfaces, algorithms, edit order, applicable standard verification
+commands, and additional focused non-destructive checks. Require every actual
+choice and changed file to remain within the approved responsibility and be
+reported with evidence.
+
 Require the writer to report:
 
 - `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`;
 - changed files and implemented behavior;
-- every command with its expected and observed result;
+- every command, why it was required or selected, and its expected and observed
+  result;
 - pre-commit diff inspection and self-review;
 - when complete, the commit and new head;
 - concerns and every known gap.
@@ -83,14 +102,17 @@ For a fresh task:
 
 1. Record the exact task base and starting status.
 2. Implement only the declared scope with the selected discipline.
-3. Run every exact verification command and record the observed result.
-4. Inspect the working-tree diff, including unrelated state.
-5. Create only the declared task commit.
-6. Record the new current head.
-7. Inspect the exact task-base-to-current-head range and diff.
-8. Run the policy-selected per-task gate against that current range.
-9. Apply the common Acceptance threshold.
-10. Record the commit, range, verification, gate, concerns, and gaps.
+3. Run every contractually required exact command, select applicable standard
+   and focused checks, and record all observed results.
+4. Inspect the working-tree diff and Task Contract coverage, including unrelated
+   state and actual changed files.
+5. Correct concrete in-scope failures while contract meaning remains unchanged.
+6. Create only the declared responsibility-scoped task commit.
+7. Record the new current head.
+8. Inspect the exact task-base-to-current-head range and diff.
+9. Run the policy-selected per-task gate against that current range.
+10. Apply the common Acceptance threshold and record the contract observations,
+    commit, range, verification, gate, concerns, and gaps.
 
 Approval remains attached to the exact task base, current head, and range that
 were reviewed. Never replace them with a later aggregate range.
@@ -111,19 +133,22 @@ check is uncertain, preserve all state and return `BLOCKED` with the observed
 agent and Git evidence plus the exact re-entry condition. Never clean, reset,
 rebase, amend, discard, or silently restart to force progress.
 
-Use `Escalate` only when resumption requires a material architecture, public
-contract, scope, policy, file-responsibility, or authority decision.
+Use `Escalate` only when resumption requires a material architecture, goal,
+scope, responsibility, public or shared interface, invariant, verification,
+policy, or authority decision.
 
 ## Give reviewers direct current evidence
 
 Every task reviewer receives, without another identity or duplicate record:
 
-- the task, approved decisions, and non-goals;
+- the Feature Contract, assigned clauses, exact Task Contract, shared interfaces,
+  constraints, non-goals, and delegated decisions;
 - the Review context and active Review policy;
 - working directory, task base, current head, exact range, and inspected diff;
-- file responsibilities and actual changed files;
+- responsibility boundaries and actual changed files;
 - the complete writer report;
-- every fresh verification command, expected result, and observed result;
+- every verification obligation and fresh required or selected command with its
+  expected and observed result;
 - commits, pre-commit inspection, repository guidance, concerns, and gaps.
 
 Before dispatch, apply the ancestry invariant above and confirm that HEAD, range,
@@ -171,13 +196,14 @@ objections without materially new evidence.
 ## Correct and re-review without an open-ended loop
 
 For each authorized correction, retain the exact concrete finding or failed
-command and every observed correction attempt. Give the existing writer only the
-bounded correction, unchanged decisions and non-goals, Review context, Review
-policy, current task base, file responsibilities, and exact verification.
+observation and every observed correction attempt. Give the existing writer only
+the bounded correction, unchanged Feature and Task Contracts, shared interfaces,
+Review context, Review policy, current task base, responsibility boundaries, and
+verification obligations.
 
 Then:
 
-1. run fresh exact task verification;
+1. run fresh contractually required and selected task verification;
 2. inspect the correction diff;
 3. create only the declared correction commit;
 4. record the new current head;
@@ -193,8 +219,10 @@ gap. Do not create another identifier or tracking schema for the finding.
 
 Return:
 
-- `Accepted` only when the ancestry invariant holds, every exact verification
-  passes, and the complete selected gate approves the current head;
+- `Accepted` only when the ancestry invariant holds, every contractually fixed
+  exact command and selected check passes, every observable Task Contract
+  obligation has current evidence, and the complete selected gate approves the
+  current head;
 - `BLOCKED` when a safe writer state, command, permission, range, reviewer, or
   other operational prerequisite cannot be established;
 - `Escalate` for a material decision, scope or policy change, explicit

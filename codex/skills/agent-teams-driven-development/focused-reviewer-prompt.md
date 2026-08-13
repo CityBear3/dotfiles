@@ -8,17 +8,22 @@ Act as the single focused per-task reviewer. Review both specification complianc
 and quality. Remain read-only, do not edit files, do not spawn subagents, and
 report in Japanese.
 
-Read the task, approved decisions and non-goals, Review context, Review policy,
-working directory, task base, file responsibilities, and exact verification.
-Then inspect the writer report, current head, exact range and diff, changed
-files, commits, pre-commit inspection, fresh observed verification, repository
-guidance, concerns, and gaps. Confirm that this evidence describes the current
-head and verify completion claims independently.
+Read the Feature Contract and assigned clauses, exact Task Contract, shared
+interfaces, constraints, non-goals, delegated decisions, Review context, Review
+policy, working directory, task base, responsibility boundaries, and verification
+obligations. Then inspect the writer report, current head, exact range and diff,
+actual changed files, commits, pre-commit inspection, fresh observed
+verification, repository guidance, concerns, and gaps. Confirm that this evidence
+describes the current head and verify completion claims independently.
 
 Use the Review context to interpret the artifact and its consumers. Check
-required behavior, tests, files, scope, non-goals, responsibility boundaries,
-readability, names, error handling, behavioral test quality, relevant edge cases,
-unrelated cleanup, and stale evidence.
+required behavior, tests, contractually fixed artifacts, scope, non-goals,
+responsibility boundaries, readability, names, error handling, behavioral test
+quality, relevant edge cases, unrelated cleanup, and stale evidence.
+
+Respect private files, helpers, local interfaces, algorithms, edit order, and
+focused checks delegated by the Task Contract unless concrete evidence shows a
+contract or material quality violation.
 
 Apply the active Review policy's Acceptance threshold. Keep only
 artifact-applicable findings with an approved requirement, concrete reachable
@@ -55,6 +60,6 @@ Approval is a valid result. Do not claim unobserved evidence.
 ## Review message
 
 ```text
-Task handoff: <task and expected behavior; approved decisions and non-goals; Review context; Review policy; working directory; task base; file responsibilities; exact verification commands and expected results>
-Current evidence: <writer report; current head; exact task-base-to-head range and diff; changed files; commits; pre-commit inspection; fresh verification commands and observed results; repository guidance; concerns and gaps>
+Task handoff: <Feature Contract and assigned clauses; Task Contract; shared interfaces; responsibility boundaries; Review context; Review policy; working directory; task base; verification obligations and contractually fixed commands>
+Current evidence: <writer report; current head; exact task-base-to-head range and diff; actual changed files; commits; pre-commit inspection; fresh required and selected commands with observed results; repository guidance; concerns and gaps>
 ```

@@ -14,12 +14,18 @@ verification or final review from this skill.
 
 Before execution, require:
 
+- the approved, current Feature Contract and its design sources;
 - an approved, current implementation plan;
+- its complete Task Contract set, shared interface contracts, Feature Contract
+  coverage, and integration-only obligations;
 - its separate Review context and complete approved Review policy;
 - a suitable non-default feature branch or approved workspace;
 - understood working-tree state;
-- an explicit discipline and exact verification for every task;
-- settled dependencies, file responsibilities, decisions, and non-goals.
+- an explicit discipline and observable verification obligations for every task;
+- exact commands only where the plan marks their identity as contractually
+  significant;
+- settled dependencies, responsibility and ownership boundaries, shared
+  interface owners and consumers, and non-goals.
 
 Record the original plan implementation base and the current head. On re-entry,
 also retain every already accepted task with its exact base, head, range, commit,
@@ -27,9 +33,11 @@ verification, gate result, and gaps. Do not widen an earlier task range when a
 later task adds commits.
 
 Stop and return a plan deviation when implementation would require a new
-architecture, scope, public-contract, schema, error-model, policy, authority, or
-file-responsibility decision. The coordinator owns the transition needed to
-resolve it.
+architecture, goal, scope, responsibility owner, public or shared interface
+semantic, invariant, failure behavior, compatibility promise, verification
+obligation, schema, error model, policy, or authority decision. The coordinator
+owns the transition to the affected Design Doc, Feature Contract, or
+Implementation Plan approval gate.
 
 ## Materialize ordered task handoffs
 
@@ -39,14 +47,18 @@ tasks or more than one active writer.
 
 For each ready task, give `execute-task` one concise plain-language handoff:
 
-- the complete task and expected behavior;
-- approved decisions and non-goals;
+- the approved Feature Contract and clauses assigned to this task;
+- the exact applicable Task Contract, including purpose, expected result,
+  constraints, dependencies, non-goals, and delegated local decisions;
+- applicable shared interface contracts and adjacent-task obligations;
 - the Review context and complete Review policy;
 - the declared discipline and applicable repository guidance;
 - the working directory and approved workspace;
 - the exact task base, which is the current head before this task;
-- task-specific file responsibilities and boundaries;
-- every exact verification command and expected result.
+- responsibility and ownership boundaries;
+- verification routes and observable obligations;
+- contractually significant files, signatures, ordering, and exact commands
+  only when the approved plan fixes them.
 
 Invoke `execute-task` once for the task and let it own the writer, verification,
 commit, exact range, policy-selected gate, correction, and stop condition.
@@ -82,10 +94,10 @@ until `execute-task` returns current acceptance evidence.
 
 Treat an authorized correction as one concrete plan step after the previously
 accepted tasks. Preserve the original implementation base and prior task ranges.
-Give `execute-task` the exact finding or failed command, approved correction,
-observed attempts and results, unchanged decisions and non-goals, Review context,
-Review policy, last accepted head as the correction task base, file
-responsibilities, and exact verification.
+Give `execute-task` the exact finding or failed observation, approved correction,
+observed attempts and results, unchanged Feature and Task Contracts, shared
+interfaces, Review context, Review policy, last accepted head as the correction
+task base, responsibility boundaries, and verification obligations.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do
@@ -100,9 +112,11 @@ from the original implementation base without rewriting prior task ranges.
 After each accepted task, append an ordered result containing:
 
 - task name and dependency position;
+- Feature Contract clauses and Task Contract obligations proved;
 - exact task base, accepted current head, and base-to-head range;
 - task and correction commits;
-- fresh verification commands and observed results;
+- fresh verification obligations, commands selected or required, and observed
+  results;
 - per-task gate result;
 - changed files, concerns, and gaps.
 
@@ -124,7 +138,9 @@ replaces a task-specific reviewed range.
 Return:
 
 - `Accepted` only with every ordered accepted task result, aggregate current
-  head, full implementation range, Review context, and complete Review policy;
+  head, full implementation range, Feature Contract, complete Task Contract
+  coverage, integration-only obligations, Review context, and complete Review
+  policy;
 - `BLOCKED` with the last accepted aggregate, observed in-flight agent and Git
   state, gaps, and exact re-entry condition;
 - `Escalate` with the exact plan deviation, missing decision, policy conflict, or
