@@ -31,6 +31,8 @@ For every transition retain:
 
 - the active path and phase;
 - approved scope, decision source, and non-goals;
+- the applicable Design Doc or decision record and the Feature Contract's
+  source, approval state, storage form, and currentness;
 - the Review context and complete active Review policy;
 - the next automatic action or user-controlled gate;
 - the evidence required to leave the phase;
@@ -55,14 +57,27 @@ recovery guarantees, and data-loss risk as disqualifying unless investigation
 shows that the requested change does not alter that contract.
 
 Treat the original change request as implementation approval when every criterion
-holds. Confirm the workspace with `create-workspace`. Select TDD for production
-behavior and a contract-appropriate discipline for content, configuration,
-refactoring, or mechanical migrations.
+holds. Confirm the workspace with `create-workspace`. Derive one concise
+in-memory Feature Contract from the request and repository evidence; because the
+route is one coherent task, use the same contract as its Task Contract. Select
+TDD for production behavior and a contract-appropriate discipline for content,
+configuration, refactoring, or mechanical migrations.
+
+The lightweight Feature/Task Contract must make the goal, scope and non-goals,
+observable behavior, responsibilities and interfaces, protected constraints,
+verification obligations, and evidence-backed assumptions unambiguous. It adds
+no contract file or separate approval gate. Keep it recoverable in the current
+handoff and evidence for the duration of the task.
 
 If implementation exposes a disqualifying risk or material decision, preserve
 the evidence and stop the lightweight path. Return to `design-discussion`, then
 planning after the user settles the revised scope. Do not silently broaden the
 policy and continue.
+
+Also promote to the planned path when the work no longer fits one coherent task,
+needs durable cross-session coordination, or a material part of the in-memory
+contract cannot be recovered after interruption or context compaction. Preserve
+observed work and state; do not improvise another lightweight task.
 
 ## Prepare the lightweight task
 
@@ -107,14 +122,17 @@ policy change.
 
 Give `execute-task` one plain-language task handoff containing:
 
-- the task and expected behavior;
-- approved decisions and non-goals;
+- the in-memory Feature/Task Contract, including its goal, observable behavior,
+  responsibilities, interfaces, constraints, non-goals, and verification
+  obligations;
 - the Review context and complete Review policy;
 - the discipline and applicable repository guidance;
 - working directory and approved workspace;
 - exact task base, which is the current head before implementation;
-- file responsibilities and boundaries;
-- every exact verification command and expected result.
+- responsibility and ownership boundaries;
+- the applicable verification route and expected observations;
+- exact files, signatures, ordering, or commands only when their identity is
+  contractually significant.
 
 Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
@@ -126,24 +144,44 @@ Resolve planned-path entry in this order:
 1. When architecture, scope, algorithms, public contracts, or another material
    trade-off remains unresolved, use `design-discussion` and let the user make
    each material choice.
-2. For an already-approved Design Doc, use `create-plan`.
+2. As soon as investigation makes the purpose and initial feature boundary
+   identifiable, use `create-workspace` to establish or confirm the feature
+   workspace before writing the first durable planned-path design artifact.
 3. For settled work with cross-cutting architecture, durable contracts, or
-   significant decisions worth preserving, use `design-doc`. Require approval
-   of the drafted Design Doc, then use `create-plan`.
-4. For settled scope that is not lightweight-eligible and does not need a Design
-   Doc, record approval to enter planning, then use `create-plan`.
+   significant decisions worth preserving, use `design-doc`. Require separate
+   user approval of the drafted Design Doc.
+4. Construct a complete Feature Contract. After an approved Design Doc, use
+   `design-doc` to derive it from that source. Without a Design Doc, use
+   `design-discussion` to derive it from the approved decision record and
+   repository evidence.
+5. Persist the Feature Contract at
+   `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` and require its separate
+   user approval. Do not treat Design Doc approval, artifact existence, or a
+   conversation summary as Feature Contract approval.
+6. Only after the Feature Contract is approved and current, use `create-plan` to
+   create `implementation-plan.md` beside it. Require separate approval of the
+   complete Implementation Plan, its Task Contract set, Review context, and
+   Review policy before using `execute-plan`.
 
-Require approval of the implementation plan, Review context, and complete Review
-policy before using `create-workspace` and `execute-plan`. Stop for an unresolved
-design choice, approval gate, plan deviation, material scope expansion, external
-write, publication, merge, discard, destructive action, or other missing
-authority. Do not repeat an approval prompt while its decision remains
-applicable.
+When an applicable Design Doc or Feature Contract already exists, verify its
+exact content, source, approval state, and currentness rather than repeating the
+completed gate. A material change to goal, scope, responsibility, public or
+shared interface semantics, invariant, failure behavior, compatibility, or
+verification obligation invalidates the dependent approval. Return first to the
+design source when it is insufficient, then reapprove the Feature Contract and
+revalidate the complete plan. A meaning change confined to a Task Contract
+invalidates Implementation Plan approval.
 
-Pass the approved plan, Review context, complete policy, working directory,
-workspace, task base, and retained decisions to `execute-plan`. That skill owns
-dependency order, per-task handoff, ordered evidence aggregation, and
-plan-deviation detection.
+Stop for an unresolved design choice, approval gate, plan deviation, material
+scope expansion, external write, publication, merge, discard, destructive
+action, or other missing authority. Do not repeat an approval prompt while its
+exact decision and artifact remain applicable.
+
+Pass the approved Feature Contract, Implementation Plan and applicable Task
+Contracts, Review context, complete policy, working directory, workspace, task
+base, and retained decisions to `execute-plan`. That skill owns dependency
+order, per-task handoff, ordered evidence aggregation, and plan-deviation
+detection.
 
 ## Prepare concise final-gate evidence
 
@@ -153,6 +191,8 @@ For a coordinator-managed final gate, retain one current evidence summary:
 - original implementation base, current head, and exact full range;
 - current `git status --short` and changed files;
 - approved scope, decisions, and non-goals;
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, and integration-only verification obligations;
 - Review context and complete Review policy;
 - task commits and reviewer outcomes;
 - observed verification commands and results;
@@ -173,12 +213,13 @@ Advance automatically within approved scope:
 2. Accept from `execute-plan` only all ordered task results plus the distinct
    aggregate current head and full implementation range.
 3. Build the concise evidence summary and pass it to `verify`. Accept only a
-   fresh `PASS` for the same base, current head, full range, changed files, and
-   unchanged status.
-4. Pass that verification result, Review context, Review policy, exact range,
-   diff, changed files, commands, task outcomes, and gaps to `review`. Require
-   every selected final reviewer and adversarial integrator to receive the same
-   Review context.
+   fresh `PASS` for the same base, current head, full range, changed files,
+   unchanged status, and every applicable Feature Contract observation,
+   including obligations provable only after aggregation.
+4. Pass that verification result, approved contract artifacts, Review context,
+   Review policy, exact range, diff, changed files, commands, task outcomes, and
+   gaps to `review`. Require every selected final reviewer and adversarial
+   integrator to receive the same contracts and Review context.
 5. Accept from `review` only `CLEAN`, `FINDINGS`, or `BLOCKED` for that unchanged
    current head and range. Send concrete current `FINDINGS` and supporting
    evidence to `receiving-code-review` for `Fix`, `Push back`, or `Escalate`

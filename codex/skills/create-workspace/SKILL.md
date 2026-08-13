@@ -1,12 +1,19 @@
 ---
 name: create-workspace
-description: Verify or establish feature work on the intended Git branch, a Codex-managed worktree, or a herdr-managed worktree. Resolve the work branch and its base ref separately. Use before implementation when the current checkout may be unsuitable or the user or repository requires isolated or concurrent work.
+description: Verify or establish feature work on the intended Git branch, a Codex-managed worktree, or a herdr-managed worktree. Resolve the work branch and its base ref separately. Use before the first durable planned-path design artifact or implementation when the current checkout may be unsuitable or isolation is required.
 ---
 
 # Prepare a feature workspace
 
 Keep one feature in one branch and one writer in each checkout. Use a worktree
 when concurrent work or repository policy requires a separate checkout.
+
+On the planned path, invoke this skill after investigation makes the purpose and
+initial feature boundary identifiable and before writing the first durable
+Design Doc, Feature Contract, or Implementation Plan draft. This timing keeps
+approved artifacts and later implementation in the feature workspace. It does
+not change the branch-selection approval or authorize a Git state change by
+itself.
 
 ## Inspect
 
