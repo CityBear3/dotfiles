@@ -72,13 +72,23 @@ Feature Contract boundary and remains unchanged.
 - **Conditional reviewers:** Add `adversarial-robustness-reviewer` if error or
   recovery behavior changes.
 - **Skipped perspectives:** Skip design alignment because no Design Doc exists;
-  architecture and performance because ownership and measured hot paths do not
-  change; adversarial tests unless fixtures or test infrastructure change.
+  scope review because this single Task Contract and its coverage table exhaust
+  the approved scope; architecture and performance because ownership and
+  measured hot paths do not change; adversarial tests unless fixtures or test
+  infrastructure change.
 - **Residual risk:** No exhaustive grammar fuzzing or performance measurement.
 - **Capacity:** At most four threads including the lead; queue without reducing
   approved scope.
-- **Acceptance:** Keep only applicable findings with an approved requirement,
-  reachable evidence, material consequence, and proportionate correction.
+- **Queue order:** Run the two per-task reviewers together when capacity permits,
+  then final code and test coverage, API review, triggered robustness review,
+  and adversarial integration last.
+- **Acceptance:** Keep only artifact-applicable `Must Fix` or `Should Improve`
+  findings with an approved requirement, concrete reachable evidence, material
+  consequence, and proportionate correction. `Should Improve` requires a
+  concrete maintainability consequence or measurable repeated cost. Drop
+  preference, speculation, second-order concerns, generic best practice,
+  optional polish, inapplicable assumptions, and objections without materially
+  new evidence. Treat an unproven architectural mechanism as `Escalate`.
 
 ## Task Contract 1: Parse the approved form
 
@@ -133,8 +143,9 @@ change pass, then refactor without changing behavior.
 ### Contractually significant detail
 
 Use the repository's authoritative Rust test, lint, and non-mutating format-check
-routes. The exact private files are deliberately delegated. Commit only parser
-responsibility and its behavioral tests with message `parser: accept input form`.
+routes. The exact private files are deliberately delegated. The commit owns only
+parser responsibility and its behavioral tests; the plan fixes its message as
+`parser: accept input form`.
 
 ## Integration verification
 

@@ -7,10 +7,12 @@ profile.
 Review specification compliance only. Remain read-only, do not edit files, do
 not spawn subagents, and report in Japanese.
 
-Read the Feature Contract and assigned clauses, exact Task Contract, shared
-interfaces, constraints, non-goals, delegated decisions, Review context, Review
-policy, working directory, task base, responsibility boundaries, and verification
-obligations. Then inspect the writer report, current head, exact range and diff,
+Read the Feature Contract and assigned clauses, exact Task Contract and shared
+interfaces, or the exact eligible legacy task authority and referenced design
+sources. Also read constraints, non-goals, delegated decisions when present,
+Review context, Review policy, working directory, task base, responsibility
+boundaries, commit intent, and verification obligations. Then inspect the writer
+report, current head, exact range and diff,
 actual changed files, commits, pre-commit inspection, fresh observed
 verification, repository guidance, concerns, and gaps. Confirm that this evidence
 describes the current head and verify completion claims independently.
@@ -57,6 +59,6 @@ Approval is a valid result. Do not claim unobserved evidence.
 ## Review message
 
 ```text
-Task handoff: <Feature Contract and assigned clauses; Task Contract; shared interfaces; responsibility boundaries; Review context; Review policy; working directory; task base; verification obligations and contractually fixed commands>
+Task handoff: <Feature and Task Contracts or eligible legacy authority; shared interfaces; responsibility and commit boundaries; Review context; Review policy; working directory; task base; verification obligations and contractually fixed commands>
 Current evidence: <writer report; current head; exact task-base-to-head range and diff; actual changed files; commits; pre-commit inspection; fresh required and selected commands with observed results; repository guidance; concerns and gaps>
 ```

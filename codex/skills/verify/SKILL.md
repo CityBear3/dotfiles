@@ -29,7 +29,9 @@ known limitations before running checks.
 
 ## Coordinator-managed entry
 
-Require:
+Require the exact target and one approved authority form.
+
+For new-format work require:
 
 - the original implementation base, current head, and exact full committed
   range;
@@ -42,6 +44,14 @@ Require:
 - every authoritative final verification route and expected observation, with
   exact commands where their identity is contractually significant;
 - task commits, task-review outcomes, concerns, and known gaps.
+
+For a plan approved and already executing before the contract-centered format,
+accept its exact approved plan and referenced design sources in place of Feature
+and Task Contract artifacts only when the coordinator supplies unchanged
+approval and in-flight evidence, no material ambiguity, and no owner migration
+choice. Use its original scope, task specifications, verification and completion
+criteria, Review context, and Review policy. Do not manufacture new artifacts or
+weaken current-head evidence.
 
 Resolve the base, head, range, changed files, and diff directly from Git. Require
 repository HEAD to equal the supplied current head. Return `BLOCKED` before
@@ -106,12 +116,17 @@ Run fresh, as applicable:
 8. relevant integration, smoke, browser, API, or snapshot checks;
 9. `git diff --check`, diff inspection, and final status.
 
-Map each Feature Contract verification obligation to fresh observed evidence.
+For new-format work, map each Feature Contract verification obligation to fresh
+observed evidence.
 Distinguish obligations already supported by accepted task results from those
 provable only at the integrated boundary. Task acceptance is supporting evidence,
 not a substitute for an integration-only observation. An unobserved required
 obligation is `FAIL` when the current result violates or omits the contract and
 `BLOCKED` when its required environment or evidence cannot be established.
+
+For eligible legacy work, map every original approved completion criterion to
+fresh evidence instead. A material ambiguity stops verification and returns to
+the coordinator; it does not force migration or infer a replacement contract.
 
 Do not replace repository wrappers with broader commands that change semantics.
 If a required formatter has no check-only form, return `BLOCKED` without running
@@ -143,9 +158,10 @@ Report:
 - starting and ending `git status --short`, changed files, and unrelated state;
 - Review context and approved criteria inspected when available;
 - approved Design Doc, Feature Contract, Task Contract coverage, and
-  integration-only obligations inspected when available;
-- each Feature Contract verification obligation, its evidence, and pass, fail,
-  or blocked result;
+  integration-only obligations, or eligible legacy authority and original
+  completion criteria, inspected when applicable;
+- each Feature Contract verification obligation or legacy completion criterion,
+  its evidence, and pass, fail, or blocked result;
 - every command, expected result, observed result, and match status;
 - checks not run and why;
 - for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely

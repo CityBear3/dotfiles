@@ -9,7 +9,9 @@ Do not choose publication or branch disposition for the user.
 
 ## Require current-head completion evidence
 
-Inspect:
+Inspect the exact target and one approved authority form.
+
+For new-format work inspect:
 
 - current branch, exact implementation base, current head, and full range;
 - `git status --short`, full diff, and changed files;
@@ -24,6 +26,14 @@ Inspect:
 - approved Review policy, reviewer and integrator outcomes, triggered
   conditionals, skipped perspectives with reasons, Acceptance result, residual
   risk, and every gap.
+
+For a plan approved and already executing before the contract-centered format,
+accept its exact approved plan and referenced design sources in place of Feature
+and Task Contract artifacts only when unchanged approval and in-flight state,
+absence of material ambiguity, and no owner migration choice are established.
+Require the same current-head verification, review, triage, safety, and
+publication evidence against its original completion criteria. Do not
+manufacture new artifacts or weaken the gate.
 
 Resolve base, head, range, diff, and changed files directly from Git. Require the
 current head, verification head, and review head and range to match exactly.
@@ -40,10 +50,11 @@ not present completion choices. Return `BLOCKED` with the observed state and exa
 re-entry condition, or `Escalate` when resolution requires a user-owned policy,
 authority, scope, or design decision.
 
-Also stop when a Task Contract lacks an accepted result, Feature Contract
-coverage is incomplete, an integration-only obligation is unproved, or a
-material artifact edit invalidated approval. A successful task-local command or
-aggregate task count is not feature completion.
+For new-format work, also stop when a Task Contract lacks an accepted result,
+Feature Contract coverage is incomplete, an integration-only obligation is
+unproved, or a material artifact edit invalidated approval. For either authority
+form, a successful task-local command or aggregate task count is not feature
+completion.
 
 ## Present choices
 

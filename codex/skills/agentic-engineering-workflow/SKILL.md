@@ -63,9 +63,12 @@ route is one coherent task, use the same contract as its Task Contract. Select
 TDD for production behavior and a contract-appropriate discipline for content,
 configuration, refactoring, or mechanical migrations.
 
-The lightweight Feature/Task Contract must make the goal, scope and non-goals,
-observable behavior, responsibilities and interfaces, protected constraints,
-verification obligations, and evidence-backed assumptions unambiguous. It adds
+The lightweight Feature/Task Contract must make the context and goal, scope and
+non-goals, design sources and approved decisions with precedence, observable and
+preserved behavior, compatibility and material failure behavior,
+responsibilities and interfaces, protected constraints, verification
+obligations, evidence-backed assumptions, and explicitly approved deferrals
+unambiguous. Record that there are no approved deferrals when none exist. It adds
 no contract file or separate approval gate. Keep it recoverable in the current
 handoff and evidence for the duration of the task.
 
@@ -122,14 +125,17 @@ policy change.
 
 Give `execute-task` one plain-language task handoff containing:
 
-- the in-memory Feature/Task Contract, including its goal, observable behavior,
-  responsibilities, interfaces, constraints, non-goals, and verification
-  obligations;
+- the complete in-memory Feature/Task Contract, including its design sources and
+  approved decisions, goal, observable and preserved behavior, compatibility,
+  material failure behavior, responsibilities, interfaces, constraints,
+  non-goals, verification obligations, assumptions, and approved deferrals;
 - the Review context and complete Review policy;
 - the discipline and applicable repository guidance;
 - working directory and approved workspace;
 - exact task base, which is the current head before implementation;
 - responsibility and ownership boundaries;
+- the responsibility-scoped commit intent and writer authority to select its
+  message unless the request contractually fixes that message;
 - the applicable verification route and expected observations;
 - exact files, signatures, ordering, or commands only when their identity is
   contractually significant.
@@ -183,6 +189,28 @@ base, and retained decisions to `execute-plan`. That skill owns dependency
 order, per-task handoff, ordered evidence aggregation, and plan-deviation
 detection.
 
+### Continue an eligible legacy plan
+
+Do not force the new artifact sequence onto a plan that was approved and already
+executing before this contract-centered workflow. Treat it as eligible only when
+its exact approval and in-flight state are established, its referenced Design
+Doc or decision sources remain applicable, no material ambiguity prevents safe
+continuation, and the owner did not choose migration.
+
+For that narrow case, keep the approved legacy plan and its referenced design
+sources as the execution authority. Resume its existing task specifications,
+Review context and policy, verification, review, correction, and completion
+criteria without manufacturing Feature or Task Contract files or requiring
+reapproval solely for format. Pass the explicit legacy status and authority to
+`execute-plan` and every final gate.
+
+New work, a legacy plan whose approval or in-flight status cannot be established,
+or any material ambiguity uses the new planned path. If continuation needs a new
+goal, scope, responsibility, public or shared interface, invariant, failure
+behavior, compatibility promise, or verification obligation, preserve state and
+return to design; let the owner choose migration rather than performing it
+silently.
+
 ## Prepare concise final-gate evidence
 
 For a coordinator-managed final gate, retain one current evidence summary:
@@ -191,8 +219,9 @@ For a coordinator-managed final gate, retain one current evidence summary:
 - original implementation base, current head, and exact full range;
 - current `git status --short` and changed files;
 - approved scope, decisions, and non-goals;
-- approved Design Doc when applicable, Feature Contract, complete Task Contract
-  set, and integration-only verification obligations;
+- approved Design Doc when applicable and either the Feature Contract, complete
+  Task Contract set, and integration-only obligations or the exact eligible
+  legacy plan authority and its completion criteria;
 - Review context and complete Review policy;
 - task commits and reviewer outcomes;
 - observed verification commands and results;
@@ -214,12 +243,14 @@ Advance automatically within approved scope:
    aggregate current head and full implementation range.
 3. Build the concise evidence summary and pass it to `verify`. Accept only a
    fresh `PASS` for the same base, current head, full range, changed files,
-   unchanged status, and every applicable Feature Contract observation,
-   including obligations provable only after aggregation.
-4. Pass that verification result, approved contract artifacts, Review context,
-   Review policy, exact range, diff, changed files, commands, task outcomes, and
-   gaps to `review`. Require every selected final reviewer and adversarial
-   integrator to receive the same contracts and Review context.
+   unchanged status, and every applicable Feature Contract observation or
+   eligible legacy completion criterion, including obligations provable only
+   after aggregation.
+4. Pass that verification result, the applicable new-format contract artifacts
+   or exact eligible legacy authority, Review context, Review policy, exact
+   range, diff, changed files, commands, task outcomes, and gaps to `review`.
+   Require every selected final reviewer and adversarial integrator to receive
+   the same authority and Review context.
 5. Accept from `review` only `CLEAN`, `FINDINGS`, or `BLOCKED` for that unchanged
    current head and range. Send concrete current `FINDINGS` and supporting
    evidence to `receiving-code-review` for `Fix`, `Push back`, or `Escalate`

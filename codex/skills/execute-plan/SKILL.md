@@ -12,7 +12,9 @@ verification or final review from this skill.
 
 ## Validate plan entry
 
-Before execution, require:
+Before execution, require one approved authority form.
+
+For new-format work, require:
 
 - the approved, current Feature Contract and its design sources;
 - an approved, current implementation plan;
@@ -26,6 +28,14 @@ Before execution, require:
   significant;
 - settled dependencies, responsibility and ownership boundaries, shared
   interface owners and consumers, and non-goals.
+
+For compatibility, accept an approved plan already executing before the
+contract-centered format only when the coordinator supplies its exact approval
+and in-flight evidence, referenced Design Doc or decision sources, unchanged
+task specifications, Review context and policy, verification and completion
+criteria, and confirmation that no material ambiguity exists and the owner did
+not choose migration. Keep that legacy plan as the authority; do not manufacture
+Feature or Task Contract files merely to satisfy the new shape.
 
 Record the original plan implementation base and the current head. On re-entry,
 also retain every already accepted task with its exact base, head, range, commit,
@@ -57,8 +67,16 @@ For each ready task, give `execute-task` one concise plain-language handoff:
 - the exact task base, which is the current head before this task;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
+- the responsibility-scoped commit intent and its fixed message or the approved
+  writer authority to select that message;
 - contractually significant files, signatures, ordering, and exact commands
   only when the approved plan fixes them.
+
+For an eligible legacy task, pass the approved legacy task specification and its
+referenced design sources as the explicit authority, plus the same workspace,
+base, discipline, verification, review, commit, and evidence fields available in
+that plan. Do not relabel it as a new Feature or Task Contract. Stop if a missing
+field creates material ambiguity; do not force migration or infer a decision.
 
 Invoke `execute-task` once for the task and let it own the writer, verification,
 commit, exact range, policy-selected gate, correction, and stop condition.
@@ -95,9 +113,10 @@ until `execute-task` returns current acceptance evidence.
 Treat an authorized correction as one concrete plan step after the previously
 accepted tasks. Preserve the original implementation base and prior task ranges.
 Give `execute-task` the exact finding or failed observation, approved correction,
-observed attempts and results, unchanged Feature and Task Contracts, shared
-interfaces, Review context, Review policy, last accepted head as the correction
-task base, responsibility boundaries, and verification obligations.
+observed attempts and results, unchanged Feature and Task Contracts with shared
+interfaces or unchanged eligible legacy authority, Review context, Review
+policy, last accepted head as the correction task base, responsibility
+boundaries, and verification obligations.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do
@@ -112,7 +131,8 @@ from the original implementation base without rewriting prior task ranges.
 After each accepted task, append an ordered result containing:
 
 - task name and dependency position;
-- Feature Contract clauses and Task Contract obligations proved;
+- Feature Contract clauses and Task Contract obligations, or eligible legacy
+  completion criteria, proved;
 - exact task base, accepted current head, and base-to-head range;
 - task and correction commits;
 - fresh verification obligations, commands selected or required, and observed
@@ -138,9 +158,9 @@ replaces a task-specific reviewed range.
 Return:
 
 - `Accepted` only with every ordered accepted task result, aggregate current
-  head, full implementation range, Feature Contract, complete Task Contract
-  coverage, integration-only obligations, Review context, and complete Review
-  policy;
+  head, full implementation range, and either the Feature Contract with complete
+  Task Contract coverage and integration-only obligations or the exact eligible
+  legacy authority, plus Review context and complete Review policy;
 - `BLOCKED` with the last accepted aggregate, observed in-flight agent and Git
   state, gaps, and exact re-entry condition;
 - `Escalate` with the exact plan deviation, missing decision, policy conflict, or

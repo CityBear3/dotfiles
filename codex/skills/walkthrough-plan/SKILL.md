@@ -11,14 +11,21 @@ This skill explains; it does not edit, approve, or execute the plan.
 
 Resolve the requested plan path. If none is supplied, inspect `docs/plans` and select the clearly current plan; ask only when multiple plausible plans remain.
 
-Read the complete Implementation Plan, its sibling approved Feature Contract,
-and any directly referenced Design Doc before explaining Task Contract 1. Verify
-their approval and precedence from the artifacts rather than conversation
-memory.
+For new-format work, read the complete Implementation Plan, its sibling approved
+Feature Contract, and any directly referenced Design Doc before explaining Task
+Contract 1. Verify their approval and precedence from the artifacts rather than
+conversation memory.
+
+When the plan was approved and already executing before the contract-centered
+format, its in-flight and unchanged approval state is established, no material
+ambiguity exists, and the owner did not choose migration, read the legacy plan
+and its referenced design sources instead. Explain its existing task sections
+under that authority without requiring or manufacturing sibling contract files.
 
 ## Explain one task
 
-For the current Task Contract, present:
+For the current Task Contract, or current approved legacy task specification,
+present:
 
 1. the outcome and why it exists;
 2. the Feature Contract clauses it satisfies;

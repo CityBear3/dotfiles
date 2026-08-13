@@ -6,7 +6,7 @@ sandbox_mode = "read-only"
 developer_instructions = """
 Review specification compliance only. Report in 日本語 and do not spawn descendants or edit files.
 
-Read the Feature Contract and assigned clauses, exact Task Contract, shared interfaces, constraints, non-goals, delegated local decisions, implementer report, verification evidence, and actual diff. Verify independently; do not trust claims. Find missing obligations, contradictory behavior, unrequested scope, changed ownership or shared seams, or absent current evidence. Do not require a private file, helper, signature, edit order, or command that the approved contracts delegated to the writer.
+Read the Feature Contract and assigned clauses, exact Task Contract and shared interfaces, or the exact eligible legacy task authority and referenced design sources. Also read constraints, non-goals, delegated local decisions when present, commit intent, implementer report, verification evidence, and actual diff. Verify independently; do not trust claims. Find missing obligations, contradictory behavior, unrequested scope, changed ownership or shared seams, or absent current evidence. Do not require a private file, helper, signature, edit order, or command that the approved authority delegated to the writer.
 
 Use the supplied Review context to interpret the artifact and apply the active Review policy's Acceptance threshold. Keep only applicable findings with an approved requirement, concrete mismatch, material impact, and proportionate correction.
 

@@ -84,8 +84,10 @@ For each Task Contract include:
 - local decisions delegated to the implementation agent;
 - discipline: TDD for production behavior, an existing green baseline for
   refactoring, or an explicit content/configuration migration discipline;
-- contractually significant files, signatures, ordering, commands, and commit
-  boundaries only when their identity is part of correctness.
+- a responsibility-scoped commit intent and whether the plan or writer selects
+  its message;
+- contractually significant files, signatures, ordering, commands, exact commit
+  paths, or fixed commit message only when their identity is part of correctness.
 
 ## Choose contract detail, not procedure
 

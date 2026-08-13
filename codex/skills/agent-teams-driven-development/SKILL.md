@@ -48,10 +48,10 @@ shortage into policy `Escalate` or substitute the lead or another perspective.
 
 Dispatch only the already-selected role using its resolved named profile or
 complete fallback contract. Tell every agent not to spawn descendants. Tell an
-implementer its Feature and Task Contracts, owned responsibility, any
-contractually fixed files, and that it is the only writer. Tell a reviewer it is
-read-only and must inspect the supplied contracts, task base, current head,
-range, and diff.
+implementer its Feature and Task Contracts or exact eligible legacy authority,
+owned responsibility, commit intent, any contractually fixed files, and that it
+is the only writer. Tell a reviewer it is read-only and must inspect the supplied
+authority, task base, current head, range, and diff.
 
 Use bounded waits, inspect live agents regularly, and return progress evidence to
 the lead. Preserve reports, identities, completion state, and observed errors

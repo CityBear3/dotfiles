@@ -185,6 +185,7 @@ it does not replace observed repository evidence.
 | 8. Lightweight combined contract and promotion | Tasks 1 and 3, integration scenario 7 |
 | 9. Fresh-session reconstruction | Tasks 1–4 and integration scenario 8 |
 | 10. Installer, whitespace, and sensitive-data regression | Final verification commands |
+| Compatibility: approved in-flight legacy plans may finish without migration | Tasks 1, 3–4 and integration scenario 9 |
 
 No Feature Contract clause is intentionally left to an unowned implementation
 task. Obligations that require the complete integrated flow are proved only by
@@ -278,6 +279,8 @@ approved Design Doc, Feature Contract, and this approved plan in the branch.
 - Separate Feature Contract construction and approval.
 - Lightweight combined Feature/Task Contract derivation and promotion boundary.
 - Durable artifact recovery after compaction or a fresh session.
+- Continuation of an approved in-flight legacy plan under its existing contract
+  when no material ambiguity exists and the owner did not choose migration.
 
 ### Responsibility and ownership boundaries
 
@@ -313,6 +316,8 @@ approved Design Doc, Feature Contract, and this approved plan in the branch.
   material change or unrecoverable long-lived context.
 - The three approved artifacts are tracked despite the repository-wide
   `docs/plans/` ignore rule.
+- The coordinator recognizes the narrowly eligible legacy continuation before
+  requiring new-format artifacts and does not infer eligibility for new work.
 
 ### Dependencies
 
@@ -443,6 +448,8 @@ mandatory.
 - Responsibility-centered ownership with conditional exact detail.
 - Autonomous implementation, feedback, bounded correction, and escalation.
 - Lightweight single-contract execution through the same task seam.
+- Legacy task handoff through the same task seam without manufacturing or
+  reapproving new Feature and Task Contract files.
 
 ### Responsibility and ownership boundaries
 
@@ -484,6 +491,9 @@ mandatory.
 - A correction preserves the applicable contracts and returns to plan/design
   when its proposed meaning exceeds them.
 - Named profiles and fallback prompts impose the same contract.
+- An eligible legacy plan remains authoritative for its task specifications,
+  verification, review, and correction; material ambiguity returns to design or
+  owner-selected migration.
 
 ### Dependencies
 
@@ -530,6 +540,8 @@ the exact current head.
 - Feature-level verification beyond individual Task Contract acceptance.
 - Final contract-alignment and scope review.
 - Current, recoverable completion evidence for a fresh coordinator session.
+- Completion of an eligible legacy plan against its original approved authority
+  without weakening current Git, verification, review, or safety evidence.
 
 ### Responsibility and ownership boundaries
 
@@ -565,6 +577,9 @@ the exact current head.
   surviving contract or policy gap.
 - A fresh session can identify the approved artifacts, exact target, commands
   run, reviewer outcomes, residual risk, and next user-controlled gate.
+- Legacy final gates accept the approved in-flight plan and its referenced design
+  sources in place of new-format artifacts only when eligibility and unchanged
+  authority are established.
 
 ### Dependencies
 
@@ -618,6 +633,10 @@ without conversation reconstruction.
 8. A fresh session reconstructs the design source, approved Feature Contract,
    Task Contracts, dependencies, Review policy, current Git evidence, and next
    gate from tracked workspace artifacts.
+9. A plan approved and already executing before this workflow resumes through
+   task execution, verification, review, and branch completion under its
+   original authority; a material ambiguity or owner migration choice returns it
+   to the new planned path.
 
 ### Required final commands and observations
 

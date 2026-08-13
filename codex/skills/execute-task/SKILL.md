@@ -12,7 +12,10 @@ branch disposition from this skill.
 
 ## Require one task handoff
 
-Before implementation, require one concise plain-language handoff containing:
+Before implementation, require one concise plain-language handoff containing
+either the new contract form or an explicitly eligible legacy form.
+
+For the new form require:
 
 - the approved Feature Contract or lightweight in-memory Feature Contract and
   its clauses assigned to this task;
@@ -25,8 +28,18 @@ Before implementation, require one concise plain-language handoff containing:
 - the exact task base commit;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
+- the responsibility-scoped commit intent and its fixed message or approved
+  writer message-selection authority;
 - contractually significant files, signatures, ordering, and exact commands
   only when the contract fixes them.
+
+For a plan already executing before the contract-centered format, accept its
+approved task specification and referenced design sources as the authority only
+when the coordinator establishes unchanged approval, in-flight status, no
+material ambiguity, and no owner migration choice. Require its available scope,
+non-goals, discipline, responsibility or file boundaries, commit intent,
+verification, Review context and policy, workspace, and exact task base. Do not
+manufacture Feature or Task Contract artifacts or silently fill a material gap.
 
 The Review context describes the artifact, purpose, consumers, interpretation or
 execution model, material quality criteria and realistic failures, approved
@@ -142,7 +155,8 @@ policy, or authority decision.
 Every task reviewer receives, without another identity or duplicate record:
 
 - the Feature Contract, assigned clauses, exact Task Contract, shared interfaces,
-  constraints, non-goals, and delegated decisions;
+  constraints, non-goals, and delegated decisions, or the exact eligible legacy
+  task authority and its referenced design sources;
 - the Review context and active Review policy;
 - working directory, task base, current head, exact range, and inspected diff;
 - responsibility boundaries and actual changed files;
@@ -197,9 +211,10 @@ objections without materially new evidence.
 
 For each authorized correction, retain the exact concrete finding or failed
 observation and every observed correction attempt. Give the existing writer only
-the bounded correction, unchanged Feature and Task Contracts, shared interfaces,
-Review context, Review policy, current task base, responsibility boundaries, and
-verification obligations.
+the bounded correction, unchanged Feature and Task Contracts with shared
+interfaces or unchanged eligible legacy task authority, Review context, Review
+policy, current task base, responsibility boundaries, and verification
+obligations.
 
 Then:
 
@@ -221,8 +236,8 @@ Return:
 
 - `Accepted` only when the ancestry invariant holds, every contractually fixed
   exact command and selected check passes, every observable Task Contract
-  obligation has current evidence, and the complete selected gate approves the
-  current head;
+  obligation or eligible legacy task criterion has current evidence, and the
+  complete selected gate approves the current head;
 - `BLOCKED` when a safe writer state, command, permission, range, reviewer, or
   other operational prerequisite cannot be established;
 - `Escalate` for a material decision, scope or policy change, explicit

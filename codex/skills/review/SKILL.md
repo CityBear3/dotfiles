@@ -26,7 +26,9 @@ repository guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
-Require:
+Require the exact target and one approved authority form.
+
+For new-format work require:
 
 - exact implementation base, current head, full range, diff, current status, and
   changed files;
@@ -38,6 +40,13 @@ Require:
 - approved scope, non-goals, Review context, and complete Review policy;
 - task-review outcomes, observed commands, concerns, prior triage decisions, and
   known gaps.
+
+For a plan approved and already executing before the contract-centered format,
+accept its exact approved plan and referenced design sources in place of Feature
+and Task Contract artifacts only when the coordinator supplies unchanged
+approval and in-flight evidence, no material ambiguity, and no owner migration
+choice. Use its original scope, task specifications, verification and completion
+criteria, Review context, and Review policy. Do not manufacture new artifacts.
 
 Resolve base, head, range, diff, and changed files directly from Git. Require
 repository HEAD and status to match the supplied evidence. Return `BLOCKED`
@@ -166,7 +175,7 @@ Pass directly to every final reviewer:
   changed files;
 - approved Design Doc when applicable, Feature Contract, complete Task Contract
   set, Implementation Plan, Feature Contract coverage, and integration-only
-  obligations;
+  obligations, or the exact eligible legacy plan and referenced design sources;
 - approved scope and non-goals;
 - the same Review context and Review policy when available;
 - fresh verification commands and observed results;

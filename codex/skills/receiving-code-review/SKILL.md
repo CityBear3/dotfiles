@@ -21,8 +21,9 @@ Require:
   evidence, impact, proposed correction, and confidence;
 - approved scope, decisions, non-goals, Review context, Review policy, and
   implementation authorization;
-- approved Design Doc when present, Feature Contract, Implementation Plan, and
-  applicable Task Contracts;
+- approved Design Doc when present and either the Feature Contract,
+  Implementation Plan, and applicable Task Contracts or the exact eligible
+  legacy plan authority;
 - observed correction attempts and prior triage decisions.
 
 Resolve base, head, range, diff, status, and changed files directly from Git.
@@ -61,8 +62,8 @@ For each item:
 2. Restate the concrete requirement.
 3. Reproduce or verify the claim against the current head.
 4. Check repository guidance, current code and tests, approved scope,
-   non-goals, Design Doc, Feature Contract, Task Contracts, plan, Review context,
-   and Review policy.
+   non-goals, Design Doc, Feature Contract, Task Contracts, eligible legacy plan
+   authority, plan, Review context, and Review policy as applicable.
 5. Classify it as exactly one:
    - **Fix** — verified on the current head, in approved scope, compatible with
      approved decisions, proportionate, and authorized for local correction.
@@ -78,8 +79,8 @@ For `Fix`, return one bounded plain-language correction handoff:
 
 - exact finding and concrete evidence;
 - smallest authorized correction;
-- unchanged Feature Contract, applicable Task Contract, shared interfaces,
-  constraints, and non-goals;
+- unchanged Feature Contract, applicable Task Contract and shared interfaces, or
+  unchanged eligible legacy task authority, plus constraints and non-goals;
 - Review context and unchanged Review policy;
 - discipline and responsibility boundaries;
 - current task base, verification obligations, and contractually required exact
