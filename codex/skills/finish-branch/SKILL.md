@@ -28,7 +28,8 @@ For new-format planned work also inspect:
   set, Implementation Plan, and their approval state;
 - complete Feature Contract coverage, integration-only obligations, and explicit
   proof of every applicable Feature Contract observation;
-- a current accepted result bound to the exact approved content of every Task
+- a current accepted result bound to the exact current Feature Contract authority
+  and assigned clauses as well as the exact approved content of every Task
   Contract; no stale result may satisfy this evidence.
 
 For lightweight work, accept the complete recoverable combined in-memory

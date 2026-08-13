@@ -503,9 +503,9 @@ mandatory.
 - An eligible legacy plan remains authoritative for its task specifications,
   verification, review, and correction; material ambiguity returns to design or
   owner-selected migration.
-- A changed Task Contract, dependency, or shared interface stales every affected
-  accepted result until the current approved plan receives fresh task
-  acceptance.
+- A changed Feature Contract authority, assigned Feature clause, Task Contract,
+  dependency, or shared interface stales every affected accepted result until
+  the current approved authorities receive fresh task acceptance.
 - A promoted lightweight range is reconciled from its original base, mapped to
   the complete new Task Contract set, reviewed under current authority, and
   included in the aggregate range before dependent tasks advance.
@@ -667,10 +667,11 @@ without conversation reconstruction.
 11. A plan or contract whose exact-content approval/currentness cannot be
     established may be explained only as unverified; walkthrough never calls it
     the current approved Task Contract based on its own status field.
-12. A Task Contract, dependency, or shared-interface meaning changes after an
-    earlier task was accepted; the affected result becomes stale and cannot
-    release dependents, enter the aggregate, or satisfy finish until fresh
-    acceptance under the reapproved plan exists.
+12. A Feature Contract authority or assigned clause, Task Contract, dependency,
+    or shared-interface meaning changes after an earlier task was accepted; the
+    affected result becomes stale and cannot release dependents, enter the
+    aggregate, or satisfy finish until fresh acceptance under both reapproved
+    authorities exists.
 13. A lightweight task commits work but its gate escalates to the planned path;
     the original base, unaccepted range and commits are assigned and reconciled
     under the new Task Contracts and remain inside the final aggregate range.

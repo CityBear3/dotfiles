@@ -38,12 +38,13 @@ not choose migration. Keep that legacy plan as the authority; do not manufacture
 Feature or Task Contract files merely to satisfy the new shape.
 
 Record the original plan implementation base and the current head. On re-entry,
-retain an already accepted task only when its exact Task Contract content,
-dependencies, and relied-on shared-interface meanings remain unchanged. Preserve
-its exact base, head, range, commit, verification, gate result, and gaps. Mark
-every affected or transitively dependent result stale, exclude it from dependency
-release and aggregation, and require fresh acceptance under the current approved
-plan. Do not widen an earlier task range when a later task adds commits.
+retain an already accepted task only when its exact Feature Contract authority,
+assigned Feature clause meanings, Task Contract content, dependencies, and
+relied-on shared-interface meanings remain unchanged. Preserve its exact base,
+head, range, commit, verification, gate result, and gaps. Mark every affected or
+transitively dependent result stale, exclude it from dependency release and
+aggregation, and require fresh acceptance under both current approved
+authorities. Do not widen an earlier task range when a later task adds commits.
 
 When the approved plan follows a lightweight promotion, require the original
 lightweight base, promotion head, execution-starting head, exact unaccepted range

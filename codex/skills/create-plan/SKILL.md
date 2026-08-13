@@ -58,10 +58,11 @@ more Task Contracts or to an explicitly integration-only proof. Explain
 deliberate overlap. Reject unexplained gaps or duplicated ownership.
 
 For replanning, add a `Re-entry impact` section. Retain a prior accepted result
-only when its exact Task Contract, dependencies, and relied-on shared interfaces
-remain semantically unchanged. Mark every affected or transitively dependent
-result stale and map it to the current Task Contract that must obtain fresh
-acceptance.
+only when its exact Feature Contract authority, assigned Feature clauses, Task
+Contract, dependencies, and relied-on shared interfaces remain semantically
+unchanged. Mark every affected or transitively dependent result stale and map it
+to the current Task Contract that must obtain fresh acceptance under both current
+authorities.
 
 For a lightweight promotion with preserved committed work, keep the original
 lightweight base as the implementation base. Map every preserved change and file

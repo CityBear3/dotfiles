@@ -194,12 +194,14 @@ revalidate the complete plan. A meaning change confined to a Task Contract
 invalidates Implementation Plan approval.
 
 Before presenting a revised plan, identify every previously accepted task whose
-exact Task Contract content, dependency, or consumed shared-interface meaning
-changed. Mark those results and any transitively dependent results stale. A
-reapproved plan does not revive them: require fresh acceptance against the
-current exact Task Contract before releasing dependents, aggregating completion,
-or entering final gates. Retain an accepted result only when its owning contract
-and every relied-on interface and dependency remain semantically unchanged.
+exact Feature Contract authority, assigned Feature clause meaning, Task Contract
+content, dependency, or consumed shared-interface meaning changed. Mark those
+results and any transitively dependent results stale. A reapproved contract or
+plan does not revive them: require fresh acceptance against both current
+authorities before releasing dependents, aggregating completion, or entering
+final gates. Retain an accepted result only when its exact Feature authority,
+assigned clauses, owning Task Contract, and every relied-on interface and
+dependency remain semantically unchanged.
 
 Stop for an unresolved design choice, approval gate, plan deviation, material
 scope expansion, external write, publication, merge, discard, destructive
