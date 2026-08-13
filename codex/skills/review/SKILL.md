@@ -26,20 +26,22 @@ repository guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
-Require the exact target and one approved authority form.
-
-For new-format work require:
+Require the exact target, current evidence shared by both authority forms, and
+one approved authority form. The shared evidence is:
 
 - exact implementation base, current head, full range, diff, current status, and
   changed files;
 - fresh coordinator verification `PASS` for that same unchanged head and range;
 - no unexplained in-scope source state outside the committed range;
-- approved Design Doc when applicable, Feature Contract, complete Task Contract
-  set, Implementation Plan, and their approval state;
-- complete Feature Contract coverage and integration-only obligations;
 - approved scope, non-goals, Review context, and complete Review policy;
 - task-review outcomes, observed commands, concerns, prior triage decisions, and
   known gaps.
+
+For new-format work also require:
+
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, and their approval state;
+- complete Feature Contract coverage and integration-only obligations;
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature
