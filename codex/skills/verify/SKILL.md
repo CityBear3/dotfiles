@@ -35,9 +35,12 @@ Require:
   range;
 - current status and changed files, with no unexplained in-scope index,
   worktree, or untracked source change outside that range;
-- approved scope, decisions, non-goals, Review context, and Review policy;
-- the implementation plan when present;
-- every authoritative final verification command and expected result;
+- the approved Design Doc when applicable, Feature Contract, complete
+  Implementation Plan and Task Contract set, and their approval state;
+- Feature Contract coverage and every integration-only verification obligation;
+- approved scope, non-goals, Review context, and Review policy;
+- every authoritative final verification route and expected observation, with
+  exact commands where their identity is contractually significant;
 - task commits, task-review outcomes, concerns, and known gaps.
 
 Resolve the base, head, range, changed files, and diff directly from Git. Require
@@ -59,8 +62,10 @@ Resolve the user's requested scope through local read-only investigation:
 - For an explicit fileset, record the exact bounded paths, current status, and
   what content was inspected.
 
-Require applicable repository guidance and authoritative verification commands.
-Use available plan, decision, Review context, and policy evidence when present.
+Require applicable repository guidance and authoritative verification routes,
+including exact commands only when their identity is part of the requested or
+repository contract. Use available Design Doc, Feature Contract, Task Contracts,
+plan, Review context, and policy evidence when present.
 Do not require implementation authorization or an approved policy for a
 standalone check.
 
@@ -91,14 +96,22 @@ Immediately before the first command, capture:
 
 Run fresh, as applicable:
 
-1. approved final verification commands;
-2. focused tests for changed behavior;
-3. owning package or workspace tests;
-4. build or type check;
-5. lint;
-6. format check using only a documented non-mutating mode;
-7. relevant smoke or snapshot checks;
-8. `git diff --check`, diff inspection, and final status.
+1. every contractually fixed final verification command;
+2. checks selected to observe each applicable Feature Contract obligation;
+3. focused tests for changed behavior;
+4. owning package or workspace tests;
+5. build or type check;
+6. lint;
+7. format check using only a documented non-mutating mode;
+8. relevant integration, smoke, browser, API, or snapshot checks;
+9. `git diff --check`, diff inspection, and final status.
+
+Map each Feature Contract verification obligation to fresh observed evidence.
+Distinguish obligations already supported by accepted task results from those
+provable only at the integrated boundary. Task acceptance is supporting evidence,
+not a substitute for an integration-only observation. An unobserved required
+obligation is `FAIL` when the current result violates or omits the contract and
+`BLOCKED` when its required environment or evidence cannot be established.
 
 Do not replace repository wrappers with broader commands that change semantics.
 If a required formatter has no check-only form, return `BLOCKED` without running
@@ -129,6 +142,10 @@ Report:
 - base, starting and ending head, exact range, snapshot, or bounded fileset;
 - starting and ending `git status --short`, changed files, and unrelated state;
 - Review context and approved criteria inspected when available;
+- approved Design Doc, Feature Contract, Task Contract coverage, and
+  integration-only obligations inspected when available;
+- each Feature Contract verification obligation, its evidence, and pass, fail,
+  or blocked result;
 - every command, expected result, observed result, and match status;
 - checks not run and why;
 - for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely

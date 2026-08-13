@@ -13,9 +13,13 @@ Inspect:
 
 - current branch, exact implementation base, current head, and full range;
 - `git status --short`, full diff, and changed files;
-- approved scope, decisions, non-goals, and Review context;
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, and their approval state;
+- complete Feature Contract coverage, integration-only obligations, approved
+  scope, non-goals, and Review context;
 - fresh coordinator verification `PASS`, including observed commands and results,
-  for the same current head and range;
+  and explicit proof of every applicable Feature Contract observation for the
+  same current head and range;
 - final review and triage for that same head and range, with no surviving finding;
 - approved Review policy, reviewer and integrator outcomes, triggered
   conditionals, skipped perspectives with reasons, Acceptance result, residual
@@ -35,6 +39,11 @@ If verification is stale, policy is incomplete, or a finding or gap remains, do
 not present completion choices. Return `BLOCKED` with the observed state and exact
 re-entry condition, or `Escalate` when resolution requires a user-owned policy,
 authority, scope, or design decision.
+
+Also stop when a Task Contract lacks an accepted result, Feature Contract
+coverage is incomplete, an integration-only obligation is unproved, or a
+material artifact edit invalidated approval. A successful task-local command or
+aggregate task count is not feature completion.
 
 ## Present choices
 

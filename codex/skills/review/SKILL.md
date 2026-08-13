@@ -32,9 +32,10 @@ Require:
   changed files;
 - fresh coordinator verification `PASS` for that same unchanged head and range;
 - no unexplained in-scope source state outside the committed range;
-- approved scope, decisions, non-goals, Review context, and complete Review
-  policy;
-- Design Doc and implementation plan when present;
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, and their approval state;
+- complete Feature Contract coverage and integration-only obligations;
+- approved scope, non-goals, Review context, and complete Review policy;
 - task-review outcomes, observed commands, concerns, prior triage decisions, and
   known gaps.
 
@@ -49,9 +50,9 @@ completion gate.
 ## Standalone read-only entry
 
 Resolve the requested committed range, index/worktree, or bounded fileset through
-local read-only investigation. Record available verification, design, decision,
-plan, and repository-guidance evidence. Absent or stale verification is a
-limitation.
+local read-only investigation. Record available verification, Design Doc,
+Feature Contract, Task Contracts, plan, decision, and repository-guidance
+evidence. Absent or stale verification is a limitation.
 
 Use an approved Review policy when one is available. Without one, select only
 perspectives applicable to observed risk and report the missing policy; do not
@@ -69,6 +70,10 @@ repository evidence, and available decisions. State:
 
 A standalone worktree or fileset review may answer the direct request, but never
 substitutes for current-head coordinator review.
+
+Review context is an interpretation aid. It must not add to, weaken, or replace
+an available Design Doc, Feature Contract, Task Contract, or Implementation
+Plan.
 
 ## Validate policy and actual risk
 
@@ -127,10 +132,10 @@ perspective runs, require `adversarial-integrator`.
 
 Without an approved policy, select the same perspectives by observed
 applicability: general review always; test coverage for behavior or test changes;
-design alignment when an approved Design Doc exists; scope review for a plan or
-narrow migration; architecture for material responsibility changes; adversarial
-profiles only for their corresponding concrete risk. Record every run and skip
-with reasons.
+design alignment when an approved Design Doc or Feature Contract exists; scope
+review for a plan or narrow migration; architecture for material responsibility
+changes; adversarial profiles only for their corresponding concrete risk. Record
+every run and skip with reasons.
 
 ## Preserve independence and capacity
 
@@ -159,7 +164,10 @@ Pass directly to every final reviewer:
 
 - exact base, current head, range or bounded standalone files, diff, status, and
   changed files;
-- approved scope, decisions, and non-goals;
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, Feature Contract coverage, and integration-only
+  obligations;
+- approved scope and non-goals;
 - the same Review context and Review policy when available;
 - fresh verification commands and observed results;
 - relevant task-review outcomes, prior triage decisions, concerns, and gaps;
@@ -201,8 +209,9 @@ design gap so the coordinator can `Escalate`; do not label it `Must Fix` or
 
 ## Integrate adversarial review
 
-When required, give `adversarial-integrator` the same Review context, target
-evidence, verification, policy, prior triage decisions, and adversarial reports.
+When required, give `adversarial-integrator` the same approved contract
+artifacts, Review context, target evidence, verification, policy, prior triage
+decisions, and adversarial reports.
 The integrator remains read-only, deduplicates, verifies evidence, resolves
 contradictions, and drops unsupported, second-order, and artifact-inapplicable
 findings. It does not invent findings or lower the Acceptance threshold.
@@ -216,6 +225,8 @@ Merge duplicates and report in Japanese:
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
 - fresh verification commands and results inspected;
+- Feature Contract observations and design, task, and integration alignment
+  inspected;
 - reviewers run, queued, and skipped with reasons;
 - reviewer and integrator outcomes;
 - accepted Must Fix and Should Improve findings;
