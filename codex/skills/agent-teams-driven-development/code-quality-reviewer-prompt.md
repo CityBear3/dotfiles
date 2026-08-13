@@ -23,9 +23,9 @@ verified problems in responsibility boundaries, readability, names, error
 handling, unjustified abstractions, behavioral test quality, relevant edge cases,
 unrelated refactoring, repeated measurable cost, and stale evidence.
 
-Respect local implementation decisions delegated by the Task Contract. Report a
-private choice only when concrete evidence shows a correctness, responsibility,
-maintainability, or measurable-cost consequence.
+Respect local implementation decisions delegated by the applicable authority.
+Report a private choice only when concrete evidence shows a correctness,
+responsibility, maintainability, or measurable-cost consequence.
 
 Apply the Review policy's Acceptance threshold. Keep only artifact-applicable
 findings with concrete reachable evidence, material consequence, and

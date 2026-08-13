@@ -24,7 +24,7 @@ responsibility boundaries, readability, names, error handling, behavioral test
 quality, relevant edge cases, unrelated cleanup, and stale evidence.
 
 Respect private files, helpers, local interfaces, algorithms, edit order, and
-focused checks delegated by the Task Contract unless concrete evidence shows a
+focused checks delegated by the applicable authority unless concrete evidence shows a
 contract or material quality violation.
 
 Apply the active Review policy's Acceptance threshold. Keep only

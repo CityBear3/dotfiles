@@ -78,11 +78,12 @@ observed red failure. For content, configuration, refactoring, or mechanical
 migrations, apply the declared discipline and preserve the relevant green
 baseline. Preserve unrelated changes.
 
-Inside the Task Contract, let the writer choose private files, helpers, local
-types and interfaces, algorithms, edit order, applicable standard verification
-commands, and additional focused non-destructive checks. Require every actual
-choice and changed file to remain within the approved responsibility and be
-reported with evidence.
+Inside the applicable new-format or legacy authority, let the writer choose
+private files, helpers, local types and interfaces, algorithms, edit order,
+applicable standard verification commands, and additional focused
+non-destructive checks when those choices are delegated or unspecified. Require
+every actual choice and changed file to remain within the approved responsibility
+and be reported with evidence.
 
 Require the writer to report:
 
@@ -117,8 +118,8 @@ For a fresh task:
 2. Implement only the declared scope with the selected discipline.
 3. Run every contractually required exact command, select applicable standard
    and focused checks, and record all observed results.
-4. Inspect the working-tree diff and Task Contract coverage, including unrelated
-   state and actual changed files.
+4. Inspect the working-tree diff and applicable authority coverage, including
+   unrelated state and actual changed files.
 5. Correct concrete in-scope failures while contract meaning remains unchanged.
 6. Create only the declared responsibility-scoped task commit.
 7. Record the new current head.
@@ -214,7 +215,8 @@ observation and every observed correction attempt. Give the existing writer only
 the bounded correction, unchanged Feature and Task Contracts with shared
 interfaces or unchanged eligible legacy task authority, Review context, Review
 policy, current task base, responsibility boundaries, and verification
-obligations.
+obligations. Also pass a correction commit intent bounded to the finding and its
+fixed message or explicit writer authority to select the correction message.
 
 Then:
 

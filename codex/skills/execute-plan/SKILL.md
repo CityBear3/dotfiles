@@ -116,7 +116,9 @@ Give `execute-task` the exact finding or failed observation, approved correction
 observed attempts and results, unchanged Feature and Task Contracts with shared
 interfaces or unchanged eligible legacy authority, Review context, Review
 policy, last accepted head as the correction task base, responsibility
-boundaries, and verification obligations.
+boundaries, verification obligations, and a correction commit intent bounded to
+the finding with its fixed message or approved writer message-selection
+authority.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do

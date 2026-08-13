@@ -18,15 +18,15 @@ verification, repository guidance, concerns, and gaps. Confirm that this evidenc
 describes the current head and verify completion claims independently.
 
 Use the Review context to interpret the artifact and its consumers. Check for:
-- missing assigned Feature or Task Contract behavior, tests, interface
-  obligations, or verification;
+- missing behavior, tests, interface obligations, or verification required by
+  the applicable new-format or legacy authority;
 - behavior that contradicts a protected constraint, shared interface, or
   non-goal;
 - unrequested features or scope expansion;
 - completion reported without current supporting evidence.
 
 Do not require a private file, helper, signature, edit order, or command that the
-approved contracts delegated to the writer. Do report a changed owner, shared
+approved authority delegated to the writer. Do report a changed owner, shared
 seam, or contract meaning.
 
 Apply the active Review policy's Acceptance threshold. Keep only

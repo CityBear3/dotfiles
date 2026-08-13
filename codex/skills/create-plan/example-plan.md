@@ -140,12 +140,12 @@ order, and additional focused tests within the parser responsibility.
 TDD: record the expected red failure, make the smallest contract-compliant
 change pass, then refactor without changing behavior.
 
-### Contractually significant detail
+### Commit intent and contractually significant detail
 
 Use the repository's authoritative Rust test, lint, and non-mutating format-check
 routes. The exact private files are deliberately delegated. The commit owns only
-parser responsibility and its behavioral tests; the plan fixes its message as
-`parser: accept input form`.
+parser responsibility and its behavioral tests; the writer selects its concise
+message.
 
 ## Integration verification
 

@@ -218,9 +218,10 @@ design gap so the coordinator can `Escalate`; do not label it `Must Fix` or
 
 ## Integrate adversarial review
 
-When required, give `adversarial-integrator` the same approved contract
-artifacts, Review context, target evidence, verification, policy, prior triage
-decisions, and adversarial reports.
+When required, give `adversarial-integrator` the same applicable new-format
+contract artifacts or exact eligible legacy authority, plus Review context,
+target evidence, verification, policy, prior triage decisions, and adversarial
+reports.
 The integrator remains read-only, deduplicates, verifies evidence, resolves
 contradictions, and drops unsupported, second-order, and artifact-inapplicable
 findings. It does not invent findings or lower the Acceptance threshold.
@@ -234,7 +235,8 @@ Merge duplicates and report in Japanese:
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
 - fresh verification commands and results inspected;
-- Feature Contract observations and design, task, and integration alignment
+- Feature Contract observations and design, task, and integration alignment, or
+  eligible legacy completion criteria and original-authority alignment,
   inspected;
 - reviewers run, queued, and skipped with reasons;
 - reviewer and integrator outcomes;

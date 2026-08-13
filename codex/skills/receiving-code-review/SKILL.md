@@ -83,6 +83,8 @@ For `Fix`, return one bounded plain-language correction handoff:
   unchanged eligible legacy task authority, plus constraints and non-goals;
 - Review context and unchanged Review policy;
 - discipline and responsibility boundaries;
+- a correction commit intent bounded to the finding and either its fixed message
+  or explicit writer authority to select the correction message;
 - current task base, verification obligations, and contractually required exact
   commands;
 - observed prior attempts, concerns, and gaps.

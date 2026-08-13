@@ -27,10 +27,11 @@ verification obligations, scope, policy, or authority. Preserve unrelated change
 Do not perform unrelated cleanup, speculative features, publication, destructive
 operations, or external writes.
 
-Inside the Task Contract, choose private files, helpers, local types and
+Inside the applicable authority, choose private files, helpers, local types and
 interfaces, algorithms, edit order, applicable standard checks, and additional
-focused non-destructive checks. A private file inside the owned responsibility
-does not require a plan change; a new owner or shared seam does.
+focused non-destructive checks when those choices are delegated or unspecified.
+A private file inside the owned responsibility does not require a plan change; a
+new owner or shared seam does.
 
 For behavior changes, follow red, green, refactor and report the observed red
 failure. Keep one behavioral viewpoint per test. For refactors and content
@@ -38,9 +39,10 @@ migrations, preserve the declared green baseline.
 
 Run every contractually required exact command, select applicable standard and
 focused checks, and record every observed result. Inspect the pre-commit
-working-tree diff and Task Contract coverage, then commit only the owned
-responsibility with the requested message. Inspect the committed
-task-base-to-current-head range.
+working-tree diff and applicable authority coverage, then commit only the owned
+responsibility using the fixed message or selecting a message when the handoff
+explicitly delegates that choice. Inspect the committed task-base-to-current-head
+range.
 
 Use exactly one status:
 
@@ -90,8 +92,9 @@ Correct one bounded task.
 Concrete finding: <failed command or review finding with evidence>
 Observed attempts: <prior actions and results; empty for the first attempt>
 Approved correction: <smallest authorized action>
-Feature and Task Contracts: <unchanged approved contracts and assigned clauses>
+Authority: <unchanged Feature and Task Contracts or exact eligible legacy task authority and referenced design sources>
 Shared interfaces and responsibility: <unchanged boundaries>
+Commit: <correction scope bounded to the finding and fixed message or writer message-selection authority>
 Review context and Review policy: <unchanged approved values>
 Discipline: <declared value>
 Working directory and task base: <path and exact base>
@@ -99,6 +102,7 @@ Verification: <obligations, routes, and contractually fixed commands>
 
 Do not repeat an observed failed correction without new evidence. Re-run every
 required command and applicable selected check, inspect the correction diff and
-contract coverage, commit only the correction, inspect the updated range, and
-return the full report.
+the selected authority's coverage, commit only the correction using the fixed
+message or selecting one when authorized, inspect the updated range, and return
+the full report.
 ```

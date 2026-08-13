@@ -24,8 +24,7 @@ under that authority without requiring or manufacturing sibling contract files.
 
 ## Explain one task
 
-For the current Task Contract, or current approved legacy task specification,
-present:
+For a current new-format Task Contract, present:
 
 1. the outcome and why it exists;
 2. the Feature Contract clauses it satisfies;
@@ -35,6 +34,13 @@ present:
 6. local decisions delegated to the implementation agent;
 7. contractually significant files, signatures, ordering, or commands when
    present.
+
+For a current eligible legacy task specification, instead present only the
+fields its approved authority actually contains: its outcome and requirements,
+scope or responsibility boundaries, constraints and verification criteria,
+dependencies, and fixed implementation or commit details when present. Do not
+invent Feature Contract clauses, shared interfaces, integration-only proofs, or
+delegated decisions that the legacy plan did not record.
 
 Ground claims in the plan and current files. Label any additional interpretation as `補足（Codexの解説）`. Do not invent rationale that the plan does not record.
 
