@@ -89,3 +89,38 @@ Review every draft, whether Codex-authored or user-authored. Check:
 Present the complete document for user approval. Return the approval state,
 decision record, and evidence to `agentic-engineering-workflow`; do not begin
 planning from this skill.
+
+## Derive the Feature Contract after approval
+
+Only after the coordinator confirms approval of the exact Design Doc, derive a
+separate Feature Contract for the current feature. Use the approved document as
+the durable design source and repository evidence for its current application.
+The Feature Contract must state:
+
+- context and goal;
+- scope and non-goals;
+- design sources, applied decisions, and precedence;
+- observable behavior, compatibility, and material failure behavior;
+- responsibilities, interfaces, and important unchanged boundaries;
+- protected constraints and invariants;
+- verification obligations;
+- evidence-backed assumptions and explicitly approved deferrals.
+
+Include applicable conditional concerns such as state transitions, API or event
+semantics, schema lifecycle, errors and recovery, concurrency, authorization,
+performance, migration, or rollback. Place interface detail at the earliest
+layer where an independent consumer or implementation task depends on it; do not
+promote private helper structure into the contract.
+
+If a complete Feature Contract cannot be derived without changing or adding a
+material architecture, responsibility, public contract, schema, error model,
+scope, or trade-off, return the gap to the coordinator so the Design Doc or
+design discussion can be reopened. Do not silently supplement an approved Design
+Doc during contract drafting.
+
+Return the complete Feature Contract for separate user approval and
+workspace-only storage at
+`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
+force-add, stage, or commit it unless the user explicitly chooses archival.
+Design Doc approval does not approve this artifact, and this skill does not
+enter planning.

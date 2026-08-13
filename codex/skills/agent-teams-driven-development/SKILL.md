@@ -15,7 +15,8 @@ correction semantics, task commits, or task acceptance here.
 Accept from `execute-task`:
 
 - one already-selected named role or fallback contract;
-- the complete writer or reviewer message already prepared by `execute-task`;
+- the complete contract-aware writer or reviewer message already prepared by
+  `execute-task`;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, interruption result, and observed Git state.
 
@@ -47,9 +48,13 @@ shortage into policy `Escalate` or substitute the lead or another perspective.
 
 Dispatch only the already-selected role using its resolved named profile or
 complete fallback contract. Tell every agent not to spawn descendants. Tell an
-implementer its owned task and exact file responsibilities and that it is the
-only writer. Tell a reviewer it is read-only and must inspect the supplied task
-base, current head, range, and diff.
+implementer the exact authority identity and currentness evidence plus one of:
+assigned Feature clauses and Task Contract, exact eligible legacy authority and
+owned responsibility, or approved promotion-reconciliation authority. Also pass
+commit intent, any contractually fixed files, and that it is the only writer.
+Tell a reviewer it is read-only and must inspect the supplied
+authority, task base, current head, range, and diff. Keep full sources directly
+available without copying unrelated unchanged prose into each message.
 
 Use bounded waits, inspect live agents regularly, and return progress evidence to
 the lead. Preserve reports, identities, completion state, and observed errors

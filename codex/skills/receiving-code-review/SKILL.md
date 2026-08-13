@@ -21,7 +21,10 @@ Require:
   evidence, impact, proposed correction, and confidence;
 - approved scope, decisions, non-goals, Review context, Review policy, and
   implementation authorization;
-- Design Doc and plan when present;
+- one exact authority form: approved Design Doc when present, Feature Contract,
+  Implementation Plan, and applicable Task Contracts; the complete lightweight
+  combined Feature/Task Contract with original request authority and exact
+  accepted-task evidence; or the exact eligible legacy plan authority;
 - observed correction attempts and prior triage decisions.
 
 Resolve base, head, range, diff, status, and changed files directly from Git.
@@ -60,7 +63,8 @@ For each item:
 2. Restate the concrete requirement.
 3. Reproduce or verify the claim against the current head.
 4. Check repository guidance, current code and tests, approved scope,
-   non-goals, Design Doc, plan, Review context, and Review policy.
+   non-goals, Design Doc, Feature Contract, Task Contracts, eligible legacy plan
+   authority, plan, Review context, and Review policy as applicable.
 5. Classify it as exactly one:
    - **Fix** — verified on the current head, in approved scope, compatible with
      approved decisions, proportionate, and authorized for local correction.
@@ -76,10 +80,15 @@ For `Fix`, return one bounded plain-language correction handoff:
 
 - exact finding and concrete evidence;
 - smallest authorized correction;
-- approved decisions and non-goals;
+- unchanged planned Feature and applicable Task Contract, unchanged lightweight
+  combined contract, or unchanged eligible legacy task authority, plus shared
+  interfaces when applicable, constraints, and non-goals;
 - Review context and unchanged Review policy;
-- discipline and file responsibilities;
-- current task base and exact verification commands;
+- discipline and responsibility boundaries;
+- a correction commit intent bounded to the finding and either its fixed message
+  or explicit writer authority to select the correction message;
+- current task base, verification obligations, and contractually required exact
+  commands;
 - observed prior attempts, concerns, and gaps.
 
 Do not choose the lightweight or planned builder here. The coordinator routes

@@ -26,17 +26,36 @@ repository guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
-Require:
+Require the exact target, current evidence shared by all authority forms, and
+one authority form. The shared evidence is:
 
 - exact implementation base, current head, full range, diff, current status, and
   changed files;
 - fresh coordinator verification `PASS` for that same unchanged head and range;
 - no unexplained in-scope source state outside the committed range;
-- approved scope, decisions, non-goals, Review context, and complete Review
-  policy;
-- Design Doc and implementation plan when present;
+- approved scope, non-goals, Review context, and complete Review policy;
 - task-review outcomes, observed commands, concerns, prior triage decisions, and
   known gaps.
+
+For new-format work also require:
+
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, and their approval state;
+- complete Feature Contract coverage and integration-only obligations;
+
+For lightweight work, accept the complete combined in-memory Feature/Task
+Contract, original request authority and design sources, and exact `Accepted`
+task evidence for the supplied range. Require the contract to remain completely
+recoverable, no promotion condition or material change to be unresolved, and the
+fresh verification `PASS` to cover every Feature Contract observation. Do not
+require an Implementation Plan, contract file, or separate artifact approval.
+
+For a plan approved and already executing before the contract-centered format,
+accept its exact approved plan and referenced design sources in place of Feature
+and Task Contract artifacts only when the coordinator supplies unchanged
+approval and in-flight evidence, no material ambiguity, and no owner migration
+choice. Use its original scope, task specifications, verification and completion
+criteria, Review context, and Review policy. Do not manufacture new artifacts.
 
 Resolve base, head, range, diff, and changed files directly from Git. Require
 repository HEAD and status to match the supplied evidence. Return `BLOCKED`
@@ -49,9 +68,9 @@ completion gate.
 ## Standalone read-only entry
 
 Resolve the requested committed range, index/worktree, or bounded fileset through
-local read-only investigation. Record available verification, design, decision,
-plan, and repository-guidance evidence. Absent or stale verification is a
-limitation.
+local read-only investigation. Record available verification, Design Doc,
+Feature Contract, Task Contracts, plan, decision, and repository-guidance
+evidence. Absent or stale verification is a limitation.
 
 Use an approved Review policy when one is available. Without one, select only
 perspectives applicable to observed risk and report the missing policy; do not
@@ -69,6 +88,10 @@ repository evidence, and available decisions. State:
 
 A standalone worktree or fileset review may answer the direct request, but never
 substitutes for current-head coordinator review.
+
+Review context is an interpretation aid. It must not add to, weaken, or replace
+an available Design Doc, Feature Contract, Task Contract, or Implementation
+Plan.
 
 ## Validate policy and actual risk
 
@@ -127,10 +150,10 @@ perspective runs, require `adversarial-integrator`.
 
 Without an approved policy, select the same perspectives by observed
 applicability: general review always; test coverage for behavior or test changes;
-design alignment when an approved Design Doc exists; scope review for a plan or
-narrow migration; architecture for material responsibility changes; adversarial
-profiles only for their corresponding concrete risk. Record every run and skip
-with reasons.
+design alignment when an approved Design Doc or Feature Contract exists; scope
+review for a plan or narrow migration; architecture for material responsibility
+changes; adversarial profiles only for their corresponding concrete risk. Record
+every run and skip with reasons.
 
 ## Preserve independence and capacity
 
@@ -159,7 +182,11 @@ Pass directly to every final reviewer:
 
 - exact base, current head, range or bounded standalone files, diff, status, and
   changed files;
-- approved scope, decisions, and non-goals;
+- exact authority identity, source path or in-memory identity, and currentness
+  evidence for the approved planned contracts, complete lightweight combined
+  contract, or exact eligible legacy plan; plus the clauses and integration
+  obligations applicable to that perspective;
+- approved scope and non-goals;
 - the same Review context and Review policy when available;
 - fresh verification commands and observed results;
 - relevant task-review outcomes, prior triage decisions, concerns, and gaps;
@@ -168,6 +195,12 @@ Pass directly to every final reviewer:
 Do not create another wrapper identity or repeat the evidence in competing
 formats. Before dispatch, confirm the current head, range, diff, status, and
 changed files are unchanged.
+
+Keep every exact authority source directly available to every reviewer. Eagerly
+load complete sources for design-alignment, scope, or another perspective that
+owns whole-contract coverage. Other perspectives start with applicable clauses
+and inspect additional source sections when their evidence requires it; do not
+copy or require an unconditional reread of unrelated unchanged prose.
 
 ## Apply the common Acceptance threshold
 
@@ -201,8 +234,10 @@ design gap so the coordinator can `Escalate`; do not label it `Must Fix` or
 
 ## Integrate adversarial review
 
-When required, give `adversarial-integrator` the same Review context, target
-evidence, verification, policy, prior triage decisions, and adversarial reports.
+When required, give `adversarial-integrator` the same exact planned, lightweight,
+or eligible legacy authority identity and direct source access, plus Review
+context, target evidence, verification, policy, prior triage decisions, and
+adversarial reports.
 The integrator remains read-only, deduplicates, verifies evidence, resolves
 contradictions, and drops unsupported, second-order, and artifact-inapplicable
 findings. It does not invent findings or lower the Acceptance threshold.
@@ -216,6 +251,9 @@ Merge duplicates and report in Japanese:
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
 - fresh verification commands and results inspected;
+- Feature Contract observations and design, task, and integration alignment, or
+  eligible legacy completion criteria and original-authority alignment,
+  inspected;
 - reviewers run, queued, and skipped with reasons;
 - reviewer and integrator outcomes;
 - accepted Must Fix and Should Improve findings;

@@ -9,17 +9,42 @@ Do not choose publication or branch disposition for the user.
 
 ## Require current-head completion evidence
 
-Inspect:
+Inspect the exact target, current evidence shared by all authority forms, and one
+authority form. Shared evidence is:
 
 - current branch, exact implementation base, current head, and full range;
 - `git status --short`, full diff, and changed files;
-- approved scope, decisions, non-goals, and Review context;
+- approved scope, non-goals, and Review context;
 - fresh coordinator verification `PASS`, including observed commands and results,
   for the same current head and range;
 - final review and triage for that same head and range, with no surviving finding;
-- approved Review policy, reviewer and integrator outcomes, triggered
+- complete Review policy, reviewer and integrator outcomes, triggered
   conditionals, skipped perspectives with reasons, Acceptance result, residual
   risk, and every gap.
+
+For new-format planned work also inspect:
+
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, and their approval state;
+- complete Feature Contract coverage, integration-only obligations, and explicit
+  proof of every applicable Feature Contract observation;
+- a current accepted result bound to the exact current Feature Contract authority
+  and assigned clauses as well as the exact approved content of every Task
+  Contract; no stale result may satisfy this evidence.
+
+For lightweight work, accept the complete recoverable combined in-memory
+Feature/Task Contract, its original request authority and design sources, exact
+accepted-task evidence, and proof of every Feature Contract observation. Require
+no unresolved material change or promotion condition. Do not require an
+Implementation Plan, contract file, or separate artifact approval.
+
+For a plan approved and already executing before the contract-centered format,
+accept its exact approved plan and referenced design sources in place of Feature
+and Task Contract artifacts only when unchanged approval and in-flight state,
+absence of material ambiguity, and no owner migration choice are established.
+Require the same current-head verification, review, triage, safety, and
+publication evidence against its original completion criteria. Do not
+manufacture new artifacts or weaken the gate.
 
 Resolve base, head, range, diff, and changed files directly from Git. Require the
 current head, verification head, and review head and range to match exactly.
@@ -35,6 +60,30 @@ If verification is stale, policy is incomplete, or a finding or gap remains, do
 not present completion choices. Return `BLOCKED` with the observed state and exact
 re-entry condition, or `Escalate` when resolution requires a user-owned policy,
 authority, scope, or design decision.
+
+For new-format work, also stop when a Task Contract lacks a current accepted
+result for its exact approved content, Feature Contract coverage is incomplete,
+an integration-only obligation is unproved, or a material artifact edit
+invalidated approval. For any authority form, a successful task-local command or
+aggregate task count is not feature completion.
+
+## Retire workspace-only plan artifacts
+
+After the current-head completion gate passes, retire the current feature's
+ignored `feature-contract.md` and `implementation-plan.md` before publication,
+merge, or final handoff. First record their exact paths and the completion
+evidence derived from them. Confirm that both paths are ignored and neither is
+tracked, staged, or modified outside the current feature plan directory. Remove
+only those two workspace execution artifacts and the feature plan directory when
+it becomes empty. Preserve every Design Doc.
+
+If either artifact is tracked, staged, outside the expected directory, contains
+unattributed user changes, or the user explicitly requested archival, do not
+remove it. Return `Escalate` for an explicit retention decision or a bounded
+cleanup change. Re-read HEAD and status after retirement; because ignored plan
+artifacts are outside the implementation range, their expected removal must not
+change either. Report what was removed and that the files are not recoverable
+from Git.
 
 ## Present choices
 

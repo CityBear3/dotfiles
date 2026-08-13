@@ -49,11 +49,43 @@ deferred unless the user explicitly accepts that deferral.
 
 - Route bugs through systematic debugging before planning a fix.
 - Use a Design Doc for cross-cutting architecture, durable public contracts, or decisions worth preserving.
-- Skip the Design Doc when the settled scope is small enough for a self-contained plan.
+- Skip the Design Doc when the settled scope does not need a durable architecture
+  artifact, but still construct a Feature Contract before planning.
 - Do not implement from this skill.
+
+## Construct a Feature Contract without a Design Doc
+
+When the coordinator confirms that no Design Doc is warranted and the decision
+record is owner-approved, derive a separate Feature Contract from that record
+and repository evidence. Include:
+
+- context and goal;
+- scope and non-goals;
+- design sources, decisions, and precedence;
+- observable behavior, preserved behavior, and material failure behavior;
+- responsibilities, interfaces, and important unchanged boundaries;
+- protected constraints and invariants;
+- verification obligations;
+- evidence-backed assumptions and explicitly approved deferrals.
+
+Add conditional concerns such as state transitions, schema lifecycle, error and
+recovery semantics, concurrency, authorization, performance, migration, or
+rollback only when they apply. If completing the contract would decide
+architecture, responsibility, a public or shared interface, schema, error
+behavior, scope, or another material trade-off, return that exact ambiguity to
+design discussion. Do not fill it in while drafting.
+
+Return the complete Feature Contract to the coordinator for separate user
+approval and workspace-only storage at
+`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
+force-add, stage, or commit it unless the user explicitly chooses archival. This
+skill does not approve the contract, enter planning, or combine it with an
+Implementation Plan.
 
 ## Handoff
 
-Return the decision record, unresolved material decisions, and relevant evidence
-to `agentic-engineering-workflow`. State whether the settled decisions warrant a
-Design Doc. Let the coordinator select and gate the next phase.
+Return the decision record, unresolved material decisions, relevant evidence,
+and whether the settled decisions warrant a Design Doc to
+`agentic-engineering-workflow`. When no Design Doc is warranted, also return the
+draft Feature Contract. Let the coordinator own its approval and select the next
+phase.
