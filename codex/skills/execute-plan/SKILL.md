@@ -30,7 +30,8 @@ For new-format work, require:
   interface owners and consumers, and non-goals.
 - separate Task dependency DAG and PR topology, deterministic fan-in order,
   Task PR bases, task workspaces, concurrency eligibility, staleness rules, and
-  integration-only composition.
+  exact integration-only starting identities, accepted inputs, order,
+  mechanism, workspace strategy, identity checks, and cleanup eligibility.
 
 For compatibility, accept an approved plan already executing before the
 contract-centered format only when the coordinator supplies its exact approval
@@ -99,6 +100,9 @@ For each ready task, give `execute-task` one concise plain-language handoff:
   identity;
 - the starting commit, planned PR base ref and commit, current head, and whether
   the handoff is candidate or authoritative;
+- for authoritative re-entry of a prior candidate, its candidate commit, head,
+  preliminary evidence, and the authorized final-base materialization or
+  restack evidence;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
 - the responsibility-scoped commit intent and its fixed message or the approved
@@ -121,7 +125,9 @@ Invoke `execute-task` for each selected handoff and let it own that workspace's
 writer, commit, exact PR range, verification, policy-selected review, correction,
 and stop condition. Accept `Candidate` only for a plan-authorized early
 implementation whose final PR base is still unavailable. Invoke the task again
-in authoritative mode after that base is current.
+in authoritative mode after that base is current, passing the attributable
+candidate and restack evidence so it can skip duplicate implementation and
+commit work.
 
 Do not start a logical dependent until every predecessor returns current
 `Accepted`. On `BLOCKED`, `Escalate`, plan deviation, missing evidence, a
@@ -209,6 +215,26 @@ current head, range, fresh verification, gate result, and gaps. Traverse both
 graphs, mark affected descendants stale, and recalculate feature coverage
 without widening any unchanged task range.
 
+## Materialize integration-only evidence
+
+Only after every input Task PR is current and `Accepted`, materialize each
+approved integration-only composition before returning `TasksAccepted`. Use
+`create-workspace` to establish its plan-defined temporary workspace, then apply
+the exact starting commit or tree and accepted Task PR inputs with the approved
+deterministic mechanism and order. This is a Git composition operation, not a
+source-writing task; assign no implementation writer and make no manual conflict
+fix.
+
+Record the workspace, starting identity, ordered input commits and trees,
+commands, ending HEAD and tree, status, and diff. Require the observed tree to
+match the plan's identity checks. A conflict, missing input, unexplained change,
+or authority-required workspace or history operation returns `BLOCKED` or
+`Escalate` as applicable. Never publish the temporary ref or treat it as another
+Task PR. Return its exact identity and retain it through current integration
+verification and targeted review. When the plan-defined retention boundary is
+reached, report that it is cleanup-eligible; never remove its ref or workspace
+without the applicable user-controlled disposition.
+
 ## Aggregate accepted tasks
 
 After each accepted task, append a result keyed by Task Contract and PR identity
@@ -234,8 +260,9 @@ After every planned task is accepted and current:
    interface;
 3. prove complete Feature Contract coverage and identify only the obligations
    that remain integration-only;
-4. identify the exact accepted heads and deterministic composition needed for
-   each integration-only obligation, without treating the composition as a PR;
+4. materialize and record the exact temporary tree for each integration-only
+   obligation from its approved accepted heads and deterministic composition,
+   without treating the composition as a PR;
 5. report task publication eligibility, plan deviations, correction attempts,
    stale results, and residual gaps separately
    from successful evidence.

@@ -29,6 +29,9 @@ For the new form require:
 - approved task workspace, branch, and coordination directory;
 - planned PR identity, base ref and exact base commit, current head, and whether
   the handoff is candidate or authoritative;
+- for authoritative re-entry of an attributable candidate, the candidate
+  commit, head, preliminary evidence, and authorized final-base materialization
+  or restack evidence;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
 - the responsibility-scoped commit intent and its fixed message or approved
@@ -84,10 +87,11 @@ return `BLOCKED`; never rewrite history to manufacture the planned topology.
 ## Choose one writer
 
 Keep exactly one writer: the lead when direct execution is authorized, otherwise
-one `implementer`. Promotion reconciliation begins with no active writer when
-the preserved range needs only fresh verification and review; select one writer
-only for an authorized bounded correction. Resolve the role before loading its prompt: use the named
-profile when available, or
+one `implementer`. Promotion reconciliation and authoritative re-entry of an
+attributable candidate begin with no active writer when the preserved or
+restacked range needs only fresh verification and review; select one writer only
+for an authorized bounded correction. Resolve the role before loading its
+prompt: use the named profile when available, or
 [implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md)
 as its fallback. Pass only the selected role and task handoff to
 `agent-teams-driven-development`.
@@ -148,6 +152,15 @@ When the handoff is candidate mode because the final PR base is unavailable,
 stop after recording preliminary checks, the candidate commit and head, changed
 files, and gaps. Return `Candidate`; do not run the authoritative policy gate,
 release a dependent, or describe the preliminary range as accepted.
+
+For authoritative re-entry of an attributable candidate, replace implementation
+steps 1–7 with validation of the supplied candidate result, the authorized
+final-base materialization or restack, the current commits and changed files,
+and the resulting exact PR range. Existing attributable restacked commits
+satisfy the task commit requirement when no correction is needed; do not select
+a writer or create another commit. Then run authoritative steps 8–11 with fresh
+verification and review. Return `BLOCKED` for an unattributable commit, conflict,
+or unexplained range rather than reimplementing the task.
 
 For authoritative mode, continue:
 
@@ -236,6 +249,13 @@ Send `FINDINGS` to `receiving-code-review`. This skill consumes the check and
 triage results, owns the bounded correction loop, and returns task acceptance;
 it does not reinterpret a blocked check as clean.
 
+After triage, route any `Fix` through the correction loop and return any
+`Escalate` to the coordinator. When every finding is `Push back` on the same
+unchanged target and no `Fix` or `Escalate` remains, close the task gate with the
+review plus triage evidence and do not rerun review merely to obtain the literal
+word `CLEAN`. A complete task gate is closed either by `CLEAN` or by exact
+`FINDINGS` evidence whose every item has a current `Push back` classification.
+
 ## Apply the common finding threshold
 
 Specification findings use `Must Fix` or `Should Improve`. For `adaptive` and
@@ -262,12 +282,15 @@ authority to select the correction message.
 
 Then:
 
-1. run fresh contractually required and selected task verification;
-2. inspect the correction diff;
+1. implement only the bounded correction and inspect its diff;
+2. run any applicable writer or pre-commit checks without treating them as the
+   authoritative gate;
 3. create only the declared correction commit;
-4. record the new current head;
-5. inspect the updated exact planned-base-to-head PR range;
-6. rerun the same complete policy-selected gate against that range.
+4. record the new current head, status, merge base, and exact planned-base-to-
+   head PR range;
+5. invoke fresh authoritative `verify` against that committed range;
+6. only after `PASS`, rerun the same complete policy-selected task review and
+   triage against the unchanged range.
 
 Do not reuse stale verification, approval, head, or range. If the same concrete
 problem repeats without progress or another action would repeat an observed
@@ -284,8 +307,8 @@ Return:
 - `Accepted` only when the ancestry invariant holds, every contractually fixed
   exact command and selected check passes, every observable Task Contract
   obligation, eligible legacy task criterion, or promotion-reconciliation
-  mapping has current evidence, and the complete selected gate approves the
-  current head;
+  mapping has current evidence, and the complete selected gate is closed for the
+  current head by `CLEAN` or by fully resolved current `Push back` triage;
 - `BLOCKED` when a safe writer state, command, permission, range, reviewer, or
   other operational prerequisite cannot be established;
 - `Escalate` for a material decision, scope or policy change, explicit

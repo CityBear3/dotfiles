@@ -55,7 +55,8 @@ For feature mode inspect:
 - complete Feature Contract coverage and every integration-only verification
   and targeted review result;
 - all task workspaces, branches, bases, heads, ranges, publication states,
-  triage decisions, concerns, and gaps;
+  triage decisions, temporary integration workspaces or refs and their cleanup
+  eligibility, concerns, and gaps;
 - the coordinator's Feature Accepted result for those unchanged inputs.
 
 Re-resolve every affected ref and workspace. Return `BLOCKED` if a task is a
@@ -104,8 +105,9 @@ In feature mode present the remaining choices for the complete topology:
 1. publish any still-local accepted Task PRs;
 2. merge or land current PRs in topology order;
 3. keep branches and worktrees as-is;
-4. clean up exact branches or worktrees only after their retention is no longer
-   required and the user explicitly confirms destructive targets.
+4. clean up exact task or integration branches and worktrees only after their
+   retention is no longer required and the user explicitly confirms destructive
+   targets.
 
 Explain dirty state, stack dependencies, human-review invalidation, and cleanup
 consequences. Wait for the user's choice before every external write, merge,

@@ -68,13 +68,20 @@ Record two distinct graphs:
 - a **Task dependency DAG** for semantic readiness and dependency release;
 - a **PR topology** that gives each Task PR one planned base relationship.
 
-Use sibling PRs for independent tasks unless a dependent or integration
-obligation needs their combined tree. Use a linear stack for dependent chains.
+Use sibling PRs for independent tasks and a linear stack for dependent chains.
 For fan-in, choose an owner-visible deterministic order over the required parent
 closure while preserving early independent implementation where ownership and
-state permit it. Do not turn that Git order into a logical dependency. Use a
-temporary integration composition rather than changing sibling PR relationships
-when only a feature-level observation needs the combined tree.
+state permit it. Do not turn that Git order into a logical dependency. When only
+a feature-level observation needs the combined tree, preserve independent
+sibling PR relationships and use a temporary integration composition.
+
+For every temporary integration composition, record its starting commit or
+tree, exact accepted Task PR inputs and deterministic application order,
+composition mechanism, workspace or temporary-ref strategy, identity checks,
+and the point where it becomes eligible for separately authorized cleanup. The
+approved composition must require no manual source edit or conflict resolution;
+an unresolved composition conflict is a blocked integration input, not
+delegated implementation work.
 
 Record which tasks may implement before their final PR base exists. Such work
 may produce a non-accepted candidate, but the task must be restacked onto its
@@ -113,7 +120,8 @@ Include:
 - fixed decisions and explicit non-goals;
 - shared interface contracts and their owners and consumers;
 - the Task dependency DAG, deterministic ready order, PR topology, planned
-  bases, fan-in linearizations, and integration-only compositions;
+  bases, fan-in linearizations, and exact integration-only composition inputs,
+  order, mechanism, workspace, identity checks, and retention;
 - task workspace ownership, concurrency eligibility, and shared-state or write
   exclusions;
 - complete Feature Contract coverage, including integration-only obligations;

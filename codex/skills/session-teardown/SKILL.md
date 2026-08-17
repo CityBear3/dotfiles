@@ -19,12 +19,12 @@ Use `list_agents` to identify live task-scoped agents. Distinguish running work 
 
 ## Report
 
-Inspect every task workspace known to the active plan, not only the coordination
-checkout, and report:
+Inspect every task and temporary integration workspace known to the active plan,
+not only the coordination checkout, and report:
 
 - remaining live agents, if any;
-- coordination and Task PR branches, worktrees, heads, acceptance or stale
-  state, and disposition;
+- coordination, Task PR, and temporary integration branches, worktrees, heads
+  or trees, acceptance or stale state, cleanup eligibility, and disposition;
 - uncommitted changes;
 - publication or cleanup actions already completed;
 - anything the user still needs to do.

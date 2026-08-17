@@ -215,6 +215,14 @@ scope expansion, external write, publication, merge, discard, destructive
 action, or other missing authority. Do not repeat an approval prompt while its
 exact decision and artifact remain applicable.
 
+After Implementation Plan approval and before `execute-plan`, use
+`create-workspace` to establish or validate every approved Task PR workspace and
+branch relationship. Plan approval fixes the requested topology but does not
+replace any separate approval that `create-workspace` requires for a branch or
+worktree state change. Stop at that gate when needed, then resume only after
+every task identity, workspace, branch, starting ref, and planned PR base
+matches the approved plan.
+
 Pass exact authority paths and approval/currentness evidence, applicable Feature
 Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
