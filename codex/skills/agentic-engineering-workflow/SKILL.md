@@ -286,6 +286,11 @@ Advance automatically within approved local scope:
    its exact Task PR range. When its combined contract has no integration-only
    obligation, that result is also Feature Accepted; do not repeat verification
    or review.
+   When a named integration-only obligation remains, use that accepted head and
+   tree as the exact single-task integration target and continue at steps 4–6
+   with the recoverable combined contract and lightweight policy. Do not invoke
+   `execute-plan` or require planned artifacts, a Task DAG, or a multi-PR
+   topology for that target.
 2. Accept from `execute-plan` only `TasksAccepted` with every Task Contract
    represented by a current authoritative result, both topologies resolved,
    complete coverage, and exact integration composition inputs.

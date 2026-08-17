@@ -43,7 +43,7 @@ For a Task PR require:
   interface evidence, observed commands, concerns, prior triage decisions, and
   known gaps.
 
-For a targeted integration review require:
+For a planned targeted integration review require:
 
 - approved Design Doc when applicable, Feature Contract, Task Contract set,
   Implementation Plan, Review context and policy, and their approval state;
@@ -56,12 +56,26 @@ Reject an ordinary full-feature review target for new-format work. Task PR gates
 are authoritative; the integration target may examine only the approved
 cross-task surface and evidence that triggered it.
 
-For lightweight work, accept the complete combined in-memory Feature/Task
-Contract, original request authority and design sources, exact Task PR target,
-and fresh verification `PASS`. Require the contract to remain completely
-recoverable and no promotion condition or material change to be unresolved.
-This Task PR review also satisfies feature review when no integration-only
-trigger exists. Do not require an Implementation Plan or contract file.
+For a lightweight targeted integration review require:
+
+- the complete recoverable combined in-memory Feature/Task Contract, original
+  request authority and design sources, Review context, and current policy;
+- the current exact accepted lightweight Task PR and its base, head, tree,
+  range, status, verification, review, and triage evidence;
+- fresh integration verification `PASS` for that same head and tree;
+- the named integration-only obligation or concrete current policy trigger.
+
+Do not require a Design Doc, contract file, Implementation Plan, Task DAG,
+multi-PR topology, or temporary multi-head composition for this authority form.
+Review only the named integration surface and do not replay the Task PR gate.
+
+For a lightweight Task PR target, accept the complete combined in-memory
+Feature/Task Contract, original request authority and design sources, exact Task
+PR target, and fresh verification `PASS`. Require the contract to remain
+completely recoverable and no promotion condition or material change to be
+unresolved. This Task PR review also satisfies feature review when no
+integration-only trigger exists. Do not require an Implementation Plan or
+contract file.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature

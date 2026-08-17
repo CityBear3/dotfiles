@@ -20,20 +20,29 @@ substitute the repository default for a resolved base. Inspect:
 - commits in `<base>..HEAD`;
 - `git diff --stat <base>...HEAD` and the full diff;
 - relevant planned Design Doc, Feature Contract, Implementation Plan, and Task
-  Contract; the complete lightweight combined contract and original request
-  authority; or the exact eligible legacy sources;
-- current internal `Accepted` verification and review evidence for that exact
-  PR range;
+  Contract content and original paths, including an exact captured publication
+  handoff after approved workspace-only artifact retirement; the complete
+  lightweight combined contract and original request authority; or the exact
+  eligible legacy sources;
+- for planned or lightweight work, current internal `Accepted` verification,
+  review, and triage evidence for that exact PR range;
+- for eligible legacy work, current verification, review, and triage evidence
+  satisfying its unchanged approved completion criteria, without requiring a
+  new internal `Accepted` state;
 - the repository PR template, preferring `.github/pull_request_template.md`, then other conventional template locations;
 - fresh verification results for the branch.
 
-Stop if the branch, base, range, ancestry, accepted evidence, or status differs
-from the approved publication target. A candidate or stale task is not
-publishable. Do not push a missing branch, retarget a PR, or restack history from
-this skill.
+Stop if the branch, base, range, ancestry, applicable accepted or legacy
+completion evidence, or status differs from the approved publication target. A
+candidate or stale task is not publishable. Do not push a missing branch,
+retarget a PR, or restack history from this skill.
 
 Do not require planned artifact files from lightweight work or manufacture the
 new Task PR topology for eligible legacy work.
+
+For planned work after Feature Accepted retirement, require the exact captured
+contract content and topology evidence from `finish-branch`; do not require the
+ignored source paths to still exist or reconstruct their content from memory.
 
 ## Draft
 
@@ -42,7 +51,7 @@ Follow the repository template. Otherwise include:
 - Summary
 - Motivation
 - Design decisions
-- Task Contract and planned base
+- Authority and planned or approved base
 - Changes
 - Verification
 - Known limitations or follow-ups

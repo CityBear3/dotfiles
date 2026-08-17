@@ -51,7 +51,7 @@ For a Task PR require:
 Do not require an `Accepted` result or prior task review: this verification is
 part of producing that result.
 
-For an integration-only target require:
+For a planned integration-only target require:
 
 - the approved Design Doc when applicable, Feature Contract, complete
   Implementation Plan and Task Contract set, and their approval state;
@@ -65,13 +65,27 @@ Do not rerun task-scoped obligations merely because the composed tree contains
 their changes. Task acceptance supports coverage but never substitutes for a
 named integration-only observation.
 
-For lightweight work, accept the complete combined in-memory Feature/Task
-Contract, its original request authority and design sources, and the exact Task
-PR target. Require that the contract remains completely recoverable and no
-promotion condition or material change is unresolved. This Task PR verification
-also provides feature evidence when no integration-only obligation exists. Do
-not require an Implementation Plan, contract file, or separate artifact
-approval.
+For a lightweight integration-only target require:
+
+- the complete recoverable combined in-memory Feature/Task Contract, original
+  request authority and design sources, Review context, and current policy;
+- the current exact accepted lightweight Task PR with base, head, tree, range,
+  status, verification, review, and triage evidence;
+- that accepted head and tree as the exact integration target and the named
+  integration-only obligation and expected observation;
+- no unresolved promotion condition, material contract change, or stale state.
+
+Do not require a Design Doc, contract file, Implementation Plan, Task DAG,
+multi-PR topology, or temporary multi-head composition for this authority form.
+Verify only the named integration-only observation; do not rerun its task gate.
+
+For a lightweight Task PR target, accept the complete combined in-memory
+Feature/Task Contract, its original request authority and design sources, and
+the exact Task PR target. Require that the contract remains completely
+recoverable and no promotion condition or material change is unresolved. This
+Task PR verification also provides feature evidence when no integration-only
+obligation exists. Do not require an Implementation Plan, contract file, or
+separate artifact approval.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature

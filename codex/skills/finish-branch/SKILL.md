@@ -103,9 +103,11 @@ contract requires; do not impose the new planned-feature lifecycle.
 After the planned Feature Accepted gate passes, retire the current feature's
 ignored `feature-contract.md` and `implementation-plan.md` from the coordination
 workspace before final feature handoff. First record their exact paths and the
-completion evidence derived from them. Confirm that both paths are ignored and
-neither is tracked, staged, outside the current feature plan directory, or
-modified by an unattributed writer.
+exact approved content, Task Contract and PR-topology publication entries, and
+completion evidence derived from them so later `create-pr` handoffs remain
+complete. Confirm that both paths are ignored and neither is tracked, staged,
+outside the current feature plan directory, or modified by an unattributed
+writer.
 
 Remove only those two execution artifacts and the feature plan directory when
 it becomes empty. Preserve every Design Doc. Re-read every relevant head and
