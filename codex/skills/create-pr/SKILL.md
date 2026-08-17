@@ -9,15 +9,19 @@ Treat PR creation as an external write.
 
 ## Gather evidence
 
-Resolve the exact Task Contract and planned PR topology entry. Do not substitute
-the repository default for a planned base. Inspect:
+Resolve one exact publication authority: a planned Task Contract and PR topology
+entry; a recoverable lightweight combined Feature/Task Contract and its accepted
+planned base; or an eligible legacy task authority and its approved base. Do not
+substitute the repository default for a resolved base. Inspect:
 
 - `git status --short`;
 - the exact head branch and object, planned base branch and object, merge base,
   and current parent PR state when stacked;
 - commits in `<base>..HEAD`;
 - `git diff --stat <base>...HEAD` and the full diff;
-- relevant Design Doc, Feature Contract, Implementation Plan, and Task Contract;
+- relevant planned Design Doc, Feature Contract, Implementation Plan, and Task
+  Contract; the complete lightweight combined contract and original request
+  authority; or the exact eligible legacy sources;
 - current internal `Accepted` verification and review evidence for that exact
   PR range;
 - the repository PR template, preferring `.github/pull_request_template.md`, then other conventional template locations;
@@ -27,6 +31,9 @@ Stop if the branch, base, range, ancestry, accepted evidence, or status differs
 from the approved publication target. A candidate or stale task is not
 publishable. Do not push a missing branch, retarget a PR, or restack history from
 this skill.
+
+Do not require planned artifact files from lightweight work or manufacture the
+new Task PR topology for eligible legacy work.
 
 ## Draft
 
