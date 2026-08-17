@@ -4,160 +4,195 @@
 
 ## Goal and authorities
 
-Add deterministic parsing for one approved input form through the existing
-library boundary.
+Add an approved library input form and expose it through the existing CLI.
 
 1. `docs/plans/YYYY-MM-DD-input-form/feature-contract.md`
-2. This Implementation Plan and its Task Contract
+2. This approved Implementation Plan and its Task Contracts
 3. Repository guidance
 
-The Feature Contract owns accepted and preserved behavior. This plan owns the
-single-task decomposition and execution evidence.
+The Feature Contract owns accepted behavior. This plan owns decomposition,
+topology, task acceptance, integration evidence, and publication boundaries.
 
 ## Working context
 
-- Architecture: Keep CLI ownership in the binary and parsing ownership in the
-  library.
+- Architecture: parsing and rendering remain library responsibilities; the CLI
+  composes them.
 - Working directory: `.`
-- Branch: `feature/input-form`
-- Baseline: the repository's standard Rust test route passes.
+- Coordination branch: `feature/input-form`
+- Implementation base: the observed current `main` commit.
+- Baseline: authoritative Rust checks pass.
 
 ## Fixed decisions and non-goals
 
-- Accept the new form through the existing parser API.
-- Preserve existing forms and malformed-input behavior.
-- Do not change persistence, permissions, concurrency, or CLI ownership.
+- Preserve existing accepted forms and malformed-input behavior.
+- Keep parser, renderer, and CLI responsibilities separate.
+- Do not change persistence, permissions, or error ownership.
+- Allow parser and renderer work to begin independently.
 
 ## Shared interface contracts
 
-No new cross-task interface is introduced. The existing public parser API is a
-Feature Contract boundary and remains unchanged.
+### Parsed input representation
+
+- **Owner:** Task 1.
+- **Implementer:** Task 1.
+- **Consumers:** Tasks 2 and 3.
+- **Contract:** The Feature Contract fixes the public representation and error
+  meaning; private parser helpers remain delegated.
+
+## Task dependency DAG
+
+```text
+        +-- Task 1: parser --+
+Base ---+                    +-- Task 3: CLI journey
+        +-- Task 2: output --+
+```
+
+Task 1 and Task 2 may implement concurrently because their owned files and state
+do not overlap. Task 3 requires current internal acceptance from both.
+
+## PR topology
+
+```text
+main
+  `-- PR 1: Task 1
+       `-- PR 2: Task 2
+            `-- PR 3: Task 3
+```
+
+Task 2 may produce a candidate from the common base. Before authoritative Task
+2 verification and review, restack it onto the accepted Task 1 head. The Git
+edge does not create a logical dependency. Task 3 starts only after both parent
+results and this stack are current.
 
 ## Feature Contract coverage
 
 | Feature obligation | Owning proof |
 | --- | --- |
-| Parse the complete new representation | Task Contract 1 |
-| Preserve existing and malformed forms | Task Contract 1 |
-| Prove one real CLI-to-library journey | Integration verification |
+| Parse the approved representation | Task 1 |
+| Render the approved value without changing existing output | Task 2 |
+| Preserve malformed-input behavior | Tasks 1 and 3, with deliberate overlap |
+| Prove the real CLI journey | Task 3 |
+| Prove combined compatibility route | Integration-only verification |
 
 ## Review context
 
-- **Artifact and purpose:** A Rust library parser plus its existing CLI journey;
-  accept one representation without changing ownership.
-- **Consumers:** Library callers receive parsed values and the CLI delegates to
-  that library API.
-- **Material criteria:** Deterministic parsing, unchanged existing syntax and
-  error behavior, and one real CLI path.
-- **Material failures:** Accepting malformed input, regressing an existing form,
-  returning an incomplete value, or bypassing the library boundary.
-- **Approved non-problems:** Exhaustive grammar fuzzing and performance tuning are
-  outside this feature.
-- **Inapplicable assumptions:** Persistence, database identity, permissions, and
-  concurrency do not apply unless implementation adds such a path.
-- **New-evidence rule:** Revisit a non-problem only with new evidence of a
-  concrete reachable regression or approved-contract violation.
+- **Artifact and purpose:** A Rust parser, renderer, and CLI composition.
+- **Consumers:** Library callers and CLI users.
+- **Material criteria:** Exact value preservation, compatibility, stable errors,
+  and one real process journey.
+- **Material failures:** Field loss, accepting malformed input, stale stacked
+  evidence, or bypassing the library boundary.
+- **Approved non-problems:** Exhaustive fuzzing and performance tuning.
+- **Inapplicable assumptions:** Persistence, identity, and permissions.
 
 ## Review policy
 
 - **Mode:** `adaptive`.
-- **Rationale:** Public parsing behavior and a CLI journey change, so independent
-  task review and API-focused final review are required.
-- **Risk surfaces:** Parser compatibility and library-to-CLI integration.
-- **Per-task gate:** Independent `spec-reviewer` and `code-quality-reviewer`.
-- **Final required reviewers:** `code-reviewer` for general correctness,
-  `test-coverage-reviewer` for changed behavior, and
-  `adversarial-api-reviewer` for parser API compatibility, then
+- **Rationale:** Public parsing behavior and a cross-component CLI journey
+  require independent task gates; only the combined compatibility route needs
+  integration review.
+- **Risk surfaces:** Parser compatibility, exact output, stacked-range
+  currentness, and library-to-CLI composition.
+- **Per-task gate:** Independent `spec-reviewer` and
+  `code-quality-reviewer` against each exact Task PR range.
+- **Integration required reviewers:** `test-coverage-reviewer` for the
+  integration-only compatibility journey.
+- **Integration conditional reviewers:** `adversarial-api-reviewer` only if an
+  implementation changes or exposes a public parser seam, followed by
   `adversarial-integrator`.
-- **Conditional reviewers:** Add `adversarial-robustness-reviewer` if error or
-  recovery behavior changes.
-- **Skipped perspectives:** Skip design alignment because no Design Doc exists;
-  scope review because this single Task Contract and its coverage table exhaust
-  the approved scope; architecture and performance because ownership and
-  measured hot paths do not change; adversarial tests unless fixtures or test
-  infrastructure change.
-- **Residual risk:** No exhaustive grammar fuzzing or performance measurement.
-- **Capacity:** At most four threads including the lead; queue without reducing
-  approved scope.
-- **Queue order:** Run the two per-task reviewers together when capacity permits,
-  then final code and test coverage, API review, triggered robustness review,
-  and adversarial integration last.
-- **Acceptance:** Keep only artifact-applicable `Must Fix` or `Should Improve`
-  findings with an approved requirement, concrete reachable evidence, material
-  consequence, and proportionate correction. `Should Improve` requires a
-  concrete maintainability consequence or measurable repeated cost. Drop
-  preference, speculation, second-order concerns, generic best practice,
-  optional polish, inapplicable assumptions, and objections without materially
-  new evidence. Treat an unproven architectural mechanism as `Escalate`.
+- **Skipped perspectives:** Skip architecture and performance because approved
+  ownership and measured hot paths do not change; skip adversarial robustness
+  unless recovery behavior changes; skip scope because each Task gate receives
+  exact clauses and ownership.
+- **Residual risk:** No exhaustive grammar fuzzing.
+- **Capacity and queue:** At most five threads including the lead; schedule
+  ready Task 1 and Task 2 candidates in separate worktrees, then their task
+  gates, Task 3, and integration review.
+- **Acceptance:** Keep only artifact-applicable findings with an approved
+  requirement, reachable evidence, material consequence, and proportionate
+  correction. Drop preference, speculation, optional polish, and objections to
+  approved decisions without materially new evidence.
 
 ## Task Contract 1: Parse the approved form
 
-### Purpose and expected result
+- **Purpose:** Return the complete approved representation while preserving
+  current successful and malformed-input behavior.
+- **Coverage:** Parsing and parser-side compatibility clauses.
+- **Ownership:** Existing library parser and its focused tests.
+- **Shared interface:** Own the parsed input representation.
+- **Constraints:** Preserve public errors and accepted forms.
+- **Verification:** Record the focused red failure, then observe the complete
+  value and representative compatibility behavior.
+- **Dependencies:** None.
+- **PR relationship:** PR 1 against `main`; final base exists immediately.
+- **Concurrency:** May run with Task 2 in a separate checkout.
+- **Non-goals:** No CLI, persistence, or API redesign.
+- **Delegation:** Private helpers, local types, and focused tests.
+- **Discipline:** TDD.
+- **Commit intent:** Parser responsibility and tests; writer chooses the
+  message.
 
-The parser returns the complete approved value for the new form while preserving
-all current successful and malformed-input behavior.
+## Task Contract 2: Render the approved value
 
-### Feature Contract clauses satisfied
+- **Purpose:** Render the Feature Contract representation exactly while
+  preserving existing output.
+- **Coverage:** Rendering and output-compatibility clauses.
+- **Ownership:** Existing renderer and its focused tests.
+- **Shared interface:** Consume the parsed input representation without changing
+  its ownership.
+- **Constraints:** No field loss or new formatting contract.
+- **Verification:** Record the focused red failure, then observe exact new and
+  representative existing output.
+- **Dependencies:** None logically.
+- **PR relationship:** PR 2 stacked on PR 1. A common-base candidate is allowed;
+  final acceptance requires restacking and fresh verification and review.
+- **Concurrency:** May implement with Task 1 in a separate checkout.
+- **Non-goals:** No parser or CLI edits.
+- **Delegation:** Private rendering helpers and test arrangement.
+- **Discipline:** TDD.
+- **Commit intent:** Renderer responsibility and tests; writer chooses the
+  message.
 
-- Parse the approved representation deterministically.
-- Preserve existing representations and malformed-input behavior.
+## Task Contract 3: Complete the CLI journey
 
-### Responsibility and ownership boundaries
+- **Purpose:** Compose the accepted parser and renderer through the existing CLI
+  boundary.
+- **Coverage:** CLI journey and end-to-end malformed behavior.
+- **Ownership:** CLI composition and real-process tests.
+- **Shared interface:** Consume the accepted parser and renderer contracts.
+- **Constraints:** Keep parsing and rendering in the library.
+- **Verification:** Exercise new, existing, and malformed forms through the real
+  process.
+- **Dependencies:** Current internal acceptance of Tasks 1 and 2.
+- **PR relationship:** PR 3 stacked on PR 2.
+- **Concurrency:** Not ready before both dependencies and the fan-in stack are
+  current.
+- **Non-goals:** No new CLI ownership or persistence.
+- **Delegation:** Test fixtures and private CLI wiring.
+- **Discipline:** TDD.
+- **Commit intent:** CLI composition and process tests; writer chooses the
+  message.
 
-- Own parsing behavior inside the existing library parser component.
-- Do not move parsing into the CLI or change the public parser API.
+## Feature acceptance
 
-### Applicable shared interfaces
+Confirm all three exact Task PR results remain current. Materialize the approved
+stack and run only the integration-only compatibility route. Do not rerun the
+ordinary full task reviews. Run the approved targeted integration reviewer, then
+report Feature Accepted only when coverage, topology, and integration evidence
+have no gap.
 
-Consume the unchanged public parser API defined by the Feature Contract.
+## Staleness and correction
 
-### Protected constraints
-
-- Return the complete value; do not silently drop fields.
-- Preserve existing errors and accepted forms.
-
-### Verification obligations
-
-- Observe the focused test fail because the new form is currently rejected.
-- Observe the complete new value after implementation.
-- Observe representative existing and malformed forms remain unchanged.
-
-### Dependencies
-
-None.
-
-### Explicit non-goals
-
-- No parser API redesign, persistence change, or grammar-wide optimization.
-
-### Delegated local decisions
-
-The writer chooses private helpers, local types, internal file placement, edit
-order, and additional focused tests within the parser responsibility.
-
-### Discipline
-
-TDD: record the expected red failure, make the smallest contract-compliant
-change pass, then refactor without changing behavior.
-
-### Commit intent and contractually significant detail
-
-Use the repository's authoritative Rust test, lint, and non-mutating format-check
-routes. The exact private files are deliberately delegated. The commit owns only
-parser responsibility and its behavioral tests; the writer selects its concise
-message.
-
-## Integration verification
-
-Run the authoritative project checks and exercise one real CLI input through the
-existing library boundary. Observe the complete output and unchanged malformed
-behavior.
-
-## Post-review iteration
-
-Route a concrete in-scope `Fix` through this Task Contract, fresh verification,
-and fresh review. Return any parser API or feature-behavior change to approval.
+A changed parent, restack, retarget, contract, or consumed interface makes every
+affected descendant range stale. Re-materialize the approved topology and rerun
+fresh verification and the complete task gate for changed ranges. Route a
+concrete in-scope finding through its owning Task Contract; return semantic or
+topology changes to approval.
 
 ## Publication
 
-Do not publish without explicit user approval.
+An internally accepted Task PR may be published with explicit user authority
+before feature acceptance. Keep Feature Contract and Implementation Plan files
+ignored in the coordination worktree until that worktree is explicitly removed;
+do not delete them as a separate Feature Accepted action. Do not infer push,
+merge, retarget, force, or cleanup authority.

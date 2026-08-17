@@ -3,7 +3,7 @@ name: receiving-code-review
 description: Verify review findings against current code and classify each as Fix, Push back, or Escalate. Use from the workflow coordinator for authorized review loops or standalone for read-only feedback evaluation.
 ---
 
-# Triage current-head review findings
+# Triage current-target review findings
 
 Treat review as technical evidence, not an instruction to agree. Remain
 check-only and read-only. Do not mutate source or Git state, implement or stage a
@@ -13,21 +13,23 @@ fix, dispatch a writer, or advance another workflow phase.
 
 Require:
 
-- exact implementation base, current head, full range, diff, status, and changed
-  files;
-- fresh verification `PASS` and review `FINDINGS` for that same unchanged head
-  and range;
+- target kind; exact task workspace and branch, planned PR base, merge base,
+  current head and range, or exact integration composition; diff, status, and
+  changed files;
+- fresh verification `PASS` and either workflow review `FINDINGS` or complete
+  human review feedback anchored to that same unchanged head and range;
 - each finding's severity, file and line, concrete behavior, requirement,
   evidence, impact, proposed correction, and confidence;
 - approved scope, decisions, non-goals, Review context, Review policy, and
   implementation authorization;
 - one exact authority form: approved Design Doc when present, Feature Contract,
   Implementation Plan, and applicable Task Contracts; the complete lightweight
-  combined Feature/Task Contract with original request authority and exact
-  accepted-task evidence; or the exact eligible legacy plan authority;
+  combined Feature/Task Contract with original request authority and exact task
+  evidence; or the exact eligible legacy plan authority;
 - observed correction attempts and prior triage decisions.
 
-Resolve base, head, range, diff, status, and changed files directly from Git.
+Resolve the workspace, branch, base, merge base, head, range or composition,
+diff, status, and changed files directly from Git.
 Return top-level `BLOCKED` without classifying findings when the target is stale,
 evidence is missing, or in-scope source state falls outside the reviewed range.
 
@@ -45,7 +47,8 @@ Return missing or stale verification as a limitation.
 
 Before classifying any item, capture:
 
-- current HEAD, base and range when applicable;
+- current HEAD, workspace, branch, planned base, merge base, range or
+  integration composition when applicable;
 - `git status --short`, staged and unstaged diffs, changed files, and relevant
   untracked paths;
 - available code, tests, approved decisions, Review context, Review policy,
@@ -61,7 +64,7 @@ For each item:
 
 1. Read the complete finding and cited code.
 2. Restate the concrete requirement.
-3. Reproduce or verify the claim against the current head.
+3. Reproduce or verify the claim against the current unchanged target.
 4. Check repository guidance, current code and tests, approved scope,
    non-goals, Design Doc, Feature Contract, Task Contracts, eligible legacy plan
    authority, plan, Review context, and Review policy as applicable.
@@ -87,8 +90,8 @@ For `Fix`, return one bounded plain-language correction handoff:
 - discipline and responsibility boundaries;
 - a correction commit intent bounded to the finding and either its fixed message
   or explicit writer authority to select the correction message;
-- current task base, verification obligations, and contractually required exact
-  commands;
+- current planned Task PR base or integration target, verification obligations,
+  and contractually required exact commands;
 - observed prior attempts, concerns, and gaps.
 
 Do not choose the lightweight or planned builder here. The coordinator routes
@@ -115,8 +118,10 @@ Return exactly one top-level result:
 
 For `TRIAGED`, report:
 
-- base, current head, reviewed range or bounded files, status, and changed files;
-- Review context and verification/review evidence inspected;
+- target kind, feedback origin, workspace, branch, base, merge base, current
+  head, reviewed range or composition, bounded files, status, and changed files;
+- Review context and verification plus workflow or human review evidence
+  inspected;
 - classification, requirement, evidence, impact, and next action for each item;
 - bounded correction handoff for every `Fix`;
 - controlling evidence for every `Push back`;
@@ -127,9 +132,12 @@ For `BLOCKED`, report available target evidence, preserved checks, every gap, an
 the exact safe re-entry condition. Do not report provisional classifications.
 
 An authorized coordinator-managed `Fix` does not need another approval when it
-remains within scope. It still requires bounded implementation, a correction
-commit and new head, fresh verification, and complete fresh review over the full
-updated range. Earlier verification, review, and triage evidence becomes stale.
+remains within scope. A Task PR fix still requires bounded implementation, a
+correction commit and new head, fresh verification, and complete fresh task
+review over the updated PR range. An integration finding routes to its owning
+Task Contract, invalidates affected descendants through both topologies, and
+then requires fresh affected task and integration evidence. Earlier evidence
+for changed targets becomes stale.
 
 For standalone review feedback, return evaluation and proposed steps only. Do
 not implement, start another phase, or imply authorization.

@@ -1,19 +1,25 @@
 ---
 name: create-workspace
-description: Verify or establish feature work on the intended Git branch, a Codex-managed worktree, or a herdr-managed worktree. Resolve the work branch and its base ref separately. Use before the first recoverable planned-path artifact or implementation when the current checkout may be unsuitable or isolation is required.
+description: Verify or establish an approved coordination, Task PR, or temporary integration-evidence workspace. Resolve work branches, starting refs, PR bases, and composition identities separately.
 ---
 
-# Prepare a feature workspace
+# Prepare a coordination, task, or integration workspace
 
-Keep one feature in one branch and one writer in each checkout. Use a worktree
-when concurrent work or repository policy requires a separate checkout.
+Keep one writer in each checkout. Use one coordination workspace for active
+Feature Contract and Implementation Plan artifacts. Use separate task branches
+and checkouts when an approved plan permits concurrent Task PR work or when a
+task's planned PR range must remain isolated. Use a temporary integration
+workspace only for a plan-defined composed tree; it has no source writer or PR
+identity.
 
 On the planned path, invoke this skill after investigation makes the purpose and
 initial feature boundary identifiable and before writing the first durable
 Design Doc, Feature Contract, or Implementation Plan draft. This timing keeps
-approved artifacts and later implementation in the feature workspace. It does
-not change the branch-selection approval or authorize a Git state change by
-itself.
+approved artifacts in the coordination workspace. After Implementation Plan
+approval, reuse this skill to establish only the task workspaces and branch
+relationships that plan defines, and later any exact temporary integration
+workspace requested by `execute-plan`. It does not change branch-selection
+approval or authorize a Git state change by itself.
 
 ## Inspect
 
@@ -33,19 +39,41 @@ contacting the remote.
 
 Resolve these separately before changing Git state:
 
+- **workspace purpose**: coordination, one named Task PR, or one named temporary
+  integration-only composition;
 - **workspace mode**: the current checkout, a Codex-managed worktree, or a
   herdr-managed worktree;
-- **work branch**: an existing local branch or a new branch for the task;
-- **base ref**: the starting ref for a new branch only.
+- **work branch**: an existing local branch, a new task branch, or the approved
+  detached or temporary integration ref;
+- **starting ref**: the commit used to create a new work branch;
+- **planned PR base or composition identity**: the branch relationship against
+  which a task receives authoritative verification and review, or the approved
+  starting tree and ordered accepted inputs for integration evidence.
+
+Do not conflate the starting ref with the planned PR base. An independent task
+may start from a common implementation base and later be restacked onto its
+approved PR parent. Record that work as a candidate until the final base is
+materialized; this skill never treats branch creation as task acceptance.
+
+For an integration workspace, require the approved starting commit or tree,
+ordered accepted Task PR inputs, composition mechanism, and retention boundary.
+This skill establishes the empty workspace identity only; `execute-plan`
+materializes and validates the composed tree without assigning a source writer.
 
 If the current checkout already matches the intended workspace and work branch,
 report its path and branch and continue. Do not create another workspace merely
 because the current checkout is not a linked worktree.
 
-Unless the user or repository requires a worktree, prefer a feature branch in
-the current checkout. Propose a short branch name and an explicit base ref; do
-not silently assume that the base is `main`. If no base was requested for a new
-branch, propose the current `HEAD`.
+Always isolate a temporary integration composition from coordination and Task PR
+checkouts. Follow the plan's detached or temporary-ref strategy; never reuse an
+active task branch merely because it already contains some required commits.
+
+Unless the user or repository requires a worktree, prefer a coordination branch
+in the current checkout. For a planned Task PR, follow the approved workspace
+and PR topology rather than this default. Propose a short branch name and an
+explicit starting ref; do not silently assume that the ref or PR base is
+`main`. If no starting ref was approved for a new branch, propose the current
+`HEAD`.
 
 Resolve branch and base names against local refs. A remote branch means the
 locally available remote-tracking ref such as `origin/develop`. Do not fetch
@@ -59,7 +87,9 @@ Before switching or creating a branch, report:
 - the current path and branch;
 - dirty changes;
 - the proposed work branch;
-- for a new branch, the proposed base ref.
+- for a new branch, the proposed starting ref;
+- for a Task PR, its Task Contract, planned PR parent, and whether the final PR
+  base is already materialized.
 
 Ask for approval before changing branches.
 
@@ -119,21 +149,31 @@ with `--base origin/<name>`. If that local work branch already exists, herdr
 checks out the existing branch and does not recreate it from `--base`; stop and
 resolve any mismatch instead of silently using the wrong commit.
 
-Before creation, check whether the local work branch is already checked out in
-another worktree. After creation, report and verify:
+Before branch-backed creation, check whether the local work branch is already
+checked out in another worktree. After creation, report and verify:
 
+- the coordination, Task PR, or integration composition identity;
 - the returned worktree path and herdr workspace ID;
 - the checked-out branch and `HEAD`;
+- the starting ref and planned PR base or composition inputs;
 - the worktree status;
 - the configured upstream, if any.
 
-Ask the user to continue the session in the returned path. Do not run
-`herdr agent start`.
+For a coordination or Task PR workspace, ask the user to continue the session in
+the returned path when the active writer must move there. For an integration
+workspace, return the path and identity directly to `execute-plan`; do not move
+the user session or run `herdr agent start`.
 
 ## Guardrails
 
 - Explain that uncommitted changes in the current checkout do not follow into a
   herdr worktree.
+- Never place two active writers in one checkout or reuse one task branch for
+  another Task Contract.
+- Reject a task workspace absent from the approved topology, overlapping writer
+  ownership, or an unexplained branch already checked out elsewhere.
+- Reject an integration workspace absent from the approved composition, and do
+  not treat it as a Task PR, publication target, or implementation workspace.
 - If herdr is unavailable, offer a Codex-managed or user-prepared worktree. Do
   not substitute raw `git worktree add` without approval.
 - Do not remove worktrees or delete branches in this skill.
