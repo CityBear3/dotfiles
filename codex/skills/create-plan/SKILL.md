@@ -130,7 +130,7 @@ Include:
 - Task Contracts ordered by dependency;
 - re-entry impact and promotion reconciliation when either applies;
 - Task PR acceptance and staleness rules, feature acceptance, review iteration,
-  artifact retirement, and publication policy.
+  workspace-artifact lifetime and cleanup, and publication policy.
 
 For each Task Contract include:
 

@@ -21,7 +21,8 @@ substitute the repository default for a resolved base. Inspect:
 - `git diff --stat <base>...HEAD` and the full diff;
 - relevant planned Design Doc, Feature Contract, Implementation Plan, and Task
   Contract content and original paths, including an exact captured publication
-  handoff after approved workspace-only artifact retirement; the complete
+  handoff after an authorized prior workspace-lifecycle action removed their
+  source paths; the complete
   lightweight combined contract and original request authority; or the exact
   eligible legacy sources;
 - for planned or lightweight work, current internal `Accepted` verification,
@@ -40,9 +41,11 @@ retarget a PR, or restack history from this skill.
 Do not require planned artifact files from lightweight work or manufacture the
 new Task PR topology for eligible legacy work.
 
-For planned work after Feature Accepted retirement, require the exact captured
-contract content and topology evidence from `finish-branch`; do not require the
-ignored source paths to still exist or reconstruct their content from memory.
+For planned work, normally use the ignored contract and plan artifacts while
+their coordination worktree exists. If an authorized prior workspace-lifecycle
+action already removed those sources, require the exact captured contract
+content and topology evidence from `finish-branch`; do not reconstruct their
+content from memory.
 
 ## Draft
 
@@ -68,5 +71,5 @@ Do not push a missing remote branch, create follow-up issues, add reviewers, or 
 
 Return the PR URL, base and head, stack parent when applicable, and the
 verification and review evidence included in the description. PR creation does
-not retire Feature Contract or Implementation Plan artifacts or grant merge
-authority.
+not remove Feature Contract or Implementation Plan artifacts, remove their
+worktree, or grant merge authority.

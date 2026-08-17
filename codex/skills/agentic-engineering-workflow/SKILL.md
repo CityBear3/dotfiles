@@ -343,10 +343,11 @@ topologies. Return `Escalate` to the owning approval gate. Any resulting push,
 restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to
-`finish-branch` feature mode. Let it retire ignored plan artifacts only after
-their evidence is no longer needed, preserve durable Design Docs, and present
-remaining publication or branch-disposition choices. Retain or archive plan
-artifacts only when the user explicitly requests it.
+`finish-branch` feature mode. Keep ignored plan artifacts in the coordination
+worktree; let an explicitly authorized later removal of that worktree clean them
+up with the workspace. Preserve durable Design Docs and present remaining
+publication or branch-disposition choices. Archive plan artifacts only when the
+user explicitly requests preservation beyond the worktree lifecycle.
 
 Never treat an edit, candidate, successful command, commit, agent self-review,
 stale task result, task count, or incomplete integration evidence as workflow

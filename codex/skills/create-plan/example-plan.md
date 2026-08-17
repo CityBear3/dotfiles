@@ -193,5 +193,6 @@ topology changes to approval.
 
 An internally accepted Task PR may be published with explicit user authority
 before feature acceptance. Keep Feature Contract and Implementation Plan files
-until Feature Accepted. Do not infer push, merge, retarget, force, or cleanup
-authority.
+ignored in the coordination worktree until that worktree is explicitly removed;
+do not delete them as a separate Feature Accepted action. Do not infer push,
+merge, retarget, force, or cleanup authority.

@@ -295,8 +295,10 @@ publishes only the exact approved head and planned base after the user grants th
 external write.
 
 Feature Contract and Implementation Plan artifacts remain active after an
-individual Task PR is published. They are not retired until feature acceptance
-has succeeded and their evidence is no longer needed.
+individual Task PR is published. Feature acceptance ends their execution role,
+but does not trigger individual deletion: they remain ignored and workspace-
+local until the containing coordination worktree is explicitly removed. Archive
+them only when the user asks to preserve them beyond that worktree lifecycle.
 
 Human review feedback on a published PR is evaluated against the same Task
 Contract and current PR range. An accepted `Fix` uses the same task loop, and a
@@ -355,10 +357,12 @@ integration evidence exposes a concrete cross-task risk covered by the current
 policy. A newly discovered policy or design choice is escalated rather than
 silently adding review scope.
 
-After feature acceptance, `finish-branch` may retire the ignored Feature
-Contract and Implementation Plan from the coordination workspace and present
-the remaining user-controlled topology disposition choices. Published PRs,
-branches, and worktrees are not deleted as an implied cleanup action.
+After feature acceptance, `finish-branch` leaves the ignored Feature Contract
+and Implementation Plan in the coordination worktree and presents the remaining
+user-controlled topology disposition choices. Their cleanup follows an explicit
+worktree-removal decision and occurs with that worktree rather than as a
+separate artifact-deletion step. Published PRs, branches, and worktrees are not
+deleted as an implied cleanup action.
 
 ### Lightweight path
 

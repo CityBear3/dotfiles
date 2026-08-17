@@ -98,29 +98,24 @@ Do not manufacture new contract artifacts, Task PR topology, or weaker evidence.
 Apply artifact retention or retirement only when and as its unchanged completion
 contract requires; do not impose the new planned-feature lifecycle.
 
-## Retire workspace-only artifacts only in feature mode
+## Keep workspace-only artifacts with their worktree
 
-After the planned Feature Accepted gate passes, retire the current feature's
-ignored `feature-contract.md` and `implementation-plan.md` from the coordination
-workspace before final feature handoff. First record their exact paths and the
-exact approved content, Task Contract and PR-topology publication entries, and
-completion evidence derived from them so later `create-pr` handoffs remain
-complete. Confirm that both paths are ignored and neither is tracked, staged,
-outside the current feature plan directory, or modified by an unattributed
-writer.
+Do not remove the planned feature's ignored `feature-contract.md` or
+`implementation-plan.md` as a separate Feature Accepted action. Confirm that
+both remain ignored, untracked, unstaged, and inside the current feature plan
+directory. Keep them in the coordination worktree while they may still be
+needed for publication, human-feedback re-entry, or disposition evidence.
 
-Remove only those two execution artifacts and the feature plan directory when
-it becomes empty. Preserve every Design Doc. Re-read every relevant head and
-status afterward; expected removal of ignored artifacts must not change an
-accepted task range.
+When the user later authorizes removal of that exact coordination worktree and
+its retained evidence is no longer required, let removal of the worktree clean
+up these ignored files with the workspace. Warn that they are not recoverable
+from Git. If either artifact is tracked, staged, outside the expected directory,
+or the user requests preservation beyond the worktree lifecycle, return
+`Escalate` for an explicit retention or archival decision. Preserve every
+Design Doc.
 
-If either artifact is tracked, staged, outside the expected directory, contains
-unattributed changes, or the user requested archival, return `Escalate` for an
-explicit retention decision. Report removed paths and that ignored files are not
-recoverable from Git.
-
-Lightweight mode has no workspace-only contract or plan files to retire. Proceed
-directly from its current completion evidence to user-controlled choices.
+Lightweight mode has no workspace-only contract or plan files. Proceed directly
+from its current completion evidence to user-controlled choices.
 
 ## Present applicable choices
 
@@ -135,7 +130,7 @@ In task mode present only choices applicable to that exact Task PR:
 
 In lightweight mode present the same exact-branch publication, PR, merge, keep,
 and separately confirmed discard choices, but do not refer to continued plan
-work or artifact retirement.
+work or planned workspace-artifact lifecycle.
 
 In feature mode present the remaining choices for the complete topology:
 
@@ -148,7 +143,7 @@ In feature mode present the remaining choices for the complete topology:
 
 In eligible legacy mode present only the publication and disposition choices
 defined by its unchanged approved completion contract. Do not add new topology
-or artifact-retirement requirements.
+or workspace-artifact requirements.
 
 Explain dirty state, stack dependencies, human-review invalidation, and cleanup
 consequences. Wait for the user's choice before every external write, merge,

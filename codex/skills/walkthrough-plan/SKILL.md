@@ -79,6 +79,6 @@ Answer questions about the current task without advancing. End each task explana
 If the user requests a plan change, explain that the request belongs to plan editing and record the requested change in the response; do not modify the plan from this skill.
 
 After the final task, summarize dependency release, PR publication order,
-feature acceptance and integration-only evidence, artifact retirement, and the
-remaining user-controlled publication, merge, and disposition gates. Do not
-treat completing the walkthrough as plan approval.
+feature acceptance and integration-only evidence, workspace-artifact lifetime,
+and the remaining user-controlled publication, merge, and disposition gates.
+Do not treat completing the walkthrough as plan approval.
