@@ -13,7 +13,8 @@ Contract clauses, exact Task Contract and shared interfaces, or the exact
 eligible legacy task authority and referenced design sources. Keep full sources
 available and inspect more when evidence requires it; do not unconditionally
 reread unrelated unchanged prose. Also read constraints, non-goals, delegated decisions when present,
-Review context, Review policy, working directory, task base, responsibility
+Review context, Review policy, task workspace, branch, planned PR base,
+responsibility
 boundaries, commit intent, and verification obligations. Then inspect the writer
 report, current head, exact range and diff,
 actual changed files, commits, pre-commit inspection, fresh observed
@@ -45,6 +46,6 @@ evidence.
 ## Review message
 
 ```text
-Task handoff: <Feature and Task Contracts or eligible legacy authority; shared interfaces; responsibility and commit boundaries; Review context; Review policy; working directory; task base; verification obligations and contractually fixed commands>
-Current evidence: <writer report; current head; exact task-base-to-head range and diff; actual changed files; commits; pre-commit inspection; fresh required and selected commands with observed results; repository guidance; concerns and gaps>
+Task handoff: <Feature and Task Contracts or eligible legacy authority; shared interfaces; responsibility and commit boundaries; Review context; Review policy; task workspace and planned PR base; verification obligations and contractually fixed commands>
+Current evidence: <writer report; base and head; merge base; exact PR range and diff; status; actual changed files; commits; pre-commit inspection; fresh required and selected commands with observed results; repository guidance; concerns and gaps>
 ```

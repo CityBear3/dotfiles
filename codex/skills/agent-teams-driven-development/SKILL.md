@@ -1,22 +1,23 @@
 ---
 name: agent-teams-driven-development
-description: Schedule one writer and requested read-only reviewers for execute-task while enforcing live capacity, queues, and interruption safety.
+description: Schedule one Task PR writer or already-selected read-only reviewers while enforcing global capacity, queues, and interruption safety.
 ---
 
 # Agent-teams driven development
 
-Act only as the scheduling adapter for `execute-task`. The lead schedules all
-work, and subagents never spawn descendants. Do not select workflow paths,
-Review context, review modes, role breadth, severity mappings, Acceptance,
-correction semantics, task commits, or task acceptance here.
+Act only as the scheduling adapter for the writer selected by `execute-task` or
+the reviewers selected by `review`. The lead schedules all work, and subagents
+never spawn descendants. Do not select workflow paths, Review context, review
+modes, role breadth, severity mappings, Acceptance, correction semantics, task
+commits, or task acceptance here.
 
 ## Require a bounded scheduling request
 
-Accept from `execute-task`:
+Accept from the invoking `execute-task` or `review` phase:
 
 - one already-selected named role or fallback contract;
 - the complete contract-aware writer or reviewer message already prepared by
-  `execute-task`;
+  that phase;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, interruption result, and observed Git state.
 
@@ -35,10 +36,12 @@ insufficient. Record configured, observed, and effective capacity, live agent
 identities, queued roles, dispatch order, and every capacity gap. Do not reduce,
 replace, or reorder selected roles to fit capacity.
 
-Allow no more than one implementer and one active writer for the shared worktree.
-Every reviewer is read-only. Independent reviewers may run concurrently when
-capacity permits; otherwise queue them without changing their independence or
-contracts.
+Allow no more than one implementer and one active writer for the supplied task
+workspace. Other `execute-task` calls may have writers only in separate approved
+checkouts with ownership-disjoint tasks. Count every live task writer and
+reviewer against the same effective capacity. Every reviewer is read-only.
+Independent reviewers may run concurrently when capacity permits; otherwise
+queue them without changing their independence or contracts.
 
 If a required role cannot be instantiated or the queue cannot make progress,
 return `BLOCKED` with observed availability evidence. Do not turn a runtime
@@ -52,17 +55,20 @@ implementer the exact authority identity and currentness evidence plus one of:
 assigned Feature clauses and Task Contract, exact eligible legacy authority and
 owned responsibility, or approved promotion-reconciliation authority. Also pass
 commit intent, any contractually fixed files, and that it is the only writer.
-Tell a reviewer it is read-only and must inspect the supplied
-authority, task base, current head, range, and diff. Keep full sources directly
-available without copying unrelated unchanged prose into each message.
+Tell a reviewer it is read-only and must inspect the supplied authority and
+exact Task PR, integration-only composition, eligible legacy range, or
+standalone target. Keep full sources directly available without copying
+unrelated unchanged prose into each message.
 
 Use bounded waits, inspect live agents regularly, and return progress evidence to
 the lead. Preserve reports, identities, completion state, and observed errors
 without translating findings or deciding whether the task passed.
 
-Return every writer response unchanged with the observed agent completion state.
-`execute-task` validates status, report fields, commit, current head, range, and
-verification. This adapter never claims task acceptance.
+Return every response unchanged with the observed agent completion state.
+`execute-task` validates writer status, mode, report fields, commit, planned
+base, current head, range, and verification. `review` validates reviewer output
+against its unchanged target and policy. This adapter never promotes a
+candidate, integrates findings, or claims task or feature acceptance.
 
 ## Inspect interruption state before resuming
 
@@ -71,7 +77,8 @@ report, partial edit, or partial commit:
 
 1. inspect the interruption result and live-agent state;
 2. confirm the prior writer is inactive;
-3. inspect repository HEAD, status, commits, and task-base-to-current diff;
+3. inspect the task workspace branch, planned base, HEAD, status, commits, and
+   exact PR diff;
 4. determine whether every in-scope edit and commit is attributable to the task.
 
 Return that evidence to `execute-task` before another writer is dispatched.
@@ -92,7 +99,8 @@ completion or interruption states, reports, inspected Git state after writer
 failure, and every availability or attribution gap.
 
 Use `BLOCKED` whenever safe scheduling or writer-state attribution cannot be
-established. Otherwise return scheduling evidence to `execute-task`, which alone
-interprets results, applies the selected gate, manages corrections, and decides
-task acceptance. Do not advance another task, global verification, final review,
-publication, merge, or teardown.
+established. Otherwise return scheduling evidence to the invoking phase.
+`execute-task` alone interprets writer results and manages corrections; `review`
+alone integrates the requested reviewer results and returns its gate verdict.
+Do not release a dependency, decide task or feature acceptance, publish, merge,
+or tear down a workspace.

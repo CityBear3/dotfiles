@@ -34,6 +34,9 @@ For every transition retain:
 - the applicable Design Doc or decision record and the Feature Contract's
   source, approval state, storage form, and currentness;
 - the Review context and complete active Review policy;
+- for planned work, the Task dependency DAG, PR topology, task workspaces,
+  accepted and candidate results, stale descendants, and integration-only
+  composition;
 - the next automatic action or user-controlled gate;
 - the evidence required to leave the phase;
 - every unresolved condition that prevents a safe transition.
@@ -102,9 +105,9 @@ lightweight path.
 
 Use `focused` as the lightweight default:
 
-- one combined specification-and-quality per-task gate;
-- final `code-reviewer`;
-- final `test-coverage-reviewer` only when behavior or tests changed;
+- one combined `code-reviewer` specification-and-quality Task PR gate;
+- a Task PR `test-coverage-reviewer` when behavior or tests changed;
+- no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
 - a configured maximum of six total threads including the lead unless a stricter
   repository limit applies;
@@ -120,8 +123,8 @@ unless it is necessary and proportionate to a proven in-scope violation.
 
 An explicitly approved `adaptive` or `deep` mode replaces the default.
 Both require independent read-only specification and quality task reviewers.
-`Adaptive` selects final perspectives for recorded risks. `Deep` runs every
-perspective applicable to the artifact and observed risks, not every configured
+`Adaptive` selects task and integration perspectives for recorded risks. `Deep`
+runs every perspective applicable to an actual task or integration surface, not every configured
 reviewer. If a required independent reviewer cannot be established, report
 `BLOCKED`; do not substitute a lead pass. A no-agent instruction that conflicts
 with an approved independent gate is `Escalate` unless the user approves a
@@ -135,8 +138,8 @@ Give `execute-task` one plain-language task handoff containing:
   non-goals, verification obligations, assumptions, and approved deferrals;
 - the Review context and complete Review policy;
 - the discipline and applicable repository guidance;
-- working directory and approved workspace;
-- exact task base, which is the current head before implementation;
+- coordination directory, task workspace and branch, and planned PR identity;
+- planned base ref and exact commit, current head, and authoritative mode;
 - responsibility and ownership boundaries;
 - the responsibility-scoped commit intent and writer authority to select its
   message unless the request contractually fixes that message;
@@ -213,12 +216,13 @@ action, or other missing authority. Do not repeat an approval prompt while its
 exact decision and artifact remain applicable.
 
 Pass exact authority paths and approval/currentness evidence, applicable Feature
-Contract clauses and Task Contracts, Review context, complete policy, working
-directory, workspace, task base, retained decisions, and any promoted
-unaccepted range to `execute-plan`. Reference unchanged source prose instead of
-copying unrelated sections into every handoff. That skill owns dependency order,
-per-task handoff, promotion reconciliation, ordered evidence aggregation, and
-plan-deviation detection.
+Contract clauses and Task Contracts, Review context, complete policy,
+coordination workspace, Task DAG, PR topology, task workspace rules, retained
+decisions, and any promoted unaccepted range to `execute-plan`. Reference
+unchanged source prose instead of copying unrelated sections into every handoff.
+That skill owns readiness, candidate and authoritative task handoffs, workspace
+mapping, staleness propagation, promotion reconciliation, and exact evidence
+aggregation.
 
 ### Continue an eligible legacy plan
 
@@ -242,91 +246,88 @@ behavior, compatibility promise, or verification obligation, preserve state and
 return to design; let the owner choose migration rather than performing it
 silently.
 
-## Prepare concise final-gate evidence
+## Prepare current task and feature evidence
 
-For a coordinator-managed final gate, retain one current evidence summary:
+For planned work retain:
 
-- lightweight or planned path;
-- original implementation base, current head, and exact full range;
-- current `git status --short` and changed files;
-- approved scope, decisions, and non-goals;
-- one exact authority form: the planned Design Doc when applicable, Feature
-  Contract, complete Task Contract set, and integration-only obligations; the
-  complete lightweight combined Feature/Task Contract and its accepted task
-  evidence; or the exact eligible legacy plan authority and completion criteria;
-- Review context and complete Review policy;
-- task commits and reviewer outcomes;
-- observed verification commands and results;
+- the original implementation base and coordination workspace;
+- both approved topologies and every task workspace, branch, planned base,
+  merge base, head, exact range, status, changed files, commits, dependency
+  evidence, verification, review, triage, and publication state;
+- accepted, candidate, stale, blocked, and in-flight results without conflating
+  them;
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, coverage, shared interfaces, integration-only obligations, Review
+  context, and policy;
+- exact temporary integration compositions and their evidence;
 - concerns, unresolved findings, and every gap.
 
-Require no unexplained in-scope index, worktree, or untracked source change
-outside the committed range. Re-read the current head and status before every
-cross-phase transition. Standalone verification or review can answer its direct
-request, but never substitutes for coordinator evidence against the current
-implementation head.
+For lightweight work retain its one exact Task PR and complete recoverable
+combined contract. For eligible legacy work retain the original single-range
+evidence required by its unchanged plan.
+
+Require no unexplained in-scope state in any task checkout. Re-read affected
+branches, bases, heads, ranges, worktrees, and status before every transition.
+Standalone verification or review never substitutes for coordinator evidence.
 
 ## Advance only on current evidence
 
-Advance automatically within approved scope:
+Advance automatically within approved local scope:
 
-1. Accept from lightweight `execute-task` only an `Accepted` result for the
-   current head and exact task base-to-head range.
-2. Accept from `execute-plan` only all ordered task results plus the distinct
-   aggregate current head and full implementation range.
-3. Build the concise evidence summary and pass it to `verify`. Accept only a
-   fresh `PASS` for the same base, current head, full range, changed files,
-   unchanged status, and every applicable Feature Contract observation or
-   eligible legacy completion criterion, including obligations provable only
-   after aggregation.
-4. Pass that verification result, the applicable planned contract artifacts,
-   complete lightweight combined contract, or exact eligible legacy authority,
-   plus Review context, Review policy, exact range, diff, changed files,
-   commands, task outcomes, and gaps to `review`.
-   Require every selected final reviewer and adversarial integrator to receive
-   the same authority and Review context.
-5. Accept from `review` only `CLEAN`, `FINDINGS`, or `BLOCKED` for that unchanged
-   current head and range. Send concrete current `FINDINGS` and supporting
-   evidence to `receiving-code-review` for `Fix`, `Push back`, or `Escalate`
-   classification. Do not reinterpret blocked or incomplete evidence as clean.
+1. Accept from lightweight `execute-task` only a current `Accepted` result for
+   its exact Task PR range. When its combined contract has no integration-only
+   obligation, that result is also Feature Accepted; do not repeat verification
+   or review.
+2. Accept from `execute-plan` only `TasksAccepted` with every Task Contract
+   represented by a current authoritative result, both topologies resolved,
+   complete coverage, and exact integration composition inputs.
+3. Revalidate task currentness and Feature Contract coverage. If no
+   integration-only obligation remains, mark the feature accepted without a
+   synthetic aggregate range or repeated review.
+4. For each integration-only obligation, pass only its exact composed tree,
+   accepted Task PR inputs, expected observations, and contract evidence to
+   `verify`. Accept only a fresh `PASS` for the unchanged composition.
+5. Invoke `review` only when the approved policy requires or conditionally
+   triggers a targeted integration perspective. Pass the same exact integration
+   authority and evidence to every selected reviewer. Do not invoke ordinary
+   full-feature `$review`.
+6. Send concrete integration `FINDINGS` to `receiving-code-review`. Route an
+   authorized `Fix` to its owning Task Contract through `execute-plan`, mark
+   affected descendants stale, and then rerun fresh affected task and
+   integration evidence. Preserve `Push back` while its target and controlling
+   evidence remain unchanged. Return a user-owned decision as `Escalate`.
+7. Mark Feature Accepted only when every Task PR result and integration
+   obligation is current and no finding, policy gap, design gap, or operational
+   gap survives.
 
-When global verification fails, diagnose it before acting. Route an authorized
-in-scope correction through the active path, then rerun global verification.
-Use `Escalate` for a user-owned decision or missing authority; return `BLOCKED`
-when the required operational state cannot be established.
+Diagnose failed verification before correction. Never advance failed or blocked
+verification to review, blocked review to triage, unresolved triage to
+correction, or incomplete evidence to completion. Stop repeated non-progress
+with its observed attempts. Never discard uncertain state to force progress.
 
-For `Fix`, route one bounded correction through the active path using the finding
-and current evidence. After acceptance, rerun fresh global verification and the
-final review for the updated range.
+## Handle publication and completion boundaries
 
-A `Push back` remains resolved while the reviewed target and controlling evidence
-are unchanged; do not repeat the same review solely to reproduce that decision.
-After all findings are triaged, continue only when no `Fix`, `Escalate`, or
-surviving finding remains. Reconsider a pushed-back finding only with materially
-new evidence.
+An internally accepted Task PR is eligible for publication before Feature
+Accepted. If the user requests publication, pass only that task's exact current
+evidence to `finish-branch` task mode. Publication is optional for dependency
+release, remains an external-write gate, and never retires Feature Contract or
+Implementation Plan artifacts.
 
-If the same concrete problem repeats without progress or another action would
-repeat an observed failed correction, stop and report the attempts and remaining
-gap. Use `Escalate` when resolution needs a user-owned decision, new authority,
-scope, or policy. Use `BLOCKED` when current operational state cannot be
-established. Never discard uncertain state to force progress.
+When human feedback arrives for a published Task PR, re-resolve that exact
+branch, planned base, head, range, and contract authority and pass the anchored
+feedback to `receiving-code-review`. Preserve an accepted result for a verified
+`Push back`. Route an authorized `Fix` through the same owning Task Contract and
+task correction loop; a new head makes affected descendants stale through both
+topologies. Return `Escalate` to the owning approval gate. Any resulting push,
+restack, retarget, or PR update remains separately authorized.
 
-Never advance failed or `BLOCKED` verification to review, blocked review to
-triage, unresolved triage to correction, or incomplete evidence to
-`finish-branch`.
+After Feature Accepted, pass the complete topology and feature evidence to
+`finish-branch` feature mode. Let it retire ignored plan artifacts only after
+their evidence is no longer needed, preserve durable Design Docs, and present
+remaining publication or branch-disposition choices. Retain or archive plan
+artifacts only when the user explicitly requests it.
 
-## Terminate only at a real boundary
-
-Enter `finish-branch` only when fresh verification passes for the exact current
-head and full implementation range, the approved Review policy is satisfied,
-final review and triage leave no surviving finding or gap, and current status
-still matches the reviewed evidence. Pass the concise final-gate evidence to
-`finish-branch`. Let it inspect the active workspace contracts, remove the
-ignored Feature Contract and Implementation Plan after their evidence is no
-longer needed, preserve any durable Design Doc, then stop for the user's
-publication or branch-disposition choice. Retain or archive plan artifacts only
-when the user explicitly requests it.
-
-Never treat an edit, successful command, implementation commit, agent
-self-review, stale per-task approval, or incomplete aggregate as workflow
-completion. Report concise current-head evidence, Review context, policy,
-transitions taken, remaining findings, and every unverified gap.
+Never treat an edit, candidate, successful command, commit, agent self-review,
+stale task result, task count, or incomplete integration evidence as workflow
+completion. Report each exact Task PR, feature evidence, Review context, policy,
+transitions, remaining findings, and every gap.

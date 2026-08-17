@@ -16,7 +16,8 @@ clause or evidence requires it; do not unconditionally reread unrelated unchange
 prose. A new-format handoff must state assigned Feature Contract clauses,
 purpose and expected result, responsibility and ownership boundaries,
 constraints, non-goals, delegated local decisions, Review context, Review
-policy, discipline, workspace, task base, verification obligations, and any
+policy, discipline, task workspace and branch, planned PR base, handoff mode,
+verification obligations, and any
 contractually fixed files, signatures, ordering, or commands. Every handoff must
 state its responsibility-scoped commit intent and fixed message or message
 selection authority. For eligible legacy work, follow the unchanged approved
@@ -43,8 +44,9 @@ Run every contractually required exact command, select applicable standard and
 focused checks, and record every observed result. Inspect the pre-commit
 working-tree diff and applicable authority coverage, then commit only the owned
 responsibility using the fixed message or selecting a message when the handoff
-explicitly delegates that choice. Inspect the committed task-base-to-current-head
-range.
+explicitly delegates that choice. Inspect the committed attributable range. In
+authoritative mode, also inspect the exact planned-PR-base-to-current-head range.
+In candidate mode, report the preliminary evidence without claiming acceptance.
 
 Use exactly one status:
 
@@ -77,8 +79,8 @@ Commit: <responsibility-scoped intent and fixed message or message-selection aut
 Review context: <artifact, purpose, consumers, material risks, approved non-problems, and inapplicable assumptions>
 Review policy: <approved mode, per-task gate, Acceptance, capacity, and queue rules>
 Discipline: <TDD, green-baseline refactor, content migration, or other declared discipline>
-Working directory and workspace: <path and approved branch or worktree>
-Task base: <current head before implementation>
+Working directory and workspace: <coordination path, task path, and approved branch or worktree>
+PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
 Verification: <observable obligations, routes, and contractually fixed exact commands>
 Repository guidance: <applicable instructions>
 ```
@@ -106,7 +108,7 @@ Shared interfaces and responsibility: <unchanged boundaries>
 Commit: <correction scope bounded to the finding and fixed message or writer message-selection authority>
 Review context and Review policy: <unchanged approved values>
 Discipline: <declared value>
-Working directory and task base: <path and exact base>
+Working directory and PR range: <task path, branch, planned base, and current head>
 Verification: <obligations, routes, and contractually fixed commands>
 
 Do not repeat an observed failed correction without new evidence. Re-run every

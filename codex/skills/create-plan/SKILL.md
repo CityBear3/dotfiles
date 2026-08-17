@@ -1,6 +1,6 @@
 ---
 name: create-plan
-description: Decompose an approved Feature Contract into self-contained, independently verifiable Task Contracts and an Implementation Plan. Use after the contract is separately approved and current.
+description: Decompose an approved Feature Contract into PR-scoped Task Contracts, a dependency DAG, a PR topology, and an Implementation Plan. Use after the contract is separately approved and current.
 ---
 
 # Create an implementation plan
@@ -42,6 +42,12 @@ shared interfaces, independently observable completion, and integration
 obligations. Use explicit dependencies when execution order alone resolves a
 boundary.
 
+Make one Task Contract one independently reviewable PR candidate by default.
+When proposed tasks cannot remain buildable, verifiable, or contractually valid
+as separate PRs, combine the inseparable responsibility into one Task Contract
+or return the unresolved boundary to design. Do not keep nominally separate
+tasks merely to place their mixed changes in one PR.
+
 Treat difficult decomposition as design feedback. Return to the coordinator
 when tasks would need conflicting owners, duplicated authority, an undefined
 shared interface, missing failure semantics, or a new feature decision. Do not
@@ -56,6 +62,24 @@ type, schema, or ordering. Each Task Contract references this shared definition.
 Build a Feature Contract coverage table. Map every contract obligation to one or
 more Task Contracts or to an explicitly integration-only proof. Explain
 deliberate overlap. Reject unexplained gaps or duplicated ownership.
+
+Record two distinct graphs:
+
+- a **Task dependency DAG** for semantic readiness and dependency release;
+- a **PR topology** that gives each Task PR one planned base relationship.
+
+Use sibling PRs for independent tasks unless a dependent or integration
+obligation needs their combined tree. Use a linear stack for dependent chains.
+For fan-in, choose an owner-visible deterministic order over the required parent
+closure while preserving early independent implementation where ownership and
+state permit it. Do not turn that Git order into a logical dependency. Use a
+temporary integration composition rather than changing sibling PR relationships
+when only a feature-level observation needs the combined tree.
+
+Record which tasks may implement before their final PR base exists. Such work
+may produce a non-accepted candidate, but the task must be restacked onto its
+planned final base and obtain fresh authoritative verification and review before
+it can release a dependent.
 
 For replanning, add a `Re-entry impact` section. Retain a prior accepted result
 only when its exact Feature Contract authority, assigned Feature clauses, Task
@@ -88,12 +112,17 @@ Include:
   directory, branch, and observed baseline;
 - fixed decisions and explicit non-goals;
 - shared interface contracts and their owners and consumers;
+- the Task dependency DAG, deterministic ready order, PR topology, planned
+  bases, fan-in linearizations, and integration-only compositions;
+- task workspace ownership, concurrency eligibility, and shared-state or write
+  exclusions;
 - complete Feature Contract coverage, including integration-only obligations;
 - a Review context;
 - a separate complete Review policy;
 - Task Contracts ordered by dependency;
 - re-entry impact and promotion reconciliation when either applies;
-- final verification, review iteration, and publication policy.
+- Task PR acceptance and staleness rules, feature acceptance, review iteration,
+  artifact retirement, and publication policy.
 
 For each Task Contract include:
 
@@ -104,6 +133,9 @@ For each Task Contract include:
 - protected constraints and invariants;
 - observable task-level verification obligations;
 - dependencies;
+- PR unit, planned parent or sibling relationship, and final-base readiness;
+- whether implementation may produce a candidate before that base exists;
+- workspace ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
 - discipline: TDD for production behavior, an existing green baseline for
@@ -174,14 +206,15 @@ diff size.
 
 Apply these mode contracts:
 
-- `focused`: one combined specification-and-quality per-task gate; final
-  `code-reviewer`; `test-coverage-reviewer` when behavior or tests changed; plus
-  only additional perspectives justified by recorded risk.
-- `adaptive`: independent specification and quality per-task gates; final
-  standard and adversarial perspectives selected for recorded risk.
-- `deep`: independent specification and quality per-task gates; every final
-  perspective applicable to the artifact and observed risks; adversarial
-  integration whenever any adversarial perspective runs.
+- `focused`: one combined specification-and-quality gate for each Task PR;
+  `test-coverage-reviewer` when that Task PR changes behavior or tests; plus only
+  additional task or integration perspectives justified by recorded risk.
+- `adaptive`: independent specification and quality gates for each Task PR;
+  select targeted integration perspectives for recorded cross-task risk.
+- `deep`: independent specification and quality gates for each Task PR; run
+  every perspective applicable to an actual integration-only surface or
+  observed cross-task risk, with adversarial integration whenever an
+  adversarial perspective runs.
 
 For every mode, name explicitly skipped perspectives and why they are
 inapplicable. `Deep` means broad applicable coverage, not every configured
@@ -192,8 +225,9 @@ Record:
 - **Mode and rationale**
 - **Risk surfaces**
 - **Per-task gate**
-- **Final required reviewers and reasons**
-- **Final conditional reviewers with exact triggers**
+- **Integration required reviewers and reasons**, using `none` when task gates
+  fully cover the feature
+- **Integration conditional reviewers with exact triggers**
 - **Explicitly skipped perspectives and reasons**
 - **Residual risk**
 - **Capacity and deterministic queue order**
@@ -215,10 +249,13 @@ Keep model and reasoning-effort choices in reviewer profiles, not in the plan.
 
 ## Agent capacity
 
-When execution may use subagents, identify one writer and read-only reviewers.
-Require every named reviewer to have a resolvable profile or complete fallback
-prompt. Queue selected reviewers when capacity is lower; never reduce approved
-scope or independence silently.
+When execution may use subagents, identify one writer per task workspace and
+read-only reviewers. Permit multiple active writers only for dependency-ready,
+ownership-disjoint tasks in separate checkouts without conflicting shared
+state. Require every named reviewer to have a resolvable profile or complete
+fallback prompt. Record configured capacity and deterministic ready-task and
+reviewer queue order. Queue when capacity is lower; never reduce approved scope
+or independence silently.
 
 ## Quality
 
@@ -230,6 +267,8 @@ scope or independence silently.
   feature contract.
 - Make every Task Contract directly extractable for handoff while retaining
   cross-task coverage and interface ownership in the complete plan.
+- Keep logical dependencies distinct from PR base relationships and explain
+  every deliberate fan-in linearization.
 - Reference exact authority paths and approval evidence. Put applicable clauses
   in an extractable task handoff, but do not duplicate unrelated source prose
   that an agent can read directly when needed.

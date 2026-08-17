@@ -1,9 +1,9 @@
 ---
 name: verify
-description: Verify a current implementation head with fresh project commands and return PASS, FAIL, or BLOCKED evidence. Use from the workflow coordinator after implementation or standalone for a read-only completion check.
+description: Verify an exact Task PR range, an integration-only composed tree, or a standalone target with fresh checks and return PASS, FAIL, or BLOCKED evidence.
 ---
 
-# Verify the current implementation head
+# Verify a Task PR or integration target
 
 No completion claim without fresh observed evidence.
 
@@ -17,8 +17,11 @@ state.
 
 Use one target form:
 
-- a coordinator-managed committed range with exact base, current head, and
-  `base..head` range;
+- a coordinator-managed Task PR with exact planned base, branch, current head,
+  merge base, and range;
+- a coordinator-managed integration-only composed tree with its exact accepted
+  Task PR heads and composition order;
+- an eligible legacy coordinator-managed committed range;
 - a standalone committed range;
 - a standalone current index/worktree snapshot;
 - a standalone bounded explicit fileset.
@@ -29,31 +32,46 @@ known limitations before running checks.
 
 ## Coordinator-managed entry
 
-Require the exact target, current evidence shared by all authority forms, and one
-authority form. Shared evidence is:
+Require one exact coordinator target and its authority.
 
-- the original implementation base, current head, and exact full committed
-  range;
+For a Task PR require:
+
+- Task Contract and PR identities, task workspace and branch, planned base ref
+  and exact commit, merge base, current head, and exact committed range;
 - current status and changed files, with no unexplained in-scope index,
   worktree, or untracked source change outside that range;
 - approved scope, non-goals, Review context, and Review policy;
-- every authoritative final verification route and expected observation, with
+- every authoritative task verification route and expected observation, with
   exact commands where their identity is contractually significant;
-- task commits, task-review outcomes, concerns, and known gaps.
+- task commits, current dependency and shared-interface evidence, concerns, and
+  known gaps;
+- the approved Feature Contract and applicable Task Contract with their source
+  and currentness evidence, or the complete lightweight combined contract.
 
-For new-format planned work also require:
+Do not require an `Accepted` result or prior task review: this verification is
+part of producing that result.
+
+For an integration-only target require:
 
 - the approved Design Doc when applicable, Feature Contract, complete
   Implementation Plan and Task Contract set, and their approval state;
-- Feature Contract coverage and every integration-only verification obligation;
+- every current accepted Task PR result with exact base, head, range, and
+  topology evidence;
+- the exact temporary composition, starting and ending tree identity, and only
+  the Feature Contract obligations classified as integration-only;
+- approved Review context and policy, concerns, and known gaps.
+
+Do not rerun task-scoped obligations merely because the composed tree contains
+their changes. Task acceptance supports coverage but never substitutes for a
+named integration-only observation.
 
 For lightweight work, accept the complete combined in-memory Feature/Task
-Contract, its original request authority and design sources, and the exact
-`Accepted` task result for the supplied base, head, and range. Require that the
-contract remains completely recoverable, no promotion condition or material
-change is unresolved, and every Feature Contract observation is mapped to fresh
-final evidence. Do not require an Implementation Plan, contract file, or separate
-artifact approval.
+Contract, its original request authority and design sources, and the exact Task
+PR target. Require that the contract remains completely recoverable and no
+promotion condition or material change is unresolved. This Task PR verification
+also provides feature evidence when no integration-only obligation exists. Do
+not require an Implementation Plan, contract file, or separate artifact
+approval.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature
@@ -63,13 +81,11 @@ choice. Use its original scope, task specifications, verification and completion
 criteria, Review context, and Review policy. Do not manufacture new artifacts or
 weaken current-head evidence.
 
-Resolve the base, head, range, changed files, and diff directly from Git. Require
-repository HEAD to equal the supplied current head. Return `BLOCKED` before
-checks when a ref or range is missing, status does not match, an in-scope change
-exists outside the range, or another required input cannot be established.
-
-Coordinator completion requires fresh evidence for this exact current head.
-Standalone evidence never substitutes for this entry.
+Resolve the applicable workspace, branch, base, head, merge base, range, tree,
+changed files, and diff directly from Git. Require that workspace HEAD and status
+match the supplied target. Return `BLOCKED` before checks when any identity,
+composition input, or required authority is missing or stale. Standalone
+evidence never substitutes for this entry.
 
 ## Standalone read-only entry
 
@@ -109,15 +125,17 @@ under this contract. Unavailability is not permission to weaken the boundary.
 
 Immediately before the first command, capture:
 
-- current HEAD and target base/range or bounded standalone files;
+- target kind, workspace and branch when applicable, current HEAD, planned base,
+  merge base, exact range, composed tree, or bounded standalone files;
 - index entries, `git status --short`, and staged and unstaged diffs;
 - relevant in-scope untracked paths and unrelated dirty state;
 - pre-existing command artifacts that matter to the checks.
 
 Run fresh, as applicable:
 
-1. every contractually fixed final verification command;
-2. checks selected to observe each applicable Feature Contract obligation;
+1. every contractually fixed target verification command;
+2. checks selected to observe each assigned Task Contract or integration-only
+   Feature Contract obligation;
 3. focused tests for changed behavior;
 4. owning package or workspace tests;
 5. build or type check;
@@ -126,13 +144,12 @@ Run fresh, as applicable:
 8. relevant integration, smoke, browser, API, or snapshot checks;
 9. `git diff --check`, diff inspection, and final status.
 
-For planned or lightweight work, map each Feature Contract verification
-obligation to fresh observed evidence.
-Distinguish obligations already supported by accepted task results from those
-provable only at the integrated boundary. Task acceptance is supporting evidence,
-not a substitute for an integration-only observation. An unobserved required
-obligation is `FAIL` when the current result violates or omits the contract and
-`BLOCKED` when its required environment or evidence cannot be established.
+For a Task PR, map every assigned Task Contract and Feature Contract obligation
+to fresh observed evidence. For integration-only verification, map only the
+named remaining obligations and preserve accepted task evidence separately. An
+unobserved required obligation is `FAIL` when the current result violates or
+omits the contract and `BLOCKED` when its environment or evidence cannot be
+established.
 
 For eligible legacy work, map every original approved completion criterion to
 fresh evidence instead. A material ambiguity stops verification and returns to
@@ -163,16 +180,16 @@ Return exactly one verdict:
 
 Report:
 
-- verdict and coordinator-managed or standalone status;
-- base, starting and ending head, exact range, snapshot, or bounded fileset;
+- verdict and Task PR, integration-only, eligible legacy, or standalone status;
+- workspace, branch, planned base, merge base, starting and ending head, exact
+  range, composed tree, snapshot, or bounded fileset;
 - starting and ending `git status --short`, changed files, and unrelated state;
 - Review context and approved criteria inspected when available;
-- approved Design Doc, Feature Contract, Task Contract coverage, and
-  integration-only obligations; complete lightweight combined contract and
-  accepted task evidence; or eligible legacy authority and original completion
-  criteria, inspected when applicable;
-- each Feature Contract verification obligation or legacy completion criterion,
-  its evidence, and pass, fail, or blocked result;
+- approved Design Doc, Feature Contract, applicable Task Contract and dependency
+  evidence, integration-only obligation and accepted task set, complete
+  lightweight contract, or eligible legacy authority inspected;
+- each assigned task, integration-only, lightweight, or legacy criterion, its
+  evidence, and pass, fail, or blocked result;
 - every command, expected result, observed result, and match status;
 - checks not run and why;
 - for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely

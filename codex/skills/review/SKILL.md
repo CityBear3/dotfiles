@@ -1,9 +1,9 @@
 ---
 name: review
-description: Run a read-only, evidence-based review of a current head using an approved review policy when supplied or applicable perspective selection for standalone requests. Use from the workflow coordinator after verification or standalone when the user requests review.
+description: Run read-only evidence-based review of an exact verified Task PR, an approved integration-only target, or a standalone scope using the applicable Review policy.
 ---
 
-# Review the verified current head
+# Review a verified Task PR or integration target
 
 Review the requested scope, not the entire repository by default. Remain
 check-only and read-only. Keep every reviewer and integrator read-only. Do not
@@ -14,8 +14,11 @@ triage, or advance another workflow phase.
 
 Use one target form:
 
-- a coordinator-managed committed range with exact base, current head, and
-  `base..head` range;
+- a coordinator-managed Task PR with exact planned base, merge base, current
+  head, and range;
+- a coordinator-managed targeted integration review over an exact composed tree
+  and named integration-only obligation;
+- an eligible legacy coordinator-managed committed range;
 - a standalone committed range;
 - a standalone current index/worktree snapshot;
 - a standalone bounded explicit fileset.
@@ -26,29 +29,39 @@ repository guidance, and limitations before dispatch.
 
 ## Coordinator-managed entry
 
-Require the exact target, current evidence shared by all authority forms, and
-one authority form. The shared evidence is:
+Require one exact coordinator target and its authority.
 
-- exact implementation base, current head, full range, diff, current status, and
-  changed files;
+For a Task PR require:
+
+- Task Contract and PR identities, task workspace and branch, planned base ref
+  and commit, merge base, current head, exact range, diff, status, and changed
+  files;
 - fresh coordinator verification `PASS` for that same unchanged head and range;
 - no unexplained in-scope source state outside the committed range;
 - approved scope, non-goals, Review context, and complete Review policy;
-- task-review outcomes, observed commands, concerns, prior triage decisions, and
+- applicable Feature and Task Contract authority, current dependency and shared-
+  interface evidence, observed commands, concerns, prior triage decisions, and
   known gaps.
 
-For new-format work also require:
+For a targeted integration review require:
 
-- approved Design Doc when applicable, Feature Contract, complete Task Contract
-  set, Implementation Plan, and their approval state;
-- complete Feature Contract coverage and integration-only obligations;
+- approved Design Doc when applicable, Feature Contract, Task Contract set,
+  Implementation Plan, Review context and policy, and their approval state;
+- every current accepted Task PR result, both topologies, exact composition, and
+  fresh integration verification `PASS`;
+- the named integration-only obligation or concrete policy trigger that makes
+  this review applicable.
+
+Reject an ordinary full-feature review target for new-format work. Task PR gates
+are authoritative; the integration target may examine only the approved
+cross-task surface and evidence that triggered it.
 
 For lightweight work, accept the complete combined in-memory Feature/Task
-Contract, original request authority and design sources, and exact `Accepted`
-task evidence for the supplied range. Require the contract to remain completely
-recoverable, no promotion condition or material change to be unresolved, and the
-fresh verification `PASS` to cover every Feature Contract observation. Do not
-require an Implementation Plan, contract file, or separate artifact approval.
+Contract, original request authority and design sources, exact Task PR target,
+and fresh verification `PASS`. Require the contract to remain completely
+recoverable and no promotion condition or material change to be unresolved.
+This Task PR review also satisfies feature review when no integration-only
+trigger exists. Do not require an Implementation Plan or contract file.
 
 For a plan approved and already executing before the contract-centered format,
 accept its exact approved plan and referenced design sources in place of Feature
@@ -57,13 +70,11 @@ approval and in-flight evidence, no material ambiguity, and no owner migration
 choice. Use its original scope, task specifications, verification and completion
 criteria, Review context, and Review policy. Do not manufacture new artifacts.
 
-Resolve base, head, range, diff, and changed files directly from Git. Require
-repository HEAD and status to match the supplied evidence. Return `BLOCKED`
-without dispatch when the range does not resolve, evidence is stale, in-scope
-state falls outside the range, or a required input is missing.
-
-Standalone verification or review evidence never satisfies this coordinator
-completion gate.
+Resolve workspace, branch, base, head, merge base, range or composed tree, diff,
+and changed files directly from Git. Require target state to match supplied
+evidence. Return `BLOCKED` without dispatch when it does not resolve, evidence is
+stale, in-scope state falls outside the target, or a required input is missing.
+Standalone evidence never satisfies a coordinator target.
 
 ## Standalone read-only entry
 
@@ -98,10 +109,10 @@ Plan.
 When a Review policy exists, require:
 
 - mode: `focused`, `adaptive`, or `deep`, with rationale and risk surfaces;
-- the per-task gate and current outcomes; `adaptive` and `deep` require
+- the per-task gate; `adaptive` and `deep` require
   independent specification and quality review;
-- final required reviewers with reasons;
-- conditional reviewers with exact triggers;
+- integration required reviewers with reasons;
+- integration conditional reviewers with exact triggers;
 - explicitly skipped perspectives with reasons;
 - adversarial integration rules;
 - residual risk, capacity, deterministic queue order, and Acceptance.
@@ -118,7 +129,7 @@ an uncommitted in-scope change as stale coordinator verification.
 Load `hints/<primary-language>.md` when present. Treat hints as investigation
 prompts, not mandatory findings.
 
-## Select applicable final perspectives
+## Select applicable perspectives
 
 Standard perspectives:
 
@@ -135,14 +146,20 @@ Adversarial perspectives:
 - `adversarial-performance-reviewer`;
 - `adversarial-tests-reviewer`.
 
-Apply the approved mode:
+For a Task PR, apply the approved per-task mode:
 
-- `focused`: require `code-reviewer`, require `test-coverage-reviewer` when
-  behavior or tests changed, and run only additional recorded risk perspectives.
-- `adaptive`: run required and triggered perspectives selected for recorded
-  risk.
-- `deep`: run every perspective applicable to the artifact and observed risks.
-  Do not run an inapplicable profile merely to maximize reviewer count.
+- `focused`: require the one combined `code-reviewer` gate, require
+  `test-coverage-reviewer` when that Task PR changes behavior or tests, and run
+  only additional task perspectives explicitly recorded by policy.
+- `adaptive`: require independent specification and quality task gates and any
+  triggered task perspective selected for recorded risk.
+- `deep`: require independent specification and quality task gates and every
+  perspective applicable to that Task PR's artifact and observed risks.
+
+For targeted integration review, run only the required or triggered integration
+perspectives named by the approved policy. Do not replay each Task PR reviewer
+over the combined tree. Whenever an adversarial perspective runs, require
+`adversarial-integrator` for that target.
 
 For every mode, preserve skipped perspectives and their reasons. Reject a `deep`
 policy that skips an applicable perspective. Whenever any adversarial
@@ -157,7 +174,7 @@ every run and skip with reasons.
 
 ## Preserve independence and capacity
 
-An approved `focused` policy may use a complete lead final-review pass when the
+An approved `focused` policy may use a complete lead Task PR review when the
 user prohibits agents. `Adaptive` and `deep` independent perspectives cannot be
 replaced by sequential lead passes. A no-agent conflict is `Escalate` for
 coordinator review or a standalone limitation.
@@ -167,21 +184,24 @@ agents, the lead may execute each selected read-only perspective and any require
 adversarial integration sequentially. Report the result as `standalone-only`; it
 is never approved-policy completion or coordinator completion evidence.
 
-Otherwise call `list_agents` before each dispatch wave. Use the lower of approved
-configured capacity and observed capacity, count the lead, and queue remaining
-required reviewers in deterministic policy order. Do not reduce scope,
-independence, or applicable breadth. An unavailable required reviewer returns
-`BLOCKED` with the role, observed capacity, gap, and re-entry condition.
+Otherwise pass each already-selected perspective and complete reviewer message
+to `agent-teams-driven-development`. It calls `list_agents` before each dispatch
+wave, uses the lower of approved configured capacity and observed capacity,
+counts the lead, and queues remaining required reviewers in deterministic policy
+order. Do not reduce scope, independence, or applicable breadth. An unavailable
+required reviewer returns `BLOCKED` with the role, observed capacity, gap, and
+re-entry condition.
 
 Use named profiles when selectable; otherwise provide a complete fallback role
 prompt. Reviewers and integrators do not edit files or spawn descendants.
 
 ## Give every reviewer artifact-aware evidence
 
-Pass directly to every final reviewer:
+Pass directly to every selected reviewer:
 
-- exact base, current head, range or bounded standalone files, diff, status, and
-  changed files;
+- target kind; exact workspace, branch, planned base, merge base, current head,
+  range, composed tree, or bounded standalone files; diff, status, and changed
+  files;
 - exact authority identity, source path or in-memory identity, and currentness
   evidence for the approved planned contracts, complete lightweight combined
   contract, or exact eligible legacy plan; plus the clauses and integration
@@ -189,7 +209,8 @@ Pass directly to every final reviewer:
 - approved scope and non-goals;
 - the same Review context and Review policy when available;
 - fresh verification commands and observed results;
-- relevant task-review outcomes, prior triage decisions, concerns, and gaps;
+- relevant dependency and Task PR outcomes, prior triage decisions, concerns,
+  and gaps;
 - that reviewer's selected perspective and output expectations.
 
 Do not create another wrapper identity or repeat the evidence in competing
@@ -246,13 +267,14 @@ findings. It does not invent findings or lower the Acceptance threshold.
 
 Merge duplicates and report in Japanese:
 
-- target form; base, starting and ending head, exact range or bounded fileset;
+- target form; workspace, branch, base, merge base, starting and ending head,
+  exact range, composed tree, or bounded fileset;
 - starting and ending status, diff scope, and changed files;
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
 - fresh verification commands and results inspected;
-- Feature Contract observations and design, task, and integration alignment, or
-  eligible legacy completion criteria and original-authority alignment,
+- assigned Feature and Task Contract observations, targeted integration
+  alignment, or eligible legacy criteria and original-authority alignment
   inspected;
 - reviewers run, queued, and skipped with reasons;
 - reviewer and integrator outcomes;

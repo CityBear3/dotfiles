@@ -29,6 +29,12 @@ Contract 1. Verify their approval and precedence from the artifacts rather than
 conversation memory, while using the coordinator evidence above to bind approval
 to their exact content.
 
+Before Task Contract 1, explain the plan's two distinct topologies: the logical
+Task dependency DAG and the PR base topology. Identify sibling PRs, stacked
+chains, any fan-in linearization, tasks allowed to produce a candidate before
+their final base exists, concurrency exclusions, and integration-only
+compositions. Do not describe a Git stack edge as a logical dependency.
+
 When the plan was approved and already executing before the contract-centered
 format, its exact-content approval, in-flight and unchanged state is established,
 no material
@@ -45,8 +51,10 @@ For a current new-format Task Contract, present:
 3. responsibility, ownership, and shared-interface boundaries;
 4. protected constraints and observable verification obligations;
 5. dependency on earlier and later tasks, including integration-only proof;
-6. local decisions delegated to the implementation agent;
-7. contractually significant files, signatures, ordering, or commands when
+6. planned PR parent or sibling relationship, workspace, final-base readiness,
+   concurrency eligibility, and staleness triggers;
+7. local decisions delegated to the implementation agent;
+8. contractually significant files, signatures, ordering, or commands when
    present.
 
 For a current eligible legacy task specification, instead present only the
@@ -70,4 +78,7 @@ Answer questions about the current task without advancing. End each task explana
 
 If the user requests a plan change, explain that the request belongs to plan editing and record the requested change in the response; do not modify the plan from this skill.
 
-After the final task, summarize the end-to-end flow, completion evidence, and remaining approval gates. Do not treat completing the walkthrough as plan approval.
+After the final task, summarize dependency release, PR publication order,
+feature acceptance and integration-only evidence, artifact retirement, and the
+remaining user-controlled publication, merge, and disposition gates. Do not
+treat completing the walkthrough as plan approval.

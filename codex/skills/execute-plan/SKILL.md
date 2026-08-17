@@ -1,14 +1,14 @@
 ---
 name: execute-plan
-description: Orchestrate an approved implementation plan by validating it, invoking execute-task in dependency order, and aggregating exact task evidence.
+description: Orchestrate an approved Implementation Plan across its Task dependency DAG, PR topology, isolated workspaces, and exact Task PR evidence.
 ---
 
 # Execute an approved plan
 
-Own approved-plan validation, dependency ordering, per-task handoff, ordered
-evidence aggregation, and plan-deviation detection. Do not edit files, dispatch
-implementers or reviewers, select prompts, normalize findings, or run global
-verification or final review from this skill.
+Own approved-plan validation, dependency and PR-topology scheduling, per-task
+handoff, workspace mapping, staleness propagation, and exact evidence
+aggregation. Do not edit files, select implementer or reviewer roles, normalize
+findings, publish, merge, or run verification or review itself.
 
 ## Validate plan entry
 
@@ -28,6 +28,9 @@ For new-format work, require:
   significant;
 - settled dependencies, responsibility and ownership boundaries, shared
   interface owners and consumers, and non-goals.
+- separate Task dependency DAG and PR topology, deterministic fan-in order,
+  Task PR bases, task workspaces, concurrency eligibility, staleness rules, and
+  integration-only composition.
 
 For compatibility, accept an approved plan already executing before the
 contract-centered format only when the coordinator supplies its exact approval
@@ -37,7 +40,9 @@ criteria, and confirmation that no material ambiguity exists and the owner did
 not choose migration. Keep that legacy plan as the authority; do not manufacture
 Feature or Task Contract files merely to satisfy the new shape.
 
-Record the original plan implementation base and the current head. On re-entry,
+Record the original plan implementation base, coordination workspace, and every
+task branch, workspace, base, and head. Do not require all tasks to share one
+advancing HEAD. On re-entry,
 retain an already accepted task only when its exact Feature Contract authority,
 assigned Feature clause meanings, Task Contract content, dependencies, and
 relied-on shared-interface meanings remain unchanged. Preserve its exact base,
@@ -60,11 +65,26 @@ obligation, schema, error model, policy, or authority decision. The coordinator
 owns the transition to the affected Design Doc, Feature Contract, or
 Implementation Plan approval gate.
 
-## Materialize ordered task handoffs
+## Schedule Task PR work
 
-Resolve the dependency graph before executing anything. Use its deterministic
-order and run tasks sequentially; this contract does not authorize parallel plan
-tasks or more than one active writer.
+Resolve both graphs before executing anything. Use the Task dependency DAG to
+decide semantic readiness and the PR topology to decide the final review base.
+A task is dependency-ready only when every logical predecessor is internally
+`Accepted`. Human review and merge are not release conditions.
+
+Permit multiple active tasks only when the approved plan marks them ready,
+ownership-disjoint, free of conflicting shared state, and assigned to separate
+branches and checkouts. Keep one writer per checkout and remain within approved
+and observed capacity. Use `dispatching-parallel-agents` only as an adapter for
+already bounded task handoffs; queue deterministically rather than weakening a
+gate.
+
+A task whose logical inputs are ready but whose final PR base is not yet
+materialized may run in candidate mode when the plan permits it. Candidate work
+never releases a dependent and cannot contribute to feature acceptance. Before
+authoritative acceptance, materialize the approved final base, perform any
+authorized restack or retarget operation, and require fresh exact-range
+verification and review.
 
 For each ready task, give `execute-task` one concise plain-language handoff:
 
@@ -75,8 +95,10 @@ For each ready task, give `execute-task` one concise plain-language handoff:
 - applicable shared interface contracts and adjacent-task obligations;
 - the Review context and complete Review policy;
 - the declared discipline and applicable repository guidance;
-- the working directory and approved workspace;
-- the exact task base, which is the current head before this task;
+- the coordination directory, exact task workspace, branch, and planned PR
+  identity;
+- the starting commit, planned PR base ref and commit, current head, and whether
+  the handoff is candidate or authoritative;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
 - the responsibility-scoped commit intent and its fixed message or the approved
@@ -95,13 +117,32 @@ base, discipline, verification, review, commit, and evidence fields available in
 that plan. Do not relabel it as a new Feature or Task Contract. Stop if a missing
 field creates material ambiguity; do not force migration or infer a decision.
 
-Invoke `execute-task` once for the task and let it own the writer, verification,
-commit, exact range, policy-selected gate, correction, and stop condition.
+Invoke `execute-task` for each selected handoff and let it own that workspace's
+writer, commit, exact PR range, verification, policy-selected review, correction,
+and stop condition. Accept `Candidate` only for a plan-authorized early
+implementation whose final PR base is still unavailable. Invoke the task again
+in authoritative mode after that base is current.
 
-Do not start a dependent task until its predecessor returns `Accepted`. On
-`BLOCKED`, `Escalate`, plan deviation, missing evidence, or a returned head that
-is not the current repository head, preserve the observed state and return the
-exact gap to `agentic-engineering-workflow`.
+Do not start a logical dependent until every predecessor returns current
+`Accepted`. On `BLOCKED`, `Escalate`, plan deviation, missing evidence, a
+workspace mismatch, or a returned branch, base, or head that does not match the
+observed task workspace, preserve all task states and return the exact gap to
+`agentic-engineering-workflow`.
+
+## Propagate stale results
+
+Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
+PR topology, contract authorities, shared interfaces, task branches, bases,
+heads, merge bases, diffs, and statuses. Traverse both graphs when an ancestor,
+topology edge, contract meaning, logical dependency, or consumed interface
+changes. Mark every affected result stale, remove it from dependency release and
+feature coverage, and return it to authoritative `execute-task` after the
+approved final base is restored.
+
+Rebase, restack, retarget, force operations, or other history changes require
+their applicable explicit authority. Reapproval of prose does not revive stale
+Git evidence, and preliminary common-base checks do not survive restacking as
+acceptance.
 
 ## Reconcile promoted lightweight work
 
@@ -121,17 +162,19 @@ commit and one writer creates it before the gate. If correction is authorized,
 use one writer and record a new bounded commit. Accept reconciliation only when every
 preserved change has unambiguous ownership and current evidence; otherwise return
 `BLOCKED` or a material plan deviation. Include the original lightweight base in
-the aggregate range, and do not release dependent tasks before reconciliation is
-accepted.
+that task's accepted range and feature evidence, and do not release dependent
+tasks before reconciliation is accepted.
 
 ## Resume only attributable work
 
-After an interrupted or incomplete task, retain the last accepted aggregate
-separately from the observed in-flight work. Before resuming:
+After an interrupted or incomplete task, retain accepted and candidate results
+for every other workspace separately from the observed in-flight work. Before
+resuming one task:
 
 1. confirm through the scheduling result that the prior writer is inactive and
    no writer overlaps;
-2. inspect current HEAD, status, commits, and the task-base-to-current diff;
+2. inspect that workspace's branch, HEAD, status, commits, planned base, and
+   exact base-to-head diff;
 3. confirm the observed edits and commits are attributable to that task and
    descend from its task base;
 4. confirm the unchanged task handoff still applies.
@@ -142,72 +185,80 @@ recommit, or dispatch a replacement. Return `BLOCKED` with the observed agent an
 Git state plus the exact condition required for re-entry. Use `Escalate` only
 when resumption needs a material decision, scope, policy, or authority change.
 
-An interrupted task remains unaccepted. Do not add its commits or range to the
-accepted task results, recalculate the aggregate, or release a dependent task
-until `execute-task` returns current acceptance evidence.
+An interrupted task remains unaccepted. Preserve an attributable candidate but
+do not add it to accepted results, feature coverage, or dependency release until
+`execute-task` returns current authoritative acceptance evidence.
 
 ## Re-enter for a planned correction
 
-Treat an authorized correction as one concrete plan step after the previously
-accepted tasks. Preserve the original implementation base and prior task ranges.
+Treat an authorized correction as work on its owning Task PR. Preserve every
+other task's exact result and the original implementation base.
 Give `execute-task` the exact finding or failed observation, approved correction,
 observed attempts and results, unchanged Feature and Task Contracts with shared
 interfaces or unchanged eligible legacy authority, Review context, Review
-policy, last accepted head as the correction task base, responsibility
-boundaries, verification obligations, and a correction commit intent bounded to
-the finding with its fixed message or approved writer message-selection
-authority.
+policy, current planned PR base and accepted head, responsibility boundaries,
+verification obligations, and a correction commit intent bounded to the finding
+with its fixed message or approved writer message-selection authority.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do
 not invent another tracking protocol or silently expand the correction.
 
-After `Accepted`, append the correction once with its commit, exact base, current
-head, range, fresh verification, gate result, and gaps. Recalculate the aggregate
-from the original implementation base without rewriting prior task ranges.
+After `Accepted`, append the correction once with its commit, exact PR base,
+current head, range, fresh verification, gate result, and gaps. Traverse both
+graphs, mark affected descendants stale, and recalculate feature coverage
+without widening any unchanged task range.
 
 ## Aggregate accepted tasks
 
-After each accepted task, append an ordered result containing:
+After each accepted task, append a result keyed by Task Contract and PR identity
+containing:
 
 - task name and dependency position;
 - exact authority and Task Contract content/currentness accepted;
 - Feature Contract clauses and Task Contract obligations, eligible legacy
   completion criteria, or promotion mappings proved;
-- exact task base, accepted current head, and base-to-head range;
+- exact task workspace, branch, planned base ref and commit, merge base,
+  accepted current head, and base-to-head range;
 - task and correction commits;
 - fresh verification obligations, commands selected or required, and observed
   results;
 - per-task gate result;
 - changed files, concerns, and gaps.
 
-After every planned task is accepted:
+After every planned task is accepted and current:
 
-1. retain the complete ordered task results;
-2. record the distinct aggregate final current head;
-3. calculate the full implementation range from the original plan base;
-4. confirm the aggregate head is current and each task still identifies its own
-   exact accepted range;
-5. report plan deviations, correction attempts, and residual gaps separately
+1. retain the complete result set in deterministic Task DAG and PR-topology
+   order;
+2. re-resolve every task branch, base, head, range, dependency, and shared
+   interface;
+3. prove complete Feature Contract coverage and identify only the obligations
+   that remain integration-only;
+4. identify the exact accepted heads and deterministic composition needed for
+   each integration-only obligation, without treating the composition as a PR;
+5. report task publication eligibility, plan deviations, correction attempts,
+   stale results, and residual gaps separately
    from successful evidence.
 
-The aggregate range supports global verification and final review. It never
-replaces a task-specific reviewed range.
+There is no synthetic full-feature review range. A stacked descendant head may
+contain its ancestors, but it never replaces their task-specific accepted
+ranges. A temporary composed tree exists only to prove named integration-only
+obligations.
 
 ## Return orchestration status
 
 Return:
 
-- `Accepted` only with every ordered accepted task result, aggregate current
-  head, full implementation range, and either the Feature Contract with complete
-  Task Contract coverage and integration-only obligations or the exact eligible
-  legacy authority, plus Review context and complete Review policy; no stale
-  result or unreconciled promoted range may contribute;
-- `BLOCKED` with the last accepted aggregate, observed in-flight agent and Git
-  state, gaps, and exact re-entry condition;
+- `TasksAccepted` only with every current Task PR result, both resolved
+  topologies, complete Feature Contract coverage, any required integration
+  composition, or the exact eligible legacy authority, plus Review context and
+  complete Review policy; no candidate, stale result, or unreconciled promoted
+  range may contribute;
+- `BLOCKED` with all accepted and candidate results, observed in-flight agents
+  and per-workspace Git state, gaps, and exact re-entry condition;
 - `Escalate` with the exact plan deviation, missing decision, policy conflict, or
   task escalation.
 
-Return control to `agentic-engineering-workflow` after acceptance or any stop
-condition. Do not start global verification, final review, publication, merge, or
-branch disposition.
+Return control to `agentic-engineering-workflow` after `TasksAccepted` or any
+stop condition. Do not run feature integration verification or targeted review,
+publish, merge, or choose branch disposition.

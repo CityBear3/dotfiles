@@ -19,10 +19,12 @@ Use `list_agents` to identify live task-scoped agents. Distinguish running work 
 
 ## Report
 
-Inspect `git status --short` and report:
+Inspect every task workspace known to the active plan, not only the coordination
+checkout, and report:
 
 - remaining live agents, if any;
-- branch and worktree disposition;
+- coordination and Task PR branches, worktrees, heads, acceptance or stale
+  state, and disposition;
 - uncommitted changes;
 - publication or cleanup actions already completed;
 - anything the user still needs to do.
