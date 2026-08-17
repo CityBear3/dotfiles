@@ -300,15 +300,23 @@ Advance automatically within approved local scope:
 4. For each integration-only obligation, pass only its exact composed tree,
    accepted Task PR inputs, expected observations, and contract evidence to
    `verify`. Accept only a fresh `PASS` for the unchanged composition.
+   Diagnose a `FAIL` before correction. Route an authorized planned correction
+   through its owning Task Contract in `execute-plan`; route an authorized
+   lightweight correction directly to its combined-contract Task in
+   `execute-task`. After the new Task head passes its complete fresh task gate,
+   rerun the same named integration evidence.
 5. Invoke `review` only when the approved policy requires or conditionally
    triggers a targeted integration perspective. Pass the same exact integration
    authority and evidence to every selected reviewer. Do not invoke ordinary
    full-feature `$review`.
-6. Send concrete integration `FINDINGS` to `receiving-code-review`. Route an
-   authorized `Fix` to its owning Task Contract through `execute-plan`, mark
-   affected descendants stale, and then rerun fresh affected task and
-   integration evidence. Preserve `Push back` while its target and controlling
-   evidence remain unchanged. Return a user-owned decision as `Escalate`.
+6. Send concrete integration `FINDINGS` to `receiving-code-review`. For planned
+   work, route an authorized `Fix` to its owning Task Contract through
+   `execute-plan`, mark affected descendants stale, and rerun fresh affected task
+   and integration evidence. For lightweight work, route the `Fix` directly to
+   its combined-contract Task through `execute-task`, then rerun its complete
+   fresh task gate and the same named integration evidence on the new head.
+   Preserve `Push back` while its target and controlling evidence remain
+   unchanged. Return a user-owned decision as `Escalate`.
 7. Mark Feature Accepted only when every Task PR result and integration
    obligation is current and no finding, policy gap, design gap, or operational
    gap survives.
