@@ -1,313 +1,305 @@
 ---
 name: create-plan
-description: |
-  Decompose a Design Doc or scope-clear task into bite-sized, independently verifiable tasks.
-  Each task contains complete steps (write test, implement, verify, commit) with exact file paths and code.
-  The plan is self-contained for autonomous execution by agent-teams.
-  Invoke with `/create-plan` when entering the planning phase.
+description: Decompose an approved Feature Contract into PR-scoped Task Contracts, a dependency DAG, a PR topology, and an Implementation Plan. Use after the contract is separately approved and current.
 ---
 
-# Create Plan
-
-Decompose a Design Doc or scope-clear task into bite-sized, independently verifiable tasks. The plan must be self-contained: an agent (or fresh subagent) with zero context should be able to execute each task following only the plan.
-
-**Announce at start:** "I'm using the create-plan skill to create the implementation plan."
-
-## Entry Conditions
-
-One of the following must be true:
-- A Design Doc exists and has been approved by the engineer
-- The scope is clear from `/design-discussion` and the engineer has approved transitioning to planning
-- The engineer has explicitly requested task decomposition for a known scope
-
-## Plan Storage
-
-Save plans to `docs/plans/YYYY-MM-DD-<feature-name>.md`.
-
-(Engineer's project-level conventions override this default.)
-
-## Scope Check
-
-If the scope covers multiple independent subsystems, suggest decomposing into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
-
-If the scope is too vague to bite-size, return to `/design-discussion`. A plan cannot resolve a vague design.
-
-## Process
-
-### Step 1: Understand the Scope
-
-Read the Design Doc (if present) or gather context from the discussion. Identify what needs to be built, what exists that will be affected, and the completion criteria.
-
-### Step 2: Map the File Structure
-
-Before defining tasks, map out which files will be created or modified and what each is responsible for. This is where decomposition decisions get locked in.
-
-- Design units with clear boundaries and one clear responsibility
-- Files that change together should live together — split by responsibility, not by technical layer
-- In existing codebases, follow established patterns
-
-### Step 3: Decompose into Bite-Sized Tasks
-
-Each **Task** represents a meaningful, independently verifiable unit. Each task contains **steps** — bite-sized actions (2–5 minutes each), typically: write failing test → run to verify it fails → implement minimal code → run to verify pass → commit.
-
-Steps must include:
-- **Exact file paths** (not "the test file")
-- **Complete code** (not "implement the feature")
-- **Exact commands** (not "run the tests")
-- **Expected output** for verification steps
-
-### Step 4: Write the Plan
-
-Write the plan to `docs/plans/YYYY-MM-DD-<feature-name>.md` using the format below.
-
-A complete real-world example lives next to this skill at `example-plan.md` — refer to it whenever the format is ambiguous.
-
-**Plan Header:**
-
-`````markdown
-# [Feature Name] Implementation Plan
-
-> **Execution:** Use `/execute-plan` to dispatch this plan to agent-teams. Steps use checkbox (`- [ ]`) syntax for tracking.
-
-**Goal:** [One sentence]
-**Architecture:** [2-3 sentences explaining the overall approach and how the tasks compose]
-**Tech Stack:** [Key technologies / libraries / language version]
-
-**Working directory:** `[~-prefixed or repo-relative path — never an absolute path embedding the username]` (run all build/test commands from there).
-**Branch:** `[branch-name]`.
-**Baseline before Task 1:** [N tests passing, lint clean, fmt clean — engineer must verify before starting].
-
-**Per-task verification command** (mandatory before each commit):
-```sh
-[exact command, e.g. `cd compiler && cargo test --quiet && cargo clippy --all-targets -- -D warnings && cargo fmt -- --check`]
-```
-
----
-`````
-
-**Task Format:**
-
-Each task includes:
-- **Why** — 1-3 sentence motivation (what problem this addresses, why now)
-- **Behavior change** — `yes (...)` or `no (pure refactor)`. Determines Discipline.
-- **Discipline** — `TDD` (apply `/test-driven-development`: red → green → refactor) when behavior changes; `refactor` (existing tests are the green-bar) when no behavior changes.
-- **Files** — Create / Modify (with line ranges where applicable) / Test
-- **Migration table** (optional) — used when 5+ similar sites are migrated; lists per-site parameters in tabular form
-- **Helper / pattern code** (optional) — full code shown once at the top of the task, referenced by steps
-- **Steps** — checkboxes; bite-sized (2-5 min each); concrete code or commands. Step shape depends on Discipline (see below).
-
-The plan **specifies WHAT** (which tests, which behaviors, which sites). The TDD skill **drives HOW** (red → green → refactor cadence). Do not enumerate the full TDD cycle inside Steps — let the skill do its job.
-
-**Task with `Discipline: TDD` (behavior change):**
-
-`````markdown
-### Task N: [Component Name]
-
-**Why:** [Motivation.]
-
-**Behavior change:** yes ([what changes — bug fix / liberalization / new feature])
-**Discipline:** TDD — pin the new behavior with a failing test first, then implement.
-
-**Files:** ...
-
-[Optional helper code or migration table]
-
-### Steps
-
-- [ ] **Step 1: Write failing regression test(s) for the new behavior (red phase)**
-
-Add to `tests/foo_test.rs` (or `mod tests` in source):
-```rust
-#[test]
-fn pinned_behavior() {
-    let result = function(input);
-    assert_eq!(result, expected_post_change);
-}
-```
-
-- [ ] **Step 2: Verify red phase**
-
-Run: `cargo test pinned_behavior`
-Expected: FAIL with [specific error / wrong assertion].
-
-- [ ] **Step 3: Implement the change**
-
-[Concrete code: helper definition, modified call sites, etc.]
-
-- [ ] **Step 4: Verify green phase**
-
-```sh
-[per-task verification command from header]
-```
-
-Expected: [N tests pass — including the new pin(s)]; lint clean; fmt clean.
-
-- [ ] **Step 5: Commit**
-
-```sh
-git add -A
-git commit -m "$(cat <<'EOF'
-[Subject line, ≤72 chars, imperative voice]
-
-[Body explaining why, not what]
-EOF
-)"
-```
-`````
-
-**Task with `Discipline: refactor` (no behavior change):**
-
-`````markdown
-### Task N: [Component Name]
-
-**Why:** [Motivation.]
-
-**Behavior change:** no (pure refactor)
-**Discipline:** refactor — [N] existing tests are the green-bar safety net; preserve all current pass results.
-
-**Files:** ...
-
-### Steps
-
-- [ ] **Step 1: [Mechanical change A]**
-
-[Concrete code or instruction]
-
-- [ ] **Step 2: [Mechanical change B]**
-
-[Concrete code or instruction]
-
-- [ ] **Step 3: Verify**
-
-```sh
-[per-task verification command from header]
-```
-
-Expected: [N existing tests still pass]; lint clean; fmt clean.
-
-- [ ] **Step 4: Commit**
-
-```sh
-git add -A
-git commit -m "$(cat <<'EOF'
-[Subject line]
-
-[Body — explicitly state "No behavior change"]
-EOF
-)"
-```
-`````
-
-**Final sections** (after all task definitions):
-
-`````markdown
-## Final verification (after all tasks)
-
-```sh
-[full test/lint/fmt suite + smoke test, e.g. CLI run on a sample input]
-```
-
-Expected: [total test count, all passing; lint clean; fmt clean; smoke test specific output].
-
-## Post-/review iteration
-
-Reserved for fix tasks appended by Claude Code after `/review` produces actionable items. Empty until `/review` runs.
-
-(See CLAUDE.md "Core Flow" for the autonomous review feedback loop.)
-
-## Push and PR
-
-```sh
-git push -u origin [branch-name]
-gh pr create --base main --title "[PR title]" --body "..."
-```
-
-PR description should explain [what each commit does, any behavior changes, links to design doc / issue].
-
-## Out of scope
-
-- [Explicitly deferred items — list them so they aren't forgotten and so the PR's scope is clear]
-- [Forward references to future PRs / stages]
-
-## Alternative Solutions Considered
-
-[Approaches considered during /design-discussion but not chosen, with reason for rejection. Useful when no Design Doc exists (refactor PRs / small features). Prevents re-litigation later and helps future readers understand the design space.]
-
-- **[Alternative 1 name]**: [What it was — 1 sentence]. **Rejected because**: [reason].
-- **[Alternative 2 name]**: [What it was]. **Rejected because**: [reason].
-`````
-
-### Step 5: Self-Review
-
-After writing the complete plan, review with fresh eyes:
-
-1. **Spec coverage:** Skim the Design Doc / discussion. Can you point to a task that implements each requirement? List any gaps.
-2. **Placeholder scan:** Search for red flags (see "No Placeholders" below). Fix them.
-3. **Type consistency:** Do types, method signatures, and property names match across tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
-4. **PII / path scan:** No personal information anywhere in the plan — no `/Users/<name>`-style absolute paths (write every path `~`-prefixed or repo-relative), no usernames, no email addresses. Plans can leave the machine (PRs, shared logs), so they must be clean by construction. `grep -nE '/Users/|/home/' <plan-file>` must return nothing.
-
-Fix issues inline. No need to re-review — just fix and move on.
-
-### Step 6: Engineer Review
-
-Present the plan to the engineer. The engineer reviews task scope, order, dependencies, and whether any task needs a Design Doc first.
-
-Do not proceed until the engineer approves the plan.
-
-### Step 7: Transition
-
-After the plan is approved:
-
-→ Transition to `/execute-plan` to dispatch the plan to agent-teams.
-
-## No Placeholders
-
-Every step must contain the actual content an executor needs. These are **plan failures** — never write them:
-
-- "TBD", "TODO", "implement later", "fill in details"
-- "Add appropriate error handling" / "add validation" / "handle edge cases" without specifics
-- "Write tests for the above" without actual test code
-- "Similar to Task N" — repeat the code (the executor may read tasks out of order)
-- Steps that describe what to do without showing how (code blocks required for code steps)
-- References to types, functions, or methods not defined in any task
-
-## Key Principles
-
-- **Self-contained**: An agent with zero context should be able to execute each task following only the plan
-- **DRY, YAGNI, TDD, frequent commits** — apply to both plan and resulting code
-- **Engineer reviews and approves** before any task is executed
-- **Bite-sized steps**: 2–5 minutes per step
-
-## Red Flags
-
-| Violation | Correct Behavior |
-|-----------|-----------------|
-| Tasks that can only be verified after multiple tasks complete | Break down further. Each task must be independently verifiable. |
-| Vague steps like "implement the feature" or "add error handling" | Every step must be specific: which file, what change, what result. |
-| Proceeding to /execute-plan without engineer approval | Stop. The engineer must approve the plan first. |
-| Tasks too large ("Implement the entire auth system") | Decompose until each task fits in one execution session. |
-| Tasks too granular ("Add import statement on line 5") | Tasks should be meaningful, verifiable units. |
-| Test-only follow-up task (separate task that adds regression tests for behavior introduced in another task) | Embed the regression tests in the same task that introduces the behavior. TDD means the test exists at the moment of change, not after. |
-| Behavior-change task without `Discipline: TDD` | Mark as TDD. The change must be preceded by a red test (Step 1). |
-| Refactor task that adds new tests | If new tests are needed, the task isn't a pure refactor — re-tag as `Behavior change: yes` and `Discipline: TDD`. |
-| Steps that enumerate the full red-green-refactor cycle | Plan specifies WHAT (which tests, which behaviors); the TDD skill drives HOW. Don't duplicate the skill into Steps. |
-| Absolute paths embedding the username (`/Users/<name>/...`) anywhere in the plan | Write `~`-prefixed or repo-relative paths. Plans must contain no PII (usernames, emails) — see Self-Review's PII / path scan. |
-
-## Rationalization Prevention
-
-| Excuse | Reality |
-|--------|---------|
-| "These tasks are too small to need detail" | Detail enables autonomous execution. Without it, agent-teams blocks on questions. |
-| "The executor will figure out the details" | That's what create-plan prevents. Details belong in the plan. |
-| "The engineer will catch issues in review" | Review is not a substitute for self-review. Catch issues before review. |
-| "The Design Doc covers this, tasks are obvious" | Obvious to you ≠ obvious to the executor. Make tasks explicit. |
-| "Regression tests in a follow-up task keep commits smaller" | Anti-TDD. The behavior change at its commit has no failing test proving correctness. Embed the regression test in the change. |
-| "TDD steps duplicate the test-driven-development skill" | Plan marks discipline; skill drives the cycle. The plan only specifies WHAT (which tests / which behaviors); HOW (red→green→refactor) is the skill's job. |
-| "Alternative Solutions section is for Design Docs" | When a Design Doc exists, refer to it. When the work skips Design Doc (refactor / small features), the alternatives belong in the plan — otherwise they're lost. |
-
-## Rules
-
-- A plan requires the engineer's approval before any task is executed
-- Every task must specify completion criteria (implicit in steps) and affected files
-- If a task cannot be decomposed into bite-sized verifiable steps, the design is too vague — return to `/design-discussion` or `/design-doc`
-- If the Design Doc exists, the plan must be consistent with it — do not deviate without the engineer's explicit approval
+# Create an implementation plan
+
+Write a plan that a fresh implementer can execute without reconstructing design,
+feature success, or task responsibility from the conversation.
+
+## Entry
+
+Require the coordinator to supply:
+
+- the exact approved, current Feature Contract and its workspace path;
+- its approved Design Doc or decision record sources;
+- approval evidence for the exact contract content;
+- working directory, feature workspace, and current repository state.
+- when replanning, every prior accepted task with its exact contract content,
+  dependencies, consumed interfaces, base, head, range, and gate evidence;
+- when promoted from lightweight work, its original task base, current head,
+  exact unaccepted range and commits, changed files, writer and gate evidence,
+  ownership attribution, concerns, and gaps.
+
+Reject a missing, draft, materially edited, contradicted, or source-incomplete
+Feature Contract. Return unresolved architecture, responsibility, public or
+shared interfaces, schemas, error semantics, scope, or material trade-offs by
+invoking `/agentic-engineering-workflow`. Do not repair design while
+decomposing it.
+
+## Investigate
+
+Read the Feature Contract, its design sources, current implementation, tests,
+repository guidance, and recent history. Map component and state ownership,
+dependency direction, shared interfaces, verification routes, and likely writer
+overlap before splitting tasks. Confirm that the contract still describes the
+current repository.
+
+## Decompose by responsibility
+
+Derive tasks from responsibility and state ownership, dependency direction,
+shared interfaces, independently observable completion, and integration
+obligations. Use explicit dependencies when execution order alone resolves a
+boundary.
+
+Make one Task Contract one independently reviewable PR candidate by default.
+When proposed tasks cannot remain buildable, verifiable, or contractually valid
+as separate PRs, combine the inseparable responsibility into one Task Contract
+or return the unresolved boundary to design. Do not keep nominally separate
+tasks merely to place their mixed changes in one PR.
+
+Treat difficult decomposition as design feedback. Return to the coordinator
+when tasks would need conflicting owners, duplicated authority, an undefined
+shared interface, missing failure semantics, or a new feature decision. Do not
+hide the gap in an implementation step.
+
+Record every cross-task interface once in a `Shared interface contracts` section
+with one owner and named implementers and consumers. Include an exact signature
+or representation only when another task's correctness depends on details such
+as ownership, async behavior, thread guarantees, absence representation, error
+type, schema, or ordering. Each Task Contract references this shared definition.
+
+Build a Feature Contract coverage table. Map every contract obligation to one or
+more Task Contracts or to an explicitly integration-only proof. Explain
+deliberate overlap. Reject unexplained gaps or duplicated ownership.
+
+Record two distinct graphs:
+
+- a **Task dependency DAG** for semantic readiness and dependency release;
+- a **PR topology** that gives each Task PR one planned base relationship.
+
+Use sibling PRs for independent tasks and a linear stack for dependent chains.
+For fan-in, choose an owner-visible deterministic order over the required parent
+closure while preserving early independent implementation where ownership and
+state permit it. Do not turn that Git order into a logical dependency. When only
+a feature-level observation needs the combined tree, preserve independent
+sibling PR relationships and use a temporary integration composition.
+
+For every temporary integration composition, record its starting commit or
+tree, exact accepted Task PR inputs and deterministic application order,
+composition mechanism, workspace or temporary-ref strategy, identity checks,
+and the point where it becomes eligible for separately authorized cleanup. The
+approved composition must require no manual source edit or conflict resolution;
+an unresolved composition conflict is a blocked integration input, not
+delegated implementation work.
+
+Record which tasks may implement before their final PR base exists. Such work
+may produce a non-accepted candidate, but the task must be restacked onto its
+planned final base and obtain fresh authoritative verification and review before
+it can release a dependent.
+
+For replanning, add a `Re-entry impact` section. Retain a prior accepted result
+only when its exact Feature Contract authority, assigned Feature clauses, Task
+Contract, dependencies, and relied-on shared interfaces remain semantically
+unchanged. Mark every affected or transitively dependent result stale and map it
+to the current Task Contract that must obtain fresh acceptance under both current
+authorities.
+
+For a lightweight promotion with preserved committed work, keep the original
+lightweight base as the implementation base. Map every preserved change and file
+to the complete new Task Contract set and define a first promotion-reconciliation
+step that owns attribution and current-contract acceptance of the unaccepted
+range. Distinguish later approved design and plan artifact state and include it
+in the attributable reconciliation envelope at execution; do not absorb later
+feature-source edits. Reject conflicting or incomplete attribution; do not make
+the preserved current head an unreviewed baseline.
+
+## Plan structure
+
+Store the plan beside its Feature Contract at
+`docs/plans/YYYY-MM-DD-<feature>/implementation-plan.md` unless stricter
+repository guidance specifies another location. Reference the approved contract;
+do not copy or mutate its meaning. Treat both files as ignored, workspace-only
+execution artifacts. Do not force-add, stage, or commit either file unless the
+user explicitly chooses archival.
+
+Include:
+
+- goal, authorities and precedence, architecture summary, technologies, working
+  directory, branch, and observed baseline;
+- fixed decisions and explicit non-goals;
+- shared interface contracts and their owners and consumers;
+- the Task dependency DAG, deterministic ready order, PR topology, planned
+  bases, fan-in linearizations, and exact integration-only composition inputs,
+  order, mechanism, workspace, identity checks, and retention;
+- task workspace ownership, concurrency eligibility, and shared-state or write
+  exclusions;
+- complete Feature Contract coverage, including integration-only obligations;
+- a Review context;
+- a separate complete Review policy;
+- Task Contracts ordered by dependency;
+- re-entry impact and promotion reconciliation when either applies;
+- Task PR acceptance and staleness rules, feature acceptance, review iteration,
+  workspace-artifact lifetime and cleanup, and publication policy.
+
+For each Task Contract include:
+
+- purpose and expected result;
+- Feature Contract clauses it satisfies;
+- responsibility and ownership boundaries;
+- applicable shared interfaces and adjacent-task obligations;
+- protected constraints and invariants;
+- observable task-level verification obligations;
+- dependencies;
+- PR unit, planned parent or sibling relationship, and final-base readiness;
+- whether implementation may produce a candidate before that base exists;
+- workspace ownership, concurrency eligibility, and staleness triggers;
+- explicit non-goals;
+- local decisions delegated to the implementation agent;
+- discipline: TDD for production behavior, an existing green baseline for
+  refactoring, or an explicit content/configuration migration discipline;
+- a responsibility-scoped commit intent and whether the plan or writer selects
+  its message;
+- contractually significant files, signatures, ordering, commands, exact commit
+  paths, or fixed commit message only when their identity is part of correctness.
+
+## Choose contract detail, not procedure
+
+Do not require exhaustive files, function-by-function steps, edit order, helper
+structure, local algorithms, or exact commands by default. The writer may
+discover private files inside its approved responsibility and must report the
+actual changed files.
+
+Fix exact detail when it defines a public or shared interface, writer ownership,
+generated or manifest mapping, migration or compatibility sequence, safety
+boundary, reproducible environment, authoritative coverage, or another
+observable correctness condition. An unexpected private file is not a deviation;
+a new owner, public seam, shared interface, invariant, or contract meaning is.
+
+## Test planning
+
+- Define observable verification by behavioral viewpoint.
+- For behavior changes, specify the failing test and expected red result before
+  implementation.
+- Prefer unit tests for module or component behavior, including filesystem
+  behavior.
+- Use integration tests only for public-crate, multi-component, or real process
+  journeys.
+- Require Arrange, Act, Assert; DAMP setup; returned-result assertions; and
+  relevant side-effect assertions.
+- Name applicable repository or project verification routes. Require exact
+  commands only when their identity or flags are needed for safety,
+  reproducibility, coverage, environment selection, or migration correctness.
+- Allow the writer to select and report additional focused, non-destructive
+  checks inside the Task Contract.
+- Do not impose source-line or test-count quotas.
+
+## Review context
+
+Record a concise `Review context` section before the Review policy. Describe in
+plain language:
+
+- the artifact type and its purpose;
+- its consumers and execution or interpretation model;
+- behavior and quality characteristics that materially matter;
+- realistic failures with material consequences;
+- approved trade-offs and conditions that are non-problems by themselves;
+- assumptions or reviewer perspectives that are inapplicable.
+
+Base the context on approved decisions and repository evidence. Do not turn it
+into a machine-readable schema or repeat command results that belong to later
+verification. An approved non-problem may be reconsidered only with materially
+new evidence of a concrete reachable failure or approved-contract violation.
+
+### Project rules
+
+When `docs/plans/YYYY-MM-DD-<feature>/project-rules.md` exists, produced by
+the user-invoked `inject-project-rules` skill, reference its rule identifiers
+instead of copying prose. Omitted test cases and accepted patterns become
+approved non-problems in the Review context by rule identifier. `Review NG`
+items become grounds for `Must Fix` in the Review policy. Each Task Contract's
+applicable repository guidance names the rule identifiers for its layer. Never
+copy the rules' prose into the plan. A rule that implies feature behavior
+absent from the Feature Contract is a gap to return to the Feature Contract
+gate, not something to plan.
+
+## Review policy
+
+Include a separate `Review policy` section in every plan. The policy controls
+breadth, independence, capacity, and Acceptance; it references the Review context
+without repeating it.
+
+Use `adaptive` as the default for planned work. Recommend `focused` or `deep`
+only when repository evidence, approved decisions, and concrete risk surfaces
+justify it. Never select a mode from file count, changed-line count, or apparent
+diff size.
+
+Apply these mode contracts:
+
+- `focused`: one combined specification-and-quality gate for each Task PR;
+  `test-coverage-reviewer` when that Task PR changes behavior or tests; plus only
+  additional task or integration perspectives justified by recorded risk.
+- `adaptive`: independent specification and quality gates for each Task PR;
+  select targeted integration perspectives for recorded cross-task risk.
+- `deep`: independent specification and quality gates for each Task PR; run
+  every perspective applicable to an actual integration-only surface or
+  observed cross-task risk, with adversarial integration whenever an
+  adversarial perspective runs.
+
+For every mode, name explicitly skipped perspectives and why they are
+inapplicable. `Deep` means broad applicable coverage, not every configured
+reviewer.
+
+Record:
+
+- **Mode and rationale**
+- **Risk surfaces**
+- **Per-task gate**
+- **Integration required reviewers and reasons**, using `none` when task gates
+  fully cover the feature
+- **Integration conditional reviewers with exact triggers**
+- **Explicitly skipped perspectives and reasons**
+- **Residual risk**
+- **Capacity and deterministic queue order**
+- **Acceptance threshold**
+
+Use the same proportional Acceptance threshold in every mode. A finding survives
+only when it applies to the artifact and consumer model, cites an approved
+requirement, identifies concrete reachable evidence, states a material
+consequence, and proposes a proportionate correction. `Should Improve` requires
+a concrete maintainability consequence or measurable repeated cost.
+
+Drop preference-only, speculative, second-order, artifact-inapplicable, optional
+polish, and objections to approved decisions without new evidence. A proposed
+state machine, schema, identity system, or other architectural mechanism is
+`Escalate` unless it is necessary and proportionate to a proven in-scope
+violation.
+
+Keep model and extended-thinking choices in reviewer agent definitions, not in
+the plan.
+
+## Agent capacity
+
+When execution may use subagents, identify one writer per task workspace and
+read-only reviewers. Permit multiple active writers only for dependency-ready,
+ownership-disjoint tasks in separate checkouts without conflicting shared
+state. Require every named reviewer to have a resolvable agent definition or
+complete fallback prompt. Record capacity — the approved Review policy's
+capacity, default at most 4 concurrent subagents per session — and
+deterministic ready-task and reviewer queue order. Queue when capacity is
+lower; never reduce approved scope or independence silently.
+
+## Quality
+
+- Do not hide design decisions inside implementation steps.
+- Do not invent requirements.
+- Do not use placeholders such as "implement as needed."
+- Do not require a Design Doc when the settled task does not need one.
+- Do not treat Review context as a source of requirements or Review policy as a
+  feature contract.
+- Make every Task Contract directly extractable for handoff while retaining
+  cross-task coverage and interface ownership in the complete plan.
+- Keep logical dependencies distinct from PR base relationships and explain
+  every deliberate fan-in linearization.
+- Reference exact authority paths and approval evidence. Put applicable clauses
+  in an extractable task handoff, but do not duplicate unrelated source prose
+  that an agent can read directly when needed.
+- Make destructive or external actions explicit approval gates.
+
+Use [example-plan.md](example-plan.md) only when the output shape is unclear.
+
+Return the complete plan for user approval by invoking
+`/agentic-engineering-workflow`. Do not start implementation from this skill.
+Invoke phase skills through the Skill tool; never perform another phase's work
+inline.

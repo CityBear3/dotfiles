@@ -1,86 +1,355 @@
 ---
 name: execute-plan
-description: |
-  Execute an approved implementation plan via the agent-teams autonomous loop.
-  Verifies workspace setup, dispatches to agent-teams, and transitions to verification.
-  Invoke with `/execute-plan` after /create-plan completes.
+description: Orchestrate an approved Implementation Plan across its Task dependency DAG, PR topology, isolated Task sessions and worktrees, and exact Task PR evidence. Invoke from the coordinator after Implementation Plan approval.
 ---
 
-# Execute Plan
+# Execute an approved plan
 
-Execute the approved implementation plan via the agent-teams autonomous loop.
+Own approved-plan validation, dependency and PR-topology scheduling, per-task
+handoff, Task session launch and messaging, workspace mapping, staleness
+propagation, and exact evidence aggregation. Do not edit files, select
+implementer or reviewer roles, normalize findings, publish, merge, or run
+verification or review itself.
 
-**Announce at start:** "I'm using the execute-plan skill to execute this plan."
+Invoke phase skills through the Skill tool; never perform another phase's work
+inline. This skill runs in the coordinator session (`<feature>-coord`). Each
+planned task runs in its own Task session; this skill is the only sender of
+task handoffs and the only consumer of task results.
 
-## Entry Conditions
+## Validate plan entry
 
-- An approved plan exists (from `/create-plan`)
-- A feature workspace is set up (NOT main/master). If not, invoke `/create-workspace` first.
+Before execution, require one approved authority form.
 
-## Process
+For new-format work, require:
 
-### Step 1: Verify Workspace
+- the approved, current Feature Contract and its design sources;
+- an approved, current implementation plan;
+- its complete Task Contract set, shared interface contracts, Feature Contract
+  coverage, and integration-only obligations;
+- its separate Review context and complete approved Review policy;
+- a suitable non-default feature branch or approved workspace;
+- understood working-tree state;
+- an explicit discipline and observable verification obligations for every task;
+- exact commands only where the plan marks their identity as contractually
+  significant;
+- settled dependencies, responsibility and ownership boundaries, shared
+  interface owners and consumers, and non-goals;
+- separate Task dependency DAG and PR topology, deterministic fan-in order,
+  Task PR bases, task workspaces and Task session names, concurrency
+  eligibility, staleness rules, and exact integration-only starting
+  identities, accepted inputs, order, mechanism, workspace strategy, identity
+  checks, and cleanup eligibility.
 
-Confirm an isolated workspace (herdr worktree or feature branch) is set up. If not, invoke `/create-workspace`.
+For compatibility, accept an approved plan already executing before the
+contract-centered format only when the coordinator supplies its exact approval
+and in-flight evidence, referenced Design Doc or decision sources, unchanged
+task specifications, Review context and policy, verification and completion
+criteria, and confirmation that no material ambiguity exists and the owner did
+not choose migration. Keep that legacy plan as the authority; do not manufacture
+Feature or Task Contract files merely to satisfy the new shape.
 
-### Step 2: Dispatch to Agent-Teams
+Record the original plan implementation base, coordination workspace, and every
+task branch, workspace, Task session name, base, and head. Do not require all
+tasks to share one advancing HEAD. On re-entry, retain an already accepted task
+only when its exact Feature Contract authority, assigned Feature clause
+meanings, Task Contract content, dependencies, and relied-on shared-interface
+meanings remain unchanged. Preserve its exact base, head, range, commit,
+verification, gate result, and gaps. Mark every affected or transitively
+dependent result stale, exclude it from dependency release and aggregation, and
+require fresh acceptance under both current approved authorities. Do not widen
+an earlier task range when a later task adds commits.
 
-Invoke `/agent-teams-driven-development`. Pass the plan file path as context.
+When the approved plan follows a lightweight promotion, require the original
+lightweight base, promotion head, execution-starting head, exact unaccepted range
+and commits, later approved artifact state, changed files, attribution, writer
+and gate evidence, and gaps. The plan's first ready step must be its approved
+promotion reconciliation; never treat either later head as a clean
+implementation base.
 
-The agent-teams skill takes over: populates TaskList, spawns (or reuses) implementer + 2 reviewers, and runs per-task loops. Teammates persist across loop re-entries and are reclaimed automatically at session exit — there is no per-pass teardown.
+Stop and return a plan deviation when implementation would require a new
+architecture, goal, scope, responsibility owner, public or shared interface
+semantic, invariant, failure behavior, compatibility promise, verification
+obligation, schema, error model, policy, or authority decision. The coordinator
+owns the transition to the affected Design Doc, Feature Contract, or
+Implementation Plan approval gate.
 
-### Step 3: Receive Completion Signal
+## Schedule Task PR work
 
-When agent-teams reports completion, verify all TaskList entries are marked completed and all commits are on the feature branch.
+Resolve both graphs before executing anything. Use the Task dependency DAG to
+decide semantic readiness and the PR topology to decide the final review base.
+A task is dependency-ready only when every logical predecessor is internally
+`Accepted`. Human review and merge are not release conditions.
 
-### Step 4: Transition
+Permit multiple active tasks only when the approved plan marks them ready,
+ownership-disjoint, free of conflicting shared state, and assigned to separate
+branches and checkouts. Keep one writer per checkout and remain within the
+capacity the approved plan records. Use `/dispatching-parallel-agents` only as
+an adapter for already bounded task handoffs; queue deterministically rather
+than weakening a gate.
 
-→ Transition to `/verify` for formal verification (build, test, lint via implementation-verifier agent).
+A task whose logical inputs are ready but whose final PR base is not yet
+materialized may run in candidate mode when the plan permits it. Candidate work
+never releases a dependent and cannot contribute to feature acceptance. Before
+authoritative acceptance, materialize the approved final base, perform any
+authorized restack or retarget operation, and require fresh exact-range
+verification and review.
 
-**Note**: After `/verify`, the flow transitions to `/review`. The review feedback loop may re-invoke `/execute-plan` (this skill) autonomously to execute fix tasks appended to the plan's "Post-/review iteration" section. This re-entry is part of the autonomous loop and does **not** require engineer confirmation — proceed directly with the new tasks. The loop terminates either by clean review (→ `/finish-branch`) or by escalation (→ engineer report).
+### Establish the Task session
 
-## Discipline
+For each task that becomes ready and has no live Task session:
 
-- The plan must be followed faithfully. No ad-hoc design changes during execution.
-- Never start execution on main/master without explicit engineer consent.
-- If verification reveals issues outside the plan's scope, stop and consult the engineer.
+1. Invoke `/create-workspace` for that Task PR identity. It creates the task
+   worktree with
+   `herdr worktree create --cwd <repo-root> --branch <task-branch> --base <planned-base> --no-focus --json`
+   and returns the worktree path, the herdr workspace id, the checked-out
+   branch and HEAD, and the initial pane id of that workspace. The task
+   worktree is a herdr workspace; never split a pane inside the coordination
+   workspace for a task.
+2. Start the Task session in that initial pane:
+   `herdr agent start <feature>-task-<n> --kind claude --pane <pane-id> -- --name <feature>-task-<n> --model opus --permission-mode acceptEdits`.
+   The Task session name is the one recorded in the approved plan. Use
+   `acceptEdits` unless the approved plan or repository guidance records a
+   stricter mode; never use `bypassPermissions`.
+3. Confirm with `ListAgents` that the session is addressable by that name and
+   with `herdr agent get` that the pane reports a Claude session. Record the
+   mapping from Task PR identity to session name, workspace id, pane id, and
+   worktree path.
 
-## Failure Handling
+If the herdr CLI or its socket is unavailable, or the session does not become
+addressable, return `BLOCKED` with the task identity and the exact re-entry
+condition. Do not fall back to a headless session, a pane in another workspace,
+or a raw `git worktree add`.
 
-- Always work on a feature branch / worktree, never on main.
-- Rely on CI as a safety net if configured.
-- If a change turns out to be wrong, prefer reverting to patching. Atomic commits enable clean reverts.
+### Send the task handoff
 
-## Red Flags
+For each ready task, send one `SendMessage` (with a `summary`) to its Task
+session instructing it to invoke `/execute-task` with this concise
+plain-language handoff, written in English:
 
-| Violation | Correct Behavior |
-|---|---|
-| Executing without an approved plan | Stop. Get plan approval first via /create-plan. |
-| Executing on main/master | Stop. Set up the feature workspace via /create-workspace. |
-| Ad-hoc design changes during execution | Flag. Return to `/design-discussion` if design must change. |
-| Skipping /verify after agent-teams completes | /verify is the formal gate. Run it. |
-| Reporting completion with known test failures | Fix or note explicitly. |
-| Bypassing /agent-teams-driven-development to execute inline | Agent-teams is the autonomous loop. Don't bypass. |
+- exact Feature Contract identity, absolute path in the coordination worktree,
+  approval/currentness evidence, and the clauses assigned to this task;
+- the exact applicable Task Contract by plan path and section, including
+  purpose, expected result, constraints, dependencies, non-goals, and
+  delegated local decisions;
+- applicable shared interface contracts and adjacent-task obligations;
+- the Review context and complete Review policy by plan path and section;
+- the declared discipline and applicable repository guidance, including the
+  `project-rules.md` path and rule identifiers when the plan references them;
+- the coordination directory, exact task workspace, branch, and planned PR
+  identity;
+- the starting commit, planned PR base ref and commit, current head, and whether
+  the handoff is candidate or authoritative;
+- for authoritative re-entry of a prior candidate, its candidate commit, head,
+  preliminary evidence, and the authorized final-base materialization or
+  restack evidence;
+- responsibility and ownership boundaries;
+- verification routes and observable obligations;
+- the responsibility-scoped commit intent and its fixed message or the approved
+  writer authority to select that message;
+- contractually significant files, signatures, ordering, and exact commands
+  only when the approved plan fixes them;
+- the coordinator session name to which the result must be addressed.
 
-## Rationalization Prevention
+Reference the contract and plan files by path; the task worktree does not
+contain those ignored files, and unchanged prose is never copied into a
+handoff. Do not inline or require an unconditional reread of unassigned,
+unchanged Feature Contract or Design Doc prose. Keep the exact sources directly
+available for lookup when an assigned clause, shared interface, finding, or
+changed evidence requires more context.
 
-| Excuse | Reality |
-|---|---|
-| "Just a small design tweak during execution" | Design changes go through /design-discussion. No exceptions. |
-| "The plan is small, I can execute inline" | Agent-teams is the execution mechanism. Don't bypass. |
-| "Tests pass, no need for /verify" | /verify is the formal gate. Run it. |
+For an eligible legacy task, pass the approved legacy task specification and its
+referenced design sources as the explicit authority, plus the same workspace,
+base, discipline, verification, review, commit, and evidence fields available in
+that plan. Do not relabel it as a new Feature or Task Contract. Stop if a missing
+field creates material ambiguity; do not force migration or infer a decision.
 
-## Rules
+### Receive the task result
 
-- Never start execution on main/master without explicit engineer consent
-- Agent-teams is the execution mechanism — do not bypass
-- Engineer's mandatory review gate is at `/finish-branch` (before merge / PR / share). The autonomous loop (`/execute-plan` → `/verify` → `/review` → fix tasks) runs **without** engineer approval prompts; engineer involvement happens only on escalation or at `/finish-branch`
-- If verification reveals issues not covered by the plan, stop and consult the engineer
+The Task session returns its `/execute-task` result as one `SendMessage` to
+this coordinator session: exactly one of `Candidate`, `Accepted`, `BLOCKED`, or
+`Escalate` with the evidence that skill defines. That message body is the only
+acceptance evidence. herdr's agent state (`working`, `idle`, `blocked`, `done`)
+is liveness information only: use `herdr agent wait` or `herdr agent get` to
+detect a session that stalled or died without reporting, and never read `idle`
+or `done` as completion.
 
-## Integration
+Before accepting any result, re-resolve the task worktree's branch, planned
+base, merge base, head, range, and status directly from Git and require them to
+match the message. A mismatch is a workspace mismatch and returns `BLOCKED`
+without accepting the result.
 
-**Required:**
-- `/create-plan` — provides the plan to execute
-- `/create-workspace` — workspace verification/setup before execution
-- `/agent-teams-driven-development` — autonomous execution
-- `/verify` — formal verification after execution
+Accept `Candidate` only for a plan-authorized early implementation whose final
+PR base is still unavailable. Send the task again in authoritative mode, to the
+same Task session, after that base is current, passing the attributable
+candidate and restack evidence so it can skip duplicate implementation and
+commit work.
+
+Do not start a logical dependent until every predecessor returns current
+`Accepted`. On `BLOCKED`, `Escalate`, plan deviation, missing evidence, a
+workspace mismatch, or a returned branch, base, or head that does not match the
+observed task workspace, preserve all task states and return the exact gap to
+`agentic-engineering-workflow`.
+
+When a task's role in the plan is complete — accepted and no longer needed for
+correction, restack, or human-feedback re-entry — tell its Task session so by
+message. Leave the session, its pane, its workspace, and its worktree in place;
+their removal is the engineer's separately authorized action.
+
+## Propagate stale results
+
+Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
+PR topology, contract authorities, shared interfaces, task branches, bases,
+heads, merge bases, diffs, and statuses across every task worktree. Traverse
+both graphs when an ancestor, topology edge, contract meaning, logical
+dependency, or consumed interface changes. Mark every affected result stale,
+remove it from dependency release and feature coverage, and return it to
+authoritative `/execute-task` — by message to the same Task session — after the
+approved final base is restored.
+
+Rebase, restack, retarget, force operations, or other history changes require
+their applicable explicit authority and are performed in the task's own
+checkout. Reapproval of prose does not revive stale Git evidence, and
+preliminary common-base checks do not survive restacking as acceptance.
+
+## Reconcile promoted lightweight work
+
+Before ordinary planned tasks, give `/execute-task` the approved promotion-
+reconciliation Task Contract, original lightweight base, promotion head,
+execution-starting head, exact unaccepted range and commits,
+attributable approved artifact state, complete change-to-Task-Contract mapping,
+and prior writer and gate evidence. This special handoff authorizes acceptance
+work on the attributable envelope; it does not authorize history rewriting or
+new feature semantics.
+
+Require fresh verification and the complete policy-selected task gate against
+the current approved contracts. The preserved commits satisfy the reconciliation
+commit intent when no correction is needed. If approved design or plan artifacts
+remain uncommitted, the reconciliation Task Contract must declare their bounded
+commit and one writer creates it before the gate. If correction is authorized,
+use one writer and record a new bounded commit. Accept reconciliation only when every
+preserved change has unambiguous ownership and current evidence; otherwise return
+`BLOCKED` or a material plan deviation. Include the original lightweight base in
+that task's accepted range and feature evidence, and do not release dependent
+tasks before reconciliation is accepted.
+
+## Resume only attributable work
+
+After an interrupted or incomplete task, retain accepted and candidate results
+for every other workspace separately from the observed in-flight work. Before
+resuming one task:
+
+1. confirm through `ListAgents` and `herdr agent get` that the prior Task
+   session is inactive or lost and that no writer overlaps;
+2. inspect that workspace's branch, HEAD, status, commits, planned base, and
+   exact base-to-head diff;
+3. confirm the observed edits and commits are attributable to that task and
+   descend from its task base;
+4. confirm the unchanged task handoff still applies.
+
+Resume the unfinished work or pending read-only gate only when all four checks
+pass, by re-sending the handoff with the observed state to the existing Task
+session or, when that session is lost, to a freshly established one. If state
+is uncertain, mismatched, or unattributable, do not clean, reset, recommit, or
+dispatch a replacement. Return `BLOCKED` with the observed session and Git state
+plus the exact condition required for re-entry. Use `Escalate` only when
+resumption needs a material decision, scope, policy, or authority change.
+
+An interrupted task remains unaccepted. Preserve an attributable candidate but
+do not add it to accepted results, feature coverage, or dependency release until
+`/execute-task` returns current authoritative acceptance evidence.
+
+## Re-enter for a planned correction
+
+Treat an authorized correction as work on its owning Task PR. Preserve every
+other task's exact result and the original implementation base.
+Send the same Task session the exact finding or failed observation, approved
+correction, observed attempts and results, unchanged Feature and Task Contracts
+with shared interfaces or unchanged eligible legacy authority, Review context,
+Review policy, current planned PR base and accepted head, responsibility
+boundaries, verification obligations, and a correction commit intent bounded to
+the finding with its fixed message or approved writer message-selection
+authority.
+
+When the same concrete problem repeats without progress, or the next action would
+repeat an observed failed correction, stop and return the attempt evidence. Do
+not invent another tracking protocol or silently expand the correction.
+
+After `Accepted`, append the correction once with its commit, exact PR base,
+current head, range, fresh verification, gate result, and gaps. Traverse both
+graphs, mark affected descendants stale, and recalculate feature coverage
+without widening any unchanged task range.
+
+## Materialize integration-only evidence
+
+Only after every input Task PR is current and `Accepted`, materialize each
+approved integration-only composition before returning `TasksAccepted`. Invoke
+`/create-workspace` to establish its plan-defined temporary workspace, then
+apply the exact starting commit or tree and accepted Task PR inputs with the
+approved deterministic mechanism and order. This is a Git composition
+operation, not a source-writing task; assign no implementation writer, start no
+Task session, and make no manual conflict fix.
+
+Record the workspace, starting identity, ordered input commits and trees,
+commands, ending HEAD and tree, status, and diff. Require the observed tree to
+match the plan's identity checks. A conflict, missing input, unexplained change,
+or authority-required workspace or history operation returns `BLOCKED` or
+`Escalate` as applicable. Never publish the temporary ref or treat it as another
+Task PR. Return its exact identity and retain it through current integration
+verification and targeted review. When the plan-defined retention boundary is
+reached, report that it is cleanup-eligible; never remove its ref or workspace
+without the applicable user-controlled disposition.
+
+## Aggregate accepted tasks
+
+After each accepted task, append a result keyed by Task Contract and PR identity
+containing:
+
+- task name and dependency position;
+- exact authority and Task Contract content/currentness accepted;
+- Feature Contract clauses and Task Contract obligations, eligible legacy
+  completion criteria, or promotion mappings proved;
+- exact task workspace, Task session name, branch, planned base ref and commit,
+  merge base, accepted current head, and base-to-head range;
+- task and correction commits;
+- fresh verification obligations, commands selected or required, and observed
+  results;
+- per-task gate result;
+- changed files, concerns, and gaps.
+
+After every planned task is accepted and current:
+
+1. retain the complete result set in deterministic Task DAG and PR-topology
+   order;
+2. re-resolve every task branch, base, head, range, dependency, and shared
+   interface;
+3. prove complete Feature Contract coverage and identify only the obligations
+   that remain integration-only;
+4. materialize and record the exact temporary tree for each integration-only
+   obligation from its approved accepted heads and deterministic composition,
+   without treating the composition as a PR;
+5. report task publication eligibility, plan deviations, correction attempts,
+   stale results, and residual gaps separately
+   from successful evidence.
+
+There is no synthetic full-feature review range. A stacked descendant head may
+contain its ancestors, but it never replaces their task-specific accepted
+ranges. A temporary composed tree exists only to prove named integration-only
+obligations.
+
+## Return orchestration status
+
+Return:
+
+- `TasksAccepted` only with every current Task PR result, both resolved
+  topologies, complete Feature Contract coverage, any required integration
+  composition, or the exact eligible legacy authority, plus Review context and
+  complete Review policy; no candidate, stale result, or unreconciled promoted
+  range may contribute;
+- `BLOCKED` with all accepted and candidate results, observed Task sessions and
+  per-workspace Git state, gaps, and exact re-entry condition;
+- `Escalate` with the exact plan deviation, missing decision, policy conflict, or
+  task escalation.
+
+Return control to `agentic-engineering-workflow` after `TasksAccepted` or any
+stop condition. Do not run feature integration verification or targeted review,
+publish, merge, or choose branch disposition.

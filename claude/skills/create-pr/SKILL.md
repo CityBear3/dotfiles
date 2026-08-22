@@ -1,122 +1,83 @@
 ---
 name: create-pr
-description: Create a GitHub pull request with a structured description derived from the design decisions, plan, and changes. Invoke with `/create-pr`.
-argument-hint: "[base branch (optional, defaults to main)]"
+description: Create an authorized GitHub Task PR against its approved planned base with a structured description grounded in exact Task Contract, range, and verification evidence.
 ---
 
-# Create Pull Request
+# Create a pull request
 
-Create a GitHub pull request with a well-structured description.
+Treat PR creation as an external write.
 
-## Input
+## Gather evidence
 
-`$ARGUMENTS` optionally specifies the base branch. Defaults to `main`.
+Resolve one exact publication authority: a planned Task Contract and PR topology
+entry; a recoverable lightweight combined Feature/Task Contract and its accepted
+planned base; or an eligible legacy task authority and its approved base. Do not
+substitute the repository default for a resolved base. Inspect:
 
-## Execution
+- `git status --short`;
+- the exact head branch and object, planned base branch and object, merge base,
+  and current parent PR state when stacked;
+- commits in `<base>..HEAD`;
+- `git diff --stat <base>...HEAD` and the full diff;
+- relevant planned Design Doc, Feature Contract, Implementation Plan, and Task
+  Contract content and original paths, including an exact captured publication
+  handoff after an authorized prior workspace-lifecycle action removed their
+  source paths; the complete
+  lightweight combined contract and original request authority; or the exact
+  eligible legacy sources;
+- for planned or lightweight work, current internal `Accepted` verification,
+  review, and triage evidence for that exact PR range;
+- for eligible legacy work, current verification, review, and triage evidence
+  satisfying its unchanged approved completion criteria, without requiring a
+  new internal `Accepted` state;
+- the repository PR template, preferring `.github/pull_request_template.md`, then other conventional template locations;
+- fresh verification results for the branch.
 
-### Step 1: Gather Context
+Template lookup order, when it is not obvious which conventional location
+applies: `.github/pull_request_template.md`, then `.github/PULL_REQUEST_TEMPLATE.md`,
+then `.github/PULL_REQUEST_TEMPLATE/*.md` (ask the user which to use when more
+than one exists), then a root-level `pull_request_template.md` or
+`PULL_REQUEST_TEMPLATE.md`.
 
-1. Run `git status` to check for uncommitted changes. If there are uncommitted changes, warn the user and stop.
-2. Run `git log <base>..HEAD --oneline` to list all commits on this branch.
-3. Run `git diff <base>...HEAD` to see the full diff.
-4. **Check for a PR template** in the repository. Look in this order and use the first match:
-   - `.github/pull_request_template.md`
-   - `.github/PULL_REQUEST_TEMPLATE.md`
-   - `.github/PULL_REQUEST_TEMPLATE/*.md` (multiple templates — ask the engineer which to use)
-   - Root-level `pull_request_template.md` / `PULL_REQUEST_TEMPLATE.md`
-5. Identify the relevant Design Doc, plan, or `/design-discussion` outcome if it exists. If a plan exists with an "Alternative Solutions Considered" section, lift the key decisions for the PR's Design Decisions section.
+Stop if the branch, base, range, ancestry, applicable accepted or legacy
+completion evidence, or status differs from the approved publication target. A
+candidate or stale task is not publishable. Do not push a missing branch,
+retarget a PR, or restack history from this skill.
 
-### Step 2: Draft PR Description
+Do not require planned artifact files from lightweight work or manufacture the
+new Task PR topology for eligible legacy work.
 
-#### 2a. Decide the body structure
+For planned work, normally use the ignored contract and plan artifacts while
+their coordination worktree exists. If an authorized prior workspace-lifecycle
+action already removed those sources, require the exact captured contract
+content and topology evidence from `finish-branch`; do not reconstruct their
+content from memory.
 
-- **If a PR template was found in Step 1** → use the template's sections **verbatim** (do not add, remove, or reorder sections). The project's convention takes precedence over this skill's default structure.
-- **If no PR template was found** → use the fallback structure below.
+## Draft
 
-#### 2b. Distinguish AI-draftable vs engineer-required sections
+Follow the repository template. Otherwise include:
 
-| Section type | Examples | Who writes |
-|---|---|---|
-| **Fact-based** | Summary, Changes, Test Plan, file lists, command outputs | AI may draft (verifiable from diff / commits / test results) |
-| **Intent-based** | Design Decisions, Mental models, Trade-offs, Risks, Migration notes, "Why this shape" | **Engineer required** |
+- Summary
+- Motivation
+- Design decisions
+- Authority and planned or approved base
+- Changes
+- Verification
+- Known limitations or follow-ups
 
-**For intent-based sections, AI MUST NOT invent content.** Hallucinated rationale is worse than no rationale — it misleads reviewers and rots into false documentation.
+Describe observed results; do not claim checks that were not run. Keep implementation narration subordinate to user-visible behavior and design rationale.
 
-Instead:
-- **If a Design Doc exists** → write a one-line link reference and stop. The Design Doc is the durable record; do not duplicate its content inline.
-- **If a plan with "Alternative Solutions Considered" exists** → AI may lift content **verbatim** (this is a record of the engineer's prior decision, not AI generation).
-- **Otherwise** → insert a placeholder for the engineer to fill:
+## Publish
 
-  ```
-  <!-- ENGINEER: write the design intent here. Examples of what to capture:
-       - The mental model / framing behind this change (not visible in the diff)
-       - Trade-offs considered and rejected, with reasons
-       - Hidden assumptions, invariants, or constraints
-       - Why this shape and not an alternative
-       Reviewers cannot read your mind — write what the code cannot say. -->
-  ```
+Show the proposed title, exact base and head, and body before the external write
+unless the user's request already approved those exact publication values. Then
+use `gh pr create` with explicit resolved `--base` and `--head` arguments, for
+example `gh pr create --title <title> --body <body> --base <base> --head <head>`.
 
-#### 2c. Title
+Do not push a missing remote branch, create follow-up issues, add reviewers, or comment elsewhere without authorization.
 
-Short (under 70 characters), descriptive of the change. AI-draftable.
-
-#### 2d. Fallback body structure (when no PR template exists)
-
-```
-## Summary
-
-<AI-draftable: 1-3 sentences from the diff describing what this PR does>
-
-## Design Decisions
-
-<Design Doc link OR engineer-written rationale OR <!-- ENGINEER --> placeholder>
-
-## Changes
-
-<AI-draftable: bulleted list of key changes, grouped by concern>
-
-## Test Plan
-
-<AI-draftable: tests added, manual verification performed>
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-```
-
-**Rationale for this split**: AI can see code and conversation records, but not the engineer's mental model — the framing, the rejected paths, the unstated assumptions. Asking AI to write design rationale produces plausible-sounding but unverifiable prose that misleads reviewers. The engineer is the only source of truth for intent.
-
-### Step 3: Engineer Completion
-
-This is **not just a review step** — it is where the engineer fills in mental models, design rationale, and any context that does not appear in the code. The draft from Step 2 is a starting point, not a finished product.
-
-1. Show the draft title and body.
-2. **Explicitly highlight any `<!-- ENGINEER: ... -->` placeholders** that remain. Quote each one and ask the engineer to fill it.
-3. Even if no placeholder exists (e.g., a Design Doc link was used), ask one focused question:
-
-   > "Is there context, a mental model, or a constraint behind this change that doesn't appear in the code or the linked Design Doc? Reviewers will read only the PR — anything not written here is invisible to them."
-
-4. Wait for the engineer to either:
-   - Provide additions (you incorporate them into the body)
-   - Edit the draft directly
-   - Explicitly confirm "the draft is complete as-is"
-
-**Do not create the PR while any `<!-- ENGINEER -->` placeholder remains.** Removing a placeholder without filling it is a violation — the engineer either fills it or explicitly states that the section is intentionally empty.
-
-### Step 4: Create PR
-
-After engineer completion:
-
-1. Verify no `<!-- ENGINEER: ... -->` placeholders remain in the body.
-2. Push the branch if not already pushed: `git push -u origin HEAD`
-3. Create the PR: `gh pr create --title "<title>" --body "<body>" --base <base>`
-4. Return the PR URL to the user.
-
-## Rules
-
-- Never create a PR without the engineer's explicit completion of intent-based sections
-- **Respect existing PR templates** — if a template was found in Step 1, use its sections verbatim (do not impose this skill's fallback structure on top)
-- **Never invent design rationale, mental models, or unstated assumptions** — AI may draft fact-based sections only; intent-based sections require the engineer
-- **Prefer linking the Design Doc over inlining** rationale, when one exists — avoid duplication that will rot
-- Never proceed to PR creation while any `<!-- ENGINEER: ... -->` placeholder remains
-- Always check for uncommitted changes first
-- Always push before creating the PR
-- If the branch has no commits ahead of the base, inform the user and stop
+Return the PR URL, base and head, stack parent when applicable, and the
+verification and review evidence included in the description. PR creation does
+not remove Feature Contract or Implementation Plan artifacts, remove their
+worktree, or grant merge authority.
+</content>

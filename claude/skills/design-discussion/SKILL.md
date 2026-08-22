@@ -1,156 +1,104 @@
 ---
 name: design-discussion
-description: |
-  Entry point for all engineering work. Brainstorm requirements and design through dialogue,
-  optionally support engineer's prototyping, and route to the next appropriate skill.
-  The engineer drives design decisions; Claude Code is sounding board and context provider.
-  Invoke with `/design-discussion <topic>` or `/design-discussion` to start a new discussion.
+description: Collaboratively clarify an engineering problem, investigate the current system, compare viable approaches, and settle user-owned design decisions. Use when beginning engineering work or when implementation exposes an unresolved design choice.
+argument-hint: "[topic]"
 ---
 
-# Design Discussion
+# Design discussion
 
-Engineering work begins here. Through collaborative dialogue, clarify what to build (or fix), explore approaches, and route to the next appropriate skill in the workflow.
+Keep architecture, scope, algorithms, public contracts, and material trade-offs
+under user control. Act as an investigator and sounding board.
 
-**Announce at start:** "I'm using the design-discussion skill to discuss this work."
+Invoke phase skills through the Skill tool (`/systematic-debugging`); never
+perform another phase's work inline.
 
-## When to Use
+## Establish the problem
 
-Every engineering task starts with `/design-discussion`. There are no exceptions. New features, bug fixes, refactors, small improvements, exploratory work — all begin here.
+Read relevant code, tests, documentation, and history before asking questions. Summarize:
 
-The discussion scales to the work: brief for trivial, extensive for complex.
+- current behavior;
+- desired outcome;
+- constraints and non-goals;
+- decisions already made;
+- remaining material ambiguity.
 
-## Claude Code's Role
+Ask only for choices that cannot be resolved from available evidence.
 
-The engineer drives design decisions. Claude Code's role is to:
+## Explore
 
-- Gather and present codebase context to inform decisions
-- Walk the decision tree with recommended answers and trade-offs to surface assumptions, constraints, and non-obvious dependencies
-- Present multiple approaches with trade-offs (when applicable)
-- Act as sounding board — challenge assumptions, surface alternatives
-- Support engineer's prototyping by gathering context, running experiments, or executing prototype code at the engineer's request
+For each material decision:
 
-Claude Code does NOT:
-- Decide the design or pick the approach (engineer decides)
-- Write production code in this phase (only prototypes, and only when the engineer is driving)
-- Skip routing — the discussion must conclude with a clear next step
+1. state the decision to be made;
+2. present the smallest set of viable options;
+3. explain concrete trade-offs in this codebase;
+4. recommend one option and why;
+5. let the user decide.
 
-## Process
+- Investigate the codebase with extended thinking before posing questions.
+  When structural context is needed, launch `code-architect` with the Agent
+  tool: `Agent({ subagent_type: "code-architect", model: "sonnet", prompt:
+  <question> })`. Pass no `name`, run it in the foreground so its report
+  returns as the tool result, and pass `model: "sonnet"` explicitly even
+  though the definition pins it.
+- Ask one question at a time; recommend an answer with its trade-off and leave
+  room for discussion before offering a decision.
 
-**Operating Procedure (mandatory).** The engineer should never have to
-prompt for "ultrathink" or deeper questioning — both are baked into this
-skill.
+Support user-authored prototypes with research, diagnostics, or review. Do not take over implementation while the user is using code to explore the design.
 
-0. **Workspace check.** As soon as the discussion reveals the work will
-   change code — and no later than routing — check where this session
-   runs: if `git rev-parse --path-format=absolute --git-common-dir`
-   equals `<toplevel>/.git`, this is the main checkout (a launchpad
-   session), so invoke `/create-workspace` before going deeper. Feature
-   work lives in its own herdr workspace from design-discussion onward.
-   Pure consultation, investigation, or prototyping support may stay
-   where it is.
+## Maintain the decision record
 
-1. **Investigate first.** Once the topic is understood, your next
-   response uses extended thinking (ultrathink) to investigate the
-   codebase, existing Design Docs, and relevant specs. Ground the
-   discussion in current state before posing questions or solutions.
-   For deeper architectural analysis, invoke the `code-architect` agent.
-   If a question can be answered by code or specs, **investigate
-   instead of asking**.
+Update a compact decision record as choices settle:
 
-2. **Reason deeply when proposing.** Use extended thinking (ultrathink)
-   whenever reasoning about solutions or proposing alternatives. Surface
-   edge cases, failure modes, second-order effects, and non-obvious
-   trade-offs. Every recommendation is paired with a trade-off or
-   alternative. For decisions with multiple full architectural
-   alternatives, present **2–3 candidates with trade-offs** so the
-   engineer compares whole approaches.
+- selected approach and rationale;
+- rejected alternatives and reasons;
+- scope;
+- non-goals;
+- explicitly deferred questions.
 
-3. **Walk the engineer through the decision tree.** One question at a
-   time — the single highest-leverage question next; recommend an
-   answer with its trade-off and let discussion settle before moving
-   on. Walk branch by branch,
-   surfacing dependencies between decisions. Cover both **problem-space
-   decisions** (what must be required, guaranteed, or exposed —
-   consistency, failure tolerance, integration boundaries, performance
-   budgets) and **solution-space decisions** (which architecture, which
-   structural alternative). Continue until every critical-path decision
-   is resolved — do not stop at a surface answer when a deeper branch
-   materially changes the design. Non-blocking branches may be deferred
-   with an explicit note.
+List unresolved material decisions separately. Do not treat a question as
+deferred unless the user explicitly accepts that deferral.
 
-4. **Close when design decisions are clear enough to feed `/create-plan`
-   or `/design-doc`.** Route explicitly (see Closing) and wait for
-   engineer's confirmation.
+## Scale the process
 
-Scale the depth to the work; investigation-first and ultrathink remain
-mandatory at every depth.
+- Route bugs through `/systematic-debugging` before planning a fix.
+- Use a Design Doc for cross-cutting architecture, durable public contracts, or decisions worth preserving.
+- Skip the Design Doc when the settled scope does not need a durable architecture
+  artifact, but still construct a Feature Contract before planning.
+- Do not implement from this skill.
 
-### Prototyping (optional, engineer-driven)
+## Construct a Feature Contract without a Design Doc
 
-When the engineer chooses to validate an approach through code, support
-the process. The engineer writes the prototype; Claude Code may:
+When the coordinator confirms that no Design Doc is warranted and the decision
+record is owner-approved, derive a separate Feature Contract from that record
+and repository evidence. Include:
 
-- Set up a scratch directory or branch for the prototype
-- Run the prototype and report results
-- Gather data the engineer requests (performance, behavior observations)
-- Answer questions about libraries, APIs, or existing code
+- context and goal;
+- scope and non-goals;
+- design sources, decisions, and precedence;
+- observable behavior, preserved behavior, and material failure behavior;
+- responsibilities, interfaces, and important unchanged boundaries;
+- protected constraints and invariants;
+- verification obligations;
+- evidence-backed assumptions and explicitly approved deferrals.
 
-Claude Code does not autonomously write prototype code. Prototypes are
-throwaway by default — their purpose is to inform the design, not become
-production code.
+Add conditional concerns such as state transitions, schema lifecycle, error and
+recovery semantics, concurrency, authorization, performance, migration, or
+rollback only when they apply. If completing the contract would decide
+architecture, responsibility, a public or shared interface, schema, error
+behavior, scope, or another material trade-off, return that exact ambiguity to
+design discussion. Do not fill it in while drafting.
 
-### Closing
+Return the complete Feature Contract to the coordinator for separate user
+approval and workspace-only storage at
+`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
+force-add, stage, or commit it unless the user explicitly chooses archival. This
+skill does not approve the contract, enter planning, or combine it with an
+Implementation Plan.
 
-Once design decisions are clear enough to feed downstream, route to the
-next skill:
+## Handoff
 
-| Situation | Next Skill |
-|---|---|
-| Significant design needing formal documentation | `/design-doc` → `/create-plan` |
-| Clear scope, ready to plan | `/create-plan` |
-| Bug or unexpected behavior | `/systematic-debugging` |
-| Trivial single-file change with clear approach | `/execute-plan` (only with engineer's explicit approval to skip planning) |
-
-State the next step explicitly and wait for engineer's confirmation
-before invoking.
-
-## When to Invoke /design-doc
-
-Invoke `/design-doc` when the work warrants formal documentation: multiple components, cross-cutting concerns, significant architectural decisions, or future-reference value. The discussion outcomes serve as input.
-
-For smaller work where a Design Doc would be ceremony (handful of files, no cross-cutting impact), skip `/design-doc` and go directly to `/create-plan`.
-
-## Key Principles
-
-- **One question at a time** — Don't overwhelm with multiple questions.
-- **Explain first, decide later** — Present analysis and leave room for discussion; offer options when the engineer is ready to decide.
-- **Engineer decides** — Claude Code presents options; the engineer chooses.
-- **Scale to the work** — Brief for trivial, extensive for complex.
-- **YAGNI** — Strip unnecessary scope from any design.
-- **Routing is mandatory** — The discussion concludes with a clear next step.
-- **Walk the decision tree** — Branch by branch, until critical-path decisions are resolved. Don't accept surface answers when a deeper branch matters.
-- **Recommend with trade-off** — Pair every recommended answer with the cost or alternative. Recommendations are reactions, not answers.
-- **Codebase before questions** — If code can answer, read code instead of asking.
-
-## Red Flags
-
-| Violation | Correct Behavior |
-|-----------|-----------------|
-| Claude Code picks the design approach | Present options with trade-offs. The engineer decides. |
-| Claude Code writes prototype code without the engineer asking | Engineer drives prototyping. Offer support, don't take over. |
-| Claude Code skips routing and ends the discussion ambiguously | Always conclude with the next skill and wait for confirmation. |
-| Claude Code asks multiple questions in one message | One question at a time. Wait for the answer. |
-| "This is too simple to discuss" | Every task starts here. Trivial discussions are still discussions. |
-| Claude Code transitions to the next skill without engineer's approval | Wait for explicit confirmation before invoking. |
-| Claude Code asks a question and accepts the engineer's first reply without checking dependent branches | Walk the decision tree. If the answer constrains a downstream decision, surface the dependency. |
-| Claude Code recommends an answer without a trade-off, and the engineer rubber-stamps it | Always pair recommendation with trade-off or alternative. Recommendations are reactions to engage with, not defaults to accept. |
-| Claude Code asks the engineer something the codebase already answers | Explore the codebase first. Ask only if code can't answer. |
-| Claude Code waits for the engineer to prompt "ultrathink" or deeper investigation | Both are defaults per Operating Procedure. Apply them without prompting. |
-
-## Rationalization Prevention
-
-| Excuse | Reality |
-|--------|---------|
-| "The engineer probably knows what they want" | Ask. Assumptions about intent waste later cycles. |
-| "I can write the prototype faster" | Engineer prototyping is design thinking. Don't take it over. |
-| "Skipping discussion for clarity" | The discussion IS clarity. Skipping creates rework. |
+Return the decision record, unresolved material decisions, relevant evidence,
+and whether the settled decisions warrant a Design Doc to
+`agentic-engineering-workflow`. When no Design Doc is warranted, also return the
+draft Feature Contract. Let the coordinator own its approval and select the next
+phase.

@@ -1,163 +1,218 @@
 ---
 name: verify
-description: |
-  Post-implementation verification skill. Delegates to the implementation-verifier agent
-  for build, test, lint, diff review, and readability checks. Enforces the Iron Law:
-  no completion claims without fresh verification evidence.
-  Invoke with `/verify` after /execute-plan completes.
+description: Verify an exact Task PR range, an integration-only composed tree, or a standalone target with fresh checks and return PASS, FAIL, or BLOCKED evidence.
 ---
 
-# Verify
+# Verify a Task PR or integration target
 
-Run formal post-implementation verification by delegating to the `implementation-verifier` agent. Enforce the Iron Law: evidence before claims, always.
+No completion claim without fresh observed evidence.
 
-**Announce at start:** "I'm using the verify skill to run post-implementation verification."
+Remain check-only and read-only with respect to the index, tracked files, and
+in-scope source files. Do not edit source, stage changes, create commits, run a
+fix, or advance another workflow phase. Verification commands may create normal
+ignored build or test artifacts, but must not mutate tracked or in-scope source
+state.
 
-## The Iron Law
+## Resolve the requested target
 
-```
-NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
-```
+Use one target form:
 
-If you haven't run the verification command in this session, you cannot claim it passes. Claiming completion without fresh verification is dishonesty, not efficiency — and violating the letter of this rule is violating its spirit.
+- a coordinator-managed Task PR with exact planned base, branch, current head,
+  merge base, and range;
+- a coordinator-managed integration-only composed tree with its exact accepted
+  Task PR heads and composition order;
+- an eligible legacy coordinator-managed committed range;
+- a standalone committed range;
+- a standalone current index/worktree snapshot;
+- a standalone bounded explicit fileset.
 
-## Entry Conditions
+For any target, inspect applicable repository guidance and record current HEAD,
+`git status --short`, changed files, requested scope, authoritative commands, and
+known limitations before running checks.
 
-- Implementation is complete (all tasks in the plan are completed by agent-teams, or the engineer has reported direct completion)
-- The agent-teams' implementer ran tests as part of work, but those results do NOT substitute for /verify
-- The engineer is ready for formal verification
+## Coordinator-managed entry
 
-## The Gate Function
+Require one exact coordinator target and its authority.
 
-Before claiming any status or expressing satisfaction:
+For a Task PR require:
 
-1. **IDENTIFY**: What command proves this claim?
-2. **RUN**: Execute the FULL command (fresh, complete)
-3. **READ**: Full output — check exit code, count failures
-4. **VERIFY**: Does output confirm the claim?
-   - If NO: State actual status with evidence
-   - If YES: State claim WITH evidence
-5. **ONLY THEN**: Make the claim
+- Task Contract and PR identities, task workspace and branch, planned base ref
+  and exact commit, merge base, current head, and exact committed range;
+- current status and changed files, with no unexplained in-scope index,
+  worktree, or untracked source change outside that range;
+- approved scope, non-goals, Review context, and Review policy;
+- every authoritative task verification route and expected observation, with
+  exact commands where their identity is contractually significant;
+- task commits, current dependency and shared-interface evidence, concerns, and
+  known gaps;
+- the approved Feature Contract and applicable Task Contract with their source
+  and currentness evidence, or the complete lightweight combined contract.
 
-**Skip any step = lying, not verifying.**
+Do not require an `Accepted` result or prior task review: this verification is
+part of producing that result.
 
-## Flow
+For a planned integration-only target require:
 
-### Step 1: Gather Context
+- the approved Design Doc when applicable, Feature Contract, complete
+  Implementation Plan and Task Contract set, and their approval state;
+- every current accepted Task PR result with exact base, head, range, and
+  topology evidence;
+- the exact temporary composition, starting and ending tree identity, and only
+  the Feature Contract obligations classified as integration-only;
+- approved Review context and policy, concerns, and known gaps.
 
-Before launching the agent, collect from the current conversation:
-- The approved plan (and Design Doc if any)
-- The list of changed files
-- The project-level CLAUDE.md path (if known)
+Do not rerun task-scoped obligations merely because the composed tree contains
+their changes. Task acceptance supports coverage but never substitutes for a
+named integration-only observation.
 
-### Step 2: Launch Agent
+For a lightweight integration-only target require:
 
-Use the Agent tool to launch the `implementation-verifier` agent with the gathered context. **Pass `model: "opus"` explicitly.** The agent definition's frontmatter already pins opus, but the explicit parameter keeps the cost policy auditable at the call site and guards against frontmatter drift — the verifier must never inherit the lead's session model (e.g. Fable 5, whose per-token cost is too high). **Run it in the foreground — do NOT set `run_in_background: true`** — so the agent's verification report returns inline as the tool result (Step 3 reads it directly). Include in the prompt:
-- The plan or Design Doc content (or note that none exists)
-- The scope of changes (changed files, relevant modules)
-- The project root path
+- the complete recoverable combined in-memory Feature/Task Contract, original
+  request authority and design sources, Review context, and current policy;
+- the current exact accepted lightweight Task PR with base, head, tree, range,
+  status, verification, review, and triage evidence;
+- that accepted head and tree as the exact integration target and the named
+  integration-only obligation and expected observation;
+- no unresolved promotion condition, material contract change, or stale state.
 
-### Step 3: Present Results
+Do not require a Design Doc, contract file, Implementation Plan, Task DAG,
+multi-PR topology, or temporary multi-head composition for this authority form.
+Verify only the named integration-only observation; do not rerun its task gate.
 
-When the agent completes, present its verification report to the engineer.
+For a lightweight Task PR target, accept the complete combined in-memory
+Feature/Task Contract, its original request authority and design sources, and
+the exact Task PR target. Require that the contract remains completely
+recoverable and no promotion condition or material change is unresolved. This
+Task PR verification also provides feature evidence when no integration-only
+obligation exists. Do not require an Implementation Plan, contract file, or
+separate artifact approval.
 
-**Apply the Iron Law to the agent's report:** if the agent claims success, do not propagate the claim — verify by checking the actual evidence (test output, build exit code, diff). Trust the evidence, not the report.
+For a plan approved and already executing before the contract-centered format,
+accept its exact approved plan and referenced design sources in place of Feature
+and Task Contract artifacts only when the coordinator supplies unchanged
+approval and in-flight evidence, no material ambiguity, and no owner migration
+choice. Use its original scope, task specifications, verification and completion
+criteria, Review context, and Review policy. Do not manufacture new artifacts or
+weaken current-head evidence.
 
-If deviations from the plan or readability suggestions are found, ask the engineer how to proceed.
+Resolve the applicable workspace, branch, base, head, merge base, range, tree,
+changed files, and diff directly from Git. Require that workspace HEAD and status
+match the supplied target. Return `BLOCKED` before checks when any identity,
+composition input, or required authority is missing or stale. Standalone
+evidence never substitutes for this entry.
 
-### Step 4: Transition
+## Standalone read-only entry
 
-After verification passes:
+Resolve the user's requested scope through local read-only investigation:
 
-→ Transition to `/review` **autonomously** — this is part of the autonomous loop phase per CLAUDE.md (`execute-plan → verify → review`). Do NOT pause to ask the engineer for approval before entering `/review`. Engineer involvement happens at `/finish-branch`'s options menu or on escalation, not here.
+- For a committed range, record base, head, range, diff, changed files, and
+  current status.
+- For an index/worktree review, record HEAD, staged and unstaged status and
+  diffs, relevant untracked paths, and bounded changed files.
+- For an explicit fileset, record the exact bounded paths, current status, and
+  what content was inspected.
 
-If verification fails:
+Require applicable repository guidance and authoritative verification routes,
+including exact commands only when their identity is part of the requested or
+repository contract. Use available Design Doc, Feature Contract, Task Contracts,
+plan, Review context, and policy evidence when present.
+Do not require implementation authorization or an approved policy for a
+standalone check.
 
-→ Return to `/execute-plan` (or restart agent-teams for the failing task) to fix issues, then re-run `/verify`.
+Return `BLOCKED` when the requested scope or authoritative commands cannot be
+resolved safely. Report assumptions and limitations. A worktree or fileset result
+may answer the direct request, but cannot satisfy the coordinator's committed
+current-head gate.
 
-## Common Failures
+## Select a compatible executor
 
-| Claim | Requires | Not Sufficient |
-|-------|----------|----------------|
-| Tests pass | Test command output: 0 failures | Previous run, "should pass" |
-| Linter clean | Linter output: 0 errors | Partial check, extrapolation |
-| Build succeeds | Build command: exit 0 | Linter passing, logs look good |
-| Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
-| Regression test works | Red-green cycle verified | Test passes once |
-| Agent completed | VCS diff shows changes | Agent reports "success" |
-| Requirements met | Line-by-line checklist against plan | Tests passing |
+Before selecting a named verifier, inspect its effective sandbox and complete
+instructions. A compatible verifier must prohibit index, tracked-file, and
+in-scope source mutation and must not permit formatter output into those files.
 
-## Key Patterns
+`/verify` launches the `implementation-verifier` agent for this role: the Agent
+tool, `subagent_type: "implementation-verifier"`, no `name` (a one-shot
+subagent, never a named teammate), run in the foreground so its report returns
+inline as the tool result, and `model: "sonnet"` passed explicitly at the call
+site. Its definition is check-only: no tracked-file or in-scope source writes,
+no formatter write mode, and the edit tools denied. If it cannot be launched,
+the lead runs the checks under this same contract. Unavailability is not
+permission to weaken the boundary.
 
-**Tests:**
-```
-✅ [Run test command] [See: 34/34 pass] "All tests pass"
-❌ "Should pass now" / "Looks correct"
-```
+## Snapshot and run checks
 
-**Regression tests (TDD Red-Green):**
-```
-✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
-❌ "I've written a regression test" (without red-green verification)
-```
+Immediately before the first command, capture:
 
-**Build:**
-```
-✅ [Run build] [See: exit 0] "Build passes"
-❌ "Linter passed" (linter doesn't check compilation)
-```
+- target kind, workspace and branch when applicable, current HEAD, planned base,
+  merge base, exact range, composed tree, or bounded standalone files;
+- index entries, `git status --short`, and staged and unstaged diffs;
+- relevant in-scope untracked paths and unrelated dirty state;
+- pre-existing command artifacts that matter to the checks.
 
-**Requirements:**
-```
-✅ Re-read plan → Create checklist → Verify each → Report gaps or completion
-❌ "Tests pass, requirements met"
-```
+Run fresh, as applicable:
 
-**Agent delegation:**
-```
-✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
-❌ Trust agent report
-```
+1. every contractually fixed target verification command;
+2. checks selected to observe each assigned Task Contract or integration-only
+   Feature Contract obligation;
+3. focused tests for changed behavior;
+4. owning package or workspace tests;
+5. build or type check;
+6. lint;
+7. format check using only a documented non-mutating mode;
+8. relevant integration, smoke, browser, API, or snapshot checks;
+9. `git diff --check`, diff inspection, and final status.
 
-## Red Flags - STOP
+For a Task PR, map every assigned Task Contract and Feature Contract obligation
+to fresh observed evidence. For integration-only verification, map only the
+named remaining obligations and preserve accepted task evidence separately. An
+unobserved required obligation is `FAIL` when the current result violates or
+omits the contract and `BLOCKED` when its environment or evidence cannot be
+established.
 
-- Using "should", "probably", "seems to" about verification results
-- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
-- About to report completion without fresh verification
-- Trusting a previous run's results
-- Trusting the implementation-verifier agent's success report without checking evidence
-- Relying on partial verification
-- **ANY wording implying success without having run verification**
+For eligible legacy work, map every original approved completion criterion to
+fresh evidence instead. A material ambiguity stops verification and returns to
+the coordinator; it does not force migration or infer a replacement contract.
 
-## Rationalization Prevention
+Do not replace repository wrappers with broader commands that change semantics.
+If a required formatter has no check-only form, return `BLOCKED` without running
+it.
 
-| Excuse | Reality |
-|--------|---------|
-| "Should work now" | RUN the verification |
-| "I'm confident" | Confidence ≠ evidence |
-| "Just this once" | No exceptions |
-| "Linter passed" | Linter ≠ compiler ≠ tests |
-| "Agent said success" | Verify independently |
-| "I'm tired" | Exhaustion ≠ excuse |
-| "Partial check is enough" | Partial proves nothing |
-| "Different words so rule doesn't apply" | Spirit over letter |
-| "Implementer already ran tests" | /verify is a separate, formal gate |
+After the final command, capture the same HEAD, status, diffs, untracked paths,
+and relevant source state. Attribute every change. Normal ignored build artifacts
+are allowed when recorded. A tracked or in-scope source mutation caused by
+verification is `FAIL`; uncertain ownership is `BLOCKED`. Do not restore, stage,
+commit, reset, or clean either state.
 
-## When To Apply
+A commit or target-content change makes earlier command evidence stale. Do not
+return `PASS` unless every required result applies to the unchanged target.
 
-The Iron Law applies broadly — not just within /verify, but ALWAYS before:
-- ANY variation of success/completion claims
-- ANY expression of satisfaction
-- ANY positive statement about work state
-- Committing, PR creation, task completion
-- Moving to next task
-- Delegating to agents
+## Evaluate and report
 
-The /verify skill is the formal application of this principle for post-implementation verification.
+Return exactly one verdict:
 
-## Important Rules
+- `PASS` — every required command and inspection succeeded for the unchanged
+  target;
+- `FAIL` — a required command or contract check produced an observed failure;
+- `BLOCKED` — a command, dependency, permission, input, range, or current-head
+  guarantee could not be established.
 
-- Always gather context before launching the agent — the agent runs in isolation and cannot access the current conversation history.
-- If no plan or Design Doc exists in the current conversation, tell the agent to skip the diff review and readability check steps.
-- Do not re-run the agent unless the engineer requests it after making fixes.
-- `/verify` does NOT pause for engineer approval after the report. Autonomous transition to `/review` follows immediately per CLAUDE.md's autonomous loop phase. The engineer's mandatory review gate is at `/finish-branch`, not here.
+Report:
+
+- verdict and Task PR, integration-only, eligible legacy, or standalone status;
+- workspace, branch, planned base, merge base, starting and ending head, exact
+  range, composed tree, snapshot, or bounded fileset;
+- starting and ending `git status --short`, changed files, and unrelated state;
+- Review context and approved criteria inspected when available;
+- approved Design Doc, Feature Contract, applicable Task Contract and dependency
+  evidence, integration-only obligation and accepted task set, complete
+  lightweight contract, or eligible legacy authority inspected;
+- each assigned task, integration-only, lightweight, or legacy criterion, its
+  evidence, and pass, fail, or blocked result;
+- every command, expected result, observed result, and match status;
+- checks not run and why;
+- for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely
+  ownership, every gap, and the exact condition for safe re-entry.
+
+For coordinator-managed verification, return evidence to the coordinator and do
+not start review. For standalone verification, report directly to the requester.
+Never diagnose or implement a fix from this skill.

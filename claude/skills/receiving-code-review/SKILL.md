@@ -1,272 +1,143 @@
 ---
 name: receiving-code-review
-description: |
-  Use when receiving code review feedback, before implementing suggestions —
-  especially if feedback seems unclear or technically questionable.
-  Requires technical rigor and verification, not performative agreement or blind implementation.
-  Cross-cutting skill — invoke whenever review feedback arrives.
+description: Verify review findings against current code and classify each as Fix, Push back, or Escalate. Use from the workflow coordinator for authorized review loops or standalone for read-only feedback evaluation.
 ---
 
-# Receiving Code Review
-
-Code review requires technical evaluation, not emotional performance.
-
-**Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
-
-**Announce at start:** "I'm using the receiving-code-review skill to evaluate this feedback."
-
-## The Response Pattern
-
-```
-WHEN receiving code review feedback:
-
-1. READ: Complete feedback without reacting
-2. UNDERSTAND: Restate requirement in own words (or ask)
-3. VERIFY: Check against codebase reality
-4. EVALUATE: Technically sound for THIS codebase?
-5. RESPOND: Technical acknowledgment or reasoned pushback
-6. IMPLEMENT: One item at a time, test each
-```
-
-## Forbidden Responses
-
-**NEVER:**
-- "You're absolutely right!"
-- "Great point!" / "Excellent feedback!" (performative)
-- "Let me implement that now" (before verification)
-- ANY gratitude expression ("Thanks for catching", "Thanks for the feedback")
-
-**INSTEAD:**
-- Restate the technical requirement
-- Ask clarifying questions
-- Push back with technical reasoning if wrong
-- Just start working (actions > words)
-
-## Handling Unclear Feedback
-
-```
-IF any item is unclear:
-  STOP — do not implement anything yet
-  ASK for clarification on unclear items
-
-WHY: Items may be related. Partial understanding = wrong implementation.
-```
-
-**Example:**
-```
-Engineer: "Fix 1-6"
-You understand 1, 2, 3, 6. Unclear on 4, 5.
-
-❌ WRONG: Implement 1, 2, 3, 6 now, ask about 4, 5 later
-✅ RIGHT: "I understand items 1, 2, 3, 6. Need clarification on 4 and 5 before proceeding."
-```
-
-## Source-Specific Handling
-
-### From the Engineer
-
-- **Trusted** — implement after understanding
-- **Still ask** if scope unclear
-- **No performative agreement**
-- **Skip to action** or technical acknowledgment
-
-### From External Reviewers (PR reviewers, code-reviewer agent)
-
-```
-BEFORE implementing:
-  1. Check: Technically correct for THIS codebase?
-  2. Check: Breaks existing functionality?
-  3. Check: Reason for current implementation?
-  4. Check: Works on all platforms/versions?
-  5. Check: Does reviewer understand full context?
-
-IF suggestion seems wrong:
-  Push back with technical reasoning
-
-IF can't easily verify:
-  Say so: "I can't verify this without [X]. Should I [investigate/ask/proceed]?"
-
-IF conflicts with engineer's prior decisions (Design Doc / Design Discussion / plan's Alternative Solutions / plan's Out of scope):
-  Push back, citing the source of the decision. Do NOT escalate unless substantive new evidence challenges the decision itself.
-```
-
-External feedback is suggestions to evaluate, not orders to follow. Be skeptical, but check carefully.
-
-## Triage Decision (for `/review` feedback)
-
-When `/review` produces a report, every Must Fix / Should Improve item maps to exactly one of three outcomes. **Do not default to escalating.** Most items are push-back or fix.
-
-### Push back (no fix, no escalation)
-
-Reject the suggestion within the autonomous loop. Use when:
-
-- The item is **already decided** — covered by Design Doc, settled in `/design-discussion` (recorded in plan's "Alternative Solutions Considered"), or explicitly listed in plan's "Out of scope". The reviewer is unaware of the prior decision.
-- The item suggests **adding unused functionality** (YAGNI) — grep confirms no caller.
-- The item is **technically wrong for this codebase** — verified against existing code or tests.
-- The reviewer **lacks full context** — the suggestion is reasonable in isolation but breaks something they didn't see.
-
-Push-back form: cite the source of the decision (e.g., "Design Doc §3.2 chose path A over path B because X"). Do not escalate to the engineer.
-
-### Fix (append to plan, autonomous loop)
-
-Add a fix task to the plan's "Post-/review iteration" section and re-enter `/execute-plan`. Use when:
-
-- The item is a **minor improvement** within the existing design — typos, log message grammar, naming consistency, missing edge-case test, idiomatic code adjustment.
-- The item is a **bug in the new code** — not a design issue.
-- The item is **code quality** within the task's scope — refactor or simplification.
-
-Most review items fall here. Minor fixes never trigger escalation.
-
-### Escalate (stop the loop, report to the engineer)
-
-Stop the autonomous loop and report. Use **only** when:
-
-- The item requires a **change to architecture** — module boundaries, data flow, layering.
-- The item requires a **change to Design Doc contracts** — public APIs, protocol formats, data schemas, error models.
-- The item requires **scope expansion beyond the plan** — new feature, additional subsystem, work warranting a new plan.
-- A prior decision is being challenged with **substantive new evidence** and the engineer should reconsider.
-
-If unsure between "fix" and "escalate", lean toward **fix** — the engineer can override during the next plan review.
-
-### Common misclassifications
-
-| Item | Wrong outcome | Right outcome |
-|---|---|---|
-| "Use library X instead of hand-rolled Y" when Design Doc chose Y | Escalate (treating as design change) | **Push back** (already decided in Design Doc) |
-| "Log message grammar / typos" | Escalate (treating as engineer's call) | **Fix** (append minor task) |
-| "Add metric tracking for endpoint Z" when out of scope | Escalate | **Push back** (Out of scope; YAGNI unless grep shows demand) |
-| "Restructure module boundary" | Fix (treating as refactor) | **Escalate** (architecture change) |
-| "Hand-rolled retry — use library X" when Design Doc decided to defer external deps | Escalate | **Push back** (deferred dependency is a recorded decision) |
-
-## YAGNI Check for "Professional" Features
-
-```
-IF reviewer suggests "implementing properly":
-  grep codebase for actual usage
-
-  IF unused: "This isn't called. Remove it (YAGNI)?"
-  IF used: Then implement properly
-```
-
-## Implementation Order
-
-```
-FOR multi-item feedback:
-  1. Clarify anything unclear FIRST
-  2. Then implement in this order:
-     - Blocking issues (breaks, security)
-     - Simple fixes (typos, imports)
-     - Complex fixes (refactoring, logic)
-  3. Test each fix individually
-  4. Verify no regressions
-```
-
-## When To Push Back
-
-Push back when:
-- Suggestion breaks existing functionality
-- Reviewer lacks full context
-- Violates YAGNI (unused feature)
-- Technically incorrect for this stack
-- Legacy/compatibility reasons exist
-- Conflicts with prior decisions documented in Design Doc, Design Discussion record, plan's "Alternative Solutions Considered", or plan's "Out of scope"
-
-**How to push back:**
-- Use technical reasoning, not defensiveness
-- Ask specific questions
-- Reference working tests/code
-- Involve engineer if architectural
-
-## Acknowledging Correct Feedback
-
-When feedback IS correct:
-```
-✅ "Fixed. [Brief description of what changed]"
-✅ "Good catch — [specific issue]. Fixed in [location]."
-✅ [Just fix it and show in the code]
-
-❌ "You're absolutely right!"
-❌ "Great point!"
-❌ "Thanks for catching that!"
-❌ "Thanks for [anything]"
-❌ ANY gratitude expression
-```
-
-**Why no thanks:** Actions speak. Just fix it. The code itself shows you heard the feedback.
-
-**If you catch yourself about to write "Thanks":** DELETE IT. State the fix instead.
-
-## Gracefully Correcting Your Pushback
-
-If you pushed back and were wrong:
-
-```
-✅ "You were right — I checked [X] and it does [Y]. Implementing now."
-✅ "Verified this and you're correct. My initial understanding was wrong because [reason]. Fixing."
-
-❌ Long apology
-❌ Defending why you pushed back
-❌ Over-explaining
-```
-
-State the correction factually and move on.
-
-## Common Mistakes
-
-| Mistake | Fix |
-|---|---|
-| Performative agreement | State requirement or just act |
-| Blind implementation | Verify against codebase first |
-| Batch without testing | One at a time, test each |
-| Assuming reviewer is right | Check if breaks things |
-| Avoiding pushback | Technical correctness > comfort |
-| Partial implementation | Clarify all items first |
-| Can't verify, proceed anyway | State limitation, ask for direction |
-
-## Real Examples
-
-**Performative Agreement (Bad):**
-```
-Reviewer: "Remove legacy code"
-❌ "You're absolutely right! Let me remove that..."
-```
-
-**Technical Verification (Good):**
-```
-Reviewer: "Remove legacy code"
-✅ "Checking... build target is 10.15+, this API needs 13+. Need legacy for backward compat. Current impl has wrong bundle ID — fix it or drop pre-13 support?"
-```
-
-**YAGNI (Good):**
-```
-Reviewer: "Implement proper metrics tracking with database, date filters, CSV export"
-✅ "Grepped codebase — nothing calls this endpoint. Remove it (YAGNI)? Or is there usage I'm missing?"
-```
-
-**Unclear Item (Good):**
-```
-Engineer: "Fix items 1-6"
-You understand 1, 2, 3, 6. Unclear on 4, 5.
-✅ "Understand 1, 2, 3, 6. Need clarification on 4 and 5 before implementing."
-```
-
-## GitHub Thread Replies
-
-When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
-
-## Integration
-
-**Cross-cutting skill** — invoked whenever code review feedback arrives:
-
-- After `/review` produces a report
-- When `agent-teams-driven-development` reviewers report issues
-- When external PR reviewers comment
-- When the engineer provides direct feedback on code
-
-## The Bottom Line
-
-**External feedback = suggestions to evaluate, not orders to follow.**
-
-Verify. Question. Then implement.
-
-No performative agreement. Technical rigor always.
+# Triage current-target review findings
+
+Treat review as technical evidence, not an instruction to agree. Remain
+check-only and read-only. Do not mutate source or Git state, implement or stage a
+fix, dispatch a writer, or advance another workflow phase.
+
+## Coordinator-managed entry
+
+Require:
+
+- target kind; exact task workspace and branch, planned PR base, merge base,
+  current head and range, or exact integration composition; diff, status, and
+  changed files;
+- fresh verification `PASS` and either workflow review `FINDINGS` or complete
+  human review feedback anchored to that same unchanged head and range;
+- each finding's severity, file and line, concrete behavior, requirement,
+  evidence, impact, proposed correction, and confidence;
+- approved scope, decisions, non-goals, Review context, Review policy, and
+  implementation authorization;
+- one exact authority form: approved Design Doc when present, Feature Contract,
+  Implementation Plan, and applicable Task Contracts; the complete lightweight
+  combined Feature/Task Contract with original request authority and exact task
+  evidence; or the exact eligible legacy plan authority;
+- observed correction attempts and prior triage decisions.
+
+Resolve the workspace, branch, base, merge base, head, range or composition,
+diff, status, and changed files directly from Git.
+Return top-level `BLOCKED` without classifying findings when the target is stale,
+evidence is missing, or in-scope source state falls outside the reviewed range.
+
+## Standalone read-only entry
+
+Resolve each complete finding, current code, head, relevant range or files,
+repository guidance, and available design and plan evidence through read-only
+investigation. Implementation authorization is not required to evaluate
+standalone feedback, and the evaluation does not authorize a change.
+
+Derive or use the available Review context and disclose material assumptions.
+Return missing or stale verification as a limitation.
+
+## Establish one current snapshot
+
+Before classifying any item, capture:
+
+- current HEAD, workspace, branch, planned base, merge base, range or
+  integration composition when applicable;
+- `git status --short`, staged and unstaged diffs, changed files, and relevant
+  untracked paths;
+- available code, tests, approved decisions, Review context, Review policy,
+  review evidence, and observed correction attempts.
+
+If a ref, finding, required input, dependency, permission, or runtime condition
+is missing, return top-level `BLOCKED` before classification. Preserve observed
+evidence and state the exact re-entry condition.
+
+## Process each finding
+
+For each item:
+
+1. Read the complete finding and cited code.
+2. Restate the concrete requirement.
+3. Reproduce or verify the claim against the current unchanged target.
+4. Check repository guidance, current code and tests, approved scope,
+   non-goals, Design Doc, Feature Contract, Task Contracts, eligible legacy plan
+   authority, plan, Review context, and Review policy as applicable.
+5. Classify it as exactly one:
+   - **Fix** — verified on the current head, in approved scope, compatible with
+     approved decisions, proportionate, and authorized for local correction.
+   - **Push back** — incorrect, unsupported, preference-only, speculative,
+     second-order, artifact-inapplicable, stale, not reproducible, or already
+     decided without materially new evidence.
+   - **Escalate** — requires a design or public-contract decision, architecture
+     mechanism without proven proportionate need, material scope or policy
+     change, new authority, or a stop after repeated correction without progress.
+6. Record current-head evidence and one concrete next action.
+
+For `Fix`, return one bounded plain-language correction handoff:
+
+- exact finding and concrete evidence;
+- smallest authorized correction;
+- unchanged planned Feature and applicable Task Contract, unchanged lightweight
+  combined contract, or unchanged eligible legacy task authority, plus shared
+  interfaces when applicable, constraints, and non-goals;
+- Review context and unchanged Review policy;
+- discipline and responsibility boundaries;
+- a correction commit intent bounded to the finding and either its fixed message
+  or explicit writer authority to select the correction message;
+- current planned Task PR base or integration target, verification obligations,
+  and contractually required exact commands;
+- observed prior attempts, concerns, and gaps.
+
+Do not choose the lightweight or planned builder here. The coordinator routes
+the handoff directly to `execute-task` for lightweight work or through
+`execute-plan` for planned work.
+
+For `Push back`, cite controlling code, test, Design, plan, or approved decision
+evidence. The same finding may be reconsidered only with materially new evidence
+of a reachable failure or approved-contract violation.
+
+## Revalidate and report
+
+Immediately before reporting, capture the same HEAD, status, diffs, changed
+files, relevant untracked paths, and range again. If any in-scope state changed,
+discard provisional classifications and return `BLOCKED`. Do not restore, reset,
+clean, or discard state.
+
+Return exactly one top-level result:
+
+- `TRIAGED` when every finding is classified as `Fix`, `Push back`, or
+  `Escalate`;
+- `BLOCKED` for stale state, missing evidence or input, or an external/runtime
+  failure.
+
+For `TRIAGED`, report:
+
+- target kind, feedback origin, workspace, branch, base, merge base, current
+  head, reviewed range or composition, bounded files, status, and changed files;
+- Review context and verification plus workflow or human review evidence
+  inspected;
+- classification, requirement, evidence, impact, and next action for each item;
+- bounded correction handoff for every `Fix`;
+- controlling evidence for every `Push back`;
+- exact user-owned decision or authority for every `Escalate`;
+- concerns, observed attempts, and gaps.
+
+For `BLOCKED`, report available target evidence, preserved checks, every gap, and
+the exact safe re-entry condition. Do not report provisional classifications.
+
+An authorized coordinator-managed `Fix` does not need another approval when it
+remains within scope. A Task PR fix still requires bounded implementation, a
+correction commit and new head, fresh verification, and complete fresh task
+review over the updated PR range. An integration finding routes to its owning
+Task Contract, invalidates affected descendants through both topologies, and
+then requires fresh affected task and integration evidence. Earlier evidence
+for changed targets becomes stale.
+
+For standalone review feedback, return evaluation and proposed steps only. Do
+not implement, start another phase, or imply authorization.

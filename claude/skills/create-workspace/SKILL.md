@@ -1,131 +1,198 @@
 ---
 name: create-workspace
-description: |
-  Ensure feature work runs in its own herdr workspace (a git worktree under
-  ~/.herdr/worktrees). Verifies and sets up the workspace when the session is
-  already inside one; when the session started in the main checkout, asks the
-  engineer, creates the workspace via `herdr worktree create`, and guides the
-  engineer to reopen there. Invoke with `/create-workspace`
-  (called from /design-discussion and /execute-plan).
+description: Verify or establish an approved coordination, Task PR, or temporary integration-evidence workspace as a herdr-managed worktree. Resolve work branches, starting refs, PR bases, and composition identities separately.
 ---
 
-# Create Workspace
+# Prepare a coordination, task, or integration workspace
 
-AE feature work runs in per-feature workspaces: one feature = one git worktree
-under `~/.herdr/worktrees/<repo>/<branch>` = one herdr workspace = one Claude
-session, from `/design-discussion` through `/finish-branch`. This skill ensures
-that state.
+Keep one writer in each checkout. Use one coordination workspace for active
+Feature Contract and Implementation Plan artifacts. Use separate task branches
+and checkouts when an approved plan permits concurrent Task PR work or when a
+task's planned PR range must remain isolated. Use a temporary integration
+workspace only for a plan-defined composed tree; it has no source writer or PR
+identity.
 
-**Core principle:** Claude runs the herdr commands; the engineer opens and
-closes sessions.
+Workflow workspaces are herdr-managed worktrees: one worktree equals one herdr
+workspace equals one Claude Code session. Worktrees the harness creates for
+autonomous subagents (`.claude/worktrees`, EnterWorktree) are outside this
+policy and this skill.
 
-**Announce at start:** "I'm using the create-workspace skill to set up the feature workspace."
+On the planned path, invoke this skill after investigation makes the purpose and
+initial feature boundary identifiable and before writing the first durable
+Design Doc, Feature Contract, or Implementation Plan draft. This timing keeps
+approved artifacts in the coordination workspace. After Implementation Plan
+approval, reuse this skill to validate the approved topology and to establish
+the task workspaces and branch relationships that plan defines as they become
+ready, and later any exact temporary integration workspace requested by
+`execute-plan`. It does not change branch-selection approval or authorize a Git
+state change by itself.
 
-## Scope
+## Inspect
 
-- Covers AE feature-work workspaces only. Worktrees Claude spawns autonomously
-  (subagent `isolation: "worktree"`, EnterWorktree's managed location) stay
-  harness-managed under `.claude/worktrees` and are not affected by this skill.
-- Workspace removal is the engineer's manual operation
-  (`herdr worktree remove`). No skill removes workspaces or deletes branches.
+Run read-only checks:
 
-## Step 1: Detect Session Location
+- `git rev-parse --show-toplevel`
+- `git rev-parse --path-format=absolute --git-common-dir`
+- `git branch --show-current`
+- `git worktree list --porcelain`
+- `git status --short`
 
-```bash
-common=$(git rev-parse --path-format=absolute --git-common-dir)
-toplevel=$(git rev-parse --show-toplevel)
+Read repository guidance for branch and worktree policy. Use the local
+`refs/remotes/<remote>/HEAD`, when present, to identify a default branch without
+contacting the remote.
+
+When the common dir equals `<toplevel>/.git`, the session is in the main
+checkout (a launchpad session); feature work must move to a coordination
+worktree. When they differ, the session is already in a linked worktree.
+
+## Resolve the intended state
+
+Resolve these separately before changing Git state:
+
+- **workspace purpose**: coordination, one named Task PR, or one named temporary
+  integration-only composition;
+- **workspace mode**: the current checkout or a herdr-managed worktree;
+- **work branch**: an existing local branch, a new task branch, or the approved
+  detached or temporary integration ref;
+- **starting ref**: the commit used to create a new work branch;
+- **planned PR base or composition identity**: the branch relationship against
+  which a task receives authoritative verification and review, or the approved
+  starting tree and ordered accepted inputs for integration evidence;
+- for a Task PR, the **Task session name** recorded in the approved plan
+  (`<feature>-task-<n>`).
+
+Do not conflate the starting ref with the planned PR base. An independent task
+may start from a common implementation base and later be restacked onto its
+approved PR parent. Record that work as a candidate until the final base is
+materialized; this skill never treats branch creation as task acceptance.
+
+For an integration workspace, require the approved starting commit or tree,
+ordered accepted Task PR inputs, composition mechanism, and retention boundary.
+This skill establishes the empty workspace identity only; `execute-plan`
+materializes and validates the composed tree without assigning a source writer.
+
+If the current checkout already matches the intended workspace and work branch,
+report its path and branch and continue. Do not create another workspace merely
+because the current checkout is not a linked worktree.
+
+Always isolate a temporary integration composition from coordination and Task PR
+checkouts. Follow the plan's detached or temporary-ref strategy; never reuse an
+active task branch merely because it already contains some required commits.
+
+For a coordination workspace, propose a short branch name derived from the
+feature and an explicit starting ref; do not silently assume that the ref or
+PR base is `main`. If no starting ref was approved for a new branch, propose the
+current `HEAD`. For a planned Task PR, follow the approved workspace and PR
+topology rather than this default.
+
+Resolve branch and base names against local refs. A remote branch means the
+locally available remote-tracking ref such as `origin/develop`. Do not fetch
+implicitly. If the requested ref is absent or freshness matters, ask before
+running `git fetch`.
+
+## Use the current checkout
+
+Use the current checkout only when it already is the intended workspace
+(typically the coordination worktree the engineer opened, or a lightweight
+task in that same worktree). Before switching or creating a branch, report:
+
+- the current path and branch;
+- dirty changes;
+- the proposed work branch;
+- for a new branch, the proposed starting ref;
+- for a Task PR, its Task Contract, planned PR parent, and whether the final PR
+  base is already materialized.
+
+Ask for approval before changing branches.
+
+- Existing local branch: run `git switch <work-branch>`.
+- New branch from a local branch, tag, commit, or remote-tracking ref: run
+  `git switch -c <work-branch> <base-ref>`.
+- Remote-only branch that should retain its upstream relationship: run
+  `git switch --track -c <local-branch> <remote>/<branch>`.
+
+Creating a branch in place keeps current uncommitted changes. Switching to an
+existing branch may conflict with them. Never stash, move, copy, or discard
+changes without explicit approval.
+
+## Use a herdr-managed worktree
+
+Always pass the repository root through `--cwd`, keep focus in the current
+session with `--no-focus`, and request structured output with `--json`. herdr
+creates the worktree and a herdr workspace together; the workspace's initial
+pane is a shell prompt at the worktree path.
+
+If the work branch already exists locally, omit `--base`:
+
+```sh
+herdr worktree create \
+  --cwd <repository-root> \
+  --branch <existing-local-branch> \
+  --no-focus \
+  --json
 ```
 
-| Result | Meaning | Next |
-|---|---|---|
-| `$common` ≠ `$toplevel/.git` | Linked worktree — feature workspace | Step 2 (verify & set up) |
-| `$common` = `$toplevel/.git` | Main checkout — launchpad session | Step 3 (ask, then create) |
+If the work branch is new, pass its starting ref explicitly:
 
-## Step 2: In a Worktree — Verify and Set Up
-
-1. Confirm the branch: `git branch --show-current` must not be main/master.
-2. Run project setup (auto-detect):
-
-```bash
-if [ -f package.json ]; then npm install; fi
-if [ -f Cargo.toml ]; then cargo build; fi
-if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-if [ -f pyproject.toml ]; then poetry install; fi
-if [ -f go.mod ]; then go mod download; fi
+```sh
+herdr worktree create \
+  --cwd <repository-root> \
+  --branch <new-work-branch> \
+  --base <base-ref> \
+  --no-focus \
+  --json
 ```
 
-3. Verify clean baseline: run the project's test suite. If tests fail, report
-   the failures and ask whether to proceed or investigate first.
-4. Report:
+For a branch that exists only as `origin/<name>`, use a local work-branch name
+with `--base origin/<name>`. If that local work branch already exists, herdr
+checks out the existing branch and does not recreate it from `--base`; stop and
+resolve any mismatch instead of silently using the wrong commit.
 
-```
-Workspace ready at <path> (branch <branch>)
-Tests passing (<N> tests, 0 failures)
-```
+Before branch-backed creation, check whether the local work branch is already
+checked out in another worktree. After creation, report and verify:
 
-## Step 3: In the Main Checkout — Ask, Then Create
+- the coordination, Task PR, or integration composition identity;
+- the returned worktree path (`.result.worktree.path`) and herdr workspace id
+  (`.result.workspace.workspace_id`), and for a Task PR the initial pane id
+  (`.result.root_pane.pane_id`, or `herdr pane list --workspace <id>`);
+- the checked-out branch and `HEAD`;
+- the starting ref and planned PR base or composition inputs;
+- the worktree status;
+- the configured upstream, if any.
 
-Ask the engineer one question, with a proposed branch name derived from the
-feature under discussion:
+For a coordination workspace created from a launchpad session, report the path
+and stop: the engineer switches to that herdr workspace, runs `claude`, and
+continues there. Never run `herdr agent start` for a coordination session and
+never create the workspace with `--focus`.
 
-```
-This session is in the main checkout. Feature work belongs in its own herdr
-workspace.
+For a Task PR workspace, return the path, workspace id, pane id, branch, HEAD,
+and planned PR base to `execute-plan`. Starting the Task session in that pane
+(`herdr agent start <feature>-task-<n> --kind claude --pane <pane-id> -- --name <feature>-task-<n> --model opus --permission-mode acceptEdits`)
+is `execute-plan`'s action, not this skill's; this skill only establishes the
+checkout and reports the identities it needs.
 
-1. Create workspace `<branch-name>` — I run `herdr worktree create`; you open
-   a new session there and restart from /design-discussion. (recommended)
-2. Continue here via EnterWorktree — keeps this conversation, but the feature
-   does not get its own herdr workspace.
+For an integration workspace, return the path and identity directly to
+`execute-plan`; do not move the user session or start any agent.
 
-Which?
-```
+Run project setup in a fresh coordination worktree when a manifest is present
+(`npm install`, `cargo build`, `pip install -r requirements.txt`,
+`poetry install`, `go mod download`) and verify the baseline test suite; report
+failures and ask whether to proceed. A Task PR worktree inherits the same
+setup obligation, performed by the Task session before implementation.
 
-**Option 1 — create the workspace:**
+## Guardrails
 
-```bash
-herdr worktree create --cwd "$(git rev-parse --show-toplevel)" --branch <branch-name> --no-focus --json
-```
-
-- The JSON result carries `.result.workspace.workspace_id` and
-  `.result.worktree.path` (`~/.herdr/worktrees/<repo>/<branch>`).
-- Always `--no-focus`: never yank the engineer out of the current session.
-- Do NOT run `herdr agent start` — starting the session is the engineer's act.
-
-Then report and stop:
-
-```
-Workspace '<branch>' created at <path> (herdr workspace <id>).
-Switch to it in herdr, run `claude`, and start with /design-discussion <topic>.
-```
-
-**Option 2 — EnterWorktree:** use the EnterWorktree tool and continue the flow
-in this session.
-
-## Fallback: herdr Unreachable
-
-If the `herdr` CLI or its socket is unavailable, report that and ask the
-engineer how to proceed (work on a feature branch in place, or the engineer
-prepares a worktree manually). Do not reimplement worktree management with raw
-git commands.
-
-## Red Flags
-
-| Violation | Correct Behavior |
-|---|---|
-| Creating AE worktrees with raw `git worktree add` | herdr owns AE workspaces. Use `herdr worktree create` (or the fallback question). |
-| Running `herdr agent start` to launch the new session | The engineer opens sessions. Report and stop. |
-| Creating the workspace with `--focus` | Never steal focus from the running session. |
-| Removing workspaces or deleting worktree-checked-out branches | Removal is the engineer's manual operation. |
-| Proceeding on main/master because "it's a small change" | Feature work gets a workspace. The engineer decides exceptions. |
-| Skipping setup/baseline verification in a fresh worktree | Always verify before implementation starts. |
-
-## Integration
-
-**Called by:**
-- `/design-discussion` — workspace check when the discussion reveals feature work (launchpad detection)
-- `/execute-plan` — workspace precondition before dispatching to agent-teams
-- `/agent-teams-driven-development` — workspace prerequisite
-
-**Pairs with:**
-- `/finish-branch` — completion; merge/discard are worktree-aware
-- `/session-teardown` — session end; workspace removal stays with the engineer
+- Explain that uncommitted changes in the current checkout do not follow into a
+  herdr worktree.
+- Never place two active writers in one checkout or reuse one task branch for
+  another Task Contract.
+- Reject a task workspace absent from the approved topology, overlapping writer
+  ownership, or an unexplained branch already checked out elsewhere.
+- Reject an integration workspace absent from the approved composition, and do
+  not treat it as a Task PR, publication target, or implementation workspace.
+- If herdr is unavailable, report that and ask the engineer how to proceed
+  (work on a branch in place, or the engineer prepares a worktree manually).
+  Do not substitute raw `git worktree add` without approval, and return
+  `BLOCKED` to `execute-plan` for a Task PR workspace.
+- Do not remove worktrees or delete branches in this skill; removal is the
+  engineer's `herdr worktree remove`.

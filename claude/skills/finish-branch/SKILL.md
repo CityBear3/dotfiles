@@ -1,153 +1,205 @@
 ---
 name: finish-branch
-description: |
-  Complete development work on a branch. Verifies tests pass, presents structured options
-  (create PR, merge locally, keep as-is, discard), and handles cleanup.
-  Invoke with `/finish-branch` after review is complete.
+description: Finish an internally accepted Task PR branch or a Feature Accepted topology, preserving exact evidence and user control over publication, merge, cleanup, and disposition.
 ---
 
-# Finish Branch
+# Finish a Task PR or accepted feature
 
-Guide completion of development work by presenting clear options and handling the chosen workflow.
+Do not choose publication, merge, cleanup, or branch disposition for the user.
 
-**Announce at start:** "I'm using the finish-branch skill to complete this work."
+## Select one completion mode
 
-**Core principle:** Verify tests → Present options → Execute choice → Clean up.
+Use exactly one mode:
 
-## Entry Conditions
+- **Task mode:** an exact Task PR is internally `Accepted` and may be published
+  before the rest of the feature is accepted.
+- **Lightweight mode:** one exact lightweight Task PR is internally `Accepted`
+  and therefore also Feature Accepted under its recoverable combined contract.
+- **Feature mode:** every Task PR and integration-only obligation is current and
+  the coordinator returned Feature Accepted.
+- **Eligible legacy mode:** follow the unchanged completion contract of a plan
+  already executing before PR-scoped task execution.
 
-- `/review` (the skill) has run to completion and reported clean — no Must Fix / Should Improve
-- Or the engineer explicitly decides to finish the branch at any point (the entry guard below does not apply)
+Do not use planned task mode as feature completion or require Feature Accepted
+before an individual planned Task PR may be published. Do not force lightweight
+work into planned task or feature evidence forms.
 
-**Entry guard (automatic transition only):** when entered via the Core Flow's clean-review automatic transition, verify there is evidence of a clean `/review` completion since the latest commit: the most recent `/review` report in this session shows zero Must Fix / Should Improve, and no commit has been made after that report. If fixes were committed after the last `/review` report — or no `/review` report exists — do not proceed: return to `/verify` (the loop continues `/verify` → `/review` → back here). Agent-teams internal reviewer approval (spec-reviewer / code-quality-reviewer) is NOT such evidence.
+## Require current Task PR evidence
 
-## The Process
+For task mode inspect:
 
-### Step 1: Verify Tests
+- approved Feature Contract, applicable Task Contract, Implementation Plan,
+  Review context and policy, and their currentness;
+- Task DAG and PR topology position, workspace, branch, planned base ref and
+  exact commit, merge base, current head, exact range, status, diff, changed
+  files, and commits;
+- fresh task verification `PASS` and a policy-complete gate closed by review
+  `CLEAN` or by review `FINDINGS` whose every item has current `Push back`
+  triage for that same unchanged range;
+- current logical dependencies, shared interfaces, and ancestor evidence;
+- publication state, human-feedback state, concerns, and every gap.
 
-Before presenting options, verify tests pass:
+Require no unexplained in-scope state and no candidate or stale result. Resolve
+the branch, base, head, merge base, range, status, and PR topology directly from
+Git. A successful local command, writer report, or preliminary common-base check
+is not task acceptance.
 
-```bash
-# Run project's test suite (check project CLAUDE.md for specific commands)
-```
+Task mode must not remove, archive, stage, or commit the active Feature Contract
+or Implementation Plan. Those artifacts remain necessary for dependents,
+staleness propagation, human-feedback re-entry, and feature acceptance.
 
-If tests fail:
-```
-Tests failing (<N> failures). Must fix before completing:
-[Show failures]
-Cannot proceed with merge/PR until tests pass.
-```
-Stop. Do not proceed to Step 2.
+## Require current lightweight evidence
 
-If tests pass: Continue to Step 2.
+For lightweight mode inspect:
 
-### Step 2: Determine Base Branch
+- the complete recoverable combined in-memory Feature/Task Contract, original
+  request authority and design sources, Review context, and Review policy;
+- its exact workspace, branch, planned base ref and commit, merge base, current
+  head, range, status, diff, changed files, and commits;
+- fresh verification `PASS` and a policy-complete gate closed by `CLEAN` or by
+  same-target `FINDINGS` with every item currently classified `Push back`;
+- the coordinator's Feature Accepted result for that unchanged exact Task PR;
+- publication state, human-feedback state, concerns, and every gap.
 
-```bash
-git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
-```
+Require no unresolved promotion condition, material contract change,
+unexplained in-scope state, candidate, or stale result. Resolve the Git evidence
+directly. Do not require a Design Doc, Feature Contract file, Task Contract file,
+Implementation Plan, Task DAG, multi-PR topology, integration composition, or
+separate artifact approval when the combined contract supplies the authority.
 
-Or ask: "This branch split from main — is that correct?"
+## Require current Feature Accepted evidence
 
-### Step 3: Present Options
+For feature mode inspect:
 
-Present exactly these 4 options:
+- approved Design Doc when applicable, Feature Contract, complete Task Contract
+  set, Implementation Plan, Review context and policy;
+- both exact topologies and one current authoritative `Accepted` result for
+  every Task PR;
+- complete Feature Contract coverage and every integration-only verification
+  and targeted review result;
+- all task workspaces, branches, bases, heads, ranges, publication states,
+  triage decisions, temporary integration workspaces or refs and their cleanup
+  eligibility, concerns, and gaps;
+- the coordinator's Feature Accepted result for those unchanged inputs.
 
-```
-Implementation complete. What would you like to do?
+Re-resolve every affected ref and workspace. Return `BLOCKED` if a task is a
+candidate or stale, topology or status changed, coverage is incomplete, an
+integration-only obligation is unproved, or a finding or gap survives. Do not
+rerun an ordinary full-feature verification or review to manufacture feature
+completion.
 
-1. Create a Pull Request
-2. Merge back to <base-branch> locally
-3. Keep the branch as-is (I'll handle it later)
-4. Discard this work
+## Require eligible legacy evidence
 
-Which option?
-```
+For eligible legacy mode, require its exact approved plan and referenced design
+sources, unchanged approval and in-flight status, original completion criteria,
+current branch, base, head, range, status, verification, review, triage, and
+publication evidence. Require no material ambiguity or owner migration choice.
+Do not manufacture new contract artifacts, Task PR topology, or weaker evidence.
+Apply artifact retention or retirement only when and as its unchanged completion
+contract requires; do not impose the new planned-feature lifecycle.
 
-Do not add explanation — keep options concise.
+## Keep workspace-only artifacts with their worktree
 
-### Step 4: Execute Choice
+Do not remove the planned feature's ignored `feature-contract.md` or
+`implementation-plan.md` as a separate Feature Accepted action. Confirm that
+both remain ignored, untracked, unstaged, and inside the current feature plan
+directory. Keep them in the coordination worktree while they may still be
+needed for publication, human-feedback re-entry, or disposition evidence.
 
-#### Option 1: Create a Pull Request
+When the user later authorizes removal of that exact coordination worktree and
+its retained evidence is no longer required, let removal of the worktree clean
+up these ignored files with the workspace. Warn that they are not recoverable
+from Git. If either artifact is tracked, staged, outside the expected directory,
+or the user requests preservation beyond the worktree lifecycle, return
+`Escalate` for an explicit retention or archival decision. Preserve every
+Design Doc.
 
-→ Invoke `create-pr` skill.
+Lightweight mode has no workspace-only contract or plan files. Proceed directly
+from its current completion evidence to user-controlled choices.
 
-#### Option 2: Merge Locally
+## Present applicable choices
 
-In a worktree session, `git checkout <base-branch>` is impossible — the base
-branch is checked out in the main checkout. Operate on the main checkout via
-`-C` instead:
+In task mode present only choices applicable to that exact Task PR:
 
-```bash
-main_root=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
-git -C "$main_root" pull
-git -C "$main_root" merge <feature-branch>
-# Verify tests on the merged result (run them in $main_root)
-```
+1. push its current branch;
+2. create its PR against the planned base;
+3. keep it local and continue eligible plan work;
+4. merge it only when the user explicitly requests that disposition and current
+   PR topology permits the merge;
+5. discard its branch or worktree with separate destructive confirmation.
 
-The feature branch cannot be deleted while this worktree has it checked out.
-Report instead:
+In lightweight mode present the same exact-branch publication, PR, merge, keep,
+and separately confirmed discard choices, but do not refer to continued plan
+work or planned workspace-artifact lifecycle.
 
-```
-Merged into <base-branch>. After you remove this workspace
-(herdr worktree remove), delete the branch with `git branch -d <feature-branch>`.
-```
+In feature mode present the remaining choices for the complete topology:
 
-(On a plain feature branch — no worktree — the classic sequence applies:
-`git checkout <base-branch> && git pull && git merge <feature-branch>`,
-verify tests, then `git branch -d <feature-branch>`.)
+1. publish any still-local accepted Task PRs;
+2. merge or land current PRs in topology order;
+3. keep branches and worktrees as-is;
+4. clean up exact task or integration branches and worktrees only after their
+   retention is no longer required and the user explicitly confirms destructive
+   targets.
 
-#### Option 3: Keep As-Is
+In eligible legacy mode present only the publication and disposition choices
+defined by its unchanged approved completion contract. Do not add new topology
+or workspace-artifact requirements.
 
-Report: "Keeping branch `<name>`. You can return to it later."
+Explain dirty state, stack dependencies, human-review invalidation, and cleanup
+consequences. Wait for the user's choice before every external write, merge,
+keep, or destructive action. One bounded authorization may cover only the exact
+refs and operations it names.
 
-#### Option 4: Discard
+## Revalidate before a state change
 
-**Confirm first:**
-```
-This will permanently delete:
-- Branch <name>
-- All commits: <commit-list>
+Before any selected operation, re-resolve:
 
-Type 'discard' to confirm.
-```
+- mode, Task and Feature authority;
+- exact local and remote refs, planned PR base, branch and head object IDs;
+- task and descendant acceptance state;
+- status, changed files, worktrees, and active Git operation state;
+- prior publication and merge state.
 
-Wait for exact confirmation. If confirmed, in a worktree session Claude
-deletes nothing — the branch is checked out here. Report instead
-(`$HERDR_WORKSPACE_ID` carries this session's workspace ID):
+If the evidence changed, preserve state and stop. A parent update may make
+descendant evidence stale; return the topology to the coordinator instead of
+publishing or merging it as current.
 
-```
-To discard: remove this workspace
-  herdr worktree remove --workspace $HERDR_WORKSPACE_ID --force
-then delete the branch from the main checkout:
-  git branch -D <feature-branch>
-```
+## Execute a safe local merge
 
-(On a plain feature branch — no worktree:
-`git checkout <base-branch> && git branch -D <feature-branch>` as before.)
+Freeze the reviewed source object and approved destination ref and object.
+Establish the destination checkout only from a clean prestate with no conflicting
+Git operation. Revalidate the unchanged frozen source, then run the recorded
+non-interactive merge naming that source object.
 
-## Red Flags
+On failure, inspect refs, operation state, index, and worktree. Abort only when
+this skill started the same attributable merge from the recorded clean prestate
+and abort is safe for unrelated data. Otherwise preserve partial state; never
+reset, clean, retry, or discard to recover.
 
-| Violation | Correct Behavior |
-|-----------|-----------------|
-| Proceeding with failing tests | Stop. Fix tests first. |
-| Merging without verifying tests on the merged result | Run tests after merge before reporting success. |
-| Deleting work without confirmation | Require typed "discard" confirmation for Option 4. |
-| Auto-selecting an option | Always present the 4 options. The engineer chooses. |
-| Force-pushing without explicit request | Never force-push unless the engineer explicitly asks. |
+After success, run the required post-merge verification for the destination
+head. If it fails, preserve and report the result; do not reset, publish, or
+continue landing descendants.
 
-## Rules
+## Execute the selected choice
 
-- Always verify tests before offering options
-- Present exactly 4 options — no more, no less
-- Get typed confirmation for discard (Option 4)
-- For Option 1, delegate to `create-pr` skill — do not duplicate its logic
-- For Option 2, verify tests pass on the merged result before deleting the feature branch
+Invoke phase skills through the Skill tool; never perform another phase's work
+inline.
 
-## Transition
+- For publication or push, write only the exact authorized remote and ref;
+  never infer force push or retargeting.
+- For a pull request, invoke `/create-pr` only after its exact external write is
+  authorized.
+- For local merge, follow the safe merge procedure and current topology order.
+- For keep, make no state change.
+- For discard, revalidate and remove only freshly confirmed exact targets.
 
-After the chosen option (1–4) completes — including after `create-pr` returns for Option 1 — hand off to wrap up the session:
+Never force-push, retarget a PR, delete a branch, remove a worktree, reset,
+clean, or discard data from an implied choice.
 
-→ Transition to `/session-teardown` to best-effort shut down the agent-teams team and prompt the engineer to end the session.
+Report mode, resulting topology and refs, affected branches and worktrees,
+current heads and ranges, status, commands and observed results, verification,
+publication or merge state, preserved partial state, concerns, and every gap.
+Do not choose or start another workflow phase.
 
-This runs after the option's git cleanup; it does not add a 5th menu option.
+After feature mode completes, invoke `/session-teardown`.
+</content>
