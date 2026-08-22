@@ -440,8 +440,12 @@ The legacy-plan compatibility clauses that Codex carries in its coordinator,
 `execute-plan`, `execute-task`, `verify`, `review`, and `finish-branch` are
 ported unchanged even though no Claude plan will be executing under the old
 format when this lands; keeping the text identical keeps the two skill sets
-diffable. `claude/install.sh` needs no change: it already distributes
-`CLAUDE.global.md`, `skills/`, and `agents/`.
+diffable. `claude/install.sh` keeps distributing `CLAUDE.global.md`,
+`skills/`, and `agents/`, but manages only the names that come from this
+repository: it records them in `~/.claude/.dotfiles-managed`, removes a name
+only when a previous install managed it and the repository has since dropped
+it, and never touches skills, agents, hooks, or plugins that other tools or the
+engineer installed. A `--dry-run` prints the planned actions.
 
 ### Project norms injection (proof of concept)
 
