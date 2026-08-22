@@ -60,6 +60,17 @@ exact Task PR, integration-only composition, eligible legacy range, or
 standalone target. Keep full sources directly available without copying
 unrelated unchanged prose into each message.
 
+After a successful dispatch for a task in a herdr-managed workspace, return the
+mapping between the Task PR identity, returned agent identity, and exact task
+workspace to the lead. When the user wants interactive visibility, tell the
+lead to direct the user to open that herdr workspace and run `codex agents` to
+search for and inspect the mapped task agent.
+
+Treat `codex agents` as an observation surface by default. The lead remains the
+source of truth for agent state and continues to own follow-up, interruption,
+waiting, and closure. Do not start, rename, steer, or stop a task through the
+dashboard unless the user explicitly requests manual intervention.
+
 Use bounded waits, inspect live agents regularly, and return progress evidence to
 the lead. Preserve reports, identities, completion state, and observed errors
 without translating findings or deciding whether the task passed.
@@ -94,9 +105,10 @@ another perspective.
 
 ## Return scheduling evidence
 
-Return dispatch and queue order, agent identities, live and effective capacity,
-completion or interruption states, reports, inspected Git state after writer
-failure, and every availability or attribution gap.
+Return dispatch and queue order, the Task-PR-to-agent-to-workspace mapping,
+agent identities, live and effective capacity, completion or interruption
+states, reports, inspected Git state after writer failure, and every
+availability or attribution gap.
 
 Use `BLOCKED` whenever safe scheduling or writer-state attribution cannot be
 established. Otherwise return scheduling evidence to the invoking phase.
