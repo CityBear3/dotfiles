@@ -1,13 +1,18 @@
 ---
 name: dispatching-parallel-agents
-description: Dispatch already-bounded independent tasks to Codex subagents while respecting approved dependency readiness, isolated workspaces, runtime capacity, and shared-state constraints.
+description: Dispatch root-selected ready planned Tasks to dedicated Task orchestrators while respecting approved dependencies, isolated workspaces, root leases, and shared-state constraints.
 ---
 
 # Dispatch parallel agents
 
-Parallelize only independent work. When invoked from `execute-plan`, act as a
-scheduling adapter for tasks that it already marked ready; do not reinterpret
-the Task DAG, PR topology, ownership, or review policy.
+Parallelize only independent planned Task loops. When invoked from
+`execute-plan`, act as the root scheduling adapter for Tasks that it already
+marked ready; do not reinterpret the Task DAG, PR topology, ownership, Review
+policy, or selected leaf roles. Dispatch one exact `task-orchestrator` profile
+per selected Task. This skill does not dispatch planned implementer, verifier,
+reviewer, or integrator leaves; the bound Task orchestrator owns those
+dispatches. This topology applies to new-format planned work; eligible legacy
+plans retain their exact approved scheduling authority.
 
 ## Decide whether to dispatch
 
@@ -19,7 +24,10 @@ For each candidate task identify:
 - dependencies on other tasks;
 - approved branch and checkout, planned PR base, and candidate or authoritative
   mode when applicable;
-- completion evidence.
+- completion evidence;
+- configured, observed, and effective subagent capacity, current live
+  identities, the root-granted leaf count, and any already-selected roles for
+  the wave.
 
 Do not parallelize tasks that edit the same files, share a checkout or active
 writer, mutate conflicting state, depend on one another's results, lack an
@@ -28,15 +36,27 @@ is not a logical dependency when the approved plan permits an early candidate.
 
 ## Capacity
 
-Use `list_agents` before dispatch. Count the lead and all live agents. Respect the lower of configured capacity and runtime capacity; never assume all configured slots are available.
+Use `list_agents` before every dispatch wave. Effective subagent capacity is the
+lower of configured `agents.max_threads` and currently observed runtime
+capacity. `max_threads` excludes the root and counts every live Task
+orchestrator and leaf across the complete tree. Never infer that every
+configured slot is currently available.
 
-Count writers and reviewers from every active Task PR. When ready tasks or
-reviewers exceed free slots, use the plan's deterministic queue instead of
-dropping, reordering, or oversubscribing them.
+The root grants leases. A new Task orchestrator consumes one slot and must also
+receive capacity for its baseline one-leaf grant. Do not dispatch it when those
+two slots are unavailable. One Task loop may receive at most three leaf slots or
+its smaller current grant. First grant one leaf to each schedulable active Task
+when capacity permits, then grant spare independent check-only or read-only
+slots in the approved deterministic queue order. Count writers and reviewers
+from every active Task PR. Queue ready Tasks or selected roles rather than
+dropping, reordering, substituting, or oversubscribing them.
 
 ## Dispatch
 
-Call `spawn_agent` once per concrete task. Use a stable, descriptive task name and include all task-local context because agents should not depend on the conversation.
+Call `spawn_agent` with the exact `task-orchestrator` profile once per concrete
+selected Task. Use a stable, descriptive Task name, bind the returned identity
+to that Task Contract for its lifetime, and include all task-local context
+because conversation memory is not authority.
 
 Each prompt states:
 
@@ -47,7 +67,9 @@ Each prompt states:
 - prohibited overlap;
 - required commands or evidence;
 - exact return format;
-- no descendant spawning.
+- the current root-granted leaf count and selected-role queue;
+- authority to spawn only policy-selected bounded leaves inside that grant,
+  with every such leaf prohibited from spawning descendants.
 
 Continue useful lead work while agents run. Use bounded `wait_agent` calls and `list_agents` for regular status checks.
 
@@ -55,9 +77,20 @@ Continue useful lead work while agents run. Use bounded `wait_agent` calls and `
 
 Validate each result against the requested output and its exact workspace. Check
 for conflicting edits, branches, state, or assumptions. Return candidate and
-authoritative results unchanged to the owning scheduler; do not release a
-dependency or claim feature completion here. If an existing agent needs a
-correction, use `followup_task`; use `send_message` for information that should
-not start a new turn.
+authoritative results unchanged to the owning scheduler. The root directly
+re-resolves branch, planned base, merge base, head, range, diff, and status
+before dependency release or Feature aggregation. Agent identity, liveness,
+Herdr, lazygit, and pane state are not acceptance evidence. Do not release a
+dependency or claim feature completion here. If the same idle Task orchestrator
+needs an attributable re-entry, use `followup_task`; use `send_message` for
+information that should not start a new turn.
+
+`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the orchestrator's current
+turn. Never reassign that identity to another Task. Prefer it for a fresh
+handoff on candidate, stale, correction, or human-review re-entry when available.
+If unavailable, dispatch a replacement only after the prior writer is inactive
+and all Task state is attributable; otherwise preserve state and return
+`BLOCKED`. A returned or idle identity reserves no leaf lease, but any identity
+still observed live counts against capacity.
 
 Synthesize results once. Do not repeat completed work merely because agents ran independently.

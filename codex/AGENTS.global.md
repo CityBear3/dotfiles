@@ -16,7 +16,17 @@
 - Preserve existing behavior and unrelated user changes.
 - Use test-driven development for production-code behavior changes.
 - Prefer one writer per shared worktree. Keep review agents read-only unless they are explicitly assigned implementation.
-- Use bounded subagents only for concrete independent work. The lead owns scheduling, capacity, synthesis, and completion.
+- Use bounded subagents only for concrete independent work. The Feature lead
+  owns global capacity, dependency release, synthesis, and completion. For
+  new-format planned work, one Task orchestrator owns scheduling of its
+  policy-selected leaves under the root's lease; for lightweight work, the lead
+  schedules those leaves directly. The lead also owns explicitly standalone
+  read-only targets and gives each a bounded target-local grant. Eligible legacy
+  work retains its exact approved execution authority.
+- Integrate non-clean reviewer output before triage or correction. Keep problem
+  validity separate from remedy validity, return a confirmed Design authority
+  defect to the engineer early, and retain independent out-of-scope problems as
+  non-blocking concerns rather than silently expanding the current Task.
 
 ## Engineering workflow
 

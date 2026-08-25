@@ -128,12 +128,37 @@ current-head gate.
 
 Before selecting a named verifier, inspect its effective sandbox and complete
 instructions. A compatible verifier must prohibit index, tracked-file, and
-in-scope source mutation and must not permit formatter output into those files.
+in-scope source mutation, allow writes only for normal ignored test or build
+artifacts, prohibit formatter output, and require documented non-mutating format
+checks. The named `implementation-verifier` profile is the compatible verifier
+when its effective instructions retain those boundaries; its workspace-write
+sandbox exists only for the bounded ignored artifacts and does not weaken the
+check-only contract.
 
-The current `implementation-verifier` profile uses a workspace-write sandbox and
-permits formatter output, so it is incompatible with this check-only phase. Use
-a compatible read-only route when available; otherwise the lead runs the checks
-under this contract. Unavailability is not permission to weaken the boundary.
+For a new-format planned Task PR, `execute-task` selects the exact
+`implementation-verifier` role and the bound Task orchestrator dispatches that
+leaf through `agent-teams-driven-development` under the current root-granted
+lease. For a lightweight Task PR, the root dispatches the same selected verifier
+leaf through that adapter. For an eligible legacy Task, preserve its exact
+approved invoking context. The verifier is always a leaf and may not spawn
+descendants.
+
+For another coordinator-managed target, the root dispatches the compatible
+named verifier through the same adapter under the applicable capacity policy.
+If a required compatible verifier cannot be instantiated, return `BLOCKED` with
+the role, capacity, queue, and exact re-entry condition. Do not substitute the
+root, Task orchestrator, or another role, and do not weaken a planned or
+lightweight gate.
+
+For a standalone target, the root normally dispatches the compatible named
+verifier as its direct leaf through `agent-teams-driven-development`. Record the
+standalone execution context, configured, observed, and effective global
+subagent capacity, live identities, a root-granted target-local count of
+normally one and at most three concurrent leaves, and the selected-role queue.
+The target has no Task lease and may not consume capacity beyond that grant.
+Only an explicitly requested no-agent execution may let the lead run these
+checks under this complete check-only contract. Report either form as
+`standalone-only`, never as coordinator or Acceptance evidence.
 
 ## Snapshot and run checks
 
@@ -198,6 +223,8 @@ Report:
 - workspace, branch, planned base, merge base, starting and ending head, exact
   range, composed tree, snapshot, or bounded fileset;
 - starting and ending `git status --short`, changed files, and unrelated state;
+- for dispatched checks, the owning execution context, configured, observed,
+  and effective capacity, root grant, live identities, and queue order;
 - Review context and approved criteria inspected when available;
 - approved Design Doc, Feature Contract, applicable Task Contract and dependency
   evidence, integration-only obligation and accepted task set, complete
