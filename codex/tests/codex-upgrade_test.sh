@@ -2,9 +2,34 @@
 set -eu
 
 run_fake_codex() {
-    printf '%s\n' "$*" >> "$CODEX_TEST_CALL_LOG"
+    case $# in
+        1)
+            if [ "$1" = update ]; then
+                canonical_call=update
+            else
+                printf 'unexpected codex invocation (%s args): %s\n' "$#" "$*" >&2
+                exit 99
+            fi
+            ;;
+        3)
+            if [ "$1" = app-server ] && [ "$2" = daemon ] && [ "$3" = version ]; then
+                canonical_call='app-server daemon version'
+            elif [ "$1" = app-server ] && [ "$2" = daemon ] && [ "$3" = restart ]; then
+                canonical_call='app-server daemon restart'
+            else
+                printf 'unexpected codex invocation (%s args): %s\n' "$#" "$*" >&2
+                exit 99
+            fi
+            ;;
+        *)
+            printf 'unexpected codex invocation (%s args): %s\n' "$#" "$*" >&2
+            exit 99
+            ;;
+    esac
 
-    case "$*" in
+    printf '%s\n' "$canonical_call" >> "$CODEX_TEST_CALL_LOG"
+
+    case "$canonical_call" in
         'app-server daemon version')
             if [ -f "$CODEX_TEST_VERSION_SEEN" ]; then
                 printf '%s\n' 'post-version-output'
@@ -26,10 +51,6 @@ run_fake_codex() {
             printf '%s\n' 'restart-output'
             printf '%s\n' 'restart-error' >&2
             exit "${CODEX_TEST_RESTART_STATUS:-0}"
-            ;;
-        *)
-            printf 'unexpected codex invocation: %s\n' "$*" >&2
-            exit 99
             ;;
     esac
 }
@@ -85,6 +106,34 @@ arrange_case() {
 
     mkdir -p "$fake_bin"
     ln -s "$test_script" "$fake_bin/codex"
+}
+
+test_fake_rejects_collapsed_argv() {
+    # Arrange
+    arrange_case collapsed-argv
+
+    # Act
+    set +e
+    PATH="$fake_bin:/usr/bin:/bin" \
+        CODEX_UPGRADE_TEST_FAKE=1 \
+        CODEX_TEST_CALL_LOG="$call_log" \
+        CODEX_TEST_VERSION_SEEN="$version_seen" \
+        "$fake_bin/codex" 'app-server daemon version' \
+        > "$stdout_file" 2> "$stderr_file"
+    status=$?
+    set -e
+
+    # Assert
+    assert_status 99 "$status" 'collapsed argv'
+    if [ -e "$call_log" ]; then
+        fail 'collapsed argv: unexpected canonical call log'
+    fi
+    : > "$expected_file"
+    assert_file_equals "$expected_file" "$stdout_file" 'collapsed argv stdout'
+    printf '%s\n' \
+        'unexpected codex invocation (1 args): app-server daemon version' \
+        > "$expected_file"
+    assert_file_equals "$expected_file" "$stderr_file" 'collapsed argv stderr'
 }
 
 test_running_daemon_is_restarted_after_update() {
@@ -177,6 +226,37 @@ test_update_failure_stops_before_restart() {
     assert_file_equals "$expected_file" "$stderr_file" 'update failure stderr'
 }
 
+test_stopped_daemon_update_failure_is_propagated() {
+    # Arrange
+    arrange_case stopped-daemon-update-failure
+
+    # Act
+    set +e
+    PATH="$fake_bin:/usr/bin:/bin" \
+        CODEX_UPGRADE_TEST_FAKE=1 \
+        CODEX_TEST_CALL_LOG="$call_log" \
+        CODEX_TEST_VERSION_SEEN="$version_seen" \
+        CODEX_TEST_PRE_VERSION_STATUS=17 \
+        CODEX_TEST_UPDATE_STATUS=23 \
+        "$helper" > "$stdout_file" 2> "$stderr_file"
+    status=$?
+    set -e
+
+    # Assert
+    assert_status 23 "$status" 'stopped daemon update failure'
+    printf '%s\n' \
+        'app-server daemon version' \
+        'update' > "$expected_file"
+    assert_file_equals "$expected_file" "$call_log" \
+        'stopped daemon update failure call order'
+    printf '%s\n' 'update-output' > "$expected_file"
+    assert_file_equals "$expected_file" "$stdout_file" \
+        'stopped daemon update failure stdout'
+    printf '%s\n' 'update-error' > "$expected_file"
+    assert_file_equals "$expected_file" "$stderr_file" \
+        'stopped daemon update failure stderr'
+}
+
 test_restart_failure_is_propagated() {
     # Arrange
     arrange_case restart-failure
@@ -251,9 +331,11 @@ test_root=$(mktemp -d "${TMPDIR:-/tmp}/codex-upgrade-test.XXXXXX")
 trap 'rm -rf "$test_root"' 0
 trap 'exit 130' 1 2 15
 
+test_fake_rejects_collapsed_argv
 test_running_daemon_is_restarted_after_update
 test_stopped_daemon_is_not_started
 test_update_failure_stops_before_restart
+test_stopped_daemon_update_failure_is_propagated
 test_restart_failure_is_propagated
 test_post_restart_version_failure_is_propagated
 
