@@ -22,7 +22,7 @@ const MANAGED_CONFIG: &str = concat!(
     "\n",
     "[agents]\n",
     "max_threads = 6\n",
-    "max_depth = 1\n",
+    "max_depth = 2\n",
 );
 
 #[test]
@@ -71,6 +71,44 @@ fn plan_classifies_owned_changed_destination_as_replace() {
         )
         .operation,
         PlanOperation::Replace
+    );
+}
+
+#[test]
+fn plan_replaces_the_owned_task_orchestrator_profile_on_update() {
+    // Arrange
+    let temporary = project_tempdir("plan-update-task-orchestrator");
+    let fixture = Fixture::new(temporary.path());
+    fixture.add_agent("task-orchestrator.toml", b"name = \"task-orchestrator\"\n");
+    fs::create_dir_all(fixture.codex_home.join("agents")).expect("create installed agents");
+    fs::write(
+        fixture.codex_home.join("agents/task-orchestrator.toml"),
+        b"name = \"old-task-orchestrator\"\n",
+    )
+    .expect("write installed Task orchestrator");
+    fixture.write_manifest(OwnershipManifest::new(
+        false,
+        [],
+        ["task-orchestrator.toml"],
+    ));
+
+    // Act
+    let result = plan_install(fixture.request(false));
+
+    // Assert
+    let action = action_for(
+        result.expect("Task orchestrator update plan"),
+        AssetCategory::Agent,
+        Some("task-orchestrator.toml"),
+    );
+    assert_eq!(
+        (action.operation, action.desired),
+        (
+            PlanOperation::Replace,
+            Some(CapturedContent::file(
+                b"name = \"task-orchestrator\"\n".to_vec(),
+            )),
+        )
     );
 }
 
@@ -199,7 +237,7 @@ fn plan_merges_only_the_five_managed_configuration_keys() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
         "custom = true\n",
     );
 
@@ -730,6 +768,12 @@ impl Fixture {
         let skill = self.source_root.join("skills").join(name);
         fs::create_dir_all(&skill).expect("create source skill");
         fs::write(skill.join("SKILL.md"), bytes).expect("write source skill");
+    }
+
+    fn add_agent(&self, name: &str, bytes: &[u8]) {
+        let agents = self.source_root.join("agents");
+        fs::create_dir_all(&agents).expect("create source agents");
+        fs::write(agents.join(name), bytes).expect("write source agent");
     }
 
     fn write_manifest(&self, manifest: OwnershipManifest) {

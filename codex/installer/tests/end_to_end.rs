@@ -7,6 +7,111 @@ use std::process::Command;
 use support::process_tempdir;
 
 #[test]
+fn managed_bundle_declares_depth_two_and_the_bounded_task_orchestrator() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let config_text = fs::read_to_string(source_root.join("config.toml"))
+        .expect("read managed Codex configuration");
+    let config =
+        toml::from_str::<toml::Table>(&config_text).expect("parse managed Codex configuration");
+    let agents_config = config
+        .get("agents")
+        .and_then(toml::Value::as_table)
+        .expect("managed configuration has agents table");
+    let mut profiles = fs::read_dir(source_root.join("agents"))
+        .expect("read managed agent directory")
+        .filter_map(|entry| {
+            let entry = entry.expect("read managed agent entry");
+            if !entry
+                .path()
+                .extension()
+                .is_some_and(|extension| extension == "toml")
+            {
+                return None;
+            }
+            let name = entry
+                .file_name()
+                .into_string()
+                .expect("managed agent name is UTF-8");
+            let text = fs::read_to_string(entry.path()).expect("read managed agent profile");
+            let profile = toml::from_str::<toml::Table>(&text)
+                .unwrap_or_else(|error| panic!("parse managed agent {name}: {error}"));
+            Some((name, profile))
+        })
+        .collect::<Vec<_>>();
+    profiles.sort_by(|left, right| left.0.cmp(&right.0));
+
+    // Act
+    let task_orchestrator = profiles
+        .iter()
+        .find(|(name, _)| name == "task-orchestrator.toml")
+        .map(|(_, profile)| profile)
+        .expect("managed Task orchestrator profile");
+    let instructions = task_orchestrator
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("Task orchestrator developer instructions");
+
+    // Assert
+    assert_eq!(
+        (
+            agents_config
+                .get("max_threads")
+                .and_then(toml::Value::as_integer),
+            agents_config
+                .get("max_depth")
+                .and_then(toml::Value::as_integer),
+            task_orchestrator.get("name").and_then(toml::Value::as_str),
+            task_orchestrator
+                .get("sandbox_mode")
+                .and_then(toml::Value::as_str),
+        ),
+        (
+            Some(6),
+            Some(2),
+            Some("task-orchestrator"),
+            Some("read-only")
+        )
+    );
+    for required in [
+        "exactly one planned Task Contract",
+        "Own only that Task's execute-task loop",
+        "Do not edit or commit Task source",
+        "root-granted lease",
+        "spawn only the implementer, verifier, reviewer, or adversarial-integrator leaves",
+        "never grant, expand, or infer your own lease",
+        "Candidate",
+        "Accepted",
+        "BLOCKED",
+        "Escalate",
+        "Each of these statuses ends the current turn",
+        "Do not choose another Task, alter Review policy, release dependencies, decide Feature acceptance",
+        "publish or merge work",
+        "clean or remove a workspace",
+    ] {
+        assert!(
+            instructions.contains(required),
+            "Task orchestrator instructions omit {required:?}"
+        );
+    }
+    for (name, profile) in profiles
+        .iter()
+        .filter(|(name, _)| name != "task-orchestrator.toml")
+    {
+        let leaf_instructions = profile
+            .get("developer_instructions")
+            .and_then(toml::Value::as_str)
+            .unwrap_or_else(|| panic!("managed leaf {name} has developer instructions"));
+        assert!(
+            leaf_instructions.contains("do not spawn descendants"),
+            "managed leaf {name} must prohibit descendant spawning"
+        );
+    }
+}
+
+#[test]
 fn install_and_restore_round_trip_with_normal_binary() {
     // Arrange
     let temporary = process_tempdir("install-restore-round-trip");
@@ -19,6 +124,8 @@ fn install_and_restore_round_trip_with_normal_binary() {
         .expect("read representative source skill");
     let source_agent = fs::read(source_root.join("agents/code-reviewer.toml"))
         .expect("read representative source agent");
+    let source_task_orchestrator = fs::read(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read source Task orchestrator");
     let codex_home = temporary.path().join("codex-home");
     let skills_home = temporary.path().join("skills-home");
     let state_dir = temporary.path().join("state");
@@ -104,6 +211,8 @@ fn install_and_restore_round_trip_with_normal_binary() {
         .expect("read installed representative skill");
     let installed_agent = fs::read(codex_home.join("agents/code-reviewer.toml"))
         .expect("read installed representative agent");
+    let installed_task_orchestrator = fs::read(codex_home.join("agents/task-orchestrator.toml"))
+        .expect("read installed Task orchestrator");
     let unrelated_after_install = (
         fs::read(&unrelated_skill).expect("read unrelated skill after install"),
         fs::read(&unrelated_agent).expect("read unrelated agent after install"),
@@ -227,7 +336,7 @@ fn install_and_restore_round_trip_with_normal_binary() {
             Some("xhigh"),
             Some("xhigh"),
             Some(4),
-            Some(1),
+            Some(2),
         )
     );
     assert!(
@@ -237,8 +346,18 @@ fn install_and_restore_round_trip_with_normal_binary() {
     assert_ne!(installed_manifest, prior_manifest.as_bytes());
     assert!(!stale_exists_after_install);
     assert_eq!(
-        (installed_guidance, installed_skill, installed_agent),
-        (source_guidance, source_skill, source_agent)
+        (
+            installed_guidance,
+            installed_skill,
+            installed_agent,
+            installed_task_orchestrator,
+        ),
+        (
+            source_guidance,
+            source_skill,
+            source_agent,
+            source_task_orchestrator,
+        )
     );
     assert_eq!(
         unrelated_after_install,
@@ -283,6 +402,7 @@ fn install_and_restore_round_trip_with_normal_binary() {
     );
     assert!(!skills_home.join("agent-teams-driven-development").exists());
     assert!(!codex_home.join("agents/code-reviewer.toml").exists());
+    assert!(!codex_home.join("agents/task-orchestrator.toml").exists());
     assert_eq!(unrelated_after_restore, unrelated_after_install);
     assert_eq!(latest_after_restore, latest_after_install);
     assert_eq!(journal_after_restore, journal_after_install);

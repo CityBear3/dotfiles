@@ -25,7 +25,7 @@ const MANAGED_CONFIG: &str = concat!(
     "\n",
     "[agents]\n",
     "max_threads = 6\n",
-    "max_depth = 1\n",
+    "max_depth = 2\n",
 );
 
 #[test]
@@ -42,6 +42,12 @@ fn dry_run_preserves_existing_destinations_and_state_without_lock() {
     fs::write(source_root.join("config.toml"), MANAGED_CONFIG).expect("write config");
     fs::create_dir_all(source_root.join("skills/review")).expect("create source skill");
     fs::write(source_root.join("skills/review/SKILL.md"), b"review").expect("write source skill");
+    fs::create_dir(source_root.join("agents")).expect("create source agents");
+    fs::write(
+        source_root.join("agents/task-orchestrator.toml"),
+        b"name = \"task-orchestrator\"\n",
+    )
+    .expect("write source Task orchestrator");
     let existing_config = concat!(
         "model = \"existing\"\n",
         "model_reasoning_effort = \"medium\"\n",
@@ -91,6 +97,7 @@ fn dry_run_preserves_existing_destinations_and_state_without_lock() {
     let output = result.expect("dry-run succeeds");
     assert!(output.contains("REPLACE config"));
     assert!(output.contains("CREATE skill review"));
+    assert!(output.contains("CREATE agent task-orchestrator.toml"));
     assert!(output.contains("CREATE manifest"));
     assert_eq!(
         (
@@ -176,6 +183,12 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
     fs::write(source_root.join("config.toml"), MANAGED_CONFIG).expect("write managed config");
     fs::write(source_root.join("AGENTS.global.md"), b"desired guidance")
         .expect("write managed guidance");
+    fs::create_dir(source_root.join("agents")).expect("create source agents");
+    fs::write(
+        source_root.join("agents/task-orchestrator.toml"),
+        b"name = \"task-orchestrator\"\n",
+    )
+    .expect("write source Task orchestrator");
     fs::create_dir_all(source_root.join("skills/adopted")).expect("create adopted source skill");
     fs::write(
         source_root.join("skills/adopted/SKILL.md"),
@@ -202,7 +215,7 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
         "custom = true\n",
     );
     fs::write(codex_home.join("config.toml"), prior_config).expect("write prior config");
@@ -245,11 +258,13 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
 
     // Assert
     result.expect("mutating install succeeds");
-    let desired_ownership = OwnershipManifest::new(true, ["adopted"], []);
+    let desired_ownership = OwnershipManifest::new(true, ["adopted"], ["task-orchestrator.toml"]);
     assert_eq!(
         (
             fs::read(codex_home.join("config.toml")).expect("read installed config"),
             fs::read(codex_home.join("AGENTS.md")).expect("read installed guidance"),
+            fs::read(codex_home.join("agents/task-orchestrator.toml"))
+                .expect("read installed Task orchestrator"),
             fs::read(skills_home.join("adopted/SKILL.md")).expect("read adopted skill"),
             skills_home.join("stale").exists(),
             fs::read(skills_home.join("external/SKILL.md")).expect("read external skill"),
@@ -259,6 +274,7 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
         (
             desired_config.as_bytes().to_vec(),
             b"desired guidance".to_vec(),
+            b"name = \"task-orchestrator\"\n".to_vec(),
             b"desired adopted skill".to_vec(),
             false,
             b"external".to_vec(),

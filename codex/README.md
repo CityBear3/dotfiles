@@ -65,6 +65,14 @@ Automatic selection uses logical CPU count and physical memory:
 - 8 threads when there are at least 12 logical CPUs and at least 32 GiB of memory.
 - 6 threads otherwise.
 
+### Agent hierarchy and inventory
+
+The tracked configuration uses `agents.max_threads = 6` as the standard-tier input and `agents.max_depth = 2` for the supported root → Task orchestrator → leaf hierarchy. Installation replaces only `max_threads` with the selected 4, 6, or 8 automatic tier, or with a valid explicit override; it installs `max_depth` as 2. Leaf profiles still prohibit descendant spawning, so the configured depth permits only the dedicated Task orchestrator to dispatch its bounded leaves.
+
+Every safe `agents/*.toml` source is included in the managed agent inventory. In particular, `agents/task-orchestrator.toml` installs the read-only `task-orchestrator` profile used to coordinate one planned Task Contract without writing source. Unrelated destination agents remain unmanaged and are preserved, while a previously installer-owned agent removed from the source inventory is eligible for removal through the normal plan.
+
+Installing the bundle does not change an already-running Codex session. The Task orchestrator hierarchy applies to new planned work only after a successful install and a later Codex session reload; installation and that new-session smoke test are separate operator actions.
+
 ### Roots and managed destinations
 
 Command-line options override these environment-derived defaults. The paths shown in the rest of this README use these default expressions; when an override option is supplied, replace the corresponding base path with that option's value.
