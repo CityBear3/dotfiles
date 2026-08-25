@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+daemon_was_running=false
+
+if command codex app-server daemon version >/dev/null 2>&1; then
+    daemon_was_running=true
+fi
+
+command codex update
+
+if [ "$daemon_was_running" = true ]; then
+    command codex app-server daemon restart
+    command codex app-server daemon version
+else
+    printf '%s\n' 'Codex updated; app-server daemon was not running.'
+fi

@@ -2,6 +2,28 @@
 
 This directory is the source of truth for the personal Codex bundle.
 
+## Standalone Codex update helper
+
+`bin/codex-upgrade` updates a standalone Codex installation and refreshes an app-server daemon that was already running. It targets the current standalone installation, where `codex update` performs the self-update; it does not add Homebrew-specific behavior.
+
+The helper quietly probes `codex app-server daemon version` before updating. After a successful update, it restarts the daemon and prints its version only when that probe succeeded. Any probe failure is treated as the daemon being stopped or unreachable, so the helper leaves it stopped and prints a message instead of starting it. An update, restart, or post-restart version failure is returned to the caller.
+
+Run it directly from the repository root:
+
+```sh
+./codex/bin/codex-upgrade
+```
+
+For a `codex-upgrade` command, create a symlink from a directory on `PATH`. For example, run the following from the repository root when `$HOME/.local/bin` is already on `PATH`:
+
+```sh
+mkdir -p "$HOME/.local/bin"
+ln -s "$PWD/codex/bin/codex-upgrade" "$HOME/.local/bin/codex-upgrade"
+codex-upgrade
+```
+
+The Rust installer described below does not manage this helper or symlink. The app-server daemon command is experimental, so this script is the isolated place to update its invocation if the CLI changes.
+
 ## Rust installer
 
 Use `install.sh` as the normal entry point. It resolves the installer manifest relative to its own location, so it can be invoked from any working directory.
