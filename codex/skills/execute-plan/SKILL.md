@@ -303,6 +303,8 @@ containing:
   completion criteria, or promotion mappings proved;
 - exact task workspace, branch, planned base ref and commit, merge base,
   accepted current head, and base-to-head range;
+- verified starting Git status and verified final Git status, including index,
+  worktree, and relevant untracked state, matched to direct root re-observation;
 - task and correction commits;
 - fresh verification obligations, commands selected or required, and observed
   results;
@@ -313,8 +315,8 @@ After every planned task is accepted and current:
 
 1. retain the complete result set in deterministic Task DAG and PR-topology
    order;
-2. re-resolve every task branch, base, head, range, dependency, and shared
-   interface;
+2. re-resolve every task branch, base, head, range, Git status, dependency, and
+   shared interface;
 3. prove complete Feature Contract coverage and identify only the obligations
    that remain integration-only;
 4. materialize and record the exact temporary tree for each integration-only

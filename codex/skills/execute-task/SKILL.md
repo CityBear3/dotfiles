@@ -370,10 +370,12 @@ Return:
   without progress.
 
 Include the exact authority and Task Contract content/currentness, mode, writer
-status, task and correction commits, workspace and branch, planned PR base ref
-and commit, merge base, current head, exact range, changed files, commands and
-observed results, pre-commit inspection, gate result when authoritative, owning
-Task-loop identity, configured/observed/effective capacity, root grant, selected
-and queued roles, concerns, gaps, and exact re-entry condition.
+status, starting Git status and final Git status, each including index, worktree,
+and relevant untracked state, task and correction commits, workspace and branch,
+planned PR base ref and commit, merge base, current head, exact range, changed
+files, commands and observed results, pre-commit inspection, gate result when
+authoritative, owning Task-loop identity, configured/observed/effective
+capacity, root grant, selected and queued roles, concerns, gaps, and exact
+re-entry condition.
 Return this evidence to the invoking coordinator or
 `execute-plan`; do not advance another task or cross-phase gate.
