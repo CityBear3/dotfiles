@@ -29,6 +29,14 @@ For the new form require:
 - approved task workspace, branch, and coordination directory;
 - planned PR identity, base ref and exact base commit, current head, and whether
   the handoff is candidate or authoritative;
+- current merge base, exact base-to-head range, diff, status, attributable
+  commits, prior verification and review, concerns, gaps, and re-entry evidence
+  when applicable;
+- execution context: the one bound `task-orchestrator` identity for new-format
+  planned work, or the root-owned loop for lightweight work;
+- configured, observed, and effective subagent capacity; the root-granted leaf
+  count for this loop; currently live identities; and any roles already
+  selected for the current wave;
 - for authoritative re-entry of an attributable candidate, the candidate
   commit, head, preliminary evidence, and authorized final-base materialization
   or restack evidence;
@@ -84,6 +92,26 @@ supplied attributable envelope. Recheck ancestry, base, branch, range, and
 status after commits and before acceptance. On failure, preserve state and
 return `BLOCKED`; never rewrite history to manufacture the planned topology.
 
+## Run in the owning Task-loop context
+
+For new-format planned work, this skill runs inside the non-writing Task
+orchestrator bound to the supplied Task Contract. Only that orchestrator
+dispatches this Task's leaves. For lightweight work, the root owns this loop and
+dispatches the same bounded leaves directly; do not introduce a Task
+orchestrator, planned Task artifacts, or Herdr requirement solely for
+lightweight execution. Eligible legacy work retains its exact approved invoking
+context. Reject a new-format planned handoff delivered to an unbound identity
+or a lightweight handoff that pretends to have a planned Task orchestrator.
+
+Treat `agents.max_threads` as subagent capacity across the complete descendant
+tree, excluding the root and counting every Task orchestrator and leaf. Use the
+lower configured or currently observed capacity. The root alone grants leaf
+capacity. This loop normally receives one leaf and may use at most three
+concurrent leaves or its smaller current grant. Request missing capacity without
+self-expanding; queue already-selected roles in order without dropping,
+substituting, reordering, or weakening them. Do not begin a planned orchestrator
+turn unless its grant includes a baseline leaf.
+
 ## Choose one writer
 
 Keep exactly one writer: the lead when direct execution is authorized, otherwise
@@ -95,6 +123,12 @@ prompt: use the named profile when available, or
 [implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md)
 as its fallback. Pass only the selected role and task handoff to
 `agent-teams-driven-development`.
+
+Every implementer, verifier, reviewer, and adversarial integrator dispatched by
+this loop is a leaf and must not spawn descendants. A capacity lease changes
+only scheduling concurrency; it grants no source, Git, policy, publication, or
+cleanup authority. The Task orchestrator remains non-writing, and the
+implementer remains the sole Task source writer.
 
 Require production behavior changes to use red, green, refactor and report the
 observed red failure. For content, configuration, refactoring, or mechanical
@@ -138,7 +172,8 @@ confirmed inactive.
 For candidate or fresh authoritative implementation:
 
 1. Record the task and PR identities, workspace, branch, starting commit,
-   planned base ref and commit, current head, and status.
+   planned base ref and commit, current head, status, owning Task-loop context,
+   current capacity evidence, grant, and selected-role queue.
 2. Implement only the declared scope with the selected discipline.
 3. Run every contractually required exact command, select applicable standard
    and focused checks, and record all observed results.
@@ -221,7 +256,10 @@ another identity or duplicate record:
 - the complete writer report;
 - every verification obligation and fresh required or selected command with its
   expected and observed result;
-- commits, pre-commit inspection, repository guidance, concerns, and gaps.
+- commits, pre-commit inspection, repository guidance, concerns, and gaps;
+- the planned Task orchestrator or lightweight root context, configured,
+  observed, and effective capacity, current root grant, live identities, and
+  queued roles.
 
 Eagerly provide assigned clauses and evidence needed by the check. Keep the
 exact authority source directly available, but do not inline or require an
@@ -239,6 +277,13 @@ fresh `PASS` for the unchanged planned base, merge base, head, range, diff, and
 status. Then invoke `review` with that verification and the complete approved
 policy. Let `review` select and schedule only the policy-required task
 perspectives and return `CLEAN`, `FINDINGS`, or `BLOCKED`.
+
+All new-format planned verifier and reviewer leaves remain descendants of the
+bound Task orchestrator; all lightweight leaves remain direct descendants of
+the root. Schedule them through `agent-teams-driven-development` under the
+unchanged current lease. Queue a selected check when capacity is insufficient;
+do not move it to the root, substitute another role, or treat a self-observed
+free slot as a lease expansion.
 
 Do not substitute writer self-checks, preliminary candidate checks, standalone
 results, or a lead summary for either coordinator-managed phase. An approved
@@ -299,6 +344,15 @@ gap. Do not create another identifier or tracking schema for the finding.
 
 ## Return task acceptance
 
+Return the complete result to the owning caller without translating or dropping
+evidence. For new-format planned work, the Task orchestrator returns it to
+`execute-plan`; for lightweight work, the root consumes it directly.
+`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current planned
+Task-orchestrator turn. An Accepted result does not start a wait or polling
+loop. Re-entry always requires a fresh complete handoff and Git revalidation,
+whether the same idle identity is reused or an attributable replacement is
+selected.
+
 Return:
 
 - `Candidate` only for plan-authorized early implementation with an
@@ -318,7 +372,8 @@ Return:
 Include the exact authority and Task Contract content/currentness, mode, writer
 status, task and correction commits, workspace and branch, planned PR base ref
 and commit, merge base, current head, exact range, changed files, commands and
-observed results, pre-commit inspection, gate result when authoritative,
-capacity or queue evidence, concerns, gaps, and exact re-entry condition.
+observed results, pre-commit inspection, gate result when authoritative, owning
+Task-loop identity, configured/observed/effective capacity, root grant, selected
+and queued roles, concerns, gaps, and exact re-entry condition.
 Return this evidence to the invoking coordinator or
 `execute-plan`; do not advance another task or cross-phase gate.

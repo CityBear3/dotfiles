@@ -28,6 +28,9 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - Keep parser, renderer, and CLI responsibilities separate.
 - Do not change persistence, permissions, or error ownership.
 - Allow parser and renderer work to begin independently.
+- Run each ready planned Task through one non-writing Task orchestrator; keep
+  the root responsible for global leases, dependency release, and Feature
+  acceptance.
 
 ## Shared interface contracts
 
@@ -105,9 +108,12 @@ results and this stack are current.
   unless recovery behavior changes; skip scope because each Task gate receives
   exact clauses and ownership.
 - **Residual risk:** No exhaustive grammar fuzzing.
-- **Capacity and queue:** At most five threads including the lead; schedule
-  ready Task 1 and Task 2 candidates in separate worktrees, then their task
-  gates, Task 3, and integration review.
+- **Capacity and queue:** Effective subagent capacity is the lower configured
+  `agents.max_threads` or observed runtime value, excludes the root, and counts
+  every Task orchestrator and leaf. The root grants each schedulable Task a
+  baseline leaf before spare slots, with at most three leaves per Task loop;
+  schedule ready Task 1 and Task 2 candidates in deterministic order in
+  separate worktrees, then their Task gates, Task 3, and integration review.
 - **Acceptance:** Keep only artifact-applicable findings with an approved
   requirement, reachable evidence, material consequence, and proportionate
   correction. Drop preference, speculation, optional polish, and objections to

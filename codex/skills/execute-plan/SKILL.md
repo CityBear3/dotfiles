@@ -6,9 +6,10 @@ description: Orchestrate an approved Implementation Plan across its Task depende
 # Execute an approved plan
 
 Own approved-plan validation, dependency and PR-topology scheduling, per-task
-handoff, workspace mapping, staleness propagation, and exact evidence
-aggregation. Do not edit files, select implementer or reviewer roles, normalize
-findings, publish, merge, or run verification or review itself.
+Task-orchestrator handoff, root-granted capacity leases, workspace and agent
+mapping, staleness propagation, and exact evidence aggregation. Do not edit
+files, select implementer or reviewer roles, normalize findings, publish,
+merge, or run verification or review itself.
 
 ## Validate plan entry
 
@@ -77,8 +78,19 @@ Permit multiple active tasks only when the approved plan marks them ready,
 ownership-disjoint, free of conflicting shared state, and assigned to separate
 branches and checkouts. Keep one writer per checkout and remain within approved
 and observed capacity. Use `dispatching-parallel-agents` only as an adapter for
-already bounded task handoffs; queue deterministically rather than weakening a
-gate.
+already bounded Task-orchestrator handoffs; queue deterministically rather than
+weakening a gate.
+
+Before every dispatch wave, resolve configured `agents.max_threads`, currently
+observed runtime capacity, and all live descendants. Effective subagent capacity
+is the lower configured or observed value. It excludes the root and counts each
+Task orchestrator and leaf. The root alone grants leaf capacity. Normally grant
+one leaf per schedulable active Task loop, never more than three or the smaller
+current lease, and then distribute spare leaf slots in the plan's deterministic
+queue order. Do not dispatch a Task orchestrator unless capacity is available
+for both that orchestrator and its baseline leaf. Capacity rejection is
+backpressure: retain queue and selected-role order without dropping,
+substituting, or weakening work.
 
 A task whose logical inputs are ready but whose final PR base is not yet
 materialized may run in candidate mode when the plan permits it. Candidate work
@@ -87,7 +99,9 @@ authoritative acceptance, materialize the approved final base, perform any
 authorized restack or retarget operation, and require fresh exact-range
 verification and review.
 
-For each ready task, give `execute-task` one concise plain-language handoff:
+For each ready new-format planned Task, dispatch the exact `task-orchestrator`
+profile through `dispatching-parallel-agents` and bind that identity to only
+that Task Contract. Give it one concise plain-language handoff containing:
 
 - exact Feature Contract identity, path, approval/currentness evidence, and the
   clauses assigned to this task;
@@ -96,10 +110,17 @@ For each ready task, give `execute-task` one concise plain-language handoff:
 - applicable shared interface contracts and adjacent-task obligations;
 - the Review context and complete Review policy;
 - the declared discipline and applicable repository guidance;
-- the coordination directory, exact task workspace, branch, and planned PR
-  identity;
+- the coordination directory, exact Herdr workspace and initial pane identities,
+  Task worktree, branch, and planned PR identity, plus direct Git validation and
+  any non-blocking lazygit warning;
 - the starting commit, planned PR base ref and commit, current head, and whether
   the handoff is candidate or authoritative;
+- current merge base, exact base-to-head range, diff, status, attributable
+  commits, prior verification and review, concerns, gaps, and re-entry evidence
+  when applicable;
+- configured, observed, and effective subagent capacity; all relevant live
+  identities; the current granted leaf count; and any roles already selected by
+  `execute-task` or `review` for this wave;
 - for authoritative re-entry of a prior candidate, its candidate commit, head,
   preliminary evidence, and the authorized final-base materialization or
   restack evidence;
@@ -115,19 +136,46 @@ Feature Contract or Design Doc prose. Keep the exact sources directly available
 for lookup when an assigned clause, shared interface, finding, or changed
 evidence requires more context.
 
+The Task orchestrator runs `execute-task` for that Task and may dispatch only
+its policy-selected implementer, verifier, reviewer, or adversarial-integrator
+leaves through `agent-teams-driven-development`, within the current root grant.
+It is non-writing, keeps one source writer, and tells every leaf not to spawn
+descendants. The root does not dispatch planned Task leaves. The Task
+orchestrator may request more capacity but may not grant or infer it, reorder
+selected roles, release dependencies, or decide Feature acceptance.
+
 For an eligible legacy task, pass the approved legacy task specification and its
 referenced design sources as the explicit authority, plus the same workspace,
 base, discipline, verification, review, commit, and evidence fields available in
-that plan. Do not relabel it as a new Feature or Task Contract. Stop if a missing
-field creates material ambiguity; do not force migration or infer a decision.
+that plan. Preserve its exact approved execution topology; do not retrofit a
+Task orchestrator or relabel it as a new Feature or Task Contract. Stop if a
+missing field creates material ambiguity; do not force migration or infer a
+decision.
 
-Invoke `execute-task` for each selected handoff and let it own that workspace's
-writer, commit, exact PR range, verification, policy-selected review, correction,
-and stop condition. Accept `Candidate` only for a plan-authorized early
-implementation whose final PR base is still unavailable. Invoke the task again
-in authoritative mode after that base is current, passing the attributable
-candidate and restack evidence so it can skip duplicate implementation and
-commit work.
+For a new-format planned Task, let the Task orchestrator's `execute-task` loop
+own that workspace's writer, commit, exact PR range, verification,
+policy-selected review, correction, and stop condition. Accept `Candidate` only
+for a plan-authorized early implementation whose final PR base is still
+unavailable. Re-enter the Task in authoritative mode after that base is current,
+passing the attributable candidate and restack evidence so `execute-task` can
+skip duplicate implementation and commit work.
+
+`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the Task orchestrator's
+current turn. Record its stable identity with the Task Contract, Task PR, Herdr
+workspace, branch, and returned Git evidence; never assign it to another Task.
+Prefer the same idle identity for a fresh attributable re-entry, but give it a
+complete new handoff and revalidate all authority, policy, Git, writer, and
+capacity evidence. If it is unavailable, dispatch a replacement only after the
+earlier writer is proven inactive and all state is attributable. Otherwise
+preserve state and return `BLOCKED`. Accepted identities do not wait or poll
+through Feature completion and reserve no leaf capacity while idle; any identity
+still reported live continues to count against observed capacity.
+
+Before releasing a dependency or aggregating Feature evidence, directly resolve
+the reported workspace, branch, planned base, merge base, head, range, diff, and
+status through Git. Agent identity, memory, liveness, progress messages, Herdr,
+lazygit, and pane state are operational observations only. A mismatch with the
+Task result is `BLOCKED`, not authority to repair or reinterpret the state.
 
 Do not start a logical dependent until every predecessor returns current
 `Accepted`. On `BLOCKED`, `Escalate`, plan deviation, missing evidence, a
@@ -139,11 +187,12 @@ observed task workspace, preserve all task states and return the exact gap to
 
 Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
 PR topology, contract authorities, shared interfaces, task branches, bases,
-heads, merge bases, diffs, and statuses. Traverse both graphs when an ancestor,
-topology edge, contract meaning, logical dependency, or consumed interface
-changes. Mark every affected result stale, remove it from dependency release and
-feature coverage, and return it to authoritative `execute-task` after the
-approved final base is restored.
+heads, merge bases, diffs, statuses, live agent identities, and current capacity.
+Traverse both graphs when an ancestor, topology edge, contract meaning, logical
+dependency, or consumed interface changes. Mark every affected result stale,
+remove it from dependency release and feature coverage, and re-enter its Task
+orchestrator for authoritative `execute-task` after the approved final base is
+restored.
 
 Rebase, restack, retarget, force operations, or other history changes require
 their applicable explicit authority. Reapproval of prose does not revive stale
@@ -152,8 +201,9 @@ acceptance.
 
 ## Reconcile promoted lightweight work
 
-Before ordinary planned tasks, give `execute-task` the approved promotion-
-reconciliation Task Contract, original lightweight base, promotion head,
+Before ordinary planned tasks, give the bound Task orchestrator the approved
+promotion-reconciliation Task Contract for its `execute-task` loop, original
+lightweight base, promotion head,
 execution-starting head, exact unaccepted range and commits,
 attributable approved artifact state, complete change-to-Task-Contract mapping,
 and prior writer and gate evidence. This special handoff authorizes acceptance
@@ -177,8 +227,9 @@ After an interrupted or incomplete task, retain accepted and candidate results
 for every other workspace separately from the observed in-flight work. Before
 resuming one task:
 
-1. confirm through the scheduling result that the prior writer is inactive and
-   no writer overlaps;
+1. confirm through the scheduling result that the prior Task orchestrator and
+   leaf identities are known, the prior writer is inactive, and no writer
+   overlaps;
 2. inspect that workspace's branch, HEAD, status, commits, planned base, and
    exact base-to-head diff;
 3. confirm the observed edits and commits are attributable to that task and
@@ -198,13 +249,16 @@ do not add it to accepted results, feature coverage, or dependency release until
 ## Re-enter for a planned correction
 
 Treat an authorized correction as work on its owning Task PR. Preserve every
-other task's exact result and the original implementation base.
-Give `execute-task` the exact finding or failed observation, approved correction,
-observed attempts and results, unchanged Feature and Task Contracts with shared
-interfaces or unchanged eligible legacy authority, Review context, Review
-policy, current planned PR base and accepted head, responsibility boundaries,
-verification obligations, and a correction commit intent bounded to the finding
-with its fixed message or approved writer message-selection authority.
+other task's exact result and the original implementation base. For new-format
+planned work, give `execute-task` the exact finding or failed observation and
+approved correction through the Task's retained or safely replaced orchestrator
+identity. For eligible legacy work, preserve its approved invoking context.
+Supply the observed attempts and results, unchanged Feature and Task Contracts
+with shared interfaces or unchanged eligible legacy authority, Review context,
+Review policy, current planned PR base and accepted head, responsibility
+boundaries, verification obligations, fresh capacity grant when applicable, and
+a correction commit intent bounded to the finding with its fixed message or
+approved writer message-selection authority.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do
@@ -241,6 +295,9 @@ After each accepted task, append a result keyed by Task Contract and PR identity
 containing:
 
 - task name and dependency position;
+- Task orchestrator identity, Herdr workspace and pane mapping, configured,
+  observed, and effective capacity, granted leaves, selected-role queue, and
+  dispatch or replacement evidence;
 - exact authority and Task Contract content/currentness accepted;
 - Feature Contract clauses and Task Contract obligations, eligible legacy
   completion criteria, or promotion mappings proved;
@@ -282,7 +339,8 @@ Return:
   complete Review policy; no candidate, stale result, or unreconciled promoted
   range may contribute;
 - `BLOCKED` with all accepted and candidate results, observed in-flight agents
-  and per-workspace Git state, gaps, and exact re-entry condition;
+  and per-workspace Git state, configured/observed/effective capacity, current
+  leases and queues, gaps, and exact re-entry condition;
 - `Escalate` with the exact plan deviation, missing decision, policy conflict, or
   task escalation.
 

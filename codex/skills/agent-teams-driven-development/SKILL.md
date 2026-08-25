@@ -6,10 +6,14 @@ description: Schedule one Task PR writer or already-selected read-only reviewers
 # Agent-teams driven development
 
 Act only as the scheduling adapter for the writer selected by `execute-task` or
-the reviewers selected by `review`. The lead schedules all work, and subagents
-never spawn descendants. Do not select workflow paths, Review context, review
-modes, role breadth, severity mappings, Acceptance, correction semantics, task
-commits, or task acceptance here.
+the reviewers selected by `review`. For new-format planned work, the bound Task
+orchestrator invokes this adapter and schedules only its leaves under the
+current root-granted lease. For lightweight work, the root invokes it directly.
+Every dispatched writer, verifier, reviewer, or integrator is a leaf and never
+spawns descendants.
+Eligible legacy work retains its exact approved invoking context. Do not select
+workflow paths, Review context, review modes, role breadth, severity mappings,
+Acceptance, correction semantics, task commits, or task acceptance here.
 
 ## Require a bounded scheduling request
 
@@ -19,7 +23,11 @@ Accept from the invoking `execute-task` or `review` phase:
 - the complete contract-aware writer or reviewer message already prepared by
   that phase;
 - whether the request is a fresh dispatch, follow-up, or replacement;
-- any prior agent identity, interruption result, and observed Git state.
+- any prior agent identity, interruption result, and observed Git state;
+- execution context: planned Task orchestrator or lightweight root;
+- configured, observed, and effective subagent capacity, all relevant live
+  identities, the root-granted leaf count for this Task loop, and the ordered
+  selected-role queue.
 
 Reject an unresolved or ambiguous role, or a request that requires task or policy
 interpretation. Pass the selected role and message unchanged; do not load prompts
@@ -27,21 +35,34 @@ or add another wrapper here.
 
 ## Enforce live capacity and a deterministic queue
 
-Call `list_agents` before every dispatch wave. Set effective capacity to the
-lower of configured and currently observed runtime capacity, count the lead, and
-never exceed six total threads.
+Call `list_agents` before every dispatch wave. Set effective subagent capacity
+to the lower of configured `agents.max_threads` and currently observed runtime
+capacity. `max_threads` excludes the root and counts all live subagents in the
+complete tree, including Task orchestrators and every leaf. Do not add a
+separate hard-coded total-thread ceiling.
+
+Only the root grants or expands a lease. A Task loop normally receives one leaf
+slot and may use at most three concurrent leaves or its smaller current grant.
+For new-format planned work, reject a self-inferred expansion by the Task
+orchestrator even when another runtime slot appears free. For lightweight work,
+apply the same per-loop leaf limit to the root-owned loop. The global scheduler
+first grants one leaf to each schedulable active Task when possible, then
+allocates spare slots in the approved deterministic queue order.
 
 Queue already-selected roles in request order when available slots are
 insufficient. Record configured, observed, and effective capacity, live agent
-identities, queued roles, dispatch order, and every capacity gap. Do not reduce,
-replace, or reorder selected roles to fit capacity.
+identities, invoking Task-loop context, granted leaf count, queued roles,
+dispatch order, and every capacity gap. Do not reduce, replace, or reorder
+selected roles to fit capacity.
 
 Allow no more than one implementer and one active writer for the supplied task
 workspace. Other `execute-task` calls may have writers only in separate approved
-checkouts with ownership-disjoint tasks. Count every live task writer and
-reviewer against the same effective capacity. Every reviewer is read-only.
-Independent reviewers may run concurrently when capacity permits; otherwise
-queue them without changing their independence or contracts.
+checkouts with ownership-disjoint tasks. Count every live Task orchestrator,
+task writer, verifier, reviewer, and integrator against the same effective
+capacity. Every reviewer is read-only. Independent check-only or read-only
+leaves may run concurrently when the grant permits; implementation and
+correction retain one writer. Otherwise queue them without changing their
+independence or contracts.
 
 If a required role cannot be instantiated or the queue cannot make progress,
 return `BLOCKED` with observed availability evidence. Do not turn a runtime
@@ -49,8 +70,8 @@ shortage into policy `Escalate` or substitute the lead or another perspective.
 
 ## Schedule and observe
 
-Dispatch only the already-selected role using its resolved named profile or
-complete fallback contract. Tell every agent not to spawn descendants. Tell an
+Dispatch only the already-selected leaf role using its resolved named profile
+or complete fallback contract. Tell every leaf not to spawn descendants. Tell an
 implementer the exact authority identity and currentness evidence plus one of:
 assigned Feature clauses and Task Contract, exact eligible legacy authority and
 owned responsibility, or approved promotion-reconciliation authority. Also pass
@@ -60,20 +81,17 @@ exact Task PR, integration-only composition, eligible legacy range, or
 standalone target. Keep full sources directly available without copying
 unrelated unchanged prose into each message.
 
-After a successful dispatch for a task in a herdr-managed workspace, return the
-mapping between the Task PR identity, returned agent identity, and exact task
-workspace to the lead. When the user wants interactive visibility, tell the
-lead to direct the user to open that herdr workspace and run `codex agents` to
-search for and inspect the mapped task agent.
+After a successful dispatch, return the mapping between Task PR identity,
+Task-loop owner, returned leaf identity, and exact Task workspace. The root
+remains the source of truth for global agent identity, capacity, follow-up,
+interruption, waiting, and closure. A Herdr workspace or lazygit pane may expose
+Git state to the engineer, but it is not an agent session and supplies no
+scheduling, verification, or acceptance evidence.
 
-Treat `codex agents` as an observation surface by default. The lead remains the
-source of truth for agent state and continues to own follow-up, interruption,
-waiting, and closure. Do not start, rename, steer, or stop a task through the
-dashboard unless the user explicitly requests manual intervention.
-
-Use bounded waits, inspect live agents regularly, and return progress evidence to
-the lead. Preserve reports, identities, completion state, and observed errors
-without translating findings or deciding whether the task passed.
+Use bounded waits, inspect live agents regularly, and return progress evidence
+to the invoking Task-loop owner. Preserve reports, identities, completion state,
+and observed errors without translating findings or deciding whether the task
+passed.
 
 Return every response unchanged with the observed agent completion state.
 `execute-task` validates writer status, mode, report fields, commit, planned
@@ -105,10 +123,11 @@ another perspective.
 
 ## Return scheduling evidence
 
-Return dispatch and queue order, the Task-PR-to-agent-to-workspace mapping,
-agent identities, live and effective capacity, completion or interruption
-states, reports, inspected Git state after writer failure, and every
-availability or attribution gap.
+Return dispatch and queue order, the
+Task-PR-to-Task-loop-owner-to-leaf-to-workspace mapping, agent identities,
+configured, observed, and effective capacity, the root grant, completion or
+interruption states, reports, inspected Git state after writer failure, and
+every availability or attribution gap.
 
 Use `BLOCKED` whenever safe scheduling or writer-state attribution cannot be
 established. Otherwise return scheduling evidence to the invoking phase.

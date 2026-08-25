@@ -109,8 +109,11 @@ Use `focused` as the lightweight default:
 - a Task PR `test-coverage-reviewer` when behavior or tests changed;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
-- a configured maximum of six total threads including the lead unless a stricter
-  repository limit applies;
+- effective subagent capacity equal to the lower of configured
+  `agents.max_threads` and currently observed runtime capacity, with the root
+  excluded from `max_threads` and every live descendant counted;
+- a root-granted lightweight Task-loop lease of normally one leaf and at most
+  three concurrent leaves, never exceeding its smaller current grant;
 - deterministic queueing without reducing selected scope;
 - the common Acceptance threshold.
 
@@ -228,9 +231,13 @@ Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
 decisions, and any promoted unaccepted range to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
-That skill owns readiness, candidate and authoritative task handoffs, workspace
-mapping, staleness propagation, promotion reconciliation, and exact evidence
-aggregation.
+That skill owns readiness, global capacity leases, dispatch of the exact
+`task-orchestrator` profile for each ready new-format planned Task, candidate and
+authoritative Task handoffs, workspace and orchestrator mappings, staleness
+propagation, promotion reconciliation, and exact evidence aggregation. The
+planned Task orchestrator owns its one `execute-task` loop; the root does not
+dispatch planned leaves directly. Lightweight work remains root-owned and does
+not create Task-orchestrator or planned-Task artifacts.
 
 ### Continue an eligible legacy plan
 

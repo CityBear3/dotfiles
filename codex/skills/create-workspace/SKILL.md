@@ -50,6 +50,14 @@ Resolve these separately before changing Git state:
   which a task receives authoritative verification and review, or the approved
   starting tree and ordered accepted inputs for integration evidence.
 
+For every new planned Task PR governed by the current workflow, workspace mode
+is contractually Herdr-managed. Require the repository root, exact Task branch,
+explicit starting ref for a new branch, `--no-focus`, and `--json`. Herdr
+creation or returned-identity validation failure is `BLOCKED`; do not silently
+substitute a raw Git worktree, Codex-managed worktree, user-prepared checkout,
+or another launch path. This requirement does not add planned Task artifacts or
+a Herdr workspace to eligible lightweight work.
+
 Do not conflate the starting ref with the planned PR base. An independent task
 may start from a common implementation base and later be restacked onto its
 approved PR parent. Record that work as a candidate until the final base is
@@ -119,9 +127,10 @@ work branch.
 
 ### Herdr-managed worktree
 
-Use this for a persistent worktree when the user selects herdr and the CLI is
-available. Always pass the repository root through `--cwd`, keep focus in the
-current session with `--no-focus`, and request structured output with `--json`.
+Use this for every new planned Task worktree and for another persistent worktree
+when the user selects Herdr and the CLI is available. Always pass the repository
+root through `--cwd`, keep focus in the current session with `--no-focus`, and
+request structured output with `--json`.
 
 If the work branch already exists locally, omit `--base`:
 
@@ -153,16 +162,42 @@ Before branch-backed creation, check whether the local work branch is already
 checked out in another worktree. After creation, report and verify:
 
 - the coordination, Task PR, or integration composition identity;
-- the returned worktree path and herdr workspace ID;
+- the returned worktree path, Herdr workspace ID, and initial pane ID;
 - the checked-out branch and `HEAD`;
 - the starting ref and planned PR base or composition inputs;
 - the worktree status;
 - the configured upstream, if any.
 
-For a coordination or Task PR workspace, ask the user to continue the session in
-the returned path when the active writer must move there. For an integration
-workspace, return the path and identity directly to `execute-plan`; do not move
-the user session or run `herdr agent start`.
+For a Task PR, perform those branch, `HEAD`, ancestry/base, status, and upstream
+checks directly through Git in the returned path. Herdr JSON, workspace or pane
+state, and later agent reports do not replace direct Git validation. If creation
+or any required identity check disagrees with the approved Task PR, preserve the
+workspace and return `BLOCKED` with the Task PR, attempted command, returned
+path/workspace/pane identities when any, observed Git identity, error, and exact
+re-entry condition.
+
+After a new planned Task workspace passes direct Git validation, attempt
+interactive Git observation in its initial pane:
+
+```sh
+herdr pane run <initial-pane-id> lazygit
+```
+
+The pane is for engineer observation only. It is not the Task orchestrator
+process, carries no Task handoff, and provides no scheduling, verification, or
+Acceptance evidence. If lazygit does not start, do not retry or block Task
+execution. Keep or return the pane to a shell and emit one non-blocking warning
+that names the Task PR, worktree path, Herdr workspace and pane, attempted
+`herdr pane run <initial-pane-id> lazygit` launch, observed error, and that Task
+execution continues.
+
+For a coordination workspace, ask the user to continue the session in the
+returned path when the active writer must move there. For a planned Task PR,
+return the validated Git and Herdr mapping to `execute-plan`; its Task
+orchestrator and source writer receive the exact path in their durable handoffs
+and are not launched in the pane. For an integration workspace, return the path
+and identity directly to `execute-plan`; do not move the user session or run
+`herdr agent start`.
 
 ## Guardrails
 
@@ -174,6 +209,9 @@ the user session or run `herdr agent start`.
   ownership, or an unexplained branch already checked out elsewhere.
 - Reject an integration workspace absent from the approved composition, and do
   not treat it as a Task PR, publication target, or implementation workspace.
-- If herdr is unavailable, offer a Codex-managed or user-prepared worktree. Do
-  not substitute raw `git worktree add` without approval.
+- If Herdr is unavailable for a required planned Task workspace, return
+  `BLOCKED`; do not offer or silently substitute another mechanism. For a
+  non-planned workspace whose authority does not require Herdr, a Codex-managed
+  or user-prepared worktree may be offered. Do not substitute raw
+  `git worktree add` without approval.
 - Do not remove worktrees or delete branches in this skill.

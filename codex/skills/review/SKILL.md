@@ -41,7 +41,11 @@ For a Task PR require:
 - approved scope, non-goals, Review context, and complete Review policy;
 - applicable Feature and Task Contract authority, current dependency and shared-
   interface evidence, observed commands, concerns, prior triage decisions, and
-  known gaps.
+  known gaps;
+- execution context: the bound Task orchestrator for new-format planned work or
+  the root-owned loop for lightweight work, plus configured, observed, and
+  effective subagent capacity, current root-granted leaf count, live identities,
+  and the ordered selected-reviewer queue.
 
 For a planned targeted integration review require:
 
@@ -199,12 +203,19 @@ adversarial integration sequentially. Report the result as `standalone-only`; it
 is never approved-policy completion or coordinator completion evidence.
 
 Otherwise pass each already-selected perspective and complete reviewer message
-to `agent-teams-driven-development`. It calls `list_agents` before each dispatch
-wave, uses the lower of approved configured capacity and observed capacity,
-counts the lead, and queues remaining required reviewers in deterministic policy
-order. Do not reduce scope, independence, or applicable breadth. An unavailable
-required reviewer returns `BLOCKED` with the role, observed capacity, gap, and
-re-entry condition.
+to `agent-teams-driven-development`. For new-format planned work, only the bound
+Task orchestrator dispatches these reviewer leaves; for lightweight work, the
+root dispatches them directly. The adapter calls `list_agents` before each wave
+and uses the lower of configured `agents.max_threads` and observed runtime
+capacity.
+The root is excluded from `max_threads`; every Task orchestrator and leaf is
+counted. Never exceed the Task loop's root-granted lease of at most three leaves
+or its smaller current grant. Queue remaining required reviewers in
+deterministic policy order without reducing scope, independence, or applicable
+breadth. A Task orchestrator may request capacity but may not infer or expand
+its own lease. An unavailable required reviewer returns `BLOCKED` with the role,
+configured/observed/effective capacity, grant, queue, gap, and re-entry
+condition.
 
 Use named profiles when selectable; otherwise provide a complete fallback role
 prompt. Reviewers and integrators do not edit files or spawn descendants.
@@ -291,6 +302,8 @@ Merge duplicates and report in Japanese:
   alignment, or eligible legacy criteria and original-authority alignment
   inspected;
 - reviewers run, queued, and skipped with reasons;
+- owning Task-loop context, configured/observed/effective capacity, root grant,
+  live identities, and reviewer dispatch order;
 - reviewer and integrator outcomes;
 - accepted Must Fix and Should Improve findings;
 - separate policy or design gaps requiring coordinator `Escalate`;
