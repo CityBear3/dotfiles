@@ -30,7 +30,7 @@ fn preserves_unmanaged_configuration_bytes() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
     let expected = concat!(
         "# workstation-specific configuration\n",
@@ -44,7 +44,7 @@ fn preserves_unmanaged_configuration_bytes() {
         "\n",
         "[agents]\n",
         "max_threads = 8 # selected per machine\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
         "custom_setting  =  \"untouched\"\n",
         "\n",
         "[tui]\n",
@@ -79,7 +79,7 @@ fn missing_managed_assignments_are_inserted() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
     let expected = concat!(
         "# local root configuration\n",
@@ -91,7 +91,7 @@ fn missing_managed_assignments_are_inserted() {
         "[agents]\n",
         "custom_setting = true\n",
         "max_threads = 8\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
         "\n",
         "[tui]\n",
         "status_line = [\"model\"]\n",
@@ -123,7 +123,7 @@ fn missing_agents_table_is_appended() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -135,7 +135,7 @@ fn missing_agents_table_is_appended() {
         "\n",
         "[agents]\n",
         "max_threads = 4\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
 
     // Act
@@ -156,7 +156,7 @@ fn empty_configuration_receives_only_managed_values() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -165,7 +165,7 @@ fn empty_configuration_receives_only_managed_values() {
         "\n",
         "[agents]\n",
         "max_threads = 8\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
 
     // Act
@@ -204,7 +204,7 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
     let expected = concat!(
         "description = \"\"\"\n",
@@ -222,7 +222,7 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "max_depth = 99\n",
         "'''\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
         "label = \"keep # inside string\"\n",
     );
 
@@ -253,7 +253,7 @@ fn duplicate_managed_assignment_is_rejected() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
 
     // Act
@@ -286,7 +286,7 @@ fn quoted_managed_key_is_rejected_as_structurally_unsupported() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
 
     // Act
@@ -319,7 +319,7 @@ fn inline_agents_table_is_rejected_as_structurally_unsupported() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
-        "max_depth = 1\n",
+        "max_depth = 2\n",
     );
 
     // Act

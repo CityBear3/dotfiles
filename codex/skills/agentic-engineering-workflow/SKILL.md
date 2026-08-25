@@ -41,6 +41,23 @@ For every transition retain:
 - the evidence required to leave the phase;
 - every unresolved condition that prevents a safe transition.
 
+### Route standalone read-only checks
+
+Treat a user-requested verification or review outside a planned, lightweight,
+integration-only, or eligible legacy Task gate as standalone authority. Resolve
+an exact committed range, current index/worktree snapshot, or explicit bounded
+fileset and pass it to `verify` or `review`. Standalone is not a CLI, session,
+branch, or worktree mode and does not require Herdr, a Task Contract, DAG, PR
+topology, or Task orchestrator.
+
+The root owns the target and any verifier, reviewer, adversarial-integrator, or
+review-integrator leaves directly. Apply the same global configured and observed
+subagent ceiling and give the target a local grant of normally one and at most
+three concurrent leaves; queue the remaining selected roles in order. When the
+user explicitly prohibits agents, the lead may run the compatible checks and
+perspectives sequentially. Label the result `standalone-only`; never use it as
+Task, coordinator, or Acceptance evidence.
+
 ## Use the lightweight path only when fully eligible
 
 Require all of these conditions after investigation:
@@ -109,9 +126,14 @@ Use `focused` as the lightweight default:
 - a Task PR `test-coverage-reviewer` when behavior or tests changed;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
-- a configured maximum of six total threads including the lead unless a stricter
-  repository limit applies;
+- effective subagent capacity equal to the lower of configured
+  `agents.max_threads` and currently observed runtime capacity, with the root
+  excluded from `max_threads` and every live descendant counted;
+- a root-granted lightweight Task-loop lease of normally one leaf and at most
+  three concurrent leaves, never exceeding its smaller current grant;
 - deterministic queueing without reducing selected scope;
+- findings-only general integration, with authority-defect priority and no
+  general integrator after an all-clean review;
 - the common Acceptance threshold.
 
 Acceptance keeps only artifact-applicable findings with an approved requirement,
@@ -138,14 +160,24 @@ Give `execute-task` one plain-language task handoff containing:
   non-goals, verification obligations, assumptions, and approved deferrals;
 - the Review context and complete Review policy;
 - the discipline and applicable repository guidance;
-- coordination directory, task workspace and branch, and planned PR identity;
-- planned base ref and exact commit, current head, and authoritative mode;
+- task workspace and branch, Task PR identity, planned base ref and exact
+  commit, current head, merge base, exact range, inspected diff, and starting
+  Git status including index, worktree, and relevant untracked state;
 - responsibility and ownership boundaries;
 - the responsibility-scoped commit intent and writer authority to select its
   message unless the request contractually fixes that message;
 - the applicable verification route and expected observations;
+- attributable commits, prior verification and review, concerns, gaps, and
+  re-entry evidence when applicable;
+- configured, observed, and effective subagent capacity, live identities,
+  selected or queued roles, the root-owned lightweight loop identity, and its
+  current root-granted lightweight leaf count;
 - exact files, signatures, ordering, or commands only when their identity is
   contractually significant.
+
+This is the common Task evidence plus exactly the lightweight variant. Do not
+add a Task orchestrator identity, Herdr workspace, Task DAG, PR topology, or
+another planned-only field.
 
 Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
@@ -228,9 +260,13 @@ Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
 decisions, and any promoted unaccepted range to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
-That skill owns readiness, candidate and authoritative task handoffs, workspace
-mapping, staleness propagation, promotion reconciliation, and exact evidence
-aggregation.
+That skill owns readiness, global capacity leases, dispatch of the exact
+`task-orchestrator` profile for each ready new-format planned Task, candidate and
+authoritative Task handoffs, workspace and orchestrator mappings, staleness
+propagation, promotion reconciliation, and exact evidence aggregation. The
+planned Task orchestrator owns its one `execute-task` loop; the root does not
+dispatch planned leaves directly. Lightweight work remains root-owned and does
+not create Task-orchestrator or planned-Task artifacts.
 
 ### Continue an eligible legacy plan
 
@@ -309,14 +345,19 @@ Advance automatically within approved local scope:
    triggers a targeted integration perspective. Pass the same exact integration
    authority and evidence to every selected reviewer. Do not invoke ordinary
    full-feature `$review`.
-6. Send concrete integration `FINDINGS` to `receiving-code-review`. For planned
-   work, route an authorized `Fix` to its owning Task Contract through
-   `execute-plan`, mark affected descendants stale, and rerun fresh affected task
-   and integration evidence. For lightweight work, route the `Fix` directly to
-   its combined-contract Task through `execute-task`, then rerun its complete
-   fresh task gate and the same named integration evidence on the new head.
-   Preserve `Push back` while its target and controlling evidence remain
-   unchanged. Return a user-owned decision as `Escalate`.
+6. Require `review` to integrate concrete integration `FINDINGS`, then send the
+   exact unchanged target, reviewer reports, and integrated report to
+   `receiving-code-review`. Raw reviewer output never authorizes correction.
+   For planned work, route an authorized `Fix` to its owning Task Contract
+   through `execute-plan`, mark only semantically affected results and their
+   transitive dependents stale, and rerun fresh affected task and integration
+   evidence. For lightweight work, route the `Fix` directly to its
+   combined-contract Task through `execute-task`, then rerun its complete fresh
+   task gate and the same named integration evidence on the new head. Preserve
+   `Push back` while its target and controlling evidence remain unchanged.
+   Retain an independent out-of-scope valid problem as a non-blocking concern
+   without expanding the current Task or creating a backlog. Return a
+   user-owned decision as `Escalate`.
 7. Mark Feature Accepted only when every Task PR result and integration
    obligation is current and no finding, policy gap, design gap, or operational
    gap survives.
@@ -325,6 +366,23 @@ Diagnose failed verification before correction. Never advance failed or blocked
 verification to review, blocked review to triage, unresolved triage to
 correction, or incomplete evidence to completion. Stop repeated non-progress
 with its observed attempts. Never discard uncertain state to force progress.
+
+### Return authority defects early
+
+When integrated evidence shows that the applicable Design Doc is missing,
+contradictory, or materially ambiguous, accept only `Escalate` with reason
+`Design Escalation`. Stop every unstarted reviewer and correction queue for the
+affected target, preserve already-running read-only reports when they complete,
+and return the exact defect and authority evidence to the engineer. Do not
+silently repair or reinterpret the Design Doc.
+
+After the engineer approves a Design Doc change, rederive and reapprove only
+the Feature Contract, Task Contracts, Review policy, or plan content whose
+meaning changed. Mark only Tasks assigned those changed meanings and their
+transitive dependents stale. Retain an unchanged Accepted Task after directly
+revalidating its exact authority, dependencies, relied-on interfaces, base,
+head, range, and status; a Design amendment does not make every Task stale by
+default.
 
 ## Handle publication and completion boundaries
 

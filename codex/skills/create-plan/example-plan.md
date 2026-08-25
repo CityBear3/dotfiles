@@ -28,6 +28,9 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - Keep parser, renderer, and CLI responsibilities separate.
 - Do not change persistence, permissions, or error ownership.
 - Allow parser and renderer work to begin independently.
+- Run each ready planned Task through one non-writing Task orchestrator; keep
+  the root responsible for global leases, dependency release, and Feature
+  acceptance.
 
 ## Shared interface contracts
 
@@ -100,14 +103,21 @@ results and this stack are current.
 - **Integration conditional reviewers:** `adversarial-api-reviewer` only if an
   implementation changes or exposes a public parser seam, followed by
   `adversarial-integrator`.
+- **Findings-only integration:** Run no general integrator for an all-clean
+  target. Before triage or correction, pass any findings through the read-only
+  `review-integrator`; prioritize an authority-defect claim ahead of unstarted
+  reviewers and return a confirmed Design Doc defect to the engineer.
 - **Skipped perspectives:** Skip architecture and performance because approved
   ownership and measured hot paths do not change; skip adversarial robustness
   unless recovery behavior changes; skip scope because each Task gate receives
   exact clauses and ownership.
 - **Residual risk:** No exhaustive grammar fuzzing.
-- **Capacity and queue:** At most five threads including the lead; schedule
-  ready Task 1 and Task 2 candidates in separate worktrees, then their task
-  gates, Task 3, and integration review.
+- **Capacity and queue:** Effective subagent capacity is the lower configured
+  `agents.max_threads` or observed runtime value, excludes the root, and counts
+  every Task orchestrator and leaf. The root grants each schedulable Task a
+  baseline leaf before spare slots, with at most three leaves per Task loop;
+  schedule ready Task 1 and Task 2 candidates in deterministic order in
+  separate worktrees, then their Task gates, Task 3, and integration review.
 - **Acceptance:** Keep only artifact-applicable findings with an approved
   requirement, reachable evidence, material consequence, and proportionate
   correction. Drop preference, speculation, optional polish, and objections to

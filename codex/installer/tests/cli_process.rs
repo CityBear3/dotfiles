@@ -55,7 +55,7 @@ fn compiled_binary_dry_run_is_non_mutating() {
     assert!(stdout.contains("CREATE config"));
     assert!(stdout.contains("CREATE global-agents"));
     assert!(stdout.contains("CREATE skill"));
-    assert!(stdout.contains("CREATE agent"));
+    assert!(stdout.contains("CREATE agent task-orchestrator.toml"));
     assert!(stdout.contains("CREATE manifest"));
     assert_eq!(
         (
