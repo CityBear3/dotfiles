@@ -1,17 +1,17 @@
 ---
 name: agent-teams-driven-development
-description: Schedule one Task PR writer, an already-selected verifier, or already-selected read-only reviewers while enforcing global capacity, queues, and interruption safety.
+description: Schedule one Task PR writer or already-selected read-only check leaves while enforcing execution context, global capacity, queues, and interruption safety.
 ---
 
 # Agent-teams driven development
 
-Act only as the scheduling adapter for the writer or verifier selected by
-`execute-task`, a verifier selected by `verify`, or the reviewers selected by
+Act only as the scheduling adapter for the writer selected by `execute-task`, a
+verifier selected by `verify`, or reviewers and integrators selected by
 `review`. For new-format planned work, the bound Task orchestrator invokes this
 adapter and schedules only its leaves under the current root-granted lease. For
-lightweight work or another root-owned coordinator check target, the root
-invokes it directly. Every dispatched writer, verifier, reviewer, or integrator
-is a leaf and never spawns descendants.
+lightweight work, a standalone target, or another root-owned coordinator check
+target, the root invokes it directly. Every dispatched writer, verifier,
+reviewer, or integrator is a leaf and never spawns descendants.
 Eligible legacy work retains its exact approved invoking context. Do not select
 workflow paths, Review context, review modes, role breadth, severity mappings,
 Acceptance, correction semantics, task commits, or task acceptance here.
@@ -21,15 +21,16 @@ Acceptance, correction semantics, task commits, or task acceptance here.
 Accept from the invoking `execute-task`, `verify`, or `review` phase:
 
 - one already-selected named role or fallback contract;
-- the complete contract-aware writer, verifier, or reviewer message already
-  prepared by that phase;
+- the complete contract-aware writer, verifier, reviewer, or integrator message
+  already prepared by that phase;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, interruption result, and observed Git state;
-- execution context: planned Task orchestrator, lightweight root, or another
-  root-owned coordinator check target;
+- exactly one execution context: the bound planned Task orchestrator, the
+  root-owned lightweight Task loop, a root-owned standalone target, another
+  root-owned coordinator check target, or the exact eligible legacy context;
 - configured, observed, and effective subagent capacity, all relevant live
-  identities, the root-granted leaf count for this Task loop, and the ordered
-  selected-role queue.
+  identities, the context-local root grant, and the ordered selected-role
+  queue.
 
 Reject an unresolved or ambiguous role, or a request that requires task or policy
 interpretation. Pass the selected role and message unchanged; do not load prompts
@@ -47,15 +48,19 @@ Only the root grants or expands a lease. A Task loop normally receives one leaf
 slot and may use at most three concurrent leaves or its smaller current grant.
 For new-format planned work, reject a self-inferred expansion by the Task
 orchestrator even when another runtime slot appears free. For lightweight work,
-apply the same per-loop leaf limit to the root-owned loop. The global scheduler
+apply the same per-loop leaf limit to the root-owned loop. A standalone target
+has a separate root-granted target-local count of normally one and at most three
+concurrent leaves; it has no Task lease or Task authority. The global scheduler
 first grants one leaf to each schedulable active Task when possible, then
-allocates spare slots in the approved deterministic queue order.
+allocates spare slots in the approved deterministic queue order. A standalone
+request uses only its current target-local grant and never infers permission to
+consume every globally free slot.
 
 Queue already-selected roles in request order when available slots are
 insufficient. Record configured, observed, and effective capacity, live agent
-identities, invoking Task-loop context, granted leaf count, queued roles,
-dispatch order, and every capacity gap. Do not reduce, replace, or reorder
-selected roles to fit capacity.
+identities, execution context, context-local grant, queued roles, dispatch
+order, and every capacity gap. Do not reduce, replace, or reorder selected roles
+to fit capacity.
 
 Allow no more than one implementer and one active writer for the supplied task
 workspace. Other `execute-task` calls may have writers only in separate approved
@@ -87,24 +92,29 @@ Tell a reviewer it is read-only and must inspect the supplied authority and
 exact Task PR, integration-only composition, eligible legacy range, or
 standalone target. Keep full sources directly available without copying
 unrelated unchanged prose into each message.
+Tell `adversarial-integrator` or `review-integrator` that it is read-only, must
+use the supplied unchanged target and complete input reports, and may not invent
+findings, classify final workflow authority, dispatch descendants, or mutate
+source, Git, or authority artifacts.
 
-After a successful dispatch, return the mapping between Task PR identity,
-Task-loop owner, returned leaf identity, and exact Task workspace. The root
-remains the source of truth for global agent identity, capacity, follow-up,
-interruption, waiting, and closure. A Herdr workspace or lazygit pane may expose
-Git state to the engineer, but it is not an agent session and supplies no
-scheduling, verification, or acceptance evidence.
+After a successful dispatch, return the mapping between the Task PR,
+standalone, or coordinator target identity; its Task-loop or root owner; the
+returned leaf identity; and the exact workspace. The root remains the source of
+truth for global agent identity, capacity, follow-up, interruption, waiting, and
+closure. A Herdr workspace or lazygit pane may expose Git state to the engineer,
+but it is not an agent session and supplies no scheduling, verification, or
+acceptance evidence.
 
 Use bounded waits, inspect live agents regularly, and return progress evidence
-to the invoking Task-loop owner. Preserve reports, identities, completion state,
-and observed errors without translating findings or deciding whether the task
-passed.
+to the invoking Task-loop or root owner. Preserve reports, identities,
+completion state, and observed errors without translating findings or deciding
+whether the task passed.
 
 Return every response unchanged with the observed agent completion state.
 `execute-task` validates writer status, mode, report fields, commit, planned
 base, current head, range, and verification. `review` validates reviewer output
 against its unchanged target and policy. This adapter never promotes a
-candidate, integrates findings, or claims task or feature acceptance.
+candidate, integrates findings itself, or claims task or feature acceptance.
 
 ## Inspect interruption state before resuming
 
@@ -123,10 +133,10 @@ the state is safe and attributable, and the handoff still applies. Otherwise
 preserve state and return `BLOCKED`; never rewrite or discard state to force
 progress.
 
-For reviewer failure, preserve completed read-only reports, recheck live
-capacity, and queue only the already-requested replacement role. If the required
-independent role remains unavailable, return `BLOCKED`; do not substitute
-another perspective.
+For reviewer or integrator failure, preserve completed read-only reports,
+recheck live capacity, and queue only the already-requested replacement role. If
+the required independent role remains unavailable, return `BLOCKED`; do not
+substitute another perspective.
 
 For verifier failure, preserve its check-only report and target snapshot,
 recheck live capacity, and queue only the same already-requested verifier when
@@ -136,15 +146,16 @@ role.
 
 ## Return scheduling evidence
 
-Return dispatch and queue order, the
-Task-PR-to-Task-loop-owner-to-leaf-to-workspace mapping, agent identities,
-configured, observed, and effective capacity, the root grant, completion or
-interruption states, reports, inspected Git state after writer failure, and
-every availability or attribution gap.
+Return dispatch and queue order, the target-to-owner-to-leaf-to-workspace
+mapping, execution context, agent identities, configured, observed, and
+effective capacity, the context-local root grant, completion or interruption
+states, reports, inspected Git state after writer failure, and every
+availability or attribution gap.
 
 Use `BLOCKED` whenever safe scheduling or writer-state attribution cannot be
 established. Otherwise return scheduling evidence to the invoking phase.
 `execute-task` alone interprets writer results and manages corrections; `review`
-alone integrates the requested reviewer results and returns its gate verdict.
+alone orchestrates integration of the requested reviewer results and returns its
+gate verdict.
 Do not release a dependency, decide task or feature acceptance, publish, merge,
 or tear down a workspace.

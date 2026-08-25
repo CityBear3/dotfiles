@@ -10,9 +10,9 @@ Parallelize only independent planned Task loops. When invoked from
 marked ready; do not reinterpret the Task DAG, PR topology, ownership, Review
 policy, or selected leaf roles. Dispatch one exact `task-orchestrator` profile
 per selected Task. This skill does not dispatch planned implementer, verifier,
-or reviewer leaves; the bound Task orchestrator owns those dispatches. This
-topology applies to new-format planned work; eligible legacy plans retain their
-exact approved scheduling authority.
+reviewer, or integrator leaves; the bound Task orchestrator owns those
+dispatches. This topology applies to new-format planned work; eligible legacy
+plans retain their exact approved scheduling authority.
 
 ## Decide whether to dispatch
 

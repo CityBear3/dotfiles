@@ -18,8 +18,15 @@ Require:
   changed files;
 - fresh verification `PASS` and either workflow review `FINDINGS` or complete
   human review feedback anchored to that same unchanged head and range;
-- each finding's severity, file and line, concrete behavior, requirement,
-  evidence, impact, proposed correction, and confidence;
+- for workflow `FINDINGS`, every source report plus the general
+  `review-integrator` report for the exact unchanged target, or an explicitly
+  authorized focused no-agent lead integration statement that says no
+  independent integrator ran; direct human feedback does not fabricate this
+  workflow evidence;
+- each ordinary finding's severity, file and line, concrete behavior,
+  requirement, evidence, impact, proposed correction, and confidence; or each
+  separately reported authority-gap claim with its exact authority and defect
+  evidence, which does not need a fabricated finding severity;
 - approved scope, decisions, non-goals, Review context, Review policy, and
   implementation authorization;
 - one exact authority form: approved Design Doc when present, Feature Contract,
@@ -62,22 +69,43 @@ evidence and state the exact re-entry condition.
 
 For each item:
 
-1. Read the complete finding and cited code.
-2. Restate the concrete requirement.
-3. Reproduce or verify the claim against the current unchanged target.
+1. Read the complete source finding, any supplied integrated assessment, and
+   cited code.
+2. Restate the concrete requirement and its exact authority.
+3. Reproduce or verify the claimed problem against the current unchanged target.
 4. Check repository guidance, current code and tests, approved scope,
    non-goals, Design Doc, Feature Contract, Task Contracts, eligible legacy plan
    authority, plan, Review context, and Review policy as applicable.
-5. Classify it as exactly one:
-   - **Fix** — verified on the current head, in approved scope, compatible with
-     approved decisions, proportionate, and authorized for local correction.
-   - **Push back** — incorrect, unsupported, preference-only, speculative,
-     second-order, artifact-inapplicable, stale, not reproducible, or already
-     decided without materially new evidence.
-   - **Escalate** — requires a design or public-contract decision, architecture
-     mechanism without proven proportionate need, material scope or policy
-     change, new authority, or a stop after repeated correction without progress.
-6. Record current-head evidence and one concrete next action.
+5. Record whether the current range introduced, worsened, merely exposed, or did
+   not cause the problem, and whether ownership belongs to the current Task,
+   another approved responsibility, an independent pre-existing concern, or an
+   authority gap.
+6. Evaluate the proposed remedy separately: whether it is necessary,
+   proportionate, in current scope, and already determined by approved authority.
+7. Classify each integrated item as exactly one:
+   - **Fix** — the current-target problem is verified, the current authority
+     owns it, and one bounded proportionate correction is already authorized
+     without an unresolved design choice.
+   - **Push back** — the problem or proposed remedy is incorrect, unsupported,
+     preference-only, speculative, second-order, artifact-inapplicable, stale,
+     not reproducible, already decided without materially new evidence, or
+     disproportionate. When one report combined an excessive remedy with a
+     separately evidence-grounded smaller problem, push back the excessive
+     remedy item and classify the integrator's distinct smaller problem item on
+     its own evidence.
+   - **Escalate** — requires a design or public-contract decision, a material
+     scope or policy change, new authority, an architecture mechanism without
+     proven proportionate need, or a stop after repeated correction without
+     progress. When the applicable Design Doc is missing, contradictory, or
+     materially ambiguous, use reason exactly `Design Escalation`.
+8. Record current-head evidence and one concrete next action.
+
+A valid problem outside the current authority does not become a `Fix`. When it
+is independent of the current change and reveals no authority defect, classify
+the current correction request `Push back` and retain the verified problem
+separately as a non-blocking concern. Do not create a persistent backlog. When
+it reveals a Design authority defect, classify `Escalate` with reason `Design
+Escalation`; do not propose silent authority repair.
 
 For `Fix`, return one bounded plain-language correction handoff:
 
@@ -102,6 +130,11 @@ For `Push back`, cite controlling code, test, Design, plan, or approved decision
 evidence. The same finding may be reconsidered only with materially new evidence
 of a reachable failure or approved-contract violation.
 
+For `Design Escalation`, identify the exact missing, contradictory, or
+materially ambiguous Design Doc authority and the engineer-owned decision
+needed. No correction handoff is valid until that authority is approved and its
+semantic impact is propagated.
+
 ## Revalidate and report
 
 Immediately before reporting, capture the same HEAD, status, diffs, changed
@@ -123,10 +156,12 @@ For `TRIAGED`, report:
 - Review context and verification plus workflow or human review evidence
   inspected;
 - classification, requirement, evidence, impact, and next action for each item;
+- separate problem-validity and proposed-remedy assessments, origin, scope
+  owner, and design-sufficiency evidence for each item;
 - bounded correction handoff for every `Fix`;
 - controlling evidence for every `Push back`;
 - exact user-owned decision or authority for every `Escalate`;
-- concerns, observed attempts, and gaps.
+- non-blocking concerns retained without a backlog, observed attempts, and gaps.
 
 For `BLOCKED`, report available target evidence, preserved checks, every gap, and
 the exact safe re-entry condition. Do not report provisional classifications.
@@ -138,6 +173,11 @@ review over the updated PR range. An integration finding routes to its owning
 Task Contract, invalidates affected descendants through both topologies, and
 then requires fresh affected task and integration evidence. Earlier evidence
 for changed targets becomes stale.
+
+A `Design Escalation` stops unstarted review and correction work for the
+affected target and returns to the engineer immediately. After an approved
+authority change, mark only semantically affected Tasks and their transitive
+dependents stale; directly revalidate and retain unchanged Accepted Tasks.
 
 For standalone review feedback, return evaluation and proposed steps only. Do
 not implement, start another phase, or imply authorization.

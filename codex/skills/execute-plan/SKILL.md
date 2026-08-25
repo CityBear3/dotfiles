@@ -115,7 +115,8 @@ that Task Contract. Give it one concise plain-language handoff containing:
   any non-blocking lazygit warning;
 - the starting commit, planned PR base ref and commit, current head, and whether
   the handoff is candidate or authoritative;
-- current merge base, exact base-to-head range, diff, status, attributable
+- current merge base, exact base-to-head range, inspected diff, and starting Git
+  status including index, worktree, and relevant untracked state; attributable
   commits, prior verification and review, concerns, gaps, and re-entry evidence
   when applicable;
 - configured, observed, and effective subagent capacity; all relevant live
@@ -137,8 +138,9 @@ for lookup when an assigned clause, shared interface, finding, or changed
 evidence requires more context.
 
 The Task orchestrator runs `execute-task` for that Task and may dispatch only
-its policy-selected implementer, verifier, reviewer, or adversarial-integrator
-leaves through `agent-teams-driven-development`, within the current root grant.
+its policy-selected implementer, verifier, reviewer, adversarial-integrator, or
+findings-only review-integrator leaves through
+`agent-teams-driven-development`, within the current root grant.
 It is non-writing, keeps one source writer, and tells every leaf not to spawn
 descendants. The root does not dispatch planned Task leaves. The Task
 orchestrator may request more capacity but may not grant or infer it, reorder
@@ -183,6 +185,13 @@ workspace mismatch, or a returned branch, base, or head that does not match the
 observed task workspace, preserve all task states and return the exact gap to
 `agentic-engineering-workflow`.
 
+When a Task returns `Escalate` with reason `Design Escalation`, stop dispatching
+unstarted reviewer or correction work for that Task and return its integrated
+authority-defect evidence immediately. Do not reinterpret it as an
+implementation finding or silently amend the Design Doc. Preserve completed
+read-only reports and all other exact Task results for later semantic
+currentness analysis.
+
 ## Propagate stale results
 
 Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
@@ -193,6 +202,12 @@ dependency, or consumed interface changes. Mark every affected result stale,
 remove it from dependency release and feature coverage, and re-enter its Task
 orchestrator for authoritative `execute-task` after the approved final base is
 restored.
+
+Do not mark the complete accepted set stale merely because a Design Doc,
+Feature Contract, Task Contract, or plan artifact changed. Retain and directly
+revalidate a result whose assigned authority meaning, dependencies, consumed
+interfaces, base, head, range, and status are unchanged; mark only semantically
+affected Tasks and their transitive dependents stale.
 
 Rebase, restack, retarget, force operations, or other history changes require
 their applicable explicit authority. Reapproval of prose does not revive stale
@@ -309,7 +324,8 @@ containing:
 - fresh verification obligations, commands selected or required, and observed
   results;
 - per-task gate result;
-- changed files, concerns, and gaps.
+- reviewer and findings-integration outcomes, triage, non-blocking concerns,
+  changed files, and gaps.
 
 After every planned task is accepted and current:
 
@@ -343,8 +359,9 @@ Return:
 - `BLOCKED` with all accepted and candidate results, observed in-flight agents
   and per-workspace Git state, configured/observed/effective capacity, current
   leases and queues, gaps, and exact re-entry condition;
-- `Escalate` with the exact plan deviation, missing decision, policy conflict, or
-  task escalation.
+- `Escalate` with the exact plan deviation, missing decision, policy conflict,
+  task escalation, or `Design Escalation` authority defect and its integrated
+  evidence.
 
 Return control to `agentic-engineering-workflow` after `TasksAccepted` or any
 stop condition. Do not run feature integration verification or targeted review,

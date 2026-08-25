@@ -228,6 +228,15 @@ For every mode, name explicitly skipped perspectives and why they are
 inapplicable. `Deep` means broad applicable coverage, not every configured
 reviewer.
 
+Finding integration is invariant rather than optional Review breadth. Record
+that an all-clean reviewer set runs no general integrator, while any findings
+run the read-only `review-integrator` before `receiving-code-review` and before
+correction. Ordinary findings integrate after all selected reviewers complete.
+An authority-defect claim pauses only unstarted reviewers for priority
+integration; a confirmed Design Doc defect returns to the engineer before
+queued review or correction. This does not replace required adversarial
+integration.
+
 Record:
 
 - **Mode and rationale**
@@ -239,6 +248,7 @@ Record:
 - **Explicitly skipped perspectives and reasons**
 - **Residual risk**
 - **Capacity and deterministic queue order**
+- **Findings-only integration and Design Escalation priority**
 - **Acceptance threshold**
 
 Use the same proportional Acceptance threshold in every mode. A finding survives

@@ -56,7 +56,10 @@ explicit starting ref for a new branch, `--no-focus`, and `--json`. Herdr
 creation or returned-identity validation failure is `BLOCKED`; do not silently
 substitute a raw Git worktree, Codex-managed worktree, user-prepared checkout,
 or another launch path. This requirement does not add planned Task artifacts or
-a Herdr workspace to eligible lightweight work.
+a Herdr workspace to eligible lightweight work. Standalone is a read-only
+authority form over an already resolved range, snapshot, or bounded fileset,
+not a workspace mode; it never requires creating a Herdr workspace, Task branch,
+or Task worktree.
 
 Do not conflate the starting ref with the planned PR base. An independent task
 may start from a common implementation base and later be restacked onto its
@@ -214,4 +217,7 @@ and identity directly to `execute-plan`; do not move the user session or run
   non-planned workspace whose authority does not require Herdr, a Codex-managed
   or user-prepared worktree may be offered. Do not substitute raw
   `git worktree add` without approval.
+- Do not invoke this skill solely to manufacture workspace evidence for a
+  standalone verification or review target. Resolve that target read-only in
+  `verify` or `review`.
 - Do not remove worktrees or delete branches in this skill.

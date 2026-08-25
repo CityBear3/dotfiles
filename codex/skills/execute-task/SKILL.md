@@ -16,36 +16,56 @@ Before implementation, require one concise plain-language handoff containing
 the new contract form, an explicitly eligible legacy form, or an approved
 promotion-reconciliation form.
 
-For the new form require:
+For the new form, require one common core and exactly one planned or lightweight
+variant. Reject a superset that leaves execution context ambiguous and reject a
+handoff that omits its selected variant.
 
-- exact approved Feature Contract identity, path, and currentness evidence, or
-  lightweight in-memory contract identity, plus the clauses assigned to this
-  task;
-- the exact Task Contract, or the same combined contract for lightweight work;
-- applicable shared interfaces, adjacent-task obligations, protected
-  constraints, and delegated local decisions;
+The common core contains:
+
+- exact authority identity and currentness evidence, assigned obligations,
+  protected constraints, non-goals, and delegated local decisions;
 - the separate Review context and complete active Review policy;
 - the required discipline and applicable repository guidance;
-- approved task workspace, branch, and coordination directory;
-- planned PR identity, base ref and exact base commit, current head, and whether
-  the handoff is candidate or authoritative;
-- current merge base, exact base-to-head range, diff, status, attributable
-  commits, prior verification and review, concerns, gaps, and re-entry evidence
-  when applicable;
-- execution context: the one bound `task-orchestrator` identity for new-format
-  planned work, or the root-owned loop for lightweight work;
-- configured, observed, and effective subagent capacity; the root-granted leaf
-  count for this loop; currently live identities; and any roles already
-  selected for the current wave;
-- for authoritative re-entry of an attributable candidate, the candidate
-  commit, head, preliminary evidence, and authorized final-base materialization
-  or restack evidence;
-- responsibility and ownership boundaries;
-- verification routes and observable obligations;
-- the responsibility-scoped commit intent and its fixed message or approved
-  writer message-selection authority;
-- contractually significant files, signatures, ordering, and exact commands
-  only when the contract fixes them.
+- approved task workspace, branch, Task PR identity, base ref and exact base
+  commit, current head, merge base, exact base-to-head range, inspected diff,
+  and starting Git status including index, worktree, and relevant untracked
+  state;
+- responsibility and ownership boundaries, verification routes and observable
+  obligations, and the responsibility-scoped commit intent with its fixed
+  message or approved writer message-selection authority;
+- attributable commits, prior verification and review, concerns, gaps, and
+  re-entry evidence when applicable;
+- configured, observed, and effective subagent capacity, currently live
+  identities, and every selected or queued role;
+- contractually significant files, interfaces, signatures, ordering, and exact
+  commands only when the authority fixes them.
+
+The planned variant adds:
+
+- exact approved Feature Contract identity, path, approval and currentness
+  evidence, and clauses assigned to this task;
+- the exact Task Contract, applicable shared interfaces, and adjacent-task
+  obligations;
+- coordination directory, Task worktree, Herdr workspace and pane identities,
+  branch, Task PR, planned base, starting head, and candidate or authoritative
+  mode;
+- the one bound `task-orchestrator` identity and its current root-granted Task
+  leaf lease;
+- for re-entry, prior candidate, acceptance, interruption, correction, or stale
+  evidence, including authorized final-base materialization or restack evidence
+  when applicable.
+
+The lightweight variant adds:
+
+- the complete recoverable combined in-memory Feature/Task Contract and its
+  original request and design authority;
+- the root-owned lightweight loop identity and its current root-granted
+  lightweight leaf count.
+
+The lightweight variant never requires or fabricates a Task orchestrator,
+Herdr workspace, Task DAG, PR topology, or another planned-only artifact. The
+planned variant is invalid without its bound Task orchestrator; the lightweight
+variant is invalid when it claims one.
 
 For a plan already executing before the contract-centered format, accept its
 approved task specification and referenced design sources as the authority only
@@ -68,8 +88,9 @@ The Review context describes the artifact, purpose, consumers, interpretation or
 execution model, material quality criteria and realistic failures, approved
 non-problems, and inapplicable assumptions. The Review policy records mode,
 rationale, risk surfaces, per-task gate, integration required and conditional
-perspectives, skips with reasons, residual risk, capacity and queue rules, and
-the common Acceptance threshold.
+perspectives, skips with reasons, findings-only general integration and
+authority-defect priority, residual risk, capacity and queue rules, and the
+common Acceptance threshold.
 
 Reject missing, stale, contradictory, or mode-inconsistent input. Return the
 named gap to the invoking skill; do not infer a decision, expand scope, duplicate
@@ -124,8 +145,9 @@ prompt: use the named profile when available, or
 as its fallback. Pass only the selected role and task handoff to
 `agent-teams-driven-development`.
 
-Every implementer, verifier, reviewer, and adversarial integrator dispatched by
-this loop is a leaf and must not spawn descendants. A capacity lease changes
+Every implementer, verifier, reviewer, adversarial integrator, and review
+integrator dispatched by this loop is a leaf and must not spawn descendants. A
+capacity lease changes
 only scheduling concurrency; it grants no source, Git, policy, publication, or
 cleanup authority. The Task orchestrator remains non-writing, and the
 implementer remains the sole Task source writer.
@@ -204,7 +226,8 @@ For authoritative mode, continue:
 9. Run fresh Task Contract verification against that exact PR range.
 10. Run the complete policy-selected Task PR review against the unchanged range.
 11. Apply the common Acceptance threshold and record contract observations,
-    commits, range, verification, review, concerns, and gaps.
+    commits, range, verification, review, findings integration, triage,
+    non-blocking concerns, and gaps.
 
 Acceptance remains attached to that exact Task Contract authority, PR base,
 head, merge base, range, and status. Never replace it with a later descendant or
@@ -290,16 +313,25 @@ results, or a lead summary for either coordinator-managed phase. An approved
 no-agent `focused` policy may use the lead only when `review` permits it;
 `adaptive` and `deep` independence remains mandatory.
 
-Send `FINDINGS` to `receiving-code-review`. This skill consumes the check and
-triage results, owns the bounded correction loop, and returns task acceptance;
-it does not reinterpret a blocked check as clean.
+Require `review` to integrate every `FINDINGS` result before sending it to
+`receiving-code-review`. Accept either an independent `review-integrator` report
+for the exact unchanged target or, under an explicitly authorized focused
+no-agent fallback, the lead's sequential application of the same integration
+contract with an explicit statement that no independent integrator ran. Raw
+reviewer findings never authorize a correction. This skill consumes the review
+and triage results, owns the bounded correction loop, and returns task
+acceptance; it does not reinterpret a blocked check as clean.
 
 After triage, route any `Fix` through the correction loop and return any
-`Escalate` to the coordinator. When every finding is `Push back` on the same
-unchanged target and no `Fix` or `Escalate` remains, close the task gate with the
-review plus triage evidence and do not rerun review merely to obtain the literal
-word `CLEAN`. A complete task gate is closed either by `CLEAN` or by exact
-`FINDINGS` evidence whose every item has a current `Push back` classification.
+`Escalate` to the coordinator. A reason of `Design Escalation` returns
+immediately without starting queued review or correction work. Preserve an
+independent, out-of-scope valid problem as a non-blocking concern in the Task
+result without creating a backlog or silently expanding the Task. When every
+finding is `Push back` on the same unchanged target and no `Fix` or `Escalate`
+remains, close the task gate with the review, integration, and triage evidence
+and do not rerun review merely to obtain the literal word `CLEAN`. A complete
+task gate is closed either by `CLEAN` or by exact `FINDINGS` evidence whose every
+item has a current `Push back` classification.
 
 ## Apply the common finding threshold
 
@@ -334,8 +366,8 @@ Then:
 4. record the new current head, status, merge base, and exact planned-base-to-
    head PR range;
 5. invoke fresh authoritative `verify` against that committed range;
-6. only after `PASS`, rerun the same complete policy-selected task review and
-   triage against the unchanged range.
+6. only after `PASS`, rerun the same complete policy-selected task review,
+   required findings integration, and triage against the unchanged range.
 
 Do not reuse stale verification, approval, head, or range. If the same concrete
 problem repeats without progress or another action would repeat an observed
@@ -374,8 +406,9 @@ status, starting Git status and final Git status, each including index, worktree
 and relevant untracked state, task and correction commits, workspace and branch,
 planned PR base ref and commit, merge base, current head, exact range, changed
 files, commands and observed results, pre-commit inspection, gate result when
-authoritative, owning Task-loop identity, configured/observed/effective
-capacity, root grant, selected and queued roles, concerns, gaps, and exact
-re-entry condition.
+authoritative, reviewer and findings-integration outcomes, triage,
+non-blocking concerns, owning Task-loop identity, configured, observed, and
+effective capacity, root grant, selected and queued roles, concerns, gaps, and
+exact re-entry condition.
 Return this evidence to the invoking coordinator or
 `execute-plan`; do not advance another task or cross-phase gate.

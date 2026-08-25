@@ -103,6 +103,10 @@ results and this stack are current.
 - **Integration conditional reviewers:** `adversarial-api-reviewer` only if an
   implementation changes or exposes a public parser seam, followed by
   `adversarial-integrator`.
+- **Findings-only integration:** Run no general integrator for an all-clean
+  target. Before triage or correction, pass any findings through the read-only
+  `review-integrator`; prioritize an authority-defect claim ahead of unstarted
+  reviewers and return a confirmed Design Doc defect to the engineer.
 - **Skipped perspectives:** Skip architecture and performance because approved
   ownership and measured hot paths do not change; skip adversarial robustness
   unless recovery behavior changes; skip scope because each Task gate receives

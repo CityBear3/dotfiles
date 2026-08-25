@@ -20,8 +20,13 @@
   owns global capacity, dependency release, synthesis, and completion. For
   new-format planned work, one Task orchestrator owns scheduling of its
   policy-selected leaves under the root's lease; for lightweight work, the lead
-  schedules those leaves directly. Eligible legacy work retains its exact
-  approved execution authority.
+  schedules those leaves directly. The lead also owns explicitly standalone
+  read-only targets and gives each a bounded target-local grant. Eligible legacy
+  work retains its exact approved execution authority.
+- Integrate non-clean reviewer output before triage or correction. Keep problem
+  validity separate from remedy validity, return a confirmed Design authority
+  defect to the engineer early, and retain independent out-of-scope problems as
+  non-blocking concerns rather than silently expanding the current Task.
 
 ## Engineering workflow
 

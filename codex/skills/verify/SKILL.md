@@ -148,10 +148,17 @@ named verifier through the same adapter under the applicable capacity policy.
 If a required compatible verifier cannot be instantiated, return `BLOCKED` with
 the role, capacity, queue, and exact re-entry condition. Do not substitute the
 root, Task orchestrator, or another role, and do not weaken a planned or
-lightweight gate. For a standalone target only, an explicitly requested
-no-agent execution may let the lead run these checks under this complete
-check-only contract; report that result as standalone-only and never as
-coordinator evidence.
+lightweight gate.
+
+For a standalone target, the root normally dispatches the compatible named
+verifier as its direct leaf through `agent-teams-driven-development`. Record the
+standalone execution context, configured, observed, and effective global
+subagent capacity, live identities, a root-granted target-local count of
+normally one and at most three concurrent leaves, and the selected-role queue.
+The target has no Task lease and may not consume capacity beyond that grant.
+Only an explicitly requested no-agent execution may let the lead run these
+checks under this complete check-only contract. Report either form as
+`standalone-only`, never as coordinator or Acceptance evidence.
 
 ## Snapshot and run checks
 
@@ -216,6 +223,8 @@ Report:
 - workspace, branch, planned base, merge base, starting and ending head, exact
   range, composed tree, snapshot, or bounded fileset;
 - starting and ending `git status --short`, changed files, and unrelated state;
+- for dispatched checks, the owning execution context, configured, observed,
+  and effective capacity, root grant, live identities, and queue order;
 - Review context and approved criteria inspected when available;
 - approved Design Doc, Feature Contract, applicable Task Contract and dependency
   evidence, integration-only obligation and accepted task set, complete

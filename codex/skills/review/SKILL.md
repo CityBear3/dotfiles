@@ -117,6 +117,15 @@ repository evidence, and available decisions. State:
 
 A standalone worktree or fileset review may answer the direct request, but never
 substitutes for current-head coordinator review.
+Every standalone review result is labeled `standalone-only` whether the root
+dispatches leaves or the lead applies an explicit no-agent fallback.
+
+Record standalone as a root-owned execution context, configured, observed, and
+effective global subagent capacity, live identities, the selected-role queue,
+and a root-granted target-local count of normally one and at most three
+concurrent leaves. It has no Task lease. Selected roles beyond the current grant
+remain queued in their original order, and the target never infers authority to
+consume every globally free slot.
 
 Review context is an interpretation aid. It must not add to, weaken, or replace
 an available Design Doc, Feature Contract, Task Contract, or Implementation
@@ -133,6 +142,9 @@ When a Review policy exists, require:
 - integration conditional reviewers with exact triggers;
 - explicitly skipped perspectives with reasons;
 - adversarial integration rules;
+- findings-only general integration and authority-defect priority rules; treat
+  these as current workflow invariants rather than requiring an eligible legacy
+  plan to manufacture a new stored policy field;
 - residual risk, capacity, deterministic queue order, and Acceptance.
 
 Compare the actual artifact, diff, behavior, tests, public seams, responsibilities,
@@ -197,25 +209,29 @@ user prohibits agents. `Adaptive` and `deep` independent perspectives cannot be
 replaced by sequential lead passes. A no-agent conflict is `Escalate` for
 coordinator review or a standalone limitation.
 
-For standalone review without an approved policy, when the user prohibits
-agents, the lead may execute each selected read-only perspective and any required
-adversarial integration sequentially. Report the result as `standalone-only`; it
-is never approved-policy completion or coordinator completion evidence.
+For standalone review, when the user prohibits agents, the lead may execute each
+selected read-only perspective and any required adversarial integration
+sequentially. Report the result as `standalone-only`. When an available approved
+policy requires adaptive or deep independence, disclose that it is not
+policy-complete; standalone evidence is never coordinator completion evidence.
 
 Otherwise pass each already-selected perspective and complete reviewer message
 to `agent-teams-driven-development`. For new-format planned work, only the bound
 Task orchestrator dispatches these reviewer leaves; for lightweight work, the
-root dispatches them directly. The adapter calls `list_agents` before each wave
-and uses the lower of configured `agents.max_threads` and observed runtime
-capacity.
+root dispatches them in its Task loop; for standalone work, the root dispatches
+them as direct leaves of the standalone target. Another coordinator-owned target
+uses its explicit root-owned context. The adapter calls `list_agents` before
+each wave and uses the lower of configured `agents.max_threads` and observed
+runtime capacity.
 The root is excluded from `max_threads`; every Task orchestrator and leaf is
-counted. Never exceed the Task loop's root-granted lease of at most three leaves
-or its smaller current grant. Queue remaining required reviewers in
-deterministic policy order without reducing scope, independence, or applicable
-breadth. A Task orchestrator may request capacity but may not infer or expand
-its own lease. An unavailable required reviewer returns `BLOCKED` with the role,
-configured/observed/effective capacity, grant, queue, gap, and re-entry
-condition.
+counted. Never exceed a Task loop's root-granted lease or a standalone target's
+target-local grant, each at most three leaves or its smaller current grant.
+Queue remaining required reviewers in deterministic policy order without
+reducing scope, independence, or applicable breadth. A Task orchestrator may
+request capacity but may not infer or expand its own lease. An unavailable
+required reviewer returns `BLOCKED` with the role,
+configured/observed/effective capacity, execution context, grant, queue, gap,
+and re-entry condition.
 
 Use named profiles when selectable; otherwise provide a complete fallback role
 prompt. Reviewers and integrators do not edit files or spawn descendants.
@@ -274,9 +290,10 @@ prior `Push back` decisions.
 A suggestion to add a state machine, schema, identity mechanism, or another
 architectural system is not a `Fix` without a proven in-scope violation and
 proportionate need. Drop it when it is unsupported optional design. When it
-exposes a material user-owned architecture choice, return `BLOCKED` with a
-design gap so the coordinator can `Escalate`; do not label it `Must Fix` or
-`Should Improve`.
+exposes a material user-owned architecture choice or possible authority defect,
+preserve it separately as an authority-gap claim for priority general
+integration; do not label the proposed mechanism `Must Fix` or `Should Improve`
+and do not authorize it as a correction.
 
 ## Integrate adversarial review
 
@@ -288,12 +305,66 @@ The integrator remains read-only, deduplicates, verifies evidence, resolves
 contradictions, and drops unsupported, second-order, and artifact-inapplicable
 findings. It does not invent findings or lower the Acceptance threshold.
 
+## Integrate every non-clean review before triage
+
+When every selected reviewer and any required adversarial integration return
+clean, do not run a general review integrator. When any source report returns a
+finding, the owning Task loop or standalone root must run
+`review-integrator` against the exact unchanged target before this skill reports
+`FINDINGS`. For planned work the bound Task orchestrator dispatches it; for
+lightweight, standalone, and another root-owned coordinator target the root
+dispatches it in that explicit context. Use `agent-teams-driven-development`
+and the same current grant and global capacity accounting as the reviewer wave.
+
+Give `review-integrator`:
+
+- the exact target identity, range or snapshot, starting status, diff, and
+  changed files;
+- every available source reviewer report and any adversarial integrated report;
+- directly accessible approved authority and repository guidance, Review
+  context and policy, prior triage, and relevant history needed for origin
+  attribution;
+- instructions to assess concrete problem validity separately from proposed
+  remedy validity, and to record reproduction, exact authority, origin, scope
+  owner, proportionality, design sufficiency, and confidence without inventing
+  findings or issuing final workflow classifications.
+
+For ordinary implementation findings, wait for every selected reviewer to
+complete and run one general integration over the complete reports. When a
+source report specifically claims that the Design Doc, Feature Contract, or
+Task Contract is defective, pause only reviewers that have not started and
+prioritize one integration turn for that authority claim. Do not interrupt
+already-running read-only reviewers; preserve their completed reports.
+
+If the integrated authority evidence establishes a missing, contradictory, or
+materially ambiguous Design Doc, do not start the paused reviewers or any
+correction. Return `FINDINGS` immediately with the integrated authority-defect
+evidence and paused queue so `receiving-code-review` can classify `Design
+Escalation`. If the claim is rejected or reduced to an implementation issue,
+resume the selected reviewer queue and run one final integration over the
+complete reports before returning.
+
+Under an explicitly authorized focused no-agent gate, the lead may apply this
+same integration contract sequentially to its own findings and must report that
+no independent integrator ran. The same rule applies to an explicit no-agent
+standalone review. It does not satisfy adaptive or deep independence and may not
+claim an independent integration result.
+
+The general review integrator is distinct from `adversarial-integrator`. It
+deduplicates and reconciles evidence but does not authorize correction or
+classify `Fix`, `Push back`, or `Escalate`. A raw reviewer finding still produces
+`FINDINGS` with its integrated assessment even when that assessment recommends
+that no current correction is justified; `receiving-code-review` owns the final
+classification. If the required integration cannot run, return `BLOCKED`, not
+raw findings.
+
 ## Report
 
 Merge duplicates and report in Japanese:
 
-- target form; workspace, branch, base, merge base, starting and ending head,
-  exact range, composed tree, or bounded fileset;
+- target form and `standalone-only` label when applicable; workspace, branch,
+  base, merge base, starting and ending head, exact range, composed tree, or
+  bounded fileset;
 - starting and ending status, diff scope, and changed files;
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
@@ -304,16 +375,22 @@ Merge duplicates and report in Japanese:
 - reviewers run, queued, and skipped with reasons;
 - owning Task-loop context, configured/observed/effective capacity, root grant,
   live identities, and reviewer dispatch order;
-- reviewer and integrator outcomes;
+- source reviewer, adversarial-integrator, and general review-integrator
+  outcomes, including any priority authority assessment and paused queue;
 - accepted Must Fix and Should Improve findings;
 - separate policy or design gaps requiring coordinator `Escalate`;
 - residual risk, limitations, every gap, and exact re-entry condition;
 - verdict exactly `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
-Return `CLEAN` only when all required applicable perspectives completed, the
-common Acceptance threshold leaves no finding, verification is fresh, and the
-target is unchanged, with no policy or design gap. A clean review is a valid
-result.
+Return `CLEAN` only when all required applicable perspectives completed, every
+source report is clean, the common Acceptance threshold leaves no finding,
+verification is fresh, and the target is unchanged, with no policy or design
+gap. A clean review is a valid result and runs no general review integrator.
+
+Return `FINDINGS` only with the required general integrated report or the
+explicit no-agent lead integration statement. Keep independent non-blocking
+concerns and candidate authority defects separate from current-Task correction
+claims so triage can preserve their distinct dispositions.
 
 Read current head and status again before reporting. If either changed, return
 `BLOCKED` with preserved reviewer evidence and the stale-state gap. Do not start
