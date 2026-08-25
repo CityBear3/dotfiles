@@ -1,30 +1,32 @@
 ---
 name: agent-teams-driven-development
-description: Schedule one Task PR writer or already-selected read-only reviewers while enforcing global capacity, queues, and interruption safety.
+description: Schedule one Task PR writer, an already-selected verifier, or already-selected read-only reviewers while enforcing global capacity, queues, and interruption safety.
 ---
 
 # Agent-teams driven development
 
-Act only as the scheduling adapter for the writer selected by `execute-task` or
-the reviewers selected by `review`. For new-format planned work, the bound Task
-orchestrator invokes this adapter and schedules only its leaves under the
-current root-granted lease. For lightweight work, the root invokes it directly.
-Every dispatched writer, verifier, reviewer, or integrator is a leaf and never
-spawns descendants.
+Act only as the scheduling adapter for the writer or verifier selected by
+`execute-task`, a verifier selected by `verify`, or the reviewers selected by
+`review`. For new-format planned work, the bound Task orchestrator invokes this
+adapter and schedules only its leaves under the current root-granted lease. For
+lightweight work or another root-owned coordinator check target, the root
+invokes it directly. Every dispatched writer, verifier, reviewer, or integrator
+is a leaf and never spawns descendants.
 Eligible legacy work retains its exact approved invoking context. Do not select
 workflow paths, Review context, review modes, role breadth, severity mappings,
 Acceptance, correction semantics, task commits, or task acceptance here.
 
 ## Require a bounded scheduling request
 
-Accept from the invoking `execute-task` or `review` phase:
+Accept from the invoking `execute-task`, `verify`, or `review` phase:
 
 - one already-selected named role or fallback contract;
-- the complete contract-aware writer or reviewer message already prepared by
-  that phase;
+- the complete contract-aware writer, verifier, or reviewer message already
+  prepared by that phase;
 - whether the request is a fresh dispatch, follow-up, or replacement;
 - any prior agent identity, interruption result, and observed Git state;
-- execution context: planned Task orchestrator or lightweight root;
+- execution context: planned Task orchestrator, lightweight root, or another
+  root-owned coordinator check target;
 - configured, observed, and effective subagent capacity, all relevant live
   identities, the root-granted leaf count for this Task loop, and the ordered
   selected-role queue.
@@ -76,6 +78,11 @@ implementer the exact authority identity and currentness evidence plus one of:
 assigned Feature clauses and Task Contract, exact eligible legacy authority and
 owned responsibility, or approved promotion-reconciliation authority. Also pass
 commit intent, any contractually fixed files, and that it is the only writer.
+Tell a verifier it is check-only, may write only normal ignored test or build
+artifacts, must not mutate the index, tracked files, or in-scope source, and may
+run only documented non-mutating format checks. Pass the exact target,
+authority, required commands and expected observations, current Git snapshot,
+and required `PASS`, `FAIL`, or `BLOCKED` evidence.
 Tell a reviewer it is read-only and must inspect the supplied authority and
 exact Task PR, integration-only composition, eligible legacy range, or
 standalone target. Keep full sources directly available without copying
@@ -120,6 +127,12 @@ For reviewer failure, preserve completed read-only reports, recheck live
 capacity, and queue only the already-requested replacement role. If the required
 independent role remains unavailable, return `BLOCKED`; do not substitute
 another perspective.
+
+For verifier failure, preserve its check-only report and target snapshot,
+recheck live capacity, and queue only the same already-requested verifier when
+`verify` requests replacement. If that compatible verifier remains unavailable,
+return `BLOCKED`; do not substitute the root, Task orchestrator, or another
+role.
 
 ## Return scheduling evidence
 

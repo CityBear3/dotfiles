@@ -128,12 +128,30 @@ current-head gate.
 
 Before selecting a named verifier, inspect its effective sandbox and complete
 instructions. A compatible verifier must prohibit index, tracked-file, and
-in-scope source mutation and must not permit formatter output into those files.
+in-scope source mutation, allow writes only for normal ignored test or build
+artifacts, prohibit formatter output, and require documented non-mutating format
+checks. The named `implementation-verifier` profile is the compatible verifier
+when its effective instructions retain those boundaries; its workspace-write
+sandbox exists only for the bounded ignored artifacts and does not weaken the
+check-only contract.
 
-The current `implementation-verifier` profile uses a workspace-write sandbox and
-permits formatter output, so it is incompatible with this check-only phase. Use
-a compatible read-only route when available; otherwise the lead runs the checks
-under this contract. Unavailability is not permission to weaken the boundary.
+For a new-format planned Task PR, `execute-task` selects the exact
+`implementation-verifier` role and the bound Task orchestrator dispatches that
+leaf through `agent-teams-driven-development` under the current root-granted
+lease. For a lightweight Task PR, the root dispatches the same selected verifier
+leaf through that adapter. For an eligible legacy Task, preserve its exact
+approved invoking context. The verifier is always a leaf and may not spawn
+descendants.
+
+For another coordinator-managed target, the root dispatches the compatible
+named verifier through the same adapter under the applicable capacity policy.
+If a required compatible verifier cannot be instantiated, return `BLOCKED` with
+the role, capacity, queue, and exact re-entry condition. Do not substitute the
+root, Task orchestrator, or another role, and do not weaken a planned or
+lightweight gate. For a standalone target only, an explicitly requested
+no-agent execution may let the lead run these checks under this complete
+check-only contract; report that result as standalone-only and never as
+coordinator evidence.
 
 ## Snapshot and run checks
 
