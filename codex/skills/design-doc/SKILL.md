@@ -16,6 +16,9 @@ drafting source is one of:
 
 - a complete living decision record whose material choices are individually
   settled and whose readiness result is satisfied;
+- for a revision, an exact, current, approved Design Doc covering unchanged
+  durable decisions together with a living decision record covering every
+  changed or added decision and a satisfied readiness result;
 - a user-authored draft supported by an equivalent settled source and readiness
   result.
 
@@ -26,7 +29,9 @@ The living record does not need separate holistic approval before Design Doc
 drafting. Its existence alone is not authority and does not establish Design
 Readiness.
 
-Require the settled source to identify:
+Treat all inputs used for a revision as one complete settled source. Do not
+require its delta record to duplicate unchanged decisions from the approved
+Design Doc. Require the complete settled source to identify:
 
 - the selected approach and rationale;
 - rejected alternatives and reasons;
@@ -50,9 +55,9 @@ whose meaning may change. Do not choose silently.
 ## Draft from settled decisions
 
 After all material decisions are settled, Codex may draft the complete Design
-Doc. Derive its design-specific prose from the settled source and repository
-evidence. Do not introduce a component, responsibility, contract, or trade-off
-that those sources do not establish.
+Doc. Derive its design-specific prose from the complete settled source and
+repository evidence. Do not introduce a component, responsibility, contract, or
+trade-off that those sources do not establish.
 
 If drafting reveals a material ambiguity, stop and return it to design
 discussion through the coordinator. Do not hide a new decision in polished
@@ -97,7 +102,8 @@ Review every draft, whether Codex-authored or user-authored. Check:
 - alternatives include the reason they were rejected;
 - diagrams or tables clarify real relationships instead of decorating prose;
 - implementation details do not obscure design decisions;
-- every material claim follows from the settled source and repository evidence.
+- every material claim follows from the complete settled source and repository
+  evidence.
 
 Present the exact complete document for user approval as the one holistic design
 approval. Do not require holistic approval of both the temporary decision record
@@ -107,8 +113,10 @@ to design discussion.
 
 ## Transfer design authority
 
-For a new or revised Design Doc derived from a living record, check the exact
-approved document against that record for:
+For a new or revised Design Doc, check the exact approved document against the
+complete settled source used to draft it. For a revision, this includes both
+unchanged durable decisions from the prior approved Design Doc and every changed
+or added decision from the living record. Check:
 
 - selected approaches and rationale;
 - rejected alternatives and reasons;

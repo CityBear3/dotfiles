@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Collaboratively clarify an engineering problem, investigate the current system, compare viable approaches, and settle user-owned design decisions. Use when beginning engineering work or when implementation exposes an unresolved design choice.
+description: Resolve user-owned material design choices through repository investigation and option trade-offs. Use on the planned path when a material design choice is unresolved, or when downstream work re-enters an affected design branch.
 ---
 
 # Design discussion
