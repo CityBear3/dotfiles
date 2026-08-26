@@ -8,21 +8,24 @@ This directory is the source of truth for the personal Codex bundle.
 
 The helper quietly probes `codex app-server daemon version` before updating. After a successful update, it restarts the daemon and prints its version only when that probe succeeded. Any probe failure is treated as the daemon being stopped or unreachable, so the helper leaves it stopped and prints a message instead of starting it. An update, restart, or post-restart version failure is returned to the caller.
 
-Run it directly from the repository root:
+Run it directly from the repository root when needed:
 
 ```sh
 ./codex/bin/codex-upgrade
 ```
 
-For a `codex-upgrade` command, create a symlink from a directory on `PATH`. For example, run the following from the repository root when `$HOME/.local/bin` is already on `PATH`:
+The normal `install.sh` flow publishes the helper automatically when `$HOME/.local/bin` is already on `PATH`:
 
 ```sh
-mkdir -p "$HOME/.local/bin"
-ln -s "$PWD/codex/bin/codex-upgrade" "$HOME/.local/bin/codex-upgrade"
+./codex/install.sh
 codex-upgrade
 ```
 
-The Rust installer described below does not manage this helper or symlink. The app-server daemon command is experimental, so this script is the isolated place to update its invocation if the CLI changes.
+The shell launcher creates the absolute link `$HOME/.local/bin/codex-upgrade` only after a successful Rust install. A dry-run reports `CREATE` or `NO-OP` without creating `$HOME/.local/bin` or the link. An existing file, directory, or symlink with another recorded target is reported as `CONFLICT`, is never replaced, and stops before the Rust install starts.
+
+The link is a workstation bootstrap asset owned by `install.sh`, not by the Rust installer's manifest, backup, or restore process. Rust `restore` therefore leaves it unchanged. Because it points into this checkout, tracked helper edits take effect immediately; moving the checkout leaves a stale link that a later install reports as a conflict instead of retargeting automatically.
+
+The app-server daemon command is experimental, so this script remains the isolated place to update its invocation if the CLI changes.
 
 ## Rust installer
 
@@ -64,7 +67,7 @@ The install options are:
 
 `restore` accepts only `--state-dir`. The selected backup records the Codex and skills roots that it belongs to, so restore obtains those roots from the backup rather than accepting new destination overrides.
 
-Dry-run computes and renders an install plan without taking the operation lock or creating destination or state files. The launcher itself still invokes Cargo, so it may create or update the repository-local Cargo build directory described below. The launcher uses `cargo run --quiet --locked --release` on every invocation instead of installing or copying a standalone binary.
+Dry-run computes and renders an install plan without taking the operation lock or creating destination or state files. It also previews the shell-owned helper link without creating its parent directory or the link. The launcher itself still invokes Cargo, so it may create or update the repository-local Cargo build directory described below. The launcher uses `cargo run --quiet --locked --release` on every invocation instead of installing or copying a standalone Rust installer binary.
 
 ### Adopting existing assets
 
@@ -120,7 +123,9 @@ The installer manages only declared or manifest-owned names. Unrelated sibling s
 
 ### Rough behavior
 
-An install follows this sequence:
+For a default or explicit `install`, the shell launcher validates the helper source and destination before starting Rust. It reports the prospective helper action, runs the Rust sequence below, and creates a missing link only after Rust succeeds. A Rust failure leaves the link absent or unchanged. If link creation fails after Rust succeeds, the launcher fails without rolling back the valid Rust synchronization. Dry-run previews the same helper decision without mutation; restore and help do not inspect the helper destination.
+
+Within that launcher boundary, a Rust install follows this sequence:
 
 1. Resolve the source and destination roots, validate the source inventory, and merge the five managed configuration values with the live `config.toml`.
 2. Compare the desired content with the live destinations and ownership manifest to build a plan.
@@ -146,6 +151,8 @@ The installer may create missing parent directories below the configured roots. 
 | `${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles-codex-installer/manifest-v1.json` | Persistent ownership manifest used to decide what later installs may replace or remove |
 
 `AGENTS.md`, agent files, and skill directories are present only when declared by the repository inventory. A managed destination that is removed from the inventory may be removed by a later install; unrelated destinations are left alone.
+
+The separate `$HOME/.local/bin/codex-upgrade` symlink is created by the shell launcher and deliberately does not appear in this Rust-managed destination table.
 
 ### State, backups, and temporary files
 
@@ -202,7 +209,7 @@ The `transaction/`, `transaction/work/`, and `backups/` parent directories may r
 
 ### Repository-local build and test files
 
-The wrapper does not install an executable elsewhere, but Cargo keeps normal build artifacts:
+The wrapper does not install the Rust installer executable elsewhere, but Cargo keeps normal build artifacts:
 
 | Path | Created by | Lifetime |
 |---|---|---|
