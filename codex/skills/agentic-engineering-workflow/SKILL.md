@@ -30,9 +30,12 @@ Inspect the relevant repository state before selecting a route.
 For every transition retain:
 
 - the active path and phase;
-- approved scope, decision source, and non-goals;
+- approved scope, non-goals, and the exact alignment source with its approval
+  state and currentness;
 - the applicable Design Doc or decision record and the Feature Contract's
   source, approval state, storage form, and currentness;
+- for planned work, the living decision record location, Design Readiness
+  result, unresolved branches, and any re-entry evidence;
 - the Review context and complete active Review policy;
 - for planned work, the Task dependency DAG, PR topology, task workspaces,
   accepted and candidate results, stale descendants, and integration-only
@@ -76,12 +79,22 @@ security or permission boundaries, persistent-data migration, concurrency or
 recovery guarantees, and data-loss risk as disqualifying unless investigation
 shows that the requested change does not alter that contract.
 
-Treat the original change request as implementation approval when every criterion
-holds. Confirm the workspace with `create-workspace`. Derive one concise
-in-memory Feature Contract from the request and repository evidence; because the
-route is one coherent task, use the same contract as its Task Contract. Select
-TDD for production behavior and a contract-appropriate discipline for content,
-configuration, refactoring, or mechanical migrations.
+When the explicit request and repository evidence unambiguously establish the
+goal, expected behavior, scope, and constraints, retain the request's exact
+explicit content as the approved alignment source. Add no decision-record file
+or separate alignment approval gate. If only non-material omissions remain,
+derive one concise alignment record, present it, and ask once for confirmation;
+an unpresented or unconfirmed Agent summary is not shared authority. A material
+user-owned choice, durable coordination requirement, or unrecoverable in-memory
+contract uses the planned path.
+
+Treat the complete lightweight alignment source as implementation approval when
+every eligibility criterion holds. Confirm the workspace with
+`create-workspace`. Derive one concise in-memory Feature Contract from the
+alignment source and repository evidence; because the route is one coherent
+task, use the same contract as its Task Contract. Select TDD for production
+behavior and a contract-appropriate discipline for content, configuration,
+refactoring, or mechanical migrations.
 
 The lightweight Feature/Task Contract must make the context and goal, scope and
 non-goals, design sources and approved decisions with precedence, observable and
@@ -186,31 +199,77 @@ corrections in this coordinator.
 
 Resolve planned-path entry in this order:
 
-1. When architecture, scope, algorithms, public contracts, or another material
-   trade-off remains unresolved, use `design-discussion` and let the user make
-   each material choice.
-2. As soon as investigation makes the purpose and initial feature boundary
-   identifiable, use `create-workspace` to establish or confirm the feature
-   workspace before writing the first recoverable planned-path artifact.
-3. For settled work with cross-cutting architecture, durable contracts, or
-   significant decisions worth preserving, use `design-doc`. Require separate
-   user approval of the drafted Design Doc.
-4. Construct a complete Feature Contract. After an approved Design Doc, use
-   `design-doc` to derive it from that source. Without a Design Doc, use
-   `design-discussion` to derive it from the approved decision record and
-   repository evidence.
-5. Write the Feature Contract at
+1. Investigate repository facts until the purpose and initial feature boundary
+   are identifiable. Resolve any existing design source's exact content,
+   approval state, currentness, covered dimensions, and missing or changed
+   branches.
+2. Use `create-workspace` to establish or confirm the feature checkout, branch,
+   and starting ref before writing the first recoverable planned-path artifact.
+   An already suitable current checkout is sufficient.
+3. Use `design-discussion` for unresolved material choices. Create the ignored
+   `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
+   confirmation and before persisting the first material decision. Let the user
+   settle one material question at a time while the discussion follows reachable
+   branches and dependencies. File existence is not approval.
+4. Require `design-discussion` to report Design Readiness before advancing. Do
+   not replace the gate with an assertion that the design is probably settled.
+5. When a Design Doc is warranted, reuse an exact, current, approved Design Doc
+   for unchanged coverage without repeating its completed approval. Otherwise,
+   pass the settled source and readiness result to `design-doc`. The temporary
+   decision record needs no separate holistic approval. Require user approval of
+   the exact new or revised Design Doc as the one holistic design approval, then
+   require a successful authority-transfer check before deleting the living
+   record.
+6. When no Design Doc is warranted, present the complete decision record for the
+   one holistic design approval before Feature Contract drafting. Retain that
+   approved record as design authority throughout the active workspace
+   lifecycle.
+7. Construct a complete Feature Contract. After an approved Design Doc and, for
+   a new or revised document, its transfer check, use `design-doc` to derive it
+   from that source. Without a Design Doc, use `design-discussion` to derive it
+   from the approved decision record and repository evidence.
+8. Write the Feature Contract at
    `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
    workspace-only execution artifact and require its separate user approval.
    Do not force-add, stage, or commit it unless the user explicitly chooses
    archival. Do not treat Design Doc approval, artifact existence, or a
    conversation summary as Feature Contract approval.
-6. Only after the Feature Contract is approved and current, use `create-plan` to
+9. Only after the Feature Contract is approved and current, use `create-plan` to
    create the ignored, workspace-only `implementation-plan.md` beside it.
    Require separate approval of the complete Implementation Plan, its Task
    Contract set, Review context, and Review policy before using `execute-plan`.
    Do not force-add, stage, or commit the plan unless the user explicitly
    chooses archival.
+
+Design Readiness holds only when every applicable condition is satisfied:
+
+1. repository-discoverable facts have been investigated;
+2. purpose and observable completion conditions are settled;
+3. scope, non-goals, constraints, and invariants are settled;
+4. applicable responsibility boundaries, dependency direction, and interfaces
+   are settled;
+5. expected behavior and its verification method are settled;
+6. failure and recovery, migration, concurrency, authorization, performance,
+   and comparable concerns are settled when applicable;
+7. material design branches and dependencies between decisions are resolved;
+8. questions requiring another discovery phase have explicit handoffs and
+   evidence-based re-entry conditions;
+9. no material question remains unresolved except an explicitly accepted
+   deferral with recorded intent and impact; and
+10. settled decisions are consolidated into the complete living record.
+
+These are applicability dimensions, not ten mandatory user questions. Do not
+promote trivial work or manufacture speculative requirements to fill irrelevant
+dimensions. Exact current approved authority may satisfy the dimensions it
+covers, including consolidation of unchanged decisions, without creating a
+duplicate record solely to repeat them.
+
+The coordinator handoff to `design-discussion` carries the route, confirmed
+workspace, record location, exact existing authority, and unresolved evidence.
+Receive its readiness result, unresolved branches, Design Doc applicability,
+and current record. The handoff to `design-doc` carries the settled source and
+readiness result. Receive the exact approval state, transfer-check result,
+record lifecycle, and any re-entry gap.
 
 For a promotion with preserved unaccepted work, also give `create-plan` the
 recorded lightweight base-to-current range and evidence. Require the new plan to
@@ -223,14 +282,17 @@ reconciliation envelope beyond the recorded promotion head only for attributable
 approved design, contract, or plan artifact state; any intervening feature-source
 change is a new gap and stops execution.
 
-When an applicable Design Doc or Feature Contract already exists, verify its
-exact content, source, approval state, and currentness rather than repeating the
-completed gate. A material change to goal, scope, responsibility, public or
-shared interface semantics, invariant, failure behavior, compatibility, or
-verification obligation invalidates the dependent approval. Return first to the
-design source when it is insufficient, then reapprove the Feature Contract and
-revalidate the complete plan. A meaning change confined to a Task Contract
-invalidates Implementation Plan approval.
+When an applicable Design Doc or approved no-Design-Doc decision record already
+exists, verify its exact content, approval state, currentness, and readiness
+coverage rather than repeating covered discussion. Past conversation, an
+unapproved artifact, or an Agent-authored summary is not approved authority. A
+partial gap reopens only the missing branch; a changed choice also reopens every
+dependent decision whose meaning may change. A material change to goal, scope,
+responsibility, public or shared interface semantics, invariant, failure
+behavior, compatibility, or verification obligation invalidates the dependent
+approval. Return first to the affected design branch, then reapprove the Feature
+Contract and revalidate the complete plan. A meaning change confined to a Task
+Contract invalidates Implementation Plan approval.
 
 Before presenting a revised plan, identify every previously accepted task whose
 exact Feature Contract authority, assigned Feature clause meaning, Task Contract

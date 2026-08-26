@@ -10,34 +10,47 @@ separate from decision ownership.
 
 ## Validate decisions before drafting
 
-Accept from `agentic-engineering-workflow` any one of these inputs:
+Accept from `agentic-engineering-workflow` the exact settled source, Design
+Readiness result, unresolved list, approval state, and currentness. A valid
+drafting source is one of:
 
-- an owner-approved decision record;
-- an existing approved design artifact that establishes an equivalent record;
-- a user-authored draft from which an equivalent owner-approved record can be
-  verified.
+- a complete living decision record whose material choices are individually
+  settled and whose readiness result is satisfied;
+- a user-authored draft supported by an equivalent settled source and readiness
+  result.
 
-Require the record to identify:
+An exact, current, approved Design Doc can instead remain the durable authority
+for unchanged readiness coverage without another drafting or approval pass.
+
+The living record does not need separate holistic approval before Design Doc
+drafting. Its existence alone is not authority and does not establish Design
+Readiness.
+
+Require the settled source to identify:
 
 - the selected approach and rationale;
 - rejected alternatives and reasons;
 - scope and non-goals;
-- explicitly deferred questions.
+- explicitly accepted deferrals with their intent and impact;
+- unresolved material questions, which must be empty except for those accepted
+  deferrals.
 
 Investigate relevant code, tests, documentation, and history. Challenge
-assumptions and compare viable alternatives to validate the supplied record. Ask
+assumptions and compare viable alternatives to validate the settled source. Ask
 detailed questions for factual or other non-material document clarification only
 when the answer cannot change architecture, responsibilities, public contracts,
 schemas, error models, or scope.
 
-Do not settle a missing material decision from this skill. When a missing or
-unapproved choice could change those contracts, return the ambiguity and evidence
-to `agentic-engineering-workflow` for design discussion. Do not choose silently.
+Do not settle a missing material decision or assert readiness from this skill.
+When a missing or unapproved choice could change those contracts, return the
+exact ambiguity and evidence to `agentic-engineering-workflow` for re-entry at
+the affected design branch. A changed choice also reopens dependent decisions
+whose meaning may change. Do not choose silently.
 
 ## Draft from settled decisions
 
 After all material decisions are settled, Codex may draft the complete Design
-Doc. Derive its design-specific prose from the decision record and repository
+Doc. Derive its design-specific prose from the settled source and repository
 evidence. Do not introduce a component, responsibility, contract, or trade-off
 that those sources do not establish.
 
@@ -84,15 +97,39 @@ Review every draft, whether Codex-authored or user-authored. Check:
 - alternatives include the reason they were rejected;
 - diagrams or tables clarify real relationships instead of decorating prose;
 - implementation details do not obscure design decisions;
-- every material claim follows from the decision record and repository evidence.
+- every material claim follows from the settled source and repository evidence.
 
-Present the complete document for user approval. Return the approval state,
-decision record, and evidence to `agentic-engineering-workflow`; do not begin
+Present the exact complete document for user approval as the one holistic design
+approval. Do not require holistic approval of both the temporary decision record
+and the Design Doc. Mechanical consolidation or meaning-preserving clarification
+does not add another approval gate; a new or changed material decision returns
+to design discussion.
+
+## Transfer design authority
+
+For a new or revised Design Doc derived from a living record, check the exact
+approved document against that record for:
+
+- selected approaches and rationale;
+- rejected alternatives and reasons;
+- scope and non-goals;
+- explicitly accepted deferrals with their intent and impact.
+
+Delete the living record only after exact Design Doc approval and a successful
+transfer check. If the check fails, retain the record and report the exact gap;
+do not treat the Design Doc as a complete replacement. If the gap is material,
+return it through the coordinator to the affected design branch. An unchanged,
+exact, current approved Design Doc remains reusable without repeating approval
+or manufacturing a living record solely for another transfer check.
+
+Return the exact Design Doc approval state, transfer-check result, living-record
+lifecycle, and any re-entry gap to `agentic-engineering-workflow`; do not begin
 planning from this skill.
 
 ## Derive the Feature Contract after approval
 
-Only after the coordinator confirms approval of the exact Design Doc, derive a
+Only after the coordinator confirms approval of the exact Design Doc and, for a
+new or revised document, a successful authority-transfer check, derive a
 separate Feature Contract for the current feature. Use the approved document as
 the durable design source and repository evidence for its current application.
 The Feature Contract must state:
