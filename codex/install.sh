@@ -20,6 +20,12 @@ is_valid_agent_threads() {
 classify_invocation() {
     local argument
     local expected_value=
+    local seen_adopt_existing=0
+    local seen_agent_threads=0
+    local seen_codex_home=0
+    local seen_dry_run=0
+    local seen_skills_home=0
+    local seen_state_dir=0
     local value
 
     for argument in "$@"; do
@@ -64,24 +70,84 @@ classify_invocation() {
 
         case "$argument" in
             --dry-run)
+                if [[ "$seen_dry_run" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_dry_run=1
                 helper_invocation=dry-run
                 ;;
             --adopt-existing)
+                if [[ "$seen_adopt_existing" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_adopt_existing=1
                 ;;
             --agent-threads)
+                if [[ "$seen_agent_threads" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_agent_threads=1
                 expected_value=agent-threads
                 ;;
-            --codex-home | --skills-home | --state-dir)
+            --codex-home)
+                if [[ "$seen_codex_home" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_codex_home=1
                 expected_value=path
                 ;;
             --agent-threads=*)
+                if [[ "$seen_agent_threads" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_agent_threads=1
                 value=${argument#--agent-threads=}
                 if ! is_valid_agent_threads "$value"; then
                     helper_invocation=passthrough
                     return
                 fi
                 ;;
-            --codex-home=* | --skills-home=* | --state-dir=*)
+            --codex-home=*)
+                if [[ "$seen_codex_home" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_codex_home=1
+                ;;
+            --skills-home)
+                if [[ "$seen_skills_home" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_skills_home=1
+                expected_value=path
+                ;;
+            --skills-home=*)
+                if [[ "$seen_skills_home" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_skills_home=1
+                ;;
+            --state-dir)
+                if [[ "$seen_state_dir" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_state_dir=1
+                expected_value=path
+                ;;
+            --state-dir=*)
+                if [[ "$seen_state_dir" -eq 1 ]]; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                seen_state_dir=1
                 ;;
             *)
                 helper_invocation=passthrough
