@@ -86,6 +86,22 @@ assert_absent() {
     fi
 }
 
+assert_cargo_call_count() {
+    local expected_count=$1
+    local call_log=$2
+    local label=$3
+    local actual_count
+
+    actual_count="$(grep -c '^CALL$' "$call_log" || :)"
+    if [[ "$actual_count" -ne "$expected_count" ]]; then
+        fail "$label: expected $expected_count controlled Cargo call(s), got $actual_count"
+    fi
+}
+
+lstat_fingerprint() {
+    stat -f '%d:%i:%p:%m' "$1"
+}
+
 test_successful_install_creates_link_after_rust() {
     # Arrange
     local case_root="$test_root/success"
@@ -175,6 +191,7 @@ test_rust_failure_does_not_create_link() {
     # Assert
     assert_status 23 "$status" 'Rust failure'
     assert_absent "$case_home/.local" 'Rust failure'
+    assert_cargo_call_count 1 "$cargo_log" 'Rust failure'
 }
 
 test_existing_exact_link_is_no_op() {
@@ -184,10 +201,13 @@ test_existing_exact_link_is_no_op() {
     local fake_bin="$case_root/bin"
     local cargo_log="$case_root/cargo.log"
     local destination="$case_home/.local/bin/codex-upgrade"
+    local before_fingerprint
+    local after_fingerprint
 
     mkdir -p "$(dirname "$destination")" "$fake_bin"
     ln -s "$expected_source" "$destination"
     ln -s "$test_script" "$fake_bin/cargo"
+    before_fingerprint="$(lstat_fingerprint "$destination")"
 
     # Act
     set +e
@@ -207,6 +227,11 @@ test_existing_exact_link_is_no_op() {
     if [[ ! -L "$destination" ]] || [[ "$(readlink "$destination")" != "$expected_source" ]]; then
         fail 'exact link no-op: expected link changed'
     fi
+    after_fingerprint="$(lstat_fingerprint "$destination")"
+    if [[ "$after_fingerprint" != "$before_fingerprint" ]]; then
+        fail 'exact link no-op: link identity, mode, or mtime changed'
+    fi
+    assert_cargo_call_count 1 "$cargo_log" 'exact link no-op'
     assert_contains "$case_root/stdout" \
         "NO-OP $destination -> $expected_source" \
         'exact link no-op: missing NO-OP action'
@@ -219,6 +244,7 @@ test_dry_run_reports_without_mutation() {
     local fake_bin="$case_root/bin"
     local cargo_log="$case_root/cargo.log"
     local destination="$case_home/.local/bin/codex-upgrade"
+    local expected_file="$case_root/expected"
 
     mkdir -p "$case_home" "$fake_bin"
     ln -s "$test_script" "$fake_bin/cargo"
@@ -242,6 +268,19 @@ test_dry_run_reports_without_mutation() {
     assert_contains "$case_root/stdout" \
         "CREATE $destination -> $expected_source" \
         'dry-run: missing CREATE preview'
+    assert_cargo_call_count 1 "$cargo_log" 'dry-run'
+    printf '%s\n' \
+        'CALL' \
+        'ARG=run' \
+        'ARG=--quiet' \
+        'ARG=--locked' \
+        'ARG=--release' \
+        'ARG=--manifest-path' \
+        "ARG=$manifest_path" \
+        'ARG=--' \
+        'ARG=--dry-run' > "$expected_file"
+    assert_file_equals "$expected_file" "$cargo_log" \
+        'dry-run: Cargo argv boundaries changed'
 }
 
 test_unexpected_destination_is_preserved_as_conflict() {
@@ -252,11 +291,14 @@ test_unexpected_destination_is_preserved_as_conflict() {
     local cargo_log="$case_root/cargo.log"
     local destination="$case_home/.local/bin/codex-upgrade"
     local expected_file="$case_root/expected"
+    local before_fingerprint
+    local after_fingerprint
 
     mkdir -p "$(dirname "$destination")" "$fake_bin"
     printf '%s\n' 'user-owned command' > "$destination"
     printf '%s\n' 'user-owned command' > "$expected_file"
     ln -s "$test_script" "$fake_bin/cargo"
+    before_fingerprint="$(lstat_fingerprint "$destination")"
 
     # Act
     set +e
@@ -276,6 +318,10 @@ test_unexpected_destination_is_preserved_as_conflict() {
     fi
     assert_file_equals "$expected_file" "$destination" \
         'destination conflict: user entry changed'
+    after_fingerprint="$(lstat_fingerprint "$destination")"
+    if [[ "$after_fingerprint" != "$before_fingerprint" ]]; then
+        fail 'destination conflict: entry identity, mode, or mtime changed'
+    fi
     assert_absent "$cargo_log" 'destination conflict: Cargo must not run'
     assert_contains "$case_root/stderr" \
         "CONFLICT $destination" \
@@ -289,12 +335,14 @@ test_restore_and_help_leave_link_unchanged() {
     local fake_bin="$case_root/bin"
     local cargo_log="$case_root/cargo.log"
     local destination="$case_home/.local/bin/codex-upgrade"
-    local expected_file="$case_root/expected"
+    local unexpected_target="$case_root/unexpected-codex-upgrade"
+    local before_fingerprint
+    local after_fingerprint
 
     mkdir -p "$(dirname "$destination")" "$fake_bin"
-    printf '%s\n' 'preserve across restore and help' > "$destination"
-    printf '%s\n' 'preserve across restore and help' > "$expected_file"
+    ln -s "$unexpected_target" "$destination"
     ln -s "$test_script" "$fake_bin/cargo"
+    before_fingerprint="$(lstat_fingerprint "$destination")"
 
     # Act
     set +e
@@ -319,11 +367,15 @@ test_restore_and_help_leave_link_unchanged() {
     # Assert
     assert_status 0 "$restore_status" 'restore'
     assert_status 0 "$help_status" 'help'
-    assert_file_equals "$expected_file" "$destination" \
-        'restore/help: helper destination changed'
-    if [[ "$(grep -c '^CALL$' "$cargo_log")" -ne 2 ]]; then
-        fail 'restore/help: expected both invocations to reach controlled Cargo'
+    if [[ ! -L "$destination" ]] \
+        || [[ "$(readlink "$destination")" != "$unexpected_target" ]]; then
+        fail 'restore/help: unexpected helper symlink target changed'
     fi
+    after_fingerprint="$(lstat_fingerprint "$destination")"
+    if [[ "$after_fingerprint" != "$before_fingerprint" ]]; then
+        fail 'restore/help: link identity, mode, or mtime changed'
+    fi
+    assert_cargo_call_count 2 "$cargo_log" 'restore/help'
 }
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"

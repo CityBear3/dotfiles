@@ -6,9 +6,21 @@ manifest_path="$script_dir/installer/Cargo.toml"
 helper_action=
 helper_invocation=passthrough
 
+is_valid_agent_threads() {
+    case "$1" in
+        auto | [2-9] | [12][0-9] | 3[0-2])
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 classify_invocation() {
     local argument
-    local expects_value=0
+    local expected_value=
+    local value
 
     for argument in "$@"; do
         if [[ "$argument" == -h || "$argument" == --help ]]; then
@@ -36,12 +48,17 @@ classify_invocation() {
     esac
 
     for argument in "$@"; do
-        if [[ "$expects_value" -eq 1 ]]; then
+        if [[ -n "$expected_value" ]]; then
             if [[ "$argument" == -* ]]; then
                 helper_invocation=passthrough
                 return
             fi
-            expects_value=0
+            if [[ "$expected_value" == agent-threads ]] \
+                && ! is_valid_agent_threads "$argument"; then
+                helper_invocation=passthrough
+                return
+            fi
+            expected_value=
             continue
         fi
 
@@ -51,10 +68,20 @@ classify_invocation() {
                 ;;
             --adopt-existing)
                 ;;
-            --agent-threads | --codex-home | --skills-home | --state-dir)
-                expects_value=1
+            --agent-threads)
+                expected_value=agent-threads
                 ;;
-            --agent-threads=* | --codex-home=* | --skills-home=* | --state-dir=*)
+            --codex-home | --skills-home | --state-dir)
+                expected_value=path
+                ;;
+            --agent-threads=*)
+                value=${argument#--agent-threads=}
+                if ! is_valid_agent_threads "$value"; then
+                    helper_invocation=passthrough
+                    return
+                fi
+                ;;
+            --codex-home=* | --skills-home=* | --state-dir=*)
                 ;;
             *)
                 helper_invocation=passthrough
@@ -63,7 +90,7 @@ classify_invocation() {
         esac
     done
 
-    if [[ "$expects_value" -eq 1 ]]; then
+    if [[ -n "$expected_value" ]]; then
         helper_invocation=passthrough
         return
     fi
