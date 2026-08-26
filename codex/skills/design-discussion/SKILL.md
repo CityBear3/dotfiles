@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Resolve user-owned material design choices through repository investigation and option trade-offs. Use on the planned path when a material design choice is unresolved, or when downstream work re-enters an affected design branch.
+description: Establish or reassess Design Readiness and Design Doc applicability for planned work, investigating and resolving material choices only when needed. Use on planned-path entry or when downstream work re-enters an affected design branch.
 ---
 
 # Design discussion
