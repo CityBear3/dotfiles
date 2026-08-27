@@ -194,15 +194,21 @@ fn managed_task_loop_matrix_has_one_owner_and_a_mechanical_executor() {
         .expect("installer crate must be nested under the Codex source root");
     let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
         .expect("read execute-task skill");
-    let verify = fs::read_to_string(source_root.join("skills/verify/SKILL.md"))
-        .expect("read verify skill");
+    let verify =
+        fs::read_to_string(source_root.join("skills/verify/SKILL.md")).expect("read verify skill");
     let orchestrator = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
         .expect("read Task orchestrator profile");
 
     // Act
-    let execute_task = execute_task.split_whitespace().collect::<Vec<_>>().join(" ");
+    let execute_task = execute_task
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let verify = verify.split_whitespace().collect::<Vec<_>>().join(" ");
-    let orchestrator = orchestrator.split_whitespace().collect::<Vec<_>>().join(" ");
+    let orchestrator = orchestrator
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let phase_contract = (
         execute_task.contains("one in-memory current-head Verification Matrix"),
         execute_task.contains("head, range, controlling authority, or material verification route"),
@@ -223,20 +229,25 @@ fn managed_task_loop_lease_expands_only_for_the_source_reviewer_wave() {
         .expect("installer crate must be nested under the Codex source root");
     let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
         .expect("read execute-plan skill");
-    let scheduling = fs::read_to_string(
-        source_root.join("skills/agent-teams-driven-development/SKILL.md"),
-    )
-    .expect("read Task leaf scheduling skill");
-    let review = fs::read_to_string(source_root.join("skills/review/SKILL.md"))
-        .expect("read review skill");
+    let scheduling =
+        fs::read_to_string(source_root.join("skills/agent-teams-driven-development/SKILL.md"))
+            .expect("read Task leaf scheduling skill");
+    let review =
+        fs::read_to_string(source_root.join("skills/review/SKILL.md")).expect("read review skill");
     let orchestrator = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
         .expect("read Task orchestrator profile");
 
     // Act
-    let execute_plan = execute_plan.split_whitespace().collect::<Vec<_>>().join(" ");
+    let execute_plan = execute_plan
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let scheduling = scheduling.split_whitespace().collect::<Vec<_>>().join(" ");
     let review = review.split_whitespace().collect::<Vec<_>>().join(" ");
-    let orchestrator = orchestrator.split_whitespace().collect::<Vec<_>>().join(" ");
+    let orchestrator = orchestrator
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let lease_contract = (
         execute_plan.contains("one root-granted baseline leaf"),
         scheduling.contains("only for a policy-selected source-reviewer wave"),
@@ -257,8 +268,8 @@ fn managed_task_loop_correction_review_is_delta_first_with_a_fresh_full_verdict(
         .expect("installer crate must be nested under the Codex source root");
     let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
         .expect("read execute-task skill");
-    let review = fs::read_to_string(source_root.join("skills/review/SKILL.md"))
-        .expect("read review skill");
+    let review =
+        fs::read_to_string(source_root.join("skills/review/SKILL.md")).expect("read review skill");
     let triage = fs::read_to_string(source_root.join("skills/receiving-code-review/SKILL.md"))
         .expect("read receiving-code-review skill");
     let fallback_prompts = [
@@ -267,16 +278,23 @@ fn managed_task_loop_correction_review_is_delta_first_with_a_fresh_full_verdict(
         "code-quality-reviewer-prompt.md",
     ]
     .map(|name| {
-        fs::read_to_string(source_root.join("skills/agent-teams-driven-development").join(name))
-            .unwrap_or_else(|error| panic!("read reviewer fallback {name}: {error}"))
+        fs::read_to_string(
+            source_root
+                .join("skills/agent-teams-driven-development")
+                .join(name),
+        )
+        .unwrap_or_else(|error| panic!("read reviewer fallback {name}: {error}"))
     });
 
     // Act
-    let execute_task = execute_task.split_whitespace().collect::<Vec<_>>().join(" ");
+    let execute_task = execute_task
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let review = review.split_whitespace().collect::<Vec<_>>().join(" ");
     let triage = triage.split_whitespace().collect::<Vec<_>>().join(" ");
-    let fallback_prompts = fallback_prompts
-        .map(|prompt| prompt.split_whitespace().collect::<Vec<_>>().join(" "));
+    let fallback_prompts =
+        fallback_prompts.map(|prompt| prompt.split_whitespace().collect::<Vec<_>>().join(" "));
     let correction_contract = (
         execute_task.contains("`H1..H2` correction delta"),
         review.contains("delta-first"),
