@@ -187,6 +187,54 @@ fn managed_task_loop_verifier_uses_medium_effort_in_the_bounded_sandbox() {
 }
 
 #[test]
+fn managed_task_loop_implementer_receives_only_writer_role_input() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let profile_text = fs::read_to_string(source_root.join("agents/implementer.toml"))
+        .expect("read managed implementer profile");
+    let fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/implementer-prompt.md"),
+    )
+    .expect("read implementer fallback prompt");
+
+    // Act
+    let profile = toml::from_str::<toml::Table>(&profile_text).expect("parse implementer TOML");
+    let instructions = profile
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("implementer developer instructions");
+    let execute_task = execute_task
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let instructions = instructions
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let fallback = fallback.split_whitespace().collect::<Vec<_>>().join(" ");
+    let writer_handoff_contract = (
+        execute_task.contains(
+            "Construct one compact writer role message from the complete Task-loop handoff",
+        ),
+        execute_task.contains("Pass only the selected role and writer role message"),
+        instructions.contains("Require a compact writer role message containing only"),
+        fallback.contains("Require a compact writer role message containing only"),
+        [&instructions, &fallback].iter().all(|prompt| {
+            prompt.contains(
+                "Review context, Review policy, completed gate evidence, review scheduling, capacity, and queue state remain with the Task-loop owner and are not required implementer inputs",
+            )
+        }),
+    );
+
+    // Assert
+    assert_eq!(writer_handoff_contract, (true, true, true, true, true));
+}
+
+#[test]
 fn managed_task_loop_matrix_has_one_owner_and_a_mechanical_executor() {
     // Arrange
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -222,6 +270,91 @@ fn managed_task_loop_matrix_has_one_owner_and_a_mechanical_executor() {
 }
 
 #[test]
+fn managed_task_loop_verifier_reports_mechanical_fail_fast_evidence() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let profile_text = fs::read_to_string(source_root.join("agents/implementation-verifier.toml"))
+        .expect("read managed implementation verifier profile");
+    let verify =
+        fs::read_to_string(source_root.join("skills/verify/SKILL.md")).expect("read verify skill");
+
+    // Act
+    let profile =
+        toml::from_str::<toml::Table>(&profile_text).expect("parse implementation verifier TOML");
+    let instructions = profile
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("implementation verifier developer instructions");
+    let profile_order = instructions
+        .split("Execute applicable rows mechanically and fail fast in this order:")
+        .nth(1)
+        .expect("implementation verifier declares its fail-fast order");
+    let skill_order = verify
+        .split("Run applicable matrix rows fresh in exactly this order:")
+        .nth(1)
+        .expect("verify skill declares its fail-fast order");
+    let profile_order = profile_order
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let skill_order = skill_order.split_whitespace().collect::<Vec<_>>().join(" ");
+    let profile_positions = [
+        "target identity and clean-state precondition",
+        "range, changed-file, and whitespace/diff checks",
+        "documented non-mutating format check",
+        "focused behavior tests",
+        "build or type check",
+        "lint",
+        "owning package, workspace, or full tests",
+        "integration, smoke, browser, API, or snapshot checks",
+        "final head and mutation-invariant comparison",
+    ]
+    .map(|stage| {
+        profile_order
+            .find(stage)
+            .unwrap_or_else(|| panic!("implementation verifier order omits {stage:?}"))
+    });
+    let skill_positions = [
+        "target identity and required clean-state precondition",
+        "exact range, changed-file inventory, `git diff --check`, and bounded diff consistency",
+        "format check using only the documented non-mutating mode",
+        "focused behavior tests",
+        "build or type check",
+        "lint",
+        "owning package, workspace, or full tests",
+        "integration, smoke, browser, API, or snapshot checks",
+        "final head and mutation-invariant comparison",
+    ]
+    .map(|stage| {
+        skill_order
+            .find(stage)
+            .unwrap_or_else(|| panic!("verify skill order omits {stage:?}"))
+    });
+    let fail_fast_contract = (
+        profile_positions.windows(2).all(|pair| pair[0] < pair[1]),
+        skill_positions.windows(2).all(|pair| pair[0] < pair[1]),
+        profile_order.contains("A conclusive failure stops later dependent or more expensive rows")
+            && profile_order.contains("Record every unrun row and why"),
+        skill_order.contains("A conclusive failure stops later dependent or more expensive rows")
+            && skill_order.contains("Record each unrun matrix row and the failure or blocked prerequisite that prevented it"),
+        profile_order.contains("always run the final mutation check")
+            && skill_order.contains("After the final command or an earlier conclusive stop, run the final head and mutation-invariant comparison"),
+        profile_order.contains("A required mechanical mismatch is `FAIL`")
+            && skill_order.contains("An observed mechanical mismatch is `FAIL`"),
+        profile_order.contains("Return the completed Verification Matrix plus exactly `PASS`, `FAIL`, or `BLOCKED`")
+            && skill_order.contains("Return the completed Verification Matrix and exactly one verdict"),
+    );
+
+    // Assert
+    assert_eq!(
+        fail_fast_contract,
+        (true, true, true, true, true, true, true)
+    );
+}
+
+#[test]
 fn managed_task_loop_lease_expands_only_for_the_source_reviewer_wave() {
     // Arrange
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -254,10 +387,20 @@ fn managed_task_loop_lease_expands_only_for_the_source_reviewer_wave() {
         review.contains("temporary reviewer-wave expansion"),
         review.contains("revoked before findings integration, triage, or correction"),
         orchestrator.contains("Free capacity is not authority"),
+        scheduling.contains("at most three total Task leaves or the smaller current capacity"),
+        review.contains(
+            "Only the root may grant it, up to three total Task leaves or the smaller current capacity",
+        ),
+        orchestrator.contains(
+            "bounded by three total Task leaves, the root grant, and effective capacity",
+        ),
     );
 
     // Assert
-    assert_eq!(lease_contract, (true, true, true, true, true));
+    assert_eq!(
+        lease_contract,
+        (true, true, true, true, true, true, true, true)
+    );
 }
 
 #[test]
@@ -295,18 +438,35 @@ fn managed_task_loop_correction_review_is_delta_first_with_a_fresh_full_verdict(
     let triage = triage.split_whitespace().collect::<Vec<_>>().join(" ");
     let fallback_prompts =
         fallback_prompts.map(|prompt| prompt.split_whitespace().collect::<Vec<_>>().join(" "));
+    let rebuilt_matrix = execute_task
+        .find("rebuild the Verification Matrix for `H2`")
+        .expect("correction sequence rebuilds the H2 matrix");
+    let fresh_verification = execute_task
+        .find("invoke fresh authoritative `verify`")
+        .expect("correction sequence freshly verifies H2");
+    let same_set_review = execute_task
+        .find("only after `PASS`, rerun the same complete policy-selected reviewer set")
+        .expect("correction sequence gates same-set review on fresh PASS");
     let correction_contract = (
         execute_task.contains("`H1..H2` correction delta"),
+        rebuilt_matrix < fresh_verification && fresh_verification < same_set_review,
         review.contains("delta-first"),
         review.contains("fresh verdict for the full `base..H2` target"),
+        review.contains("Use ordinary full traversal when")
+            && review
+                .contains("A missing or stale prior report disables the delta-first optimization"),
         triage.contains("same complete policy-selected reviewer set"),
+        triage.contains("lacks complete prior evidence"),
         fallback_prompts
             .iter()
             .all(|prompt| prompt.contains("Prior review evidence is navigation evidence only")),
     );
 
     // Assert
-    assert_eq!(correction_contract, (true, true, true, true, true));
+    assert_eq!(
+        correction_contract,
+        (true, true, true, true, true, true, true, true)
+    );
 }
 
 #[test]

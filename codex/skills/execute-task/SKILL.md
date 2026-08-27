@@ -147,7 +147,15 @@ restacked range needs only fresh verification and review; select one writer only
 for an authorized bounded correction. Resolve the role before loading its
 prompt: use the named profile when available, or
 [implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md)
-as its fallback. Pass only the selected role and task handoff to
+as its fallback. Keep the complete Task-loop handoff and evidence at the owning
+coordinator. Construct one compact writer role message from the complete
+Task-loop handoff containing only the owned responsibility, applicable
+authority clauses and preserved boundaries, discipline, candidate target,
+commit intent, focused writer-side obligations, exact workspace/base/head,
+one-writer boundary, and escalation conditions. Keep the exact authority
+sources directly available. Omit Review context and Review policy, review
+scheduling, completed gate evidence, capacity, and queue state from the writer
+message. Pass only the selected role and writer role message to
 `agent-teams-driven-development`.
 
 Every implementer, verifier, reviewer, adversarial integrator, and review
