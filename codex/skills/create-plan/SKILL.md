@@ -140,6 +140,10 @@ For each Task Contract include:
 - applicable shared interfaces and adjacent-task obligations;
 - protected constraints and invariants;
 - observable task-level verification obligations;
+- the Task-loop owner's in-memory current-head Verification Matrix obligation,
+  including one bounded command/check, expected observation, and `FAIL` or
+  `BLOCKED` non-match category per observable obligation, plus invalidation on
+  head, range, controlling-authority, or material-route change;
 - dependencies;
 - PR unit, planned parent or sibling relationship, and final-base readiness;
 - whether implementation may produce a candidate before that base exists;
@@ -250,6 +254,23 @@ Record:
 - **Capacity and deterministic queue order**
 - **Findings-only integration and Design Escalation priority**
 - **Acceptance threshold**
+
+Capacity policy must start each Task loop with one baseline leaf for serial
+implementation, verification, findings integration, triage, and correction.
+Permit temporary expansion only after verifier `PASS` for a policy-selected wave
+of at least two independent source reviewers; only the root grants up to three
+total Task leaves or smaller current capacity. Require deterministic queueing
+when unavailable and revocation before findings integration, triage, or
+correction. A free slot is not authority.
+
+Correction policy must retain prior head `H1`, create one bounded correction
+commit to `H2`, rebuild the Verification Matrix, rerun fresh `H2` verification,
+and rerun the same complete selected reviewer set. Require reviewers to inspect
+`H1..H2` first and return fresh results for full `base..H2`. Record ordinary
+full-traversal fallback for escaped authorization, material contract or
+shared/public-interface change, base or policy change, incomplete prior
+evidence, a newly exposed finding, or inability to establish unaffected prior
+coverage. Earlier verdicts never authorize `H2`.
 
 Use the same proportional Acceptance threshold in every mode. A finding survives
 only when it applies to the artifact and consumer model, cites an approved

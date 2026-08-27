@@ -120,6 +120,8 @@ For `Fix`, return one bounded plain-language correction handoff:
   or explicit writer authority to select the correction message;
 - current planned Task PR base or integration target, verification obligations,
   and contractually required exact commands;
+- prior reviewed head `H1`, prior reviewer reports and triage, and the same
+  complete policy-selected reviewer set that must rerun after correction;
 - observed prior attempts, concerns, and gaps.
 
 Do not choose the lightweight or planned builder here. The coordinator routes
@@ -168,11 +170,17 @@ the exact safe re-entry condition. Do not report provisional classifications.
 
 An authorized coordinator-managed `Fix` does not need another approval when it
 remains within scope. A Task PR fix still requires bounded implementation, a
-correction commit and new head, fresh verification, and complete fresh task
-review over the updated PR range. An integration finding routes to its owning
-Task Contract, invalidates affected descendants through both topologies, and
-then requires fresh affected task and integration evidence. Earlier evidence
-for changed targets becomes stale.
+single correction commit and new head `H2`, a rebuilt current-head Verification
+Matrix, fresh `H2` verification, and the same complete policy-selected reviewer
+set. Each reviewer receives prior evidence, the `H1..H2` delta, and full
+`base..H2` access; it inspects the corrected finding and delta first but returns
+a fresh verdict for the full current target. Ordinary full traversal applies
+when the correction escapes authorization, changes a material contract or
+shared/public interface, changes base or policy, lacks complete prior evidence,
+exposes another finding, or cannot establish unaffected prior coverage. Earlier
+evidence is navigation only and never authorizes `H2`. An integration finding
+routes to its owning Task Contract, invalidates affected descendants through
+both topologies, and then requires fresh affected task and integration evidence.
 
 A `Design Escalation` stops unstarted review and correction work for the
 affected target and returns to the engineer immediately. After an approved

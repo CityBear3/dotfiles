@@ -3,7 +3,7 @@ name: verify
 description: Verify an exact Task PR range, an integration-only composed tree, or a standalone target with fresh checks and return PASS, FAIL, or BLOCKED evidence.
 ---
 
-# Verify a Task PR or integration target
+# Execute a current-head Verification Matrix
 
 No completion claim without fresh observed evidence.
 
@@ -12,6 +12,11 @@ in-scope source files. Do not edit source, stage changes, create commits, run a
 fix, or advance another workflow phase. Verification commands may create normal
 ignored build or test artifacts, but must not mutate tracked or in-scope source
 state.
+
+Execute the supplied Verification Matrix mechanically. Do not perform semantic
+review, contract-quality judgment, architecture or scope review,
+maintainability review, or test-adequacy review. Those decisions belong to the
+policy-selected reviewers after a fresh verification `PASS`.
 
 ## Resolve the requested target
 
@@ -33,6 +38,10 @@ known limitations before running checks.
 ## Coordinator-managed entry
 
 Require one exact coordinator target and its authority.
+
+For every coordinator-managed target, require one completed-input current-head
+Verification Matrix mapping every applicable obligation to a bounded command or
+check, expected observation, and `FAIL` or `BLOCKED` non-match category.
 
 For a Task PR require:
 
@@ -98,8 +107,10 @@ weaken current-head evidence.
 Resolve the applicable workspace, branch, base, head, merge base, range, tree,
 changed files, and diff directly from Git. Require that workspace HEAD and status
 match the supplied target. Return `BLOCKED` before checks when any identity,
-composition input, or required authority is missing or stale. Standalone
-evidence never substitutes for this entry.
+composition input, required authority, or matrix row is missing, contradictory,
+incomplete, or stale. The matrix is valid only for its supplied head, range,
+controlling authority, and material verification route. Standalone evidence
+never substitutes for this entry.
 
 ## Standalone read-only entry
 
@@ -118,6 +129,11 @@ repository contract. Use available Design Doc, Feature Contract, Task Contracts,
 plan, Review context, and policy evidence when present.
 Do not require implementation authorization or an approved policy for a
 standalone check.
+
+Before dispatch, have the root bind every applicable standalone obligation to a
+bounded command or check, expected observation, and `FAIL` or `BLOCKED`
+non-match category. This in-memory matrix is evidence for the bounded snapshot,
+not a persistent coordination schema.
 
 Return `BLOCKED` when the requested scope or authoritative commands cannot be
 resolved safely. Report assumptions and limitations. A worktree or fileset result
@@ -160,35 +176,48 @@ Only an explicitly requested no-agent execution may let the lead run these
 checks under this complete check-only contract. Report either form as
 `standalone-only`, never as coordinator or Acceptance evidence.
 
-## Snapshot and run checks
+## Execute the matrix in mechanical fail-fast order
 
-Immediately before the first command, capture:
+Immediately before the first command, confirm the exact target identity and
+matrix binding. For a clean isolated planned Task PR, capture only the expected
+workspace and branch, current HEAD, planned base, merge base, exact committed
+range, required clean `git status --short`, changed-file inventory, diff check,
+and pre-existing command artifacts that matter to the checks. Complete Task
+topology, attribution, and semantic diff ownership remain with the Task-loop
+owner.
 
-- target kind, workspace and branch when applicable, current HEAD, planned base,
-  merge base, exact range, composed tree, or bounded standalone files;
-- index entries, `git status --short`, and staged and unstaged diffs;
-- relevant in-scope untracked paths and unrelated dirty state;
-- pre-existing command artifacts that matter to the checks.
+For a standalone dirty index/worktree snapshot, staged, unstaged, untracked, and
+bounded-file state is part of the target. Capture the fuller index entries,
+status, staged and unstaged diffs, relevant untracked paths, bounded-file
+fingerprint, unrelated dirty state, and pre-existing artifacts before checking.
 
-Run fresh, as applicable:
+Run applicable matrix rows fresh in exactly this order:
 
-1. every contractually fixed target verification command;
-2. checks selected to observe each assigned Task Contract or integration-only
-   Feature Contract obligation;
-3. focused tests for changed behavior;
-4. owning package or workspace tests;
+1. target identity and required clean-state precondition;
+2. exact range, changed-file inventory, `git diff --check`, and bounded diff
+   consistency;
+3. format check using only the documented non-mutating mode;
+4. focused behavior tests;
 5. build or type check;
 6. lint;
-7. format check using only a documented non-mutating mode;
-8. relevant integration, smoke, browser, API, or snapshot checks;
-9. `git diff --check`, diff inspection, and final status.
+7. owning package, workspace, or full tests;
+8. integration, smoke, browser, API, or snapshot checks;
+9. final head and mutation-invariant comparison.
 
-For a Task PR, map every assigned Task Contract and Feature Contract obligation
-to fresh observed evidence. For integration-only verification, map only the
-named remaining obligations and preserve accepted task evidence separately. An
-unobserved required obligation is `FAIL` when the current result violates or
-omits the contract and `BLOCKED` when its environment or evidence cannot be
-established.
+Run every contractually fixed command in its applicable ordered row. A
+conclusive failure stops later dependent or more expensive rows. Record each
+unrun matrix row and the failure or blocked prerequisite that prevented it.
+Batch independent mechanical commands only when their individual status and
+output remain attributable, no semantic decision is needed between them, the
+first conclusive mismatch remains visible, and the final mutation check still
+runs.
+
+For a Task PR, complete every supplied matrix row with fresh observed evidence.
+For integration-only verification, complete only rows for the named remaining
+obligations and preserve accepted task evidence separately. An observed
+mechanical mismatch is `FAIL`; an unavailable command, dependency, permission,
+environment, evidence input, or target guarantee is `BLOCKED`. Do not infer or
+semantically invent a missing row.
 
 For eligible legacy work, map every original approved completion criterion to
 fresh evidence instead. A material ambiguity stops verification and returns to
@@ -198,18 +227,20 @@ Do not replace repository wrappers with broader commands that change semantics.
 If a required formatter has no check-only form, return `BLOCKED` without running
 it.
 
-After the final command, capture the same HEAD, status, diffs, untracked paths,
-and relevant source state. Attribute every change. Normal ignored build artifacts
-are allowed when recorded. A tracked or in-scope source mutation caused by
-verification is `FAIL`; uncertain ownership is `BLOCKED`. Do not restore, stage,
-commit, reset, or clean either state.
+After the final command or an earlier conclusive stop, run the final head and
+mutation-invariant comparison. For a clean planned target, compare the head,
+clean status, and tracked or in-scope source state, recording normal ignored
+build artifacts. For a dirty standalone target, repeat the full bounded
+fingerprint. A tracked or in-scope source mutation caused by verification is
+`FAIL`; uncertain ownership is `BLOCKED`. Do not restore, stage, commit, reset,
+or clean either state.
 
 A commit or target-content change makes earlier command evidence stale. Do not
 return `PASS` unless every required result applies to the unchanged target.
 
 ## Evaluate and report
 
-Return exactly one verdict:
+Return the completed Verification Matrix and exactly one verdict:
 
 - `PASS` — every required command and inspection succeeded for the unchanged
   target;
@@ -230,12 +261,15 @@ Report:
   evidence, integration-only obligation and accepted task set, complete
   lightweight contract, or eligible legacy authority inspected;
 - each assigned task, integration-only, lightweight, or legacy criterion, its
-  evidence, and pass, fail, or blocked result;
+  matrix row, command or check, expected observation, observed evidence, and
+  pass, fail, or blocked result;
 - every command, expected result, observed result, and match status;
-- checks not run and why;
+- matrix rows and checks not run and why;
 - for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely
   ownership, every gap, and the exact condition for safe re-entry.
 
 For coordinator-managed verification, return evidence to the coordinator and do
 not start review. For standalone verification, report directly to the requester.
-Never diagnose or implement a fix from this skill.
+Never diagnose or implement a fix from this skill. A verifier `PASS` proves only
+that every mechanical matrix observation matched on the unchanged target; it is
+not semantic review or Task acceptance.

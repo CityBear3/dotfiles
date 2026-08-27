@@ -44,17 +44,26 @@ capacity. `max_threads` excludes the root and counts all live subagents in the
 complete tree, including Task orchestrators and every leaf. Do not add a
 separate hard-coded total-thread ceiling.
 
-Only the root grants or expands a lease. A Task loop normally receives one leaf
-slot and may use at most three concurrent leaves or its smaller current grant.
-For new-format planned work, reject a self-inferred expansion by the Task
-orchestrator even when another runtime slot appears free. For lightweight work,
-apply the same per-loop leaf limit to the root-owned loop. A standalone target
-has a separate root-granted target-local count of normally one and at most three
-concurrent leaves; it has no Task lease or Task authority. The global scheduler
-first grants one leaf to each schedulable active Task when possible, then
-allocates spare slots in the approved deterministic queue order. A standalone
-request uses only its current target-local grant and never infers permission to
-consume every globally free slot.
+Only the root grants or expands a lease. A Task loop starts with one baseline
+leaf and uses it serially for implementation, verification, findings
+integration, triage, and correction. Temporary expansion is allowed only for a
+policy-selected source-reviewer wave after fresh verification `PASS` and only
+when at least two independent source reviewers were selected. For new-format
+planned work, reject a self-inferred expansion by the Task orchestrator even
+when another runtime slot appears free. For lightweight work, apply the same
+phase rule to the root-owned loop. The root may grant at most three total Task
+leaves or the smaller current capacity; only the selected source reviewers use
+the expansion. Revoke it when that wave completes or exits for priority
+authority assessment, before any findings integration, triage, or correction.
+Free capacity is availability, not authority.
+
+A standalone target has a separate root-granted target-local count of normally
+one and at most three concurrent leaves; it has no Task lease or Task authority.
+The global scheduler first grants one baseline leaf to each schedulable active
+Task when possible, then considers eligible reviewer-wave requests in approved
+deterministic queue order. A standalone request uses only its current
+target-local grant and never infers permission to consume every globally free
+slot.
 
 Queue already-selected roles in request order when available slots are
 insufficient. Record configured, observed, and effective capacity, live agent
@@ -66,10 +75,10 @@ Allow no more than one implementer and one active writer for the supplied task
 workspace. Other `execute-task` calls may have writers only in separate approved
 checkouts with ownership-disjoint tasks. Count every live Task orchestrator,
 task writer, verifier, reviewer, and integrator against the same effective
-capacity. Every reviewer is read-only. Independent check-only or read-only
-leaves may run concurrently when the grant permits; implementation and
-correction retain one writer. Otherwise queue them without changing their
-independence or contracts.
+capacity. Every reviewer is read-only. Only policy-selected source reviewers
+may run concurrently under the temporary expansion; all other Task phases use
+the baseline leaf. Otherwise queue them without changing their independence or
+contracts.
 
 If a required role cannot be instantiated or the queue cannot make progress,
 return `BLOCKED` with observed availability evidence. Do not turn a runtime
@@ -85,12 +94,17 @@ owned responsibility, or approved promotion-reconciliation authority. Also pass
 commit intent, any contractually fixed files, and that it is the only writer.
 Tell a verifier it is check-only, may write only normal ignored test or build
 artifacts, must not mutate the index, tracked files, or in-scope source, and may
-run only documented non-mutating format checks. Pass the exact target,
-authority, required commands and expected observations, current Git snapshot,
-and required `PASS`, `FAIL`, or `BLOCKED` evidence.
+run only documented non-mutating format checks. Pass the exact target, the
+completed-input current-head Verification Matrix, command-environment facts,
+mutation boundary, and required completed-matrix `PASS`, `FAIL`, or `BLOCKED`
+evidence. Do not add the complete Review policy unless an exact policy
+constraint changes its route.
 Tell a reviewer it is read-only and must inspect the supplied authority and
 exact Task PR, integration-only composition, eligible legacy range, or
-standalone target. Keep full sources directly available without copying
+standalone target. Pass its perspective, Review context and policy, completed
+Verification Matrix, and relevant prior triage. For correction review also pass
+`H1`, `H2`, full `base..H2`, the `H1..H2` delta, corrected finding, and prior
+report and triage. Keep full sources directly available without copying
 unrelated unchanged prose into each message.
 Tell `adversarial-integrator` or `review-integrator` that it is read-only, must
 use the supplied unchanged target and complete input reports, and may not invent

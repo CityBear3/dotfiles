@@ -40,13 +40,17 @@ For behavior changes, follow red, green, refactor and report the observed red
 failure. Keep one behavioral viewpoint per test. For refactors and content
 migrations, preserve the declared green baseline.
 
-Run every contractually required exact command, select applicable standard and
-focused checks, and record every observed result. Inspect the pre-commit
+Run every contractually required exact writer command, focused tests for the
+owned responsibility, and only a local type or build check needed for a coherent
+candidate. Do not duplicate the authoritative full format, build, lint,
+package/workspace/full-test, smoke, or integration suite unless exact authority
+requires it before commit. Record every observed result. Inspect the pre-commit
 working-tree diff and applicable authority coverage, then commit only the owned
 responsibility using the fixed message or selecting a message when the handoff
 explicitly delegates that choice. Inspect the committed attributable range. In
 authoritative mode, also inspect the exact planned-PR-base-to-current-head range.
-In candidate mode, report the preliminary evidence without claiming acceptance.
+The commit and writer checks are Candidate evidence in either mode; report them
+without claiming Task acceptance.
 
 Use exactly one status:
 

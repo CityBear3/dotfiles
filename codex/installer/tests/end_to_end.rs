@@ -88,7 +88,7 @@ fn managed_bundle_declares_depth_two_and_bounded_orchestration_profiles() {
         "exactly one planned Task Contract",
         "Own only that Task's execute-task loop",
         "Do not edit or commit Task source",
-        "root-granted lease",
+        "root-granted baseline leaf",
         "spawn only the implementer, verifier, reviewer, adversarial-integrator, or review-integrator leaves",
         "never grant, expand, or infer your own lease",
         "require findings-only integration followed by receiving-code-review",
@@ -152,6 +152,222 @@ fn managed_bundle_declares_depth_two_and_bounded_orchestration_profiles() {
             "managed leaf {name} must prohibit descendant spawning"
         );
     }
+}
+
+#[test]
+fn managed_task_loop_verifier_uses_medium_effort_in_the_bounded_sandbox() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let profile_text = fs::read_to_string(source_root.join("agents/implementation-verifier.toml"))
+        .expect("read managed implementation verifier profile");
+
+    // Act
+    let profile =
+        toml::from_str::<toml::Table>(&profile_text).expect("parse implementation verifier TOML");
+
+    // Assert
+    assert_eq!(
+        (
+            profile.get("name").and_then(toml::Value::as_str),
+            profile.get("model").and_then(toml::Value::as_str),
+            profile
+                .get("model_reasoning_effort")
+                .and_then(toml::Value::as_str),
+            profile.get("sandbox_mode").and_then(toml::Value::as_str),
+        ),
+        (
+            Some("implementation-verifier"),
+            Some("gpt-5.6-sol"),
+            Some("medium"),
+            Some("workspace-write"),
+        )
+    );
+}
+
+#[test]
+fn managed_task_loop_matrix_has_one_owner_and_a_mechanical_executor() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let verify = fs::read_to_string(source_root.join("skills/verify/SKILL.md"))
+        .expect("read verify skill");
+    let orchestrator = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read Task orchestrator profile");
+
+    // Act
+    let execute_task = execute_task.split_whitespace().collect::<Vec<_>>().join(" ");
+    let verify = verify.split_whitespace().collect::<Vec<_>>().join(" ");
+    let orchestrator = orchestrator.split_whitespace().collect::<Vec<_>>().join(" ");
+    let phase_contract = (
+        execute_task.contains("one in-memory current-head Verification Matrix"),
+        execute_task.contains("head, range, controlling authority, or material verification route"),
+        verify.contains("Execute the supplied Verification Matrix"),
+        verify.contains("Do not perform semantic review"),
+        orchestrator.contains("derive and invalidate the current-head Verification Matrix"),
+    );
+
+    // Assert
+    assert_eq!(phase_contract, (true, true, true, true, true));
+}
+
+#[test]
+fn managed_task_loop_lease_expands_only_for_the_source_reviewer_wave() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
+        .expect("read execute-plan skill");
+    let scheduling = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/SKILL.md"),
+    )
+    .expect("read Task leaf scheduling skill");
+    let review = fs::read_to_string(source_root.join("skills/review/SKILL.md"))
+        .expect("read review skill");
+    let orchestrator = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read Task orchestrator profile");
+
+    // Act
+    let execute_plan = execute_plan.split_whitespace().collect::<Vec<_>>().join(" ");
+    let scheduling = scheduling.split_whitespace().collect::<Vec<_>>().join(" ");
+    let review = review.split_whitespace().collect::<Vec<_>>().join(" ");
+    let orchestrator = orchestrator.split_whitespace().collect::<Vec<_>>().join(" ");
+    let lease_contract = (
+        execute_plan.contains("one root-granted baseline leaf"),
+        scheduling.contains("only for a policy-selected source-reviewer wave"),
+        review.contains("temporary reviewer-wave expansion"),
+        review.contains("revoked before findings integration, triage, or correction"),
+        orchestrator.contains("Free capacity is not authority"),
+    );
+
+    // Assert
+    assert_eq!(lease_contract, (true, true, true, true, true));
+}
+
+#[test]
+fn managed_task_loop_correction_review_is_delta_first_with_a_fresh_full_verdict() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let review = fs::read_to_string(source_root.join("skills/review/SKILL.md"))
+        .expect("read review skill");
+    let triage = fs::read_to_string(source_root.join("skills/receiving-code-review/SKILL.md"))
+        .expect("read receiving-code-review skill");
+    let fallback_prompts = [
+        "focused-reviewer-prompt.md",
+        "spec-reviewer-prompt.md",
+        "code-quality-reviewer-prompt.md",
+    ]
+    .map(|name| {
+        fs::read_to_string(source_root.join("skills/agent-teams-driven-development").join(name))
+            .unwrap_or_else(|error| panic!("read reviewer fallback {name}: {error}"))
+    });
+
+    // Act
+    let execute_task = execute_task.split_whitespace().collect::<Vec<_>>().join(" ");
+    let review = review.split_whitespace().collect::<Vec<_>>().join(" ");
+    let triage = triage.split_whitespace().collect::<Vec<_>>().join(" ");
+    let fallback_prompts = fallback_prompts
+        .map(|prompt| prompt.split_whitespace().collect::<Vec<_>>().join(" "));
+    let correction_contract = (
+        execute_task.contains("`H1..H2` correction delta"),
+        review.contains("delta-first"),
+        review.contains("fresh verdict for the full `base..H2` target"),
+        triage.contains("same complete policy-selected reviewer set"),
+        fallback_prompts
+            .iter()
+            .all(|prompt| prompt.contains("Prior review evidence is navigation evidence only")),
+    );
+
+    // Assert
+    assert_eq!(correction_contract, (true, true, true, true, true));
+}
+
+#[test]
+fn managed_task_loop_asset_inventory_remains_unchanged() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let mut agent_names = fs::read_dir(source_root.join("agents"))
+        .expect("read managed agent directory")
+        .map(|entry| {
+            entry
+                .expect("read managed agent entry")
+                .file_name()
+                .into_string()
+                .expect("managed agent name is UTF-8")
+        })
+        .collect::<Vec<_>>();
+    let mut skill_names = fs::read_dir(source_root.join("skills"))
+        .expect("read managed skill directory")
+        .map(|entry| {
+            entry
+                .expect("read managed skill entry")
+                .file_name()
+                .into_string()
+                .expect("managed skill name is UTF-8")
+        })
+        .collect::<Vec<_>>();
+
+    // Act
+    agent_names.sort();
+    skill_names.sort();
+
+    // Assert
+    assert_eq!(
+        agent_names,
+        [
+            "adversarial-api-reviewer.toml",
+            "adversarial-integrator.toml",
+            "adversarial-performance-reviewer.toml",
+            "adversarial-robustness-reviewer.toml",
+            "adversarial-tests-reviewer.toml",
+            "code-architect.toml",
+            "code-quality-reviewer.toml",
+            "code-reviewer.toml",
+            "design-alignment-reviewer.toml",
+            "implementation-verifier.toml",
+            "implementer.toml",
+            "review-integrator.toml",
+            "scope-reviewer.toml",
+            "spec-reviewer.toml",
+            "task-orchestrator.toml",
+            "test-coverage-reviewer.toml",
+        ]
+    );
+    assert_eq!(
+        skill_names,
+        [
+            "agent-teams-driven-development",
+            "agentic-engineering-workflow",
+            "commit",
+            "create-plan",
+            "create-pr",
+            "create-workspace",
+            "design-discussion",
+            "design-doc",
+            "dispatching-parallel-agents",
+            "execute-plan",
+            "execute-task",
+            "finish-branch",
+            "receiving-code-review",
+            "review",
+            "session-teardown",
+            "systematic-debugging",
+            "test-driven-development",
+            "verify",
+            "walkthrough-plan",
+        ]
+    );
 }
 
 #[test]

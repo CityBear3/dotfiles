@@ -115,9 +115,14 @@ results and this stack are current.
 - **Capacity and queue:** Effective subagent capacity is the lower configured
   `agents.max_threads` or observed runtime value, excludes the root, and counts
   every Task orchestrator and leaf. The root grants each schedulable Task a
-  baseline leaf before spare slots, with at most three leaves per Task loop;
-  schedule ready Task 1 and Task 2 candidates in deterministic order in
-  separate worktrees, then their Task gates, Task 3, and integration review.
+  baseline leaf for serial implementation, verification, findings integration,
+  triage, and correction. Only after verifier `PASS` may a Task with at least two
+  selected independent source reviewers request temporary expansion; only the
+  root grants up to three total Task leaves, and revokes the expansion before
+  integration, triage, or correction. Queue unavailable expansion in policy
+  order; free capacity is not authority. Schedule ready Task 1 and Task 2
+  candidates in deterministic order in separate worktrees, then their Task
+  gates, Task 3, and integration review.
 - **Acceptance:** Keep only artifact-applicable findings with an approved
   requirement, reachable evidence, material consequence, and proportionate
   correction. Drop preference, speculation, optional polish, and objections to
@@ -133,6 +138,9 @@ results and this stack are current.
 - **Constraints:** Preserve public errors and accepted forms.
 - **Verification:** Record the focused red failure, then observe the complete
   value and representative compatibility behavior.
+- **Verification Matrix:** After the commit, map every obligation to one bounded
+  check, expected observation, and `FAIL` or `BLOCKED` non-match category;
+  rebuild after a head, range, authority, or material route change.
 - **Dependencies:** None.
 - **PR relationship:** PR 1 against `main`; final base exists immediately.
 - **Concurrency:** May run with Task 2 in a separate checkout.
@@ -153,6 +161,9 @@ results and this stack are current.
 - **Constraints:** No field loss or new formatting contract.
 - **Verification:** Record the focused red failure, then observe exact new and
   representative existing output.
+- **Verification Matrix:** After the commit, map every obligation to one bounded
+  check, expected observation, and `FAIL` or `BLOCKED` non-match category;
+  rebuild after a head, range, authority, or material route change.
 - **Dependencies:** None logically.
 - **PR relationship:** PR 2 stacked on PR 1. A common-base candidate is allowed;
   final acceptance requires restacking and fresh verification and review.
@@ -173,6 +184,9 @@ results and this stack are current.
 - **Constraints:** Keep parsing and rendering in the library.
 - **Verification:** Exercise new, existing, and malformed forms through the real
   process.
+- **Verification Matrix:** After the commit, map every obligation to one bounded
+  check, expected observation, and `FAIL` or `BLOCKED` non-match category;
+  rebuild after a head, range, authority, or material route change.
 - **Dependencies:** Current internal acceptance of Tasks 1 and 2.
 - **PR relationship:** PR 3 stacked on PR 2.
 - **Concurrency:** Not ready before both dependencies and the fan-in stack are
@@ -197,7 +211,13 @@ A changed parent, restack, retarget, contract, or consumed interface makes every
 affected descendant range stale. Re-materialize the approved topology and rerun
 fresh verification and the complete task gate for changed ranges. Route a
 concrete in-scope finding through its owning Task Contract; return semantic or
-topology changes to approval.
+topology changes to approval. For a bounded correction from `H1` to `H2`, create
+one correction commit, rebuild the matrix, run fresh `H2` verification, and
+rerun the same complete reviewer set. Review `H1..H2` first but return fresh
+verdicts for full `base..H2`; prior verdicts are navigation only. Use ordinary
+full traversal for escaped authorization, material contract or shared-interface
+change, base or policy change, incomplete prior evidence, another finding, or
+uncertain unaffected coverage.
 
 ## Publication
 
