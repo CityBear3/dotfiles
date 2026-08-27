@@ -207,6 +207,20 @@ fn managed_task_loop_implementer_receives_only_writer_role_input() {
         .get("developer_instructions")
         .and_then(toml::Value::as_str)
         .expect("implementer developer instructions");
+    let task_message = fallback
+        .split("## Task message")
+        .nth(1)
+        .and_then(|section| section.split("```text").nth(1))
+        .and_then(|block| block.split("```").next())
+        .expect("implementer fallback has a bounded Task message block")
+        .to_lowercase();
+    let correction_message = fallback
+        .split("## Correction message")
+        .nth(1)
+        .and_then(|section| section.split("```text").nth(1))
+        .and_then(|block| block.split("```").next())
+        .expect("implementer fallback has a bounded Correction message block")
+        .to_lowercase();
     let execute_task = execute_task
         .split_whitespace()
         .collect::<Vec<_>>()
@@ -228,10 +242,27 @@ fn managed_task_loop_implementer_receives_only_writer_role_input() {
                 "Review context, Review policy, completed gate evidence, review scheduling, capacity, and queue state remain with the Task-loop owner and are not required implementer inputs",
             )
         }),
+        [&task_message, &correction_message]
+            .iter()
+            .all(|message| {
+                [
+                    "review context",
+                    "review policy",
+                    "completed gate evidence",
+                    "review scheduling",
+                    "capacity",
+                    "queue",
+                ]
+                .iter()
+                .all(|owner_field| !message.contains(owner_field))
+            }),
     );
 
     // Assert
-    assert_eq!(writer_handoff_contract, (true, true, true, true, true));
+    assert_eq!(
+        writer_handoff_contract,
+        (true, true, true, true, true, true)
+    );
 }
 
 #[test]
@@ -246,8 +277,20 @@ fn managed_task_loop_matrix_has_one_owner_and_a_mechanical_executor() {
         fs::read_to_string(source_root.join("skills/verify/SKILL.md")).expect("read verify skill");
     let orchestrator = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
         .expect("read Task orchestrator profile");
+    let verifier_profile =
+        fs::read_to_string(source_root.join("agents/implementation-verifier.toml"))
+            .expect("read managed implementation verifier profile");
 
     // Act
+    let verifier_profile = toml::from_str::<toml::Table>(&verifier_profile)
+        .expect("parse implementation verifier TOML");
+    let verifier_instructions = verifier_profile
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("implementation verifier developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let execute_task = execute_task
         .split_whitespace()
         .collect::<Vec<_>>()
@@ -263,10 +306,20 @@ fn managed_task_loop_matrix_has_one_owner_and_a_mechanical_executor() {
         verify.contains("Execute the supplied Verification Matrix"),
         verify.contains("Do not perform semantic review"),
         orchestrator.contains("derive and invalidate the current-head Verification Matrix"),
+        [
+            "do not perform semantic review",
+            "contract-quality judgment",
+            "architecture review",
+            "scope review",
+            "maintainability review",
+            "test-adequacy review",
+        ]
+        .iter()
+        .all(|excluded_review| verifier_instructions.contains(excluded_review)),
     );
 
     // Assert
-    assert_eq!(phase_contract, (true, true, true, true, true));
+    assert_eq!(phase_contract, (true, true, true, true, true, true));
 }
 
 #[test]
@@ -394,12 +447,23 @@ fn managed_task_loop_lease_expands_only_for_the_source_reviewer_wave() {
         orchestrator.contains(
             "bounded by three total Task leaves, the root grant, and effective capacity",
         ),
+        scheduling.contains(
+            "after fresh verification `PASS` and only when at least two independent source reviewers were selected",
+        ),
+        review.contains(
+            "When fresh verification passes and the policy selected at least two independent source reviewers",
+        ),
+        orchestrator.contains(
+            "Only after verifier `PASS` and selection of at least two independent source reviewers",
+        ),
     );
 
     // Assert
     assert_eq!(
         lease_contract,
-        (true, true, true, true, true, true, true, true)
+        (
+            true, true, true, true, true, true, true, true, true, true, true
+        )
     );
 }
 
