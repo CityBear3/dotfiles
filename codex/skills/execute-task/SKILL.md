@@ -49,6 +49,9 @@ The planned variant adds:
 - coordination directory, Task worktree, Herdr workspace and pane identities,
   branch, Task PR, planned base, starting head, and candidate or authoritative
   mode;
+- the exact planned `search-cache.md` path, a current matching entry or miss,
+  its source identity and invalidation conditions, and the Feature-lead-only
+  writer boundary;
 - the one bound `task-orchestrator` identity and its current root-granted Task
   leaf lease;
 - for re-entry, prior candidate, acceptance, interruption, correction, or stale
@@ -152,8 +155,9 @@ coordinator. Construct one compact writer role message from the complete
 Task-loop handoff containing only the owned responsibility, applicable
 authority clauses and preserved boundaries, discipline, candidate target,
 commit intent, focused writer-side obligations, exact workspace/base/head,
-one-writer boundary, and escalation conditions. Keep the exact authority
-sources directly available. Omit Review context and Review policy, review
+one-writer boundary, applicable planned cache path and current hit, and
+escalation conditions. Keep the exact authority sources directly available.
+Omit Review context and Review policy, review
 scheduling, completed gate evidence, capacity, and queue state from the writer
 message. Pass only the selected role and writer role message to
 `agent-teams-driven-development`.
@@ -165,8 +169,26 @@ only scheduling concurrency; it grants no source, Git, policy, publication, or
 cleanup authority. The Task orchestrator remains non-writing, and the
 implementer remains the sole Task source writer.
 
-Require production behavior changes to use red, green, refactor and report the
-observed red failure. For content, configuration, refactoring, or mechanical
+For new-format planned work, look up a current matching cache entry before new discovery.
+The cache never replaces fresh Git, authority, verification, or review evidence.
+Every consumer must return attributable cache candidates to the Feature lead;
+only that lead edits `search-cache.md`.
+
+Independent initial authority reads, repository searches, relevant file reads,
+and Git inspection may run in one bounded programmatic batch only when their
+results remain separately attributable. End the batch and stop before a
+result-dependent judgment, approval, escalation, semantic diagnosis, edit, or
+dependent validation. Preserve this behavior-change order exactly: focused RED
+-> production edit -> focused GREEN -> refactor while green. Run independent
+mechanical post-edit checks only after focused GREEN; never batch across those
+ordered stages.
+
+Require the writer to report the actual pre-production RED and its reason and
+never recreate or repair historical RED evidence after the production edit.
+Disclose an unrepairable historical discipline gap. It is not an Acceptance
+blocker by itself unless it exposes a reachable current defect, material current
+evidence gap, material contract deviation, or controlling authority that makes
+the history material. For content, configuration, refactoring, or mechanical
 migrations, apply the declared discipline and preserve the relevant green
 baseline. Preserve unrelated changes.
 
@@ -183,6 +205,8 @@ Require the writer to report:
 
 - `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`;
 - changed files and implemented behavior;
+- actual TDD history or declared green baseline and attributable cache
+  candidates;
 - every command, why it was required or selected, and its expected and observed
   result;
 - pre-commit diff inspection and self-review;
@@ -266,6 +290,11 @@ Acceptance remains attached to that exact Task Contract authority, PR base,
 head, merge base, range, and status. Never replace it with a later descendant or
 synthetic feature range.
 
+Treat immutable TDD history and current Acceptance as separate evidence. A
+different or missing historical RED category never becomes current proof and
+does not fail an otherwise supported current head unless it exposes one of the
+current defects, evidence gaps, deviations, or authority requirements above.
+
 For promotion reconciliation, replace implementation steps 1–8 with inspection
 of the supplied original base-to-current range, validation of every ownership
 mapping, fresh current-contract verification, and any authorized bounded
@@ -305,6 +334,12 @@ command-environment facts, allowed ignored-artifact boundary, source-mutation
 invariant, and `PASS`/`FAIL`/`BLOCKED` report contract. Keep exact authority
 sources directly available for a matrix row, but do not send the complete Review
 policy unless one of its exact constraints changes the verification route.
+
+When a verifier, reviewer, or integrator needs discovery, pass any current
+matching cache hit as navigation together with its source identity and
+invalidation conditions. The recipient still resolves the exact current target
+and authority directly and returns any cache candidate separately from its
+verdict.
 
 After a fresh verifier `PASS`, give each selected reviewer the exact unchanged
 verified target, diff, changed files, its applicable authority clauses and
@@ -455,8 +490,9 @@ status, starting Git status and final Git status, each including index, worktree
 and relevant untracked state, task and correction commits, workspace and branch,
 planned PR base ref and commit, merge base, current head, exact range, changed
 files, commands and observed results, pre-commit inspection, gate result when
-authoritative, reviewer and findings-integration outcomes, triage,
-non-blocking concerns, owning Task-loop identity, configured, observed, and
+authoritative, reviewer and findings-integration outcomes, triage, TDD history,
+cache candidates, non-blocking concerns, owning Task-loop identity, configured,
+observed, and
 effective capacity, root grant, selected and queued roles, concerns, gaps, and
 exact re-entry condition.
 Return this evidence to the invoking coordinator or

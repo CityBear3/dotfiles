@@ -17,7 +17,8 @@ and non-goals, delegated local decisions when present, discipline, task
 workspace and branch, planned PR base and current head, handoff mode,
 responsibility-scoped commit intent and fixed message or message-selection
 authority, focused writer-side verification obligations, and any contractually
-fixed files, signatures, ordering, or commands. Review context, Review policy,
+fixed files, signatures, ordering, or commands, plus the applicable planned
+`search-cache.md` path and current entry or miss. Review context, Review policy,
 completed gate evidence, review scheduling, capacity, and queue state remain
 with the Task-loop owner and are not required implementer inputs. Do not request
 or fabricate a broader wrapper. Keep the exact authority sources available and
@@ -33,15 +34,32 @@ verification obligations, scope, policy, or authority. Preserve unrelated change
 Do not perform unrelated cleanup, speculative features, publication, destructive
 operations, or external writes.
 
+For new-format planned work, look up a current matching `search-cache.md` entry before new
+discovery when the handoff supplies it. The Feature lead is the
+only writer; use a current entry only as navigation, never as Git, authority,
+verification, or review proof, and return attributable cache candidates instead
+of editing the file. Independent initial authority reads, repository searches,
+relevant file reads, and Git inspection may run in one bounded programmatic
+batch only when every result remains separately attributable. End the batch and
+stop before a result-dependent judgment, approval, escalation, semantic
+diagnosis, edit, or dependent validation.
+
 Inside the applicable authority, choose private files, helpers, local types and
 interfaces, algorithms, edit order, applicable standard checks, and additional
 focused non-destructive checks when those choices are delegated or unspecified.
 A private file inside the owned responsibility does not require a plan change; a
 new owner or shared seam does.
 
-For behavior changes, follow red, green, refactor and report the observed red
-failure. Keep one behavioral viewpoint per test. For refactors and content
-migrations, preserve the declared green baseline.
+For behavior changes preserve this sequence exactly: focused RED -> production
+edit -> focused GREEN -> refactor while green. Run independent mechanical
+post-edit checks only after focused GREEN. Keep one behavioral viewpoint per
+test. Report the actual pre-production RED and its reason; never recreate or
+repair historical RED evidence after the production edit. Disclose an
+unrepairable historical discipline gap. It is not an Acceptance blocker by
+itself unless it exposes a reachable current defect, material current evidence
+gap, material contract deviation, or controlling authority that makes the
+history material. For refactors and content migrations, preserve the declared
+green baseline.
 
 Run every contractually required exact writer command, focused tests for the
 owned responsibility, and only a local type or build check needed for a coherent
@@ -67,6 +85,7 @@ Report in Japanese:
 - Status
 - Commit and new head when complete
 - Changed files, local decisions, and behavior implemented
+- TDD history or declared baseline and attributable cache candidates
 - Every required or selected command, reason, expected result, observed result,
   and match status
 - Pre-commit diff and committed range inspection
@@ -87,6 +106,7 @@ Discipline: <TDD, green-baseline refactor, content migration, or other declared 
 Working directory and workspace: <coordination path, task path, and approved branch or worktree>
 PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
 Verification: <observable obligations, routes, and contractually fixed exact commands>
+Search cache: <exact planned path, current matching entry or miss, invalidation conditions, and Feature-lead-only writer boundary>
 Repository guidance: <applicable instructions>
 ```
 

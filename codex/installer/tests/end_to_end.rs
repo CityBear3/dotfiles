@@ -534,6 +534,320 @@ fn managed_task_loop_correction_review_is_delta_first_with_a_fresh_full_verdict(
 }
 
 #[test]
+fn managed_task_loop_dispatches_new_roles_without_parent_history_and_with_complete_handoffs() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
+        .expect("read execute-plan skill");
+    let task_dispatch =
+        fs::read_to_string(source_root.join("skills/dispatching-parallel-agents/SKILL.md"))
+            .expect("read Task orchestrator dispatch skill");
+    let leaf_dispatch =
+        fs::read_to_string(source_root.join("skills/agent-teams-driven-development/SKILL.md"))
+            .expect("read Task leaf dispatch skill");
+    let orchestrator_text =
+        fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+            .expect("read Task orchestrator profile");
+
+    // Act
+    let orchestrator =
+        toml::from_str::<toml::Table>(&orchestrator_text).expect("parse Task orchestrator TOML");
+    let orchestrator_instructions = orchestrator
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("Task orchestrator developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let execute_plan = execute_plan
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let task_dispatch = task_dispatch
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let leaf_dispatch = leaf_dispatch
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    for required in [
+        "explicit `fork_turns=\"none\"`",
+        "newly spawned Task orchestrator",
+        "complete Task-orchestrator handoff",
+        "exact authority sources directly readable",
+    ] {
+        assert!(
+            task_dispatch.contains(required),
+            "Task dispatch contract omits {required:?}"
+        );
+    }
+    for required in [
+        "explicit `fork_turns=\"none\"`",
+        "newly spawned implementer, verifier, reviewer, adversarial-integrator, or review-integrator",
+        "complete role-specific message unchanged",
+        "directly re-resolve current Git and authority",
+    ] {
+        assert!(
+            leaf_dispatch.contains(required),
+            "leaf dispatch contract omits {required:?}"
+        );
+    }
+    assert!(
+        execute_plan.contains("new Task orchestrator with explicit `fork_turns=\"none\"`")
+            && execute_plan.contains("complete Task-local authority")
+            && execute_plan.contains("directly revalidate Git and authority")
+    );
+    assert_eq!(
+        orchestrator.get("name").and_then(toml::Value::as_str),
+        Some("task-orchestrator")
+    );
+    for required in [
+        "explicit `fork_turns=\"none\"`",
+        "complete role-specific handoff",
+        "directly revalidate current Git and authority",
+        "Parent conversation, identity, and liveness are never correctness evidence",
+    ] {
+        assert!(
+            orchestrator_instructions.contains(required),
+            "Task orchestrator profile omits {required:?}"
+        );
+    }
+}
+
+#[test]
+fn managed_task_loop_waits_for_events_in_normal_five_to_ten_minute_bounds() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let task_dispatch =
+        fs::read_to_string(source_root.join("skills/dispatching-parallel-agents/SKILL.md"))
+            .expect("read Task orchestrator dispatch skill");
+    let leaf_dispatch =
+        fs::read_to_string(source_root.join("skills/agent-teams-driven-development/SKILL.md"))
+            .expect("read Task leaf dispatch skill");
+    let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
+        .expect("read execute-plan skill");
+    let orchestrator_text =
+        fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+            .expect("read Task orchestrator profile");
+
+    // Act
+    let orchestrator =
+        toml::from_str::<toml::Table>(&orchestrator_text).expect("parse Task orchestrator TOML");
+    let orchestrator_instructions = orchestrator
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("Task orchestrator developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let owner_contracts = [&task_dispatch, &leaf_dispatch, &execute_plan].map(|contract| {
+        contract
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    });
+
+    // Assert
+    for contract in owner_contracts.iter().chain([&orchestrator_instructions]) {
+        for required in [
+            "normally 300,000 to 600,000 milliseconds",
+            "returns early on mailbox, completion, or steered user input",
+            "deadline, teardown, or interruption boundary",
+            "do not replace it with repeated short polls",
+        ] {
+            assert!(
+                contract.contains(required),
+                "event-responsive wait contract omits {required:?}"
+            );
+        }
+    }
+    assert!(
+        task_dispatch.contains("A terminal Task-orchestrator result ends the turn without another wait")
+            && orchestrator_instructions
+                .contains("A terminal result ends the turn without another wait or poll")
+    );
+}
+
+#[test]
+fn managed_task_loop_implementer_batching_preserves_decision_and_tdd_boundaries() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let tdd = fs::read_to_string(source_root.join("skills/test-driven-development/SKILL.md"))
+        .expect("read test-driven-development skill");
+    let implementer_text = fs::read_to_string(source_root.join("agents/implementer.toml"))
+        .expect("read implementer profile");
+    let fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/implementer-prompt.md"),
+    )
+    .expect("read implementer fallback prompt");
+
+    // Act
+    let implementer =
+        toml::from_str::<toml::Table>(&implementer_text).expect("parse implementer TOML");
+    let implementer_instructions = implementer
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("implementer developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let contracts = [execute_task, tdd, fallback].map(|contract| {
+        contract
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    });
+
+    // Assert
+    for contract in contracts.iter().chain([&implementer_instructions]) {
+        for required in [
+            "Independent initial authority reads, repository searches, relevant file reads, and Git inspection",
+            "one bounded programmatic batch",
+            "separately attributable",
+            "stop before a result-dependent judgment",
+            "focused RED -> production edit -> focused GREEN -> refactor while green",
+            "mechanical post-edit checks only after focused GREEN",
+        ] {
+            assert!(
+                contract.contains(required),
+                "implementer execution contract omits {required:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let workflow = fs::read_to_string(source_root.join("skills/agentic-engineering-workflow/SKILL.md"))
+        .expect("read agentic workflow skill");
+    let create_plan = fs::read_to_string(source_root.join("skills/create-plan/SKILL.md"))
+        .expect("read create-plan skill");
+    let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
+        .expect("read execute-plan skill");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let verify =
+        fs::read_to_string(source_root.join("skills/verify/SKILL.md")).expect("read verify skill");
+    let review =
+        fs::read_to_string(source_root.join("skills/review/SKILL.md")).expect("read review skill");
+    let finish = fs::read_to_string(source_root.join("skills/finish-branch/SKILL.md"))
+        .expect("read finish-branch skill");
+    let orchestrator_text =
+        fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+            .expect("read Task orchestrator profile");
+    let implementer_text = fs::read_to_string(source_root.join("agents/implementer.toml"))
+        .expect("read implementer profile");
+    let readme = fs::read_to_string(source_root.join("README.md")).expect("read Codex README");
+
+    // Act
+    let orchestrator =
+        toml::from_str::<toml::Table>(&orchestrator_text).expect("parse Task orchestrator TOML");
+    let implementer =
+        toml::from_str::<toml::Table>(&implementer_text).expect("parse implementer TOML");
+    let orchestrator_instructions = orchestrator
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("Task orchestrator developer instructions");
+    let implementer_instructions = implementer
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("implementer developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    for producer in [&workflow, &create_plan] {
+        assert!(producer.contains("docs/plans/YYYY-MM-DD-<feature>/search-cache.md"));
+        assert!(producer.contains("Feature lead is the only writer"));
+        assert!(producer.contains("ignored, workspace-only, and non-authoritative"));
+    }
+    for consumer in [&execute_plan, &execute_task, &verify, &review] {
+        assert!(consumer.contains("look up a current matching cache entry before new discovery"));
+        assert!(consumer.contains("never replaces fresh Git, authority, verification, or review evidence"));
+        assert!(consumer.contains("return attributable cache candidates to the Feature lead"));
+    }
+    for profile in [orchestrator_instructions, implementer_instructions.as_str()] {
+        assert!(profile.contains("look up a current matching `search-cache.md` entry before new discovery"));
+        assert!(profile.contains("Feature lead is the only writer"));
+        assert!(profile.contains("return attributable cache candidates"));
+    }
+    assert!(finish.contains("Retain `search-cache.md` with `implementation-plan.md`"));
+    assert!(finish.contains("retire all three only with authorized removal of that coordination worktree"));
+    assert!(readme.contains("`docs/plans/YYYY-MM-DD-<feature>/search-cache.md`"));
+    assert!(readme.contains("same lifecycle as the ignored Implementation Plan"));
+}
+
+#[test]
+fn managed_task_loop_separates_tdd_history_from_current_acceptance() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let tdd = fs::read_to_string(source_root.join("skills/test-driven-development/SKILL.md"))
+        .expect("read test-driven-development skill");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let review =
+        fs::read_to_string(source_root.join("skills/review/SKILL.md")).expect("read review skill");
+    let triage = fs::read_to_string(source_root.join("skills/receiving-code-review/SKILL.md"))
+        .expect("read receiving-code-review skill");
+    let implementer_text = fs::read_to_string(source_root.join("agents/implementer.toml"))
+        .expect("read implementer profile");
+    let fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/implementer-prompt.md"),
+    )
+    .expect("read implementer fallback prompt");
+
+    // Act
+    let implementer =
+        toml::from_str::<toml::Table>(&implementer_text).expect("parse implementer TOML");
+    let implementer_instructions = implementer
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("implementer developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let history_contracts = [tdd, execute_task, review, triage, fallback]
+        .map(|contract| contract.split_whitespace().collect::<Vec<_>>().join(" "));
+
+    // Assert
+    for contract in history_contracts
+        .iter()
+        .chain([&implementer_instructions])
+    {
+        for required in [
+            "actual pre-production RED and its reason",
+            "never recreate or repair historical RED evidence after the production edit",
+            "Disclose an unrepairable historical discipline gap",
+            "not an Acceptance blocker by itself",
+            "reachable current defect, material current evidence gap, material contract deviation, or controlling authority",
+        ] {
+            assert!(
+                contract.contains(required),
+                "TDD history/current Acceptance contract omits {required:?}"
+            );
+        }
+    }
+}
+
+#[test]
 fn managed_task_loop_asset_inventory_remains_unchanged() {
     // Arrange
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))

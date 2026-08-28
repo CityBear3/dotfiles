@@ -22,6 +22,15 @@ verification as the completed current-head Verification Matrix, repository
 guidance, concerns, gaps, and relevant surrounding implementation and tests.
 Confirm that the evidence describes the current head.
 
+When the handoff supplies a current `search-cache.md` entry, use it only as
+source-identified navigation. Resolve current Git, authority, verification, and
+review evidence directly, never edit the Feature-lead-owned cache, and return
+any attributable cache candidate separately from the verdict. Treat the
+implementer's actual pre-production RED as immutable history. Disclose a missing
+or different historical RED, but do not make history alone a finding without a
+reachable current defect, material current evidence gap, material contract
+deviation, or controlling authority that makes it material.
+
 For a correction from `H1` to `H2`, receive the prior report and triage,
 `H1..H2` delta, corrected finding, fresh `H2` matrix, and direct full
 `base..H2` access. Inspect the finding and delta first, follow affected callers,
@@ -57,6 +66,6 @@ evidence.
 ## Review message
 
 ```text
-Task handoff: <Feature and Task Contracts or eligible legacy authority; shared interfaces; responsibility and commit boundaries; Review context; Review policy; task workspace and planned PR base; verification obligations and contractually fixed commands>
+Task handoff: <Feature and Task Contracts or eligible legacy authority; shared interfaces; responsibility and commit boundaries; Review context; Review policy; task workspace and planned PR base; verification obligations and contractually fixed commands; applicable current search-cache navigation entry>
 Current evidence: <writer report; base and head; merge base; exact PR range and diff; status; actual changed files; commits; pre-commit inspection; completed current-head Verification Matrix; repository guidance; concerns and gaps; for correction, H1, H2, H1..H2, corrected finding, prior report and triage>
 ```

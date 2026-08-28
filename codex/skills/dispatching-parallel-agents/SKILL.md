@@ -57,27 +57,41 @@ than dropping, reordering, substituting, or oversubscribing them.
 
 ## Dispatch
 
-Call `spawn_agent` with the exact `task-orchestrator` profile once per concrete
-selected Task. Use a stable, descriptive Task name, bind the returned identity
-to that Task Contract for its lifetime, and include all task-local context
-because conversation memory is not authority.
+Call `spawn_agent` with the exact `task-orchestrator` profile and explicit
+`fork_turns="none"` once per concrete selected Task. Every newly spawned Task
+orchestrator therefore starts without parent conversation. If explicit
+no-history creation is unavailable, return `BLOCKED`; do not silently inherit
+turns. Use a stable, descriptive Task name, bind the returned identity to that
+Task Contract for its lifetime, and send one complete Task-orchestrator handoff
+while keeping exact authority sources directly readable.
 
 Each prompt states:
 
-- goal and boundaries;
-- working directory and relevant files;
-- exact task branch, checkout, planned PR base, and mode;
-- whether writes are allowed;
-- prohibited overlap;
-- required commands or evidence;
-- exact return format;
+- purpose and expected result, bounded responsibility, allowed actions, and
+  prohibited overlap;
+- applicable authority identity and currentness, assigned clauses, constraints,
+  non-goals, delegated decisions, and direct source paths;
+- working directory, exact task branch, checkout, planned PR base, starting
+  head, range, status, source-state boundary, and mode;
+- required observations and commands, output schema, stop conditions, and
+  re-entry evidence;
 - the current root-granted leaf count and selected-role queue;
 - authority to spawn only policy-selected bounded leaves inside that grant,
   with every such leaf prohibited from spawning descendants, the baseline leaf
   used serially, and any temporary expansion reserved for the source-reviewer
   wave and revoked before later phases.
 
-Continue useful lead work while agents run. Use bounded `wait_agent` calls and `list_agents` for regular status checks.
+Require the Task orchestrator to directly revalidate Git and authority from
+those sources at every gate. Parent conversation, identity, liveness, Herdr,
+and pane state remain operational context rather than correctness evidence.
+
+Continue useful lead work while agents run. After that work is exhausted, use
+one bounded `wait_agent` call of normally 300,000 to 600,000 milliseconds. It
+returns early on mailbox, completion, or steered user input; do not replace it
+with repeated short polls. Use a shorter bound only for a nearer explicit
+deadline, teardown, or interruption boundary and record the reason. Inspect
+live state at dispatch and phase boundaries and after an early return.
+A terminal Task-orchestrator result ends the turn without another wait.
 
 ## Integrate
 
@@ -88,8 +102,9 @@ re-resolves branch, planned base, merge base, head, range, diff, and status
 before dependency release or Feature aggregation. Agent identity, liveness,
 Herdr, lazygit, and pane state are not acceptance evidence. Do not release a
 dependency or claim feature completion here. If the same idle Task orchestrator
-needs an attributable re-entry, use `followup_task`; use `send_message` for
-information that should not start a new turn.
+needs an attributable re-entry, use `followup_task` with a fresh complete
+handoff and require it to directly revalidate Git and authority; use
+`send_message` for information that should not start a new turn.
 
 `Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the orchestrator's current
 turn. Never reassign that identity to another Task. Prefer it for a fresh

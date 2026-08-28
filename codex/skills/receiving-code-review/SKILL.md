@@ -9,6 +9,11 @@ Treat review as technical evidence, not an instruction to agree. Remain
 check-only and read-only. Do not mutate source or Git state, implement or stage a
 fix, dispatch a writer, or advance another workflow phase.
 
+For new-format planned work, look up a current matching cache entry before new discovery.
+Use a current hit only as navigation and return attributable cache candidates
+to the Feature lead; it never replaces current Git, authority, verification,
+review, or triage evidence, and this role never edits `search-cache.md`.
+
 ## Coordinator-managed entry
 
 Require:
@@ -33,6 +38,8 @@ Require:
   Implementation Plan, and applicable Task Contracts; the complete lightweight
   combined Feature/Task Contract with original request authority and exact task
   evidence; or the exact eligible legacy plan authority;
+- for new-format planned work, the exact `search-cache.md` path and any current matching
+  navigation entry with its source identity and invalidation conditions;
 - observed correction attempts and prior triage decisions.
 
 Resolve the workspace, branch, base, merge base, head, range or composition,
@@ -66,6 +73,16 @@ is missing, return top-level `BLOCKED` before classification. Preserve observed
 evidence and state the exact re-entry condition.
 
 ## Process each finding
+
+Keep immutable TDD history separate from current finding classification.
+Require the implementer record to contain the actual pre-production RED and its
+reason and never recreate or repair historical RED evidence after the
+production edit. Disclose an unrepairable historical discipline gap. It is not
+an Acceptance blocker by itself unless it exposes a reachable current defect,
+material current evidence gap, material contract deviation, or controlling
+authority that makes the history material. A history-only discrepancy without
+one of those consequences is `Push back`, while a material authority rule is
+`Escalate`.
 
 For each item:
 

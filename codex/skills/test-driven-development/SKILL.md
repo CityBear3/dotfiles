@@ -9,6 +9,20 @@ Establish evidence that the test detects the missing behavior before writing pro
 
 For Rust work, read [references/rust.md](references/rust.md) before choosing test placement or structure.
 
+Independent initial authority reads, repository searches, relevant file reads,
+and Git inspection may run before the first TDD stage in one bounded
+programmatic batch only when every result remains separately attributable. End
+that batch and stop before a result-dependent judgment, test selection, edit,
+or dependent validation.
+
+Keep this order explicit and never batch across it:
+
+```text
+focused RED -> production edit -> focused GREEN -> refactor while green
+```
+
+Run independent mechanical post-edit checks only after focused GREEN.
+
 ## Red
 
 1. Select one observable behavioral viewpoint.
@@ -27,6 +41,17 @@ Run the focused test until it passes, then run relevant neighboring tests.
 ## Refactor
 
 Improve names, responsibilities, and duplication while the tests remain green. Prefer readable DAMP tests over shared helpers that hide each case's meaning.
+
+## History and current evidence
+
+Record the actual pre-production RED and its reason, the subsequent production
+edit, focused GREEN, and any refactor, and never recreate or repair historical
+RED evidence after the production edit. Disclose an unrepairable historical
+discipline gap. It is not an Acceptance blocker by itself unless it exposes a
+reachable current defect, material current evidence gap, material contract
+deviation, or controlling authority that makes the history material. Current
+Acceptance still requires adequate tests, fresh verification, and selected
+review for the exact current target.
 
 ## Test contract
 

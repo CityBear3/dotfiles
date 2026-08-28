@@ -87,7 +87,16 @@ shortage into policy `Escalate` or substitute the lead or another perspective.
 ## Schedule and observe
 
 Dispatch only the already-selected leaf role using its resolved named profile
-or complete fallback contract. Tell every leaf not to spawn descendants. Tell an
+or complete fallback contract. Create every newly spawned implementer,
+verifier, reviewer, adversarial-integrator, or review-integrator with explicit
+`fork_turns="none"` on its `spawn_agent` call. If the runtime cannot establish no-history creation,
+return `BLOCKED` instead of inheriting parent turns. Pass the selected role and
+complete role-specific message unchanged, and tell every leaf not to spawn
+descendants. Require each recipient to directly re-resolve current Git and
+authority from the supplied exact sources; parent conversation, identity, and
+liveness are never proof. An existing idle identity uses `followup_task` with a
+fresh complete role message and fresh Git and authority validation; it is not a
+new spawn. Tell an
 implementer the exact authority identity and currentness evidence plus one of:
 assigned Feature clauses and Task Contract, exact eligible legacy authority and
 owned responsibility, or approved promotion-reconciliation authority. Also pass
@@ -119,7 +128,12 @@ closure. A Herdr workspace or lazygit pane may expose Git state to the engineer,
 but it is not an agent session and supplies no scheduling, verification, or
 acceptance evidence.
 
-Use bounded waits, inspect live agents regularly, and return progress evidence
+After useful independent work is exhausted, use one bounded `wait_agent` call
+of normally 300,000 to 600,000 milliseconds. It returns early on mailbox,
+completion, or steered user input; do not replace it with repeated short polls.
+Use a shorter bound only for a nearer explicit deadline, teardown, or
+interruption boundary and record the reason. Inspect live agents at dispatch
+and phase boundaries and after an early return, then return progress evidence
 to the invoking Task-loop or root owner. Preserve reports, identities,
 completion state, and observed errors without translating findings or deciding
 whether the task passed.

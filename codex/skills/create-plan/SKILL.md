@@ -113,12 +113,25 @@ do not copy or mutate its meaning. Treat both files as ignored, workspace-only
 execution artifacts. Do not force-add, stage, or commit either file unless the
 user explicitly chooses archival.
 
+Also declare the planned discovery cache at
+`docs/plans/YYYY-MM-DD-<feature>/search-cache.md`. The Feature lead is the only writer. The file is ignored, workspace-only, and non-authoritative.
+Define its entry contract as purpose and scope, exact source identity,
+observation date or repository identity, positive and useful negative results,
+reuse conditions, and source-aware invalidation conditions. Require every
+planned consumer to look up a current matching entry before new discovery and
+return attributable candidates rather than editing it. State that the cache
+never replaces current Git, authority, verification, or review evidence and has
+the same publication, feedback-reentry, disposition, and authorized-worktree-
+removal lifecycle as the Implementation Plan.
+
 Include:
 
 - goal, authorities and precedence, architecture summary, technologies, working
   directory, branch, and observed baseline;
 - fixed decisions and explicit non-goals;
 - shared interface contracts and their owners and consumers;
+- the search-cache path, Feature-lead-only writer boundary, consumers, entry
+  contract, invalidation, non-authority rule, and plan-matched lifecycle;
 - the Task dependency DAG, deterministic ready order, PR topology, planned
   bases, fan-in linearizations, and exact integration-only composition inputs,
   order, mechanism, workspace, identity checks, and retention;
@@ -154,6 +167,8 @@ For each Task Contract include:
   refactoring, or an explicit content/configuration migration discipline;
 - a responsibility-scoped commit intent and whether the plan or writer selects
   its message;
+- truthful pre-production RED history and separate current-Acceptance treatment
+  when the task changes behavior;
 - contractually significant files, signatures, ordering, commands, exact commit
   paths, or fixed commit message only when their identity is part of correctness.
 

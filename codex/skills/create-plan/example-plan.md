@@ -222,7 +222,9 @@ uncertain unaffected coverage.
 ## Publication
 
 An internally accepted Task PR may be published with explicit user authority
-before feature acceptance. Keep Feature Contract and Implementation Plan files
-ignored in the coordination worktree until that worktree is explicitly removed;
-do not delete them as a separate Feature Accepted action. Do not infer push,
-merge, retarget, force, or cleanup authority.
+before feature acceptance. Keep Feature Contract, Implementation Plan, and
+`search-cache.md` files ignored in the coordination worktree until that worktree
+is explicitly removed; do not delete them as a separate Feature Accepted
+action. The Feature lead is the cache's only writer, and consumers use it only
+as source-aware discovery navigation. Do not infer push, merge, retarget,
+force, or cleanup authority.

@@ -3,7 +3,13 @@
 - Owner: Repository owner
 - Drafted by: Codex from owner-settled design decisions
 - Date: 2026-08-28
-- Status: Approved by the repository owner on 2026-08-28
+- Revised: 2026-08-29
+- Status: Revised version approved by the repository owner on 2026-08-29
+- Approved content SHA-256:
+  `6eff34adf56b0091060bc34309e987d30b0d36c8aae5d88322a12af0a1d95cd7`
+- Prior approved document SHA-256:
+  `68d74d9a1eee94d7ae6f39a847bebcc6d75ddc5004e412f7ac17b5ecd7768b6b`
+- Repository baseline: `d32ec49957eb419dd12095b69c196eb0128619bb`
 - Extends:
   - `docs/design/2026-08-25-codex-task-orchestrator-subagents.md`
   - `docs/design/2026-08-18-codex-pr-scoped-task-execution.md`
@@ -30,6 +36,32 @@ shorter mechanical phase. The design therefore keeps Sol for reliability,
 reduces its initial verifier effort to `medium`, and narrows the role so later
 evaluation may safely compare `low`.
 
+Operational use of the first optimization exposed another class of repeated
+work. New subagents still inherit parent conversation by default unless dispatch
+explicitly disables it. Waiting guidance permits frequent short polls. The
+implementer has no explicit boundary for batching independent discovery, so
+sequential tool turns can be spent on reads and searches whose results do not
+affect one another. Multiple phases can repeat the same repository or external
+search. Finally, immutable TDD execution history can be confused with the
+current artifact's Acceptance evidence, causing a historical RED discrepancy to
+block an otherwise correct current target without a reachable defect or a
+material evidence gap.
+
+This revision extends the original design with context-isolated dispatch,
+event-responsive waiting, decision-aware implementer batching, a feature-local
+search cache, explicit separation of historical TDD discipline from current
+Acceptance, and a comparable operational evaluation boundary. It revises the
+same durable authority rather than adding a precedence-bearing addendum.
+
+Before implementation, the owner refined that evaluation boundary to reduce
+benchmark-only work and make the observation more representative. The earlier
+synthetic clean path and forced-correction path are replaced by one minimal
+fixed product specification implemented independently in Rust, Go, and Kotlin.
+Each language executes the real complete Task loop; findings and corrections
+are observed rather than scripted. Three language repositories are reused only
+as Git containers: frozen before and after branches start at the same base while
+run state, evidence, sessions, and caches remain isolated by side.
+
 This design preserves the Task orchestrator topology and acceptance gates while
 optimizing the phases inside one Task loop. It supersedes the earlier generic
 lease rule only where it permits spare Task leaves outside the reviewer wave,
@@ -55,6 +87,20 @@ the approved Review policy selects.
   fresh full-current-head verdict.
 - Keep verification on `gpt-5.6-sol`, initially at `medium` reasoning effort.
 - Preserve fresh evidence, Review breadth, Acceptance, and correction authority.
+- Start every new Task orchestrator and leaf without inherited parent
+  conversation and give it one complete role-specific handoff.
+- Replace routine short polling with normally five-to-ten-minute bounded waits
+  that return early on mailbox or completion events.
+- Batch independent implementer discovery and mechanical post-edit checks while
+  preserving every judgment-dependent and TDD ordering boundary.
+- Prevent repeated planned-lifecycle searches through an ignored,
+  feature-local `search-cache.md` with source-aware invalidation.
+- Keep historical TDD discipline evidence distinct from the evidence that
+  establishes current-head Acceptance.
+- Compare the complete before and after Task loops in minimal equivalent Rust,
+  Go, and Kotlin workloads with dual-layer call counts, token use, wait
+  behavior, elapsed time, repeated searches, and an unchanged
+  completion-quality bar.
 
 ### Non-goals
 
@@ -67,10 +113,26 @@ the approved Review policy selects.
 - Remove verifier target or mutation-invariant checks.
 - Add a persistent Verification Matrix, runtime state file, finding identifier,
   or machine-readable coordination schema.
+- Add a persistent telemetry service or hide underlying operations behind a
+  single top-level call count.
 - Change `agents.max_threads`, its installer tiers, `agents.max_depth`, or the
   existing maximum of three concurrent Task leaves.
 - Add a Task orchestrator to the lightweight path.
-- Install, publish, or activate the changed bundle in a live Codex home.
+- Treat conversation history, `search-cache.md`, agent identity, or liveness as
+  correctness or Acceptance authority.
+- Weaken the requirement to use TDD for applicable implementation work or claim
+  TDD when an intended RED was not observed.
+- Embed benchmark scenarios or run results as permanent runtime Skill prose.
+- Force a review finding or correction solely to make benchmark paths match.
+- Treat cross-language absolute duration as Task-loop overhead, or require a
+  large sample application when a minimal equivalent workload exposes the same
+  workflow behavior.
+- Install the changed bundle before baseline measurement or make installation,
+  publication, or branch disposition implicit in Design Doc approval.
+
+### Explicit deferrals
+
+None.
 
 ## Overview
 
@@ -147,6 +209,32 @@ gate for contract alignment, correctness, maintainability, scope, architecture,
 and test quality. Integrators own reconciliation of complete finding reports,
 not source discovery or correction authorization.
 
+### Context-isolated dispatch and complete role handoffs
+
+Every newly spawned Task orchestrator and leaf uses explicit
+`fork_turns="none"`. Parent conversation is neither inherited execution context
+nor correctness evidence. Re-entry through an existing idle identity still
+receives a fresh complete handoff and revalidates every current input.
+
+Complete means complete for the receiving role, not a copy of the Task owner's
+entire state. Each handoff contains:
+
+- the role's exact purpose, responsibility, allowed actions, and prohibited
+  overlap;
+- applicable authority identity, currentness, assigned clauses, constraints,
+  and non-goals;
+- workspace, Git target, source-state boundary, and direct source locations;
+- required observations, output schema, stop conditions, and re-entry evidence;
+  and
+- capacity and descendant restrictions when the role schedules work.
+
+The Task orchestrator additionally receives the complete Task-local authority,
+Review context and policy, scheduling grant, phase state, and prior attributable
+evidence needed to own the whole loop. Each leaf receives only the subset that
+can change its bounded decision, while exact sources remain directly readable.
+A leaf or replacement resolves Git and authority from those sources; it never
+uses identity, prior conversation, or a plausible summary as proof.
+
 ### Current-head Verification Matrix
 
 The Task-loop owner constructs one in-memory matrix after the candidate head and
@@ -222,6 +310,91 @@ Independent mechanical commands may be executed in one bounded batch when:
 Batching is an execution optimization, not a weaker evidence form. If the tool
 cannot preserve per-command results, commands remain separate.
 
+### Decision-aware implementer batching
+
+The implementer's first discovery stage may place independent authority reads,
+repository searches, relevant file reads, and Git inspection into one bounded
+programmatic tool batch. Each underlying operation remains separately
+attributable. Before starting a new search, the role checks the applicable
+`search-cache.md` entry supplied by or located through the handoff.
+
+Batching stops whenever one result changes the choice, scope, authorization, or
+input of the next action. In particular, approval and escalation decisions,
+edits, semantic diagnosis, and any final validation that depends on earlier
+output remain separate stages. A tool batch is not permission to collapse
+several judgment points into one opaque operation.
+
+For TDD work, RED execution, production editing, GREEN execution, and refactor
+remain ordered stages. No GREEN check is launched speculatively before the edit
+that it is meant to validate. After the edit and focused GREEN have completed,
+independent mechanical post-edit checks may be grouped when their individual
+results remain attributable. The verifier's fail-fast order and stronger
+current-head boundary remain unchanged.
+
+### TDD history and current Acceptance
+
+TDD discipline evidence records an execution history: the test written for one
+behavioral viewpoint, the observed pre-production RED and its reason, the
+subsequent edit, focused GREEN, and any refactor while green. The implementer
+must still attempt and report this sequence honestly and must never claim TDD
+when the intended RED was not observed.
+
+Acceptance evidence answers a different question: whether the current exact
+head and range satisfy the approved contract with adequate current tests,
+verification, and review. A later-discovered difference in the historical RED
+failure category is immutable process evidence; rerunning a test after the
+production change cannot repair or recreate that history.
+
+An unrepairable historical discipline gap is disclosed explicitly. It does not
+by itself become an Acceptance blocker when current evidence establishes no
+reachable defect, no material coverage or evidence gap, and no material
+contract deviation. It becomes `Escalate` when the controlling authority makes
+that missing historical evidence material, or when it exposes a user-owned
+scope, quality, or verification decision. A reachable current defect or missing
+current evidence follows the ordinary finding, verification, and correction
+path rather than being classified only as history.
+
+### Feature-local search cache
+
+Planned work stores reusable discovery at:
+
+```text
+docs/plans/YYYY-MM-DD-<feature>/search-cache.md
+```
+
+The file is ignored, workspace-only, and non-authoritative. It prevents the
+Feature lead, Task orchestrators, and leaves from repeating the same repository,
+Git, documentation, runtime, or external search, including useful searches that
+found no result. The Feature lead is the only writer. Task orchestrators and
+leaves read it and return new cache candidates in their reports. Within one
+Task turn, an orchestrator may pass an attributable returned result directly to
+the next role without waiting for file integration; cross-loop persistence
+remains Feature-lead controlled.
+
+Before searching, a role looks for an entry whose purpose, scope, and source
+identity match the current question. Each entry records:
+
+- search purpose and scope;
+- source identity, including an applicable URL, version, Git ref, range, or
+  path;
+- observation date or repository identity;
+- positive and useful negative results; and
+- explicit reuse and invalidation conditions.
+
+Repository entries become stale when their relevant ref, range, paths, search
+scope, or controlling authority changes. Versioned documentation is keyed by
+its stable identity. Mutable external information is rechecked when currentness
+can materially affect a decision or obligation. An observed contradiction
+invalidates the affected entry. The cache never replaces fresh Git and
+authority resolution, required mechanical verification, or a policy-required
+reviewer's independent assessment of the current target.
+
+`search-cache.md` has the same lifecycle as `implementation-plan.md`. It stays
+in the coordination worktree while publication, feedback re-entry, or
+disposition evidence may need it and is retired when removal of that exact
+worktree is authorized. It is not recoverable from Git unless the owner
+separately chooses archival.
+
 ### Role-specific handoffs and reports
 
 The Task-loop owner retains the complete durable evidence, but sends each leaf
@@ -276,6 +449,21 @@ run under the baseline one-leaf lease.
 The root remains the only lease authority. A free runtime slot is availability,
 not permission. An unavailable expansion increases review latency but does not
 block while the baseline queue can still make progress.
+
+### Event-responsive bounded waiting
+
+An owner waiting for a Task orchestrator or leaf uses one bounded
+`wait_agent` interval of normally five to ten minutes. Mailbox updates,
+completion notifications, or steered user input return control before that
+bound. The owner may perform independent useful work before entering the wait,
+but does not replace the bounded wait with repeated short polls.
+
+Live-agent inspection remains required at scheduling and phase boundaries,
+after an early return, and before interruption or replacement. A shorter wait
+is justified only by a nearer explicit deadline, teardown, or interruption
+boundary and records that reason. Terminal `Candidate`, `Accepted`, `BLOCKED`,
+or `Escalate` results end the current Task-orchestrator turn; neither the
+orchestrator nor its scheduler waits or polls after returning one.
 
 ### Delta-first correction review
 
@@ -340,7 +528,9 @@ The existing `PASS`, `FAIL`, `BLOCKED`, `CLEAN`, `FINDINGS`, `Candidate`,
   or plan gate rather than being treated as a larger delta.
 
 No optimization authorizes cleaning, resetting, amending, rebasing, discarding,
-publishing, or installing live assets.
+publishing, or installing live assets merely because an intermediate phase
+passes. Installation occurs only at the explicit rollout boundary after
+baseline evidence is complete.
 
 ## Cross-cutting concerns
 
@@ -349,11 +539,15 @@ publishing, or installing live assets.
 The Verification Matrix removes repeated prose and gives verification one
 current-head evidence format. Role-specific messages stop every leaf from
 receiving the complete Task orchestration state. Delta-first review reuses
-earlier evidence without reusing its verdict.
+earlier evidence without reusing its verdict. Context-isolated dispatch prevents
+the parent transcript from being copied into every new role. Decision-aware
+batching removes unnecessary model turns, and `search-cache.md` prevents the
+same discovery from being repeated across the planned lifecycle.
 
 These are context reductions, not permission to omit exact authority. Every
 role keeps direct access to the source artifacts and expands its inspection when
-current evidence requires it.
+current evidence requires it. A cache hit or compact handoff remains operational
+context, never proof that the current Git target or authority still matches.
 
 ### Reliability and model configuration
 
@@ -364,9 +558,20 @@ initial rollout and may replace `medium` only after representative verification
 tasks show unchanged target correctness, matrix completeness, failure
 classification, and mutation detection.
 
-Official OpenAI model guidance describes `medium` as a balanced starting point,
-`low` as latency-oriented, and recommends comparing lower settings on
-representative workloads rather than assuming the highest effort is required.
+[Official OpenAI subagent guidance](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+describes `medium` as a balanced default, `low` as appropriate for
+straightforward latency-sensitive work, and higher effort as more costly but
+potentially useful for complex reasoning. It also confirms that different
+roles can select different model and reasoning settings and that each subagent
+performs its own model and tool work. The benchmark therefore measures the
+actual role mix rather than inferring savings from profile declarations alone.
+
+[Official OpenAI non-interactive-mode guidance](https://learn.chatgpt.com/docs/non-interactive-mode)
+defines `--ephemeral` as avoiding persisted session rollout files and `--json`
+as a JSONL event stream containing command, file-change, tool, search, and turn
+usage evidence. Those interfaces supply the fresh-session and dual-layer raw
+measurement boundary; they do not replace repository manifests or
+Acceptance evidence.
 
 ### Compatibility and rollout
 
@@ -374,30 +579,130 @@ Existing approved plans and eligible legacy work retain their authority form.
 New Task-loop behavior is encoded in shared skills and profiles and applies
 after the updated bundle is installed and a new Codex session loads it.
 
-The installer inventory does not add or remove an asset. It distributes changed
-skill and profile bytes through the existing mapping. The implementation must
-keep all affected skills, fallback prompts, agent profiles, README guidance, and
-asset-contract tests semantically aligned.
+`search-cache.md` is a per-feature workspace artifact, not an installed managed
+asset. The installer inventory therefore does not add or remove an asset. It
+distributes changed skill and profile bytes through the existing mapping. The
+implementation must keep all affected skills, fallback prompts, agent profiles,
+README guidance, and asset-contract tests semantically aligned.
 
 Local implementation and verification do not install into the live Codex home.
-Installation, publication, or branch disposition remains a separate
-owner-controlled action.
+After candidate verification, the rollout fingerprints the still-installed old
+bundle, performs the complete before measurement, and only then crosses the
+owner-controlled installation boundary. Publication and branch disposition
+remain separate owner-controlled actions.
 
 ### Evaluation
 
 Completion requires fresh repository validation of the changed assets and
-focused contract tests. Operational evaluation should compare the old and new
-workflow on representative Tasks and corrections using:
+focused contract tests. Operational evaluation then runs one minimal canonical
+product specification through the real complete Task loop in Rust, Go, and
+Kotlin. The product is a deterministic `task-filter` CLI:
 
-- required-evidence completeness;
-- verdict and finding agreement;
-- missed mutation or target-identity failures;
-- total tokens and latency by phase;
-- reviewer-wave wall-clock time;
-- correction-loop convergence and fallbacks to full traversal.
+- it accepts one file whose non-empty records have the exact TSV form
+  `id<TAB>priority<TAB>status`;
+- identifiers match `[a-z0-9-]+`; non-ASCII identifiers are invalid;
+- priorities are integers from 0 through 9 and status is `open` or `done`;
+- it emits only open records as `id<TAB>priority`, ordered by descending
+  priority and then ascending ASCII identifier;
+- it ignores empty lines and treats duplicate identifiers as independent
+  records;
+- an invalid record produces no standard output, a line-numbered diagnostic,
+  and exit status 2; and
+- an input read failure produces no standard output, a stable diagnostic, and
+  exit status 1.
 
-Lower tokens, turns, or latency count as an improvement only while the existing
-quality and evidence bar remains satisfied.
+Equivalent native tests cover filtering, deterministic ordering, invalid input,
+and read failure. The implementation stays deliberately small and uses no
+third-party Rust crate or Go module. Kotlin uses only its prepared project,
+standard runtime/test facilities, and already-downloaded Gradle, Kotlin/JVM, and
+JVM 25 inputs; an observed run performs no dependency or toolchain download.
+
+The benchmark root is
+`/Users/sakumatomoya/workspace/codex-task-loop-benchmark`. It contains exactly
+three language repositories:
+
+- `task-filter-rust`;
+- `task-filter-go`; and
+- `koltin`, retaining the owner-selected project name.
+
+Each repository records one base commit and creates `benchmark/before` and
+`benchmark/after` from that exact commit before the first observed run. The
+before and after sides execute sequentially by switching branches in the same
+language repository. This is repository reuse, not execution-state reuse. The
+before result remains committed on its branch, and the controller preserves
+raw run evidence outside the language repositories at:
+
+```text
+evidence/{before,after}/{rust,go,kotlin}/
+```
+
+Mutable compiler, package, build, and temporary state is redirected outside the
+language repositories from the start and separated by side at:
+
+```text
+run-state/{before,after}/{rust,go,kotlin}/
+```
+
+Rust redirects Cargo home and target state. Go redirects build, module, GOPATH,
+and temporary state and disables network module paths. Kotlin gives each side a
+separate mutable Gradle home, project cache, build output, and temporary state.
+Both Kotlin sides may read the same fingerprinted, already-downloaded Gradle,
+Kotlin/JVM, and JVM 25 inputs only as immutable toolchain material. Environment
+preparation is excluded from observed Task-loop time; build outputs, compiler
+daemon state, and mutable Gradle state are never shared.
+
+Before switching to an after branch, the controller records the before result
+head, raw JSONL, metrics, current-head evidence, tracked/untracked/ignored status
+manifests, and the per-run `search-cache.md` when the installed bundle creates
+one. Absence is recorded rather than synthesized. The controller then proves
+that the frozen after branch still equals the recorded base and that the
+language workspace has no residual before search cache, build output,
+conversation state, verdict, or other run-only artifact. Unexpected residual
+state blocks the pair instead of being silently reused.
+
+All three before workloads run against the fingerprinted installed baseline
+before candidate installation. All three after workloads run only after the
+candidate is installed and fingerprinted. Every side uses a new
+`codex exec --ephemeral --json` process and its own empty run-state directory.
+The exact prompt, canonical product contract, starting Git tree, Review context,
+Review policy, root capacity, top-level model settings, and expected quality bar
+remain fixed within each language pair. Leaf conversation inheritance,
+role-specific handoff content, search-cache behavior, waiting, batching, and
+role settings follow the installed Task-loop bundle and are observed rather
+than imposed by the benchmark controller.
+
+The complete Task loop includes implementation, fresh verification,
+policy-selected review, findings integration and triage when findings occur,
+bounded authorized correction when needed, fresh post-correction gates, and the
+final Task outcome. No finding or correction is injected. Naturally occurring
+findings, correction cycles, convergence, and final quality are measurements.
+The exact repository setup, fixtures, prompt bytes, status-manifest procedure,
+offline environment, and run commands live in the Implementation Plan rather
+than reusable Skill prose.
+
+Measurement reports two layers:
+
+- model-facing tool calls and turns; and
+- the underlying operations, commands, and checks inside direct or
+  programmatic calls.
+
+Waits are reported separately by call count, requested bound, observed elapsed
+time, and early-return event. The report also includes phase and end-to-end
+elapsed time, repeated searches, required-evidence completeness, verdict and
+finding agreement, mutation and target-identity detection, and correction-loop
+convergence. No persistent telemetry or event-log service is introduced.
+
+Absolute values and before-to-after percentage changes are reported within each
+language pair. Cross-language absolute durations remain descriptive because
+compiler, build-tool, and ecosystem costs differ. The initial evaluation runs
+each side once to bound time and token use; it preserves raw values so a later
+repeat can investigate a noisy or surprising result without changing this
+feature's benchmark contract.
+
+Lower calls, turns, operations, waits, searches, tokens, or elapsed time count
+as an improvement only when both sides satisfy the same quality bar: complete
+contract coverage, fresh verification, every policy-selected review, complete
+handoff evidence, and no unresolved Acceptance blocker.
 
 ## Alternatives considered
 
@@ -456,3 +761,94 @@ initial reliability setting; Sol/low remains an evaluation option.
 Rejected because it introduces lifecycle, identity, and recovery obligations
 without being needed for one Task turn. Durable contracts, compact handoffs,
 reports, and direct Git evidence remain the recovery sources.
+
+### Inherit parent conversation and send only a delta prompt
+
+Rejected because inherited turns are implicit, oversized, and stale-prone. A
+replacement or compacted session cannot prove which parts remain current. One
+complete role-specific handoff plus direct Git and authority lookup gives every
+new subagent an explicit recoverable execution contract.
+
+### Poll agents frequently with short waits
+
+Rejected because repeated polling adds turns and tool calls without improving
+responsiveness when mailbox and completion events already return a bounded wait
+early. Five-to-ten-minute bounds retain liveness without busy waiting.
+
+### Batch every implementer action
+
+Rejected because edits, approvals, diagnosis, and TDD transitions depend on
+earlier observations. Only independent discovery or mechanical post-edit checks
+are batched; judgment-dependent stages remain ordered.
+
+### Make every historical RED discrepancy an Acceptance blocker
+
+Rejected because a past sequence cannot be repaired after production behavior
+exists, and the RED category alone does not prove a current defect. The workflow
+discloses the discipline gap and blocks or escalates only for a reachable defect,
+material evidence gap, or material contract deviation. It never fabricates a
+replacement RED or claims unobserved TDD.
+
+### Use general research notes or a design-only cache
+
+`research-notes.md` was rejected because it suggests free-form prose rather than
+lookup-before-search behavior. `discovery-cache.md` was rejected because it
+communicates the primary purpose less directly than `search-cache.md`. Limiting
+the cache to design and planning was rejected because Task and correction loops
+would still repeat discovery.
+
+### Give every cached source one TTL
+
+Rejected because Git refs, versioned documentation, mutable external pages, and
+negative search results have different currentness semantics. Source-aware
+identity and invalidation avoid both unnecessary local searches and unsafe
+reuse of mutable information.
+
+### Count only top-level calls or add persistent telemetry
+
+Top-level-only counting was rejected because programmatic batching could hide
+unchanged or increased underlying work. A persistent event log or telemetry
+service was rejected as unnecessary new operational state. Dual counters and
+bounded run evidence expose both layers without adding a service.
+
+### Script one clean path and one forced correction path
+
+Rejected after operational use because a mandated finding or correction tests a
+benchmark script more than the real Review loop. The selected evaluation runs
+the full loop for every fixed workload and records naturally occurring findings
+and corrections while holding the final quality bar constant.
+
+### Use six before/after language checkouts
+
+Rejected because two frozen branches from the same recorded base preserve the
+source starting point without doubling the number of project directories.
+Separate controller-owned evidence and run-state trees plus an exact residual-
+state check provide the required execution isolation.
+
+### Keep Python or use Java for the JVM workload
+
+Python was rejected because it is not representative of the owner's primary or
+workplace workloads. Java was superseded by the locally prepared Kotlin/JVM
+project, which better represents the workplace environment without requiring a
+new toolchain download. Rust, Go, and Kotlin provide three relevant paired
+workloads while keeping the benchmark bounded.
+
+### Use a larger application or third-party dependencies
+
+Rejected because the benchmark compares workflow overhead, convergence, and
+quality on the same fixed task within each language. Additional product scope,
+dependency resolution, and network variability would spend more time and
+tokens without improving that comparison.
+
+### Compare unrelated live Tasks after rollout
+
+Rejected as the sole evaluation because Task difficulty, findings, and runtime
+conditions would confound the result. Fixed language-local pairs establish a
+controlled before/after comparison; later live observations may inform future
+work but are not this revision's acceptance evidence.
+
+### Publish the revision as a separate addendum
+
+Rejected because future consumers would need to resolve two precedence-bearing
+documents for one Task-loop contract. This revision keeps one current durable
+authority while Git history preserves the previously approved text.

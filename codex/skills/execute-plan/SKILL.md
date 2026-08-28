@@ -19,6 +19,8 @@ For new-format work, require:
 
 - the approved, current Feature Contract and its design sources;
 - an approved, current implementation plan;
+- the exact planned `search-cache.md` path, current matching entries, and its
+  Feature-lead-only writer boundary;
 - its complete Task Contract set, shared interface contracts, Feature Contract
   coverage, and integration-only obligations;
 - its separate Review context and complete approved Review policy;
@@ -103,20 +105,31 @@ authoritative acceptance, materialize the approved final base, perform any
 authorized restack or retarget operation, and require fresh exact-range
 verification and review.
 
-For each ready new-format planned Task, dispatch the exact `task-orchestrator`
-profile through `dispatching-parallel-agents` and bind that identity to only
-that Task Contract. Give it one concise plain-language handoff containing:
+For new-format planned work, look up a current matching cache entry before new discovery.
+The cache never replaces fresh Git, authority, verification, or review evidence.
+Consumers preserve the entry's source identity and invalidation conditions and
+return attributable cache candidates to the Feature lead; they never edit
+`search-cache.md` themselves.
+
+For each ready new-format planned Task, dispatch a new Task orchestrator with
+explicit `fork_turns="none"` through `dispatching-parallel-agents`, using the
+exact `task-orchestrator` profile, and bind that identity to only that Task
+Contract. Give it one concise plain-language handoff containing:
 
 - exact Feature Contract identity, path, approval/currentness evidence, and the
   clauses assigned to this task;
 - the exact applicable Task Contract, including purpose, expected result,
   constraints, dependencies, non-goals, and delegated local decisions;
+- the complete Task-local authority needed for its loop, with exact authority
+  paths kept directly readable;
 - applicable shared interface contracts and adjacent-task obligations;
 - the Review context and complete Review policy;
 - the declared discipline and applicable repository guidance;
 - the coordination directory, exact Herdr workspace and initial pane identities,
   Task worktree, branch, and planned PR identity, plus direct Git validation and
   any non-blocking lazygit warning;
+- the exact planned `search-cache.md` path, any current matching entry, its
+  invalidation conditions, and the rule that only the Feature lead writes it;
 - the starting commit, planned PR base ref and commit, current head, and whether
   the handoff is candidate or authoritative;
 - current merge base, exact base-to-head range, inspected diff, and starting Git
@@ -144,6 +157,11 @@ Do not inline or require an unconditional reread of unassigned, unchanged
 Feature Contract or Design Doc prose. Keep the exact sources directly available
 for lookup when an assigned clause, shared interface, finding, or changed
 evidence requires more context.
+
+Require the new Task orchestrator and every replacement to directly revalidate
+Git and authority before acting. Parent conversation, identity, and liveness do
+not prove either input. If no-history creation is unavailable, return `BLOCKED`
+instead of falling back to inherited turns.
 
 The Task orchestrator runs `execute-task` for that Task and may dispatch only
 its policy-selected implementer, verifier, reviewer, adversarial-integrator, or
@@ -182,6 +200,14 @@ earlier writer is proven inactive and all state is attributable. Otherwise
 preserve state and return `BLOCKED`. Accepted identities do not wait or poll
 through Feature completion and reserve no leaf capacity while idle; any identity
 still reported live continues to count against observed capacity.
+
+After useful independent root work is exhausted, use one bounded `wait_agent`
+call of normally 300,000 to 600,000 milliseconds. It returns early on mailbox,
+completion, or steered user input; do not replace it with repeated short polls.
+Use a shorter bound only for a nearer explicit deadline, teardown, or
+interruption boundary and record the reason. Reinspect live state after early
+return and before any interruption or replacement. A terminal Task result ends
+that turn without another wait.
 
 Before releasing a dependency or aggregating Feature evidence, directly resolve
 the reported workspace, branch, planned base, merge base, head, range, diff, and
@@ -340,7 +366,7 @@ containing:
   results as the completed current-head Verification Matrix;
 - per-task gate result;
 - reviewer and findings-integration outcomes, triage, non-blocking concerns,
-  changed files, and gaps.
+  changed files, cache candidates, and gaps.
 
 After every planned task is accepted and current:
 

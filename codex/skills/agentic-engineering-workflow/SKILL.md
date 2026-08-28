@@ -211,6 +211,28 @@ fresh full `base..H2` verdicts. Earlier verdicts are navigation evidence only.
 Planned correction mechanics remain owned by `execute-plan` and its bound Task
 orchestrator under the same contract.
 
+## Maintain the planned-lifecycle search cache
+
+For new-format planned work, maintain
+`docs/plans/YYYY-MM-DD-<feature>/search-cache.md` beside the Feature Contract and
+Implementation Plan. The Feature lead is the only writer. The file is ignored, workspace-only, and non-authoritative.
+Lightweight and eligible legacy work do not acquire this artifact solely to fit
+the new format.
+
+Before repeating discovery, look up an entry matching the current purpose,
+scope, and source identity. Each entry records its observation date or repository
+identity, positive and useful negative results, reuse conditions, and explicit
+source-aware invalidation conditions. A stale or contradictory entry is a miss,
+not a failure. Task orchestrators and leaves return attributable cache
+candidates to the Feature lead instead of editing the file.
+
+The cache never substitutes for direct current Git and authority resolution,
+mechanical verification, or policy-selected review. Keep it with the approved
+Implementation Plan through publication, feedback re-entry, and disposition
+evidence. Retire it only when removal of that exact coordination worktree is
+separately authorized; warn that ignored artifacts are not recoverable from Git
+unless the owner chooses archival.
+
 ## Use approval gates on the planned path
 
 Resolve planned-path entry in this order:
@@ -336,7 +358,8 @@ matches the approved plan.
 Pass exact authority paths and approval/currentness evidence, applicable Feature
 Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
-decisions, and any promoted unaccepted range to `execute-plan`. Reference
+decisions, the exact planned `search-cache.md` path and current matching entries,
+and any promoted unaccepted range to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
 That skill owns readiness, global capacity leases, dispatch of the exact
 `task-orchestrator` profile for each ready new-format planned Task, candidate and
@@ -381,6 +404,8 @@ For planned work retain:
 - approved Design Doc when applicable, Feature Contract, complete Task Contract
   set, coverage, shared interfaces, integration-only obligations, Review
   context, and policy;
+- exact `search-cache.md` path, source identities, current hits, invalidations,
+  and attributable candidates while keeping the Feature lead as sole writer;
 - exact temporary integration compositions and their evidence;
 - concerns, unresolved findings, and every gap.
 
@@ -440,6 +465,11 @@ Advance automatically within approved local scope:
    obligation is current and no finding, policy gap, design gap, or operational
    gap survives.
 
+Historical TDD evidence remains an implementer-history input, not current proof.
+Disclose an immutable RED gap, but do not turn it into an Acceptance blocker
+without a reachable current defect, material current evidence gap, material
+contract deviation, or controlling authority that makes the history material.
+
 Diagnose failed verification before correction. Never advance failed or blocked
 verification to review, blocked review to triage, unresolved triage to
 correction, or incomplete evidence to completion. Stop repeated non-progress
@@ -479,7 +509,7 @@ topologies. Return `Escalate` to the owning approval gate. Any resulting push,
 restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to
-`finish-branch` feature mode. Keep ignored plan artifacts in the coordination
+`finish-branch` feature mode. Keep ignored plan artifacts and `search-cache.md` in the coordination
 worktree; let an explicitly authorized later removal of that worktree clean them
 up with the workspace. Preserve durable Design Docs and present remaining
 publication or branch-disposition choices. Archive plan artifacts only when the

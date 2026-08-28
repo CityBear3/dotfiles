@@ -18,6 +18,13 @@ review, contract-quality judgment, architecture or scope review,
 maintainability review, or test-adequacy review. Those decisions belong to the
 policy-selected reviewers after a fresh verification `PASS`.
 
+For new-format planned work, look up a current matching cache entry before new discovery.
+A cache hit never replaces fresh Git, authority, verification, or review evidence.
+Use it only to navigate a source whose identity and invalidation conditions
+still match, and return attributable cache candidates to the Feature lead
+separately from the completed matrix. The verifier never edits
+`search-cache.md`.
+
 ## Resolve the requested target
 
 Use one target form:
@@ -54,6 +61,8 @@ For a Task PR require:
   exact commands where their identity is contractually significant;
 - task commits, current dependency and shared-interface evidence, concerns, and
   known gaps;
+- for new-format planned work, the exact `search-cache.md` path and any current
+  matching entry with its source identity and invalidation conditions;
 - the approved Feature Contract and applicable Task Contract with their source
   and currentness evidence, or the complete lightweight combined contract.
 
@@ -265,6 +274,8 @@ Report:
   pass, fail, or blocked result;
 - every command, expected result, observed result, and match status;
 - matrix rows and checks not run and why;
+- cache entry consulted and any attributable cache candidate returned to the
+  Feature lead;
 - for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely
   ownership, every gap, and the exact condition for safe re-entry.
 

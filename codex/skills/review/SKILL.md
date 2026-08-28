@@ -10,6 +10,12 @@ check-only and read-only. Keep every reviewer and integrator read-only. Do not
 mutate source or Git state, implement or stage a fix, classify findings for
 triage, or advance another workflow phase.
 
+For new-format planned work, look up a current matching cache entry before new discovery.
+A cache hit never replaces fresh Git, authority, verification, or review evidence.
+Use it only as source-identified navigation, let each reviewer inspect the
+current target independently, and return attributable cache candidates to the Feature lead.
+Reviewers and integrators never edit `search-cache.md`.
+
 ## Resolve the review target
 
 Use one target form:
@@ -43,6 +49,8 @@ For a Task PR require:
 - applicable Feature and Task Contract authority, current dependency and shared-
   interface evidence, observed commands, concerns, prior triage decisions, and
   known gaps;
+- for new-format planned work, the exact `search-cache.md` path and any current
+  matching entry with its source identity and invalidation conditions;
 - execution context: the bound Task orchestrator for new-format planned work or
   the root-owned loop for lightweight work, plus configured, observed, and
   effective subagent capacity, current root-granted leaf count, live identities,
@@ -260,6 +268,8 @@ Pass directly to every selected reviewer:
   observations, and observed results;
 - relevant dependency and Task PR outcomes, prior triage decisions, concerns,
   and gaps;
+- the applicable current cache hit as navigation plus its source identity and
+  invalidation conditions, without treating it as review evidence;
 - that reviewer's selected perspective and output expectations.
 
 Do not create another wrapper identity or repeat the evidence in competing
@@ -299,6 +309,15 @@ disables the delta-first optimization but never removes fresh review. No prior
 verdict authorizes `H2`, and no policy-selected reviewer may be skipped.
 
 ## Apply the common Acceptance threshold
+
+Treat TDD history separately from the current artifact verdict. Require the
+implementer to report the actual pre-production RED and its reason and never
+recreate or repair historical RED evidence after the production edit. Disclose
+an unrepairable historical discipline gap. It is not an Acceptance blocker by
+itself unless it exposes a reachable current defect, material current evidence
+gap, material contract deviation, or controlling authority that makes the
+history material. Review current test adequacy and current contract evidence on
+their own merits.
 
 Every finding must include severity `Must Fix` or `Should Improve`, file and
 line, concrete observed or reachable behavior, violated requirement or quality
@@ -404,6 +423,8 @@ Merge duplicates and report in Japanese:
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
 - fresh verification commands and results inspected;
+- cache entry consulted and any attributable cache candidate returned to the
+  Feature lead;
 - assigned Feature and Task Contract observations, targeted integration
   alignment, or eligible legacy criteria and original-authority alignment
   inspected;
