@@ -547,9 +547,8 @@ fn managed_task_loop_dispatches_new_roles_without_parent_history_and_with_comple
     let leaf_dispatch =
         fs::read_to_string(source_root.join("skills/agent-teams-driven-development/SKILL.md"))
             .expect("read Task leaf dispatch skill");
-    let orchestrator_text =
-        fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
-            .expect("read Task orchestrator profile");
+    let orchestrator_text = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read Task orchestrator profile");
 
     // Act
     let orchestrator =
@@ -633,9 +632,8 @@ fn managed_task_loop_waits_for_events_in_normal_five_to_ten_minute_bounds() {
             .expect("read Task leaf dispatch skill");
     let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
         .expect("read execute-plan skill");
-    let orchestrator_text =
-        fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
-            .expect("read Task orchestrator profile");
+    let orchestrator_text = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read Task orchestrator profile");
 
     // Act
     let orchestrator =
@@ -647,12 +645,8 @@ fn managed_task_loop_waits_for_events_in_normal_five_to_ten_minute_bounds() {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
-    let owner_contracts = [&task_dispatch, &leaf_dispatch, &execute_plan].map(|contract| {
-        contract
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ")
-    });
+    let owner_contracts = [&task_dispatch, &leaf_dispatch, &execute_plan]
+        .map(|contract| contract.split_whitespace().collect::<Vec<_>>().join(" "));
 
     // Assert
     for contract in owner_contracts.iter().chain([&orchestrator_instructions]) {
@@ -669,7 +663,8 @@ fn managed_task_loop_waits_for_events_in_normal_five_to_ten_minute_bounds() {
         }
     }
     assert!(
-        task_dispatch.contains("A terminal Task-orchestrator result ends the turn without another wait")
+        task_dispatch
+            .contains("A terminal Task-orchestrator result ends the turn without another wait")
             && orchestrator_instructions
                 .contains("A terminal result ends the turn without another wait or poll")
     );
@@ -702,12 +697,8 @@ fn managed_task_loop_implementer_batching_preserves_decision_and_tdd_boundaries(
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
-    let contracts = [execute_task, tdd, fallback].map(|contract| {
-        contract
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ")
-    });
+    let contracts = [execute_task, tdd, fallback]
+        .map(|contract| contract.split_whitespace().collect::<Vec<_>>().join(" "));
 
     // Assert
     for contract in contracts.iter().chain([&implementer_instructions]) {
@@ -733,8 +724,9 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .expect("installer crate must be nested under the Codex source root");
-    let workflow = fs::read_to_string(source_root.join("skills/agentic-engineering-workflow/SKILL.md"))
-        .expect("read agentic workflow skill");
+    let workflow =
+        fs::read_to_string(source_root.join("skills/agentic-engineering-workflow/SKILL.md"))
+            .expect("read agentic workflow skill");
     let create_plan = fs::read_to_string(source_root.join("skills/create-plan/SKILL.md"))
         .expect("read create-plan skill");
     let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
@@ -747,9 +739,8 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         fs::read_to_string(source_root.join("skills/review/SKILL.md")).expect("read review skill");
     let finish = fs::read_to_string(source_root.join("skills/finish-branch/SKILL.md"))
         .expect("read finish-branch skill");
-    let orchestrator_text =
-        fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
-            .expect("read Task orchestrator profile");
+    let orchestrator_text = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read Task orchestrator profile");
     let implementer_text = fs::read_to_string(source_root.join("agents/implementer.toml"))
         .expect("read implementer profile");
     let readme = fs::read_to_string(source_root.join("README.md")).expect("read Codex README");
@@ -779,16 +770,27 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
     }
     for consumer in [&execute_plan, &execute_task, &verify, &review] {
         assert!(consumer.contains("look up a current matching cache entry before new discovery"));
-        assert!(consumer.contains("never replaces fresh Git, authority, verification, or review evidence"));
+        assert!(
+            consumer
+                .contains("never replaces fresh Git, authority, verification, or review evidence")
+        );
         assert!(consumer.contains("return attributable cache candidates to the Feature lead"));
     }
     for profile in [orchestrator_instructions, implementer_instructions.as_str()] {
-        assert!(profile.contains("look up a current matching `search-cache.md` entry before new discovery"));
+        assert!(
+            profile.contains(
+                "look up a current matching `search-cache.md` entry before new discovery"
+            )
+        );
         assert!(profile.contains("Feature lead is the only writer"));
         assert!(profile.contains("return attributable cache candidates"));
     }
     assert!(finish.contains("Retain `search-cache.md` with `implementation-plan.md`"));
-    assert!(finish.contains("retire all three only with authorized removal of that coordination worktree"));
+    assert!(
+        finish.contains(
+            "retire all three only with authorized removal of that coordination worktree"
+        )
+    );
     assert!(readme.contains("`docs/plans/YYYY-MM-DD-<feature>/search-cache.md`"));
     assert!(readme.contains("same lifecycle as the ignored Implementation Plan"));
 }
@@ -828,10 +830,7 @@ fn managed_task_loop_separates_tdd_history_from_current_acceptance() {
         .map(|contract| contract.split_whitespace().collect::<Vec<_>>().join(" "));
 
     // Assert
-    for contract in history_contracts
-        .iter()
-        .chain([&implementer_instructions])
-    {
+    for contract in history_contracts.iter().chain([&implementer_instructions]) {
         for required in [
             "actual pre-production RED and its reason",
             "never recreate or repair historical RED evidence after the production edit",
