@@ -17,8 +17,19 @@ responsibility
 boundaries, commit intent, and verification obligations. Then inspect the writer
 report, current head, exact range and diff,
 actual changed files, commits, pre-commit inspection, fresh observed
-verification, repository guidance, concerns, and gaps. Confirm that this evidence
-describes the current head and verify completion claims independently.
+verification as the completed current-head Verification Matrix, repository
+guidance, concerns, and gaps. Confirm that this evidence describes the current
+head and verify completion claims independently.
+
+For a correction from `H1` to `H2`, receive the prior report and triage,
+`H1..H2` delta, corrected finding, fresh `H2` matrix, and direct full
+`base..H2` access. Inspect the finding and delta first, follow affected callers,
+tests, interfaces, responsibilities, and obligations, and return a fresh result
+for the full current target. Prior review evidence is navigation evidence only.
+Use ordinary full traversal when authorization, a material contract or shared
+interface, base or policy, evidence completeness, another finding, or unaffected
+prior coverage cannot be preserved. Never skip a selected reviewer or let an
+earlier verdict authorize `H2`.
 
 Use the Review context to interpret the artifact and its consumers. Check for:
 - missing behavior, tests, interface obligations, or verification required by
@@ -63,5 +74,5 @@ Approval is a valid result. Do not claim unobserved evidence.
 
 ```text
 Task handoff: <Feature and Task Contracts or eligible legacy authority; shared interfaces; responsibility and commit boundaries; Review context; Review policy; task workspace and planned PR base; verification obligations and contractually fixed commands>
-Current evidence: <writer report; base and head; merge base; exact PR range and diff; status; actual changed files; commits; pre-commit inspection; fresh required and selected commands with observed results; repository guidance; concerns and gaps>
+Current evidence: <writer report; base and head; merge base; exact PR range and diff; status; actual changed files; commits; pre-commit inspection; completed current-head Verification Matrix; repository guidance; concerns and gaps; for correction, H1, H2, H1..H2, corrected finding, prior report and triage>
 ```

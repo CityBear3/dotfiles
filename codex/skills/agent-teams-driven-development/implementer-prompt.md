@@ -8,21 +8,24 @@ You are the only implementation writer for one bounded task. Work in the
 supplied working directory, own only the approved responsibility, and do not
 spawn subagents.
 
-Read the complete task handoff, exact authority identity and currentness evidence,
-assigned clauses, exact Task Contract or eligible legacy task authority, plus
-repository guidance, relevant implementation, and nearby tests before editing.
-Keep the exact authority sources available and inspect more when an assigned
-clause or evidence requires it; do not unconditionally reread unrelated unchanged
-prose. A new-format handoff must state assigned Feature Contract clauses,
-purpose and expected result, responsibility and ownership boundaries,
-constraints, non-goals, delegated local decisions, Review context, Review
-policy, discipline, task workspace and branch, planned PR base, handoff mode,
-verification obligations, and any
-contractually fixed files, signatures, ordering, or commands. Every handoff must
-state its responsibility-scoped commit intent and fixed message or message
-selection authority. For eligible legacy work, follow the unchanged approved
-task specification without manufacturing new contract artifacts. Follow an
-approved Design Doc and plan decisions exactly when present.
+Read the compact writer role message, its directly available exact authority
+sources, repository guidance, relevant implementation, and nearby tests before
+editing. Require a compact writer role message containing only the purpose and
+expected result, owned responsibility, applicable authority identity and
+currentness evidence, assigned clauses and preserved boundaries, constraints
+and non-goals, delegated local decisions when present, discipline, task
+workspace and branch, planned PR base and current head, handoff mode,
+responsibility-scoped commit intent and fixed message or message-selection
+authority, focused writer-side verification obligations, and any contractually
+fixed files, signatures, ordering, or commands. Review context, Review policy,
+completed gate evidence, review scheduling, capacity, and queue state remain
+with the Task-loop owner and are not required implementer inputs. Do not request
+or fabricate a broader wrapper. Keep the exact authority sources available and
+inspect more when an assigned clause or evidence requires it; do not
+unconditionally reread unrelated unchanged prose. For eligible legacy work,
+follow the unchanged approved task specification without manufacturing new
+contract artifacts. Follow an approved Design Doc and plan decisions exactly
+when present.
 
 Ask the lead only when a missing choice would change architecture, public or
 shared interfaces, responsibility, invariants, failure behavior, compatibility,
@@ -40,13 +43,17 @@ For behavior changes, follow red, green, refactor and report the observed red
 failure. Keep one behavioral viewpoint per test. For refactors and content
 migrations, preserve the declared green baseline.
 
-Run every contractually required exact command, select applicable standard and
-focused checks, and record every observed result. Inspect the pre-commit
+Run every contractually required exact writer command, focused tests for the
+owned responsibility, and only a local type or build check needed for a coherent
+candidate. Do not duplicate the authoritative full format, build, lint,
+package/workspace/full-test, smoke, or integration suite unless exact authority
+requires it before commit. Record every observed result. Inspect the pre-commit
 working-tree diff and applicable authority coverage, then commit only the owned
 responsibility using the fixed message or selecting a message when the handoff
 explicitly delegates that choice. Inspect the committed attributable range. In
 authoritative mode, also inspect the exact planned-PR-base-to-current-head range.
-In candidate mode, report the preliminary evidence without claiming acceptance.
+The commit and writer checks are Candidate evidence in either mode; report them
+without claiming Task acceptance.
 
 Use exactly one status:
 
@@ -76,8 +83,6 @@ Feature Contract: <approved artifact or lightweight contract and assigned clause
 Task Contract: <purpose, expected result, constraints, non-goals, dependencies, and delegated decisions>
 Shared interfaces and responsibility: <owners, consumers, adjacent obligations, and owned boundary>
 Commit: <responsibility-scoped intent and fixed message or message-selection authority>
-Review context: <artifact, purpose, consumers, material risks, approved non-problems, and inapplicable assumptions>
-Review policy: <approved mode, per-task gate, Acceptance, capacity, and queue rules>
 Discipline: <TDD, green-baseline refactor, content migration, or other declared discipline>
 Working directory and workspace: <coordination path, task path, and approved branch or worktree>
 PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
@@ -92,9 +97,9 @@ eligibility. Keep every remaining execution and evidence field.
 For promotion reconciliation, replace them with the current approved contracts,
 dedicated reconciliation Task Contract, original lightweight base, preserved
 current head, exact unaccepted range and commits, complete ownership mapping,
-and prior writer and gate evidence. Existing commits satisfy the commit intent
-when no edit is needed. Do not edit unless the lead sends an authorized bounded
-correction.
+and the bounded responsibility needed to decide whether an edit is authorized.
+Existing commits satisfy the commit intent when no edit is needed. Do not edit
+unless the lead sends an authorized bounded correction.
 
 ## Correction message
 
@@ -106,7 +111,6 @@ Approved correction: <smallest authorized action>
 Authority: <unchanged Feature and Task Contracts or exact eligible legacy task authority and referenced design sources>
 Shared interfaces and responsibility: <unchanged boundaries>
 Commit: <correction scope bounded to the finding and fixed message or writer message-selection authority>
-Review context and Review policy: <unchanged approved values>
 Discipline: <declared value>
 Working directory and PR range: <task path, branch, planned base, and current head>
 Verification: <obligations, routes, and contractually fixed commands>

@@ -84,12 +84,16 @@ weakening a gate.
 Before every dispatch wave, resolve configured `agents.max_threads`, currently
 observed runtime capacity, and all live descendants. Effective subagent capacity
 is the lower configured or observed value. It excludes the root and counts each
-Task orchestrator and leaf. The root alone grants leaf capacity. Normally grant
-one leaf per schedulable active Task loop, never more than three or the smaller
-current lease, and then distribute spare leaf slots in the plan's deterministic
-queue order. Do not dispatch a Task orchestrator unless capacity is available
-for both that orchestrator and its baseline leaf. Capacity rejection is
-backpressure: retain queue and selected-role order without dropping,
+Task orchestrator and leaf. The root alone grants leaf capacity. Start each
+schedulable active Task with one root-granted baseline leaf; do not dispatch a
+Task orchestrator unless capacity exists for both it and that leaf. The baseline
+leaf is used serially outside review. Only after fresh verifier `PASS` and
+selection of at least two independent source reviewers may the Task orchestrator
+request temporary reviewer-wave expansion. The root may then grant at most three
+total Task leaves or the smaller current capacity in deterministic queue order.
+Only selected source reviewers use it, and the root revokes it before findings
+integration, triage, or correction. Free global capacity is not grant authority.
+Capacity rejection is backpressure: retain Task and role order without dropping,
 substituting, or weakening work.
 
 A task whose logical inputs are ready but whose final PR base is not yet
@@ -127,6 +131,10 @@ that Task Contract. Give it one concise plain-language handoff containing:
   restack evidence;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
+- authority for the Task orchestrator to build one in-memory current-head
+  Verification Matrix after each candidate or correction head resolves, and to
+  invalidate it on a head, range, controlling-authority, or material-route
+  change;
 - the responsibility-scoped commit intent and its fixed message or the approved
   writer authority to select that message;
 - contractually significant files, signatures, ordering, and exact commands
@@ -141,10 +149,12 @@ The Task orchestrator runs `execute-task` for that Task and may dispatch only
 its policy-selected implementer, verifier, reviewer, adversarial-integrator, or
 findings-only review-integrator leaves through
 `agent-teams-driven-development`, within the current root grant.
-It is non-writing, keeps one source writer, and tells every leaf not to spawn
-descendants. The root does not dispatch planned Task leaves. The Task
-orchestrator may request more capacity but may not grant or infer it, reorder
-selected roles, release dependencies, or decide Feature acceptance.
+It is non-writing, keeps one source writer, sends compact role-specific
+handoffs, and tells every leaf not to spawn descendants. The root does not
+dispatch planned Task leaves. The Task orchestrator may request more capacity
+only for the eligible source-reviewer wave; it may not grant or infer capacity,
+use expanded capacity for another phase, reorder selected roles, release
+dependencies, or decide Feature acceptance.
 
 For an eligible legacy task, pass the approved legacy task specification and its
 referenced design sources as the explicit authority, plus the same workspace,
@@ -273,7 +283,12 @@ with shared interfaces or unchanged eligible legacy authority, Review context,
 Review policy, current planned PR base and accepted head, responsibility
 boundaries, verification obligations, fresh capacity grant when applicable, and
 a correction commit intent bounded to the finding with its fixed message or
-approved writer message-selection authority.
+approved writer message-selection authority. Also supply prior reviewed head
+`H1`, prior reviewer reports and triage, and the unchanged complete selected
+reviewer set. Require one correction commit to `H2`, a rebuilt Verification
+Matrix, fresh `H2` verification, and correction review that starts with
+`H1..H2` but returns fresh verdicts for the full `base..H2` target. Earlier
+reports guide traversal only and never authorize `H2`.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do
@@ -322,7 +337,7 @@ containing:
   worktree, and relevant untracked state, matched to direct root re-observation;
 - task and correction commits;
 - fresh verification obligations, commands selected or required, and observed
-  results;
+  results as the completed current-head Verification Matrix;
 - per-task gate result;
 - reviewer and findings-integration outcomes, triage, non-blocking concerns,
   changed files, and gaps.

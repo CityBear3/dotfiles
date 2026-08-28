@@ -127,11 +127,16 @@ or a lightweight handoff that pretends to have a planned Task orchestrator.
 Treat `agents.max_threads` as subagent capacity across the complete descendant
 tree, excluding the root and counting every Task orchestrator and leaf. Use the
 lower configured or currently observed capacity. The root alone grants leaf
-capacity. This loop normally receives one leaf and may use at most three
-concurrent leaves or its smaller current grant. Request missing capacity without
-self-expanding; queue already-selected roles in order without dropping,
+capacity. Start this loop with one baseline leaf and use it serially for the
+writer, verifier, findings integration, triage, and correction. Only after a
+fresh verifier `PASS` and selection of at least two independent source reviewers
+may the owner request a temporary reviewer-wave expansion. The root may grant at
+most three total Task leaves or the smaller current capacity; only the selected
+source reviewers use that expansion. Revoke it before findings integration,
+triage, or correction. Free capacity is availability, not authority. Queue
+already-selected roles in deterministic policy order without dropping,
 substituting, reordering, or weakening them. Do not begin a planned orchestrator
-turn unless its grant includes a baseline leaf.
+turn unless its grant includes the baseline leaf.
 
 ## Choose one writer
 
@@ -142,7 +147,15 @@ restacked range needs only fresh verification and review; select one writer only
 for an authorized bounded correction. Resolve the role before loading its
 prompt: use the named profile when available, or
 [implementer-prompt.md](../agent-teams-driven-development/implementer-prompt.md)
-as its fallback. Pass only the selected role and task handoff to
+as its fallback. Keep the complete Task-loop handoff and evidence at the owning
+coordinator. Construct one compact writer role message from the complete
+Task-loop handoff containing only the owned responsibility, applicable
+authority clauses and preserved boundaries, discipline, candidate target,
+commit intent, focused writer-side obligations, exact workspace/base/head,
+one-writer boundary, and escalation conditions. Keep the exact authority
+sources directly available. Omit Review context and Review policy, review
+scheduling, completed gate evidence, capacity, and queue state from the writer
+message. Pass only the selected role and writer role message to
 `agent-teams-driven-development`.
 
 Every implementer, verifier, reviewer, adversarial integrator, and review
@@ -159,10 +172,12 @@ baseline. Preserve unrelated changes.
 
 Inside the applicable new-format or legacy authority, let the writer choose
 private files, helpers, local types and interfaces, algorithms, edit order,
-applicable standard verification commands, and additional focused
-non-destructive checks when those choices are delegated or unspecified. Require
-every actual choice and changed file to remain within the approved responsibility
-and be reported with evidence.
+focused non-destructive checks, and only a local type or build check needed for
+a coherent candidate when those choices are delegated or unspecified. Require
+every actual choice and changed file to remain within the approved
+responsibility and be reported with evidence. Do not make the writer duplicate
+the authoritative full format, build, lint, package/workspace/full-test, smoke,
+or integration suite unless exact authority fixes one as a pre-commit command.
 
 Require the writer to report:
 
@@ -204,6 +219,24 @@ For candidate or fresh authoritative implementation:
 5. Correct concrete in-scope failures while contract meaning remains unchanged.
 6. Create only the declared responsibility-scoped task commit.
 7. Record the new current head and inspect the attributable commit range.
+
+Writer completion and its commit are Candidate evidence even in authoritative
+mode. They never establish Task acceptance. After the exact committed head,
+merge base, range, changed files, and status resolve, the Task-loop owner builds
+one in-memory current-head Verification Matrix. For every applicable observable
+obligation record:
+
+- the obligation and authority;
+- one bounded command or check;
+- its expected observation; and
+- whether a non-match is `FAIL` or `BLOCKED`.
+
+One observation may support multiple explicitly mapped obligations, but no
+obligation may disappear because commands are grouped. The matrix is the
+verifier input and completed report spine, not a persistent schema. Invalidate
+and rebuild it when the head, range, controlling authority, or material
+verification route changes. A missing, incomplete, contradictory, or stale
+matrix is `BLOCKED`; do not let another role fill a row by inference.
 
 When the handoff is candidate mode because the final PR base is unavailable,
 stop after recording preliminary checks, the candidate commit and head, changed
@@ -262,31 +295,30 @@ Use `Escalate` only when resumption requires a material architecture, goal,
 scope, responsibility, public or shared interface, invariant, verification,
 policy, or authority decision.
 
-## Give check phases direct current evidence
+## Give each check phase direct role-specific evidence
 
-Pass the same Task PR evidence directly to `verify` and then `review`, without
-another identity or duplicate record:
+Keep the complete Task identity and authority evidence in the owning Task loop;
+do not copy it into one broad common leaf wrapper. Give `verify` only the exact
+workspace, branch, planned base, merge base, current head, range, clean-state
+precondition, changed-file inventory, completed-input Verification Matrix,
+command-environment facts, allowed ignored-artifact boundary, source-mutation
+invariant, and `PASS`/`FAIL`/`BLOCKED` report contract. Keep exact authority
+sources directly available for a matrix row, but do not send the complete Review
+policy unless one of its exact constraints changes the verification route.
 
-- exact authority identity, path or in-memory identity, approval/currentness
-  evidence, assigned Feature Contract clauses, exact Task Contract, shared
-  interfaces, constraints, non-goals, and delegated decisions; the exact
-  eligible legacy task authority and its referenced design sources; or the
-  promotion-reconciliation authority and attribution;
-- the Review context and active Review policy;
-- task workspace, branch, planned PR base ref and commit, merge base, current
-  head, exact range, status, and inspected diff;
-- responsibility boundaries and actual changed files;
-- the complete writer report;
-- every verification obligation and fresh required or selected command with its
-  expected and observed result;
-- commits, pre-commit inspection, repository guidance, concerns, and gaps;
-- the planned Task orchestrator or lightweight root context, configured,
-  observed, and effective capacity, current root grant, live identities, and
-  queued roles.
+After a fresh verifier `PASS`, give each selected reviewer the exact unchanged
+verified target, diff, changed files, its applicable authority clauses and
+perspective, Review context and complete Review policy, the completed
+Verification Matrix, and relevant prior triage, concerns, or gaps. Keep exact
+authority sources directly available without inlining unrelated unchanged
+prose. Give a findings integrator only the unchanged target, complete reports
+for its integration, applicable authority, Review context and policy, prior
+triage, and origin/remedy evidence it must assess.
 
-Eagerly provide assigned clauses and evidence needed by the check. Keep the
-exact authority source directly available, but do not inline or require an
-unconditional reread of unrelated unchanged prose.
+Writer reports remain candidate evidence, verifier reports return the completed
+matrix and one mechanical verdict, reviewers return perspective-specific
+semantic results, and integrators return reconciled findings. Preserve each
+report directly; do not translate it into a competing evidence format.
 
 Before dispatch, apply the ancestry invariant above and confirm that branch,
 planned base, merge base, HEAD, range, changed files, inspected diff, and
@@ -295,11 +327,12 @@ stale evidence returns `BLOCKED`.
 
 ## Invoke the authoritative Task PR checks
 
-Invoke `verify` first for the exact authoritative Task PR. Proceed only on its
-fresh `PASS` for the unchanged planned base, merge base, head, range, diff, and
-status. Then invoke `review` with that verification and the complete approved
-policy. Let `review` select and schedule only the policy-required task
-perspectives and return `CLEAN`, `FINDINGS`, or `BLOCKED`.
+Invoke `verify` first with the current-head Verification Matrix for the exact
+authoritative Task PR. Proceed only on its fresh completed-matrix `PASS` for the
+unchanged planned base, merge base, head, range, diff, and status. Then invoke
+`review` with that completed matrix and the complete approved policy. Let
+`review` select and schedule only the policy-required task perspectives and
+return `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
 All new-format planned verifier and reviewer leaves remain descendants of the
 bound Task orchestrator; all lightweight leaves remain direct descendants of
@@ -349,13 +382,14 @@ objections without materially new evidence.
 ## Correct and re-review without an open-ended loop
 
 For each authorized correction, retain the exact concrete finding or failed
-observation and every observed correction attempt. Give the existing writer only
-the bounded correction, unchanged Feature and Task Contracts with shared
-interfaces, unchanged lightweight combined contract, or unchanged eligible
-legacy task authority, Review context, Review policy, current planned PR base,
-responsibility boundaries, and verification obligations. Also pass a correction
-commit intent bounded to the finding and its fixed message or explicit writer
-authority to select the correction message.
+observation, every observed correction attempt, prior reviewed head `H1`, prior
+reviewer reports and triage, and the unchanged complete selected reviewer set.
+Give the existing writer only the bounded correction, unchanged Feature and Task
+Contracts with shared interfaces, unchanged lightweight combined contract, or
+unchanged eligible legacy task authority, current planned PR base,
+responsibility boundaries, focused writer obligations, and a correction commit
+intent bounded to the finding with its fixed message or explicit writer
+message-selection authority.
 
 Then:
 
@@ -363,11 +397,26 @@ Then:
 2. run any applicable writer or pre-commit checks without treating them as the
    authoritative gate;
 3. create only the declared correction commit;
-4. record the new current head, status, merge base, and exact planned-base-to-
-   head PR range;
-5. invoke fresh authoritative `verify` against that committed range;
-6. only after `PASS`, rerun the same complete policy-selected task review,
-   required findings integration, and triage against the unchanged range.
+4. record new head `H2`, status, merge base, full `base..H2` target, and the
+   `H1..H2` correction delta;
+5. rebuild the Verification Matrix for `H2` and invoke fresh authoritative
+   `verify` against that committed range;
+6. only after `PASS`, rerun the same complete policy-selected reviewer set with
+   prior reports and triage, the `H1..H2` correction delta, direct access to the
+   full `base..H2` target, and the fresh completed matrix;
+7. require every reviewer to inspect the corrected finding and delta first,
+   follow affected callers, tests, interfaces, responsibilities, and
+   obligations, then return a fresh verdict for the complete current target;
+8. run required findings integration and triage against the unchanged `H2`.
+
+Prior verdicts are navigation evidence only and never authorize `H2`. Switch a
+reviewer to ordinary full traversal when the correction escapes its bounded
+authorization; changes a public or shared interface, responsibility, schema,
+error model, concurrency, security, dependency, or test strategy; changes the
+base, controlling authority, or Review policy; lacks complete prior reviewer or
+triage evidence; exposes another finding; or cannot establish that prior
+inspected areas remain unaffected. Reviewer selection is never recalculated from
+the delta.
 
 Do not reuse stale verification, approval, head, or range. If the same concrete
 problem repeats without progress or another action would repeat an observed

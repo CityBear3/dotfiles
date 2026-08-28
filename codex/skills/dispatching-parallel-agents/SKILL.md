@@ -44,12 +44,16 @@ configured slot is currently available.
 
 The root grants leases. A new Task orchestrator consumes one slot and must also
 receive capacity for its baseline one-leaf grant. Do not dispatch it when those
-two slots are unavailable. One Task loop may receive at most three leaf slots or
-its smaller current grant. First grant one leaf to each schedulable active Task
-when capacity permits, then grant spare independent check-only or read-only
-slots in the approved deterministic queue order. Count writers and reviewers
-from every active Task PR. Queue ready Tasks or selected roles rather than
-dropping, reordering, substituting, or oversubscribing them.
+two slots are unavailable. That baseline is the Task's only leaf outside the
+source-reviewer wave. Only after fresh verifier `PASS` and selection of at least
+two independent source reviewers may an orchestrator request temporary
+expansion. The root may grant at most three total Task leaves or the smaller
+current capacity, only to the selected source reviewers, in the approved
+deterministic queue order. Revoke the expansion when the reviewer wave ends or
+exits for priority authority assessment, before integration, triage, or
+correction. A free slot is availability, not permission. Count writers and
+reviewers from every active Task PR. Queue ready Tasks or selected roles rather
+than dropping, reordering, substituting, or oversubscribing them.
 
 ## Dispatch
 
@@ -69,7 +73,9 @@ Each prompt states:
 - exact return format;
 - the current root-granted leaf count and selected-role queue;
 - authority to spawn only policy-selected bounded leaves inside that grant,
-  with every such leaf prohibited from spawning descendants.
+  with every such leaf prohibited from spawning descendants, the baseline leaf
+  used serially, and any temporary expansion reserved for the source-reviewer
+  wave and revoked before later phases.
 
 Continue useful lead work while agents run. Use bounded `wait_agent` calls and `list_agents` for regular status checks.
 

@@ -142,9 +142,14 @@ Use `focused` as the lightweight default:
 - effective subagent capacity equal to the lower of configured
   `agents.max_threads` and currently observed runtime capacity, with the root
   excluded from `max_threads` and every live descendant counted;
-- a root-granted lightweight Task-loop lease of normally one leaf and at most
-  three concurrent leaves, never exceeding its smaller current grant;
-- deterministic queueing without reducing selected scope;
+- one root-granted baseline leaf for serial implementation, verification,
+  findings integration, triage, and correction;
+- temporary expansion only after verifier `PASS` for a policy-selected wave of
+  at least two independent source reviewers, granted only by the root up to
+  three total Task leaves or smaller current capacity, and revoked before
+  integration, triage, or correction;
+- deterministic queueing without reducing selected scope when expansion is
+  unavailable; free capacity is not authority;
 - findings-only general integration, with authority-defect priority and no
   general integrator after an all-clean review;
 - the common Acceptance threshold.
@@ -179,7 +184,10 @@ Give `execute-task` one plain-language task handoff containing:
 - responsibility and ownership boundaries;
 - the responsibility-scoped commit intent and writer authority to select its
   message unless the request contractually fixes that message;
-- the applicable verification route and expected observations;
+- the applicable verification route and expected observations, including the
+  root-owned Task-loop owner's obligation to build one in-memory current-head
+  Verification Matrix after the commit and invalidate it on a head, range,
+  controlling-authority, or material-route change;
 - attributable commits, prior verification and review, concerns, gaps, and
   re-entry evidence when applicable;
 - configured, observed, and effective subagent capacity, live identities,
@@ -194,6 +202,14 @@ another planned-only field.
 
 Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
+
+When an authorized lightweight correction re-enters `execute-task`, retain prior
+reviewed head `H1`, prior reports and triage, and the unchanged complete selected
+reviewer set. Require one bounded correction commit to `H2`, a rebuilt matrix,
+fresh `H2` verification, and review that traverses `H1..H2` first while returning
+fresh full `base..H2` verdicts. Earlier verdicts are navigation evidence only.
+Planned correction mechanics remain owned by `execute-plan` and its bound Task
+orchestrator under the same contract.
 
 ## Use approval gates on the planned path
 

@@ -37,6 +37,7 @@ For a Task PR require:
   and commit, merge base, current head, exact range, diff, status, and changed
   files;
 - fresh coordinator verification `PASS` for that same unchanged head and range;
+- the completed current-head Verification Matrix returned by that verifier;
 - no unexplained in-scope source state outside the committed range;
 - approved scope, non-goals, Review context, and complete Review policy;
 - applicable Feature and Task Contract authority, current dependency and shared-
@@ -222,16 +223,22 @@ root dispatches them in its Task loop; for standalone work, the root dispatches
 them as direct leaves of the standalone target. Another coordinator-owned target
 uses its explicit root-owned context. The adapter calls `list_agents` before
 each wave and uses the lower of configured `agents.max_threads` and observed
-runtime capacity.
-The root is excluded from `max_threads`; every Task orchestrator and leaf is
-counted. Never exceed a Task loop's root-granted lease or a standalone target's
-target-local grant, each at most three leaves or its smaller current grant.
-Queue remaining required reviewers in deterministic policy order without
-reducing scope, independence, or applicable breadth. A Task orchestrator may
-request capacity but may not infer or expand its own lease. An unavailable
-required reviewer returns `BLOCKED` with the role,
-configured/observed/effective capacity, execution context, grant, queue, gap,
-and re-entry condition.
+runtime capacity. The root is excluded from `max_threads`; every Task
+orchestrator and leaf is counted.
+
+Outside the source-reviewer wave, a Task loop uses its one root-granted baseline
+leaf. When fresh verification passes and the policy selected at least two
+independent source reviewers, the Task-loop owner may request a temporary
+reviewer-wave expansion. Only the root may grant it, up to three total Task
+leaves or the smaller current capacity, and only policy-selected source
+reviewers consume it. Queue remaining reviewers in deterministic policy order
+without reducing scope, independence, or breadth. Free capacity is not lease
+authority, and unavailable expansion only increases latency while the baseline
+queue can progress. The expansion must be revoked before findings integration,
+triage, or correction and also when review exits early for a priority authority
+assessment. An unavailable required reviewer or queue that cannot progress
+returns `BLOCKED` with the role, configured/observed/effective capacity,
+execution context, grant, queue, gap, and re-entry condition.
 
 Use named profiles when selectable; otherwise provide a complete fallback role
 prompt. Reviewers and integrators do not edit files or spawn descendants.
@@ -249,7 +256,8 @@ Pass directly to every selected reviewer:
   obligations applicable to that perspective;
 - approved scope and non-goals;
 - the same Review context and Review policy when available;
-- fresh verification commands and observed results;
+- the completed current-head Verification Matrix with fresh commands, expected
+  observations, and observed results;
 - relevant dependency and Task PR outcomes, prior triage decisions, concerns,
   and gaps;
 - that reviewer's selected perspective and output expectations.
@@ -263,6 +271,32 @@ load complete sources for design-alignment, scope, or another perspective that
 owns whole-contract coverage. Other perspectives start with applicable clauses
 and inspect additional source sections when their evidence requires it; do not
 copy or require an unconditional reread of unrelated unchanged prose.
+
+## Review a corrected head delta-first
+
+For a bounded correction from prior reviewed head `H1` to current head `H2`,
+rerun the same complete policy-selected reviewer set. Do not recalculate
+perspectives from the delta. Give every reviewer:
+
+- prior head `H1`, current head `H2`, and the full `base..H2` target;
+- the `H1..H2` correction delta and exact corrected finding;
+- its prior report, the integrated assessment, and triage decision;
+- the fresh completed Verification Matrix for `H2`; and
+- the same authority, Review context, Review policy, and selected perspective.
+
+Traversal is delta-first: start with the corrected finding and `H1..H2`, then
+follow affected callers, tests, interfaces, responsibilities, and obligations.
+Prior review evidence is navigation only. Return a new perspective result bound
+to `H2` and a fresh verdict for the full `base..H2` target.
+
+Use ordinary full traversal when the correction escapes its bounded
+authorization; changes a public or shared interface, responsibility boundary,
+schema, error model, concurrency, security, dependency, or test strategy;
+changes the base, controlling authority, or Review policy; lacks complete prior
+reviewer or triage evidence; exposes another finding; or cannot establish that
+previously inspected areas remain unaffected. A missing or stale prior report
+disables the delta-first optimization but never removes fresh review. No prior
+verdict authorizes `H2`, and no policy-selected reviewer may be skipped.
 
 ## Apply the common Acceptance threshold
 
@@ -313,8 +347,9 @@ finding, the owning Task loop or standalone root must run
 `review-integrator` against the exact unchanged target before this skill reports
 `FINDINGS`. For planned work the bound Task orchestrator dispatches it; for
 lightweight, standalone, and another root-owned coordinator target the root
-dispatches it in that explicit context. Use `agent-teams-driven-development`
-and the same current grant and global capacity accounting as the reviewer wave.
+dispatches it in that explicit context. First revoke any temporary
+reviewer-wave expansion, then use `agent-teams-driven-development` under the
+baseline one-leaf grant and the same global capacity accounting.
 
 Give `review-integrator`:
 
