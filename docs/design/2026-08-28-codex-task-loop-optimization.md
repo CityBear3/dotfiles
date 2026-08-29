@@ -4,9 +4,10 @@
 - Drafted by: Codex from owner-settled design decisions
 - Date: 2026-08-28
 - Revised: 2026-08-29
-- Status: Revised version approved by the repository owner on 2026-08-29
-- Approved content SHA-256:
-  `6eff34adf56b0091060bc34309e987d30b0d36c8aae5d88322a12af0a1d95cd7`
+- Status: Kotlin network-boundary revision approved by the repository owner on
+  2026-08-29
+- Approved draft SHA-256:
+  `70debc1d10ba0d7c876634233a0994f29ed8e80e526b6f30de377efedf3fd00c`
 - Prior approved document SHA-256:
   `68d74d9a1eee94d7ae6f39a847bebcc6d75ddc5004e412f7ac17b5ecd7768b6b`
 - Repository baseline: `d32ec49957eb419dd12095b69c196eb0128619bb`
@@ -613,9 +614,11 @@ Kotlin. The product is a deterministic `task-filter` CLI:
 
 Equivalent native tests cover filtering, deterministic ordering, invalid input,
 and read failure. The implementation stays deliberately small and uses no
-third-party Rust crate or Go module. Kotlin uses only its prepared project,
-standard runtime/test facilities, and already-downloaded Gradle, Kotlin/JVM, and
-JVM 25 inputs; an observed run performs no dependency or toolchain download.
+third-party Rust crate or Go module. Kotlin keeps the prepared project's fixed
+Kotlin JVM plugin 2.3.20, Gradle 9.2.1, JVM 25, standard runtime, and
+`kotlin("test")` declarations. Gradle resolution may use the network, but the
+benchmark adds no plugin, application or test library, repository, dependency
+declaration, or version.
 
 The benchmark root is
 `/Users/sakumatomoya/workspace/codex-task-loop-benchmark`. It contains exactly
@@ -646,10 +649,13 @@ run-state/{before,after}/{rust,go,kotlin}/
 Rust redirects Cargo home and target state. Go redirects build, module, GOPATH,
 and temporary state and disables network module paths. Kotlin gives each side a
 separate mutable Gradle home, project cache, build output, and temporary state.
-Both Kotlin sides may read the same fingerprinted, already-downloaded Gradle,
-Kotlin/JVM, and JVM 25 inputs only as immutable toolchain material. Environment
-preparation is excluded from observed Task-loop time; build outputs, compiler
-daemon state, and mutable Gradle state are never shared.
+Before observation, the controller resolves only the fixed declared Kotlin
+graph into a fingerprinted input snapshot. Both sides start from equivalent
+copies of that snapshot; later network and download events are recorded
+observations rather than automatic failures. Environment preparation is
+excluded from observed Task-loop time; the global Gradle home, build outputs,
+compiler daemon state, and mutable Gradle state are never shared or mutated by
+the measured runs.
 
 Before switching to an after branch, the controller records the before result
 head, raw JSONL, metrics, current-head evidence, tracked/untracked/ignored status
@@ -677,8 +683,8 @@ bounded authorized correction when needed, fresh post-correction gates, and the
 final Task outcome. No finding or correction is injected. Naturally occurring
 findings, correction cycles, convergence, and final quality are measurements.
 The exact repository setup, fixtures, prompt bytes, status-manifest procedure,
-offline environment, and run commands live in the Implementation Plan rather
-than reusable Skill prose.
+language dependency and state boundaries, and run commands live in the
+Implementation Plan rather than reusable Skill prose.
 
 Measurement reports two layers:
 
@@ -825,20 +831,29 @@ source starting point without doubling the number of project directories.
 Separate controller-owned evidence and run-state trees plus an exact residual-
 state check provide the required execution isolation.
 
+### Keep Kotlin strictly offline
+
+Rejected after E1 setup proved that the local Kotlin 2.3.20 cache lacks part of
+the compiler/build-tool artifact graph. The repository owner selected fixed
+dependency declarations, not offline execution, as the material boundary.
+Network resolution therefore remains limited to the already-declared graph and
+does not authorize another plugin, library, repository, or version.
+
 ### Keep Python or use Java for the JVM workload
 
 Python was rejected because it is not representative of the owner's primary or
 workplace workloads. Java was superseded by the locally prepared Kotlin/JVM
-project, which better represents the workplace environment without requiring a
-new toolchain download. Rust, Go, and Kotlin provide three relevant paired
-workloads while keeping the benchmark bounded.
+project, which better represents the workplace environment while retaining a
+fixed Kotlin 2.3.20, Gradle 9.2.1, and JVM 25 toolchain. Rust, Go, and Kotlin
+provide three relevant paired workloads while keeping the benchmark bounded.
 
 ### Use a larger application or third-party dependencies
 
 Rejected because the benchmark compares workflow overhead, convergence, and
-quality on the same fixed task within each language. Additional product scope,
-dependency resolution, and network variability would spend more time and
-tokens without improving that comparison.
+quality on the same fixed task within each language. Additional product scope
+or dependency declarations would spend more time and tokens without improving
+that comparison. Kotlin's fixed build-tool graph may resolve over the network,
+but that does not authorize another application or test dependency.
 
 ### Compare unrelated live Tasks after rollout
 
