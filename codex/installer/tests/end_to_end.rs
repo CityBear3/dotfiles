@@ -618,8 +618,19 @@ fn managed_task_loop_gives_each_role_a_complete_handoff_and_reentry() {
             .expect("read Task leaf dispatch skill");
     let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
         .expect("read execute-plan skill");
+    let orchestrator_text = fs::read_to_string(source_root.join("agents/task-orchestrator.toml"))
+        .expect("read Task orchestrator profile");
 
     // Act
+    let orchestrator =
+        toml::from_str::<toml::Table>(&orchestrator_text).expect("parse Task orchestrator TOML");
+    let orchestrator_instructions = orchestrator
+        .get("developer_instructions")
+        .and_then(toml::Value::as_str)
+        .expect("Task orchestrator developer instructions")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let task_dispatch = task_dispatch
         .split_whitespace()
         .collect::<Vec<_>>()
@@ -667,6 +678,28 @@ fn managed_task_loop_gives_each_role_a_complete_handoff_and_reentry() {
     assert!(execute_plan.contains(
         "complete new handoff and revalidate all authority, policy, Git, writer, and capacity evidence"
     ));
+    for required in [
+        "same idle Task orchestrator needs an attributable re-entry",
+        "use `followup_task` with a fresh complete handoff",
+        "require it to directly revalidate Git and authority",
+    ] {
+        assert!(
+            task_dispatch.contains(required),
+            "Task-orchestrator adapter re-entry omits {required:?}"
+        );
+    }
+    assert_eq!(
+        orchestrator.get("name").and_then(toml::Value::as_str),
+        Some("task-orchestrator")
+    );
+    assert!(
+        orchestrator_instructions
+            .contains("Give every leaf one complete role-specific handoff with exact source paths")
+    );
+    assert!(
+        orchestrator_instructions
+            .contains("require it to directly revalidate current Git and authority")
+    );
 }
 
 #[test]
@@ -830,6 +863,21 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         source_root.join("skills/agent-teams-driven-development/focused-reviewer-prompt.md"),
     )
     .expect("read focused reviewer fallback prompt");
+    let code_quality_fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/code-quality-reviewer-prompt.md"),
+    )
+    .expect("read code-quality reviewer fallback prompt");
+    let specification_fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/spec-reviewer-prompt.md"),
+    )
+    .expect("read specification reviewer fallback prompt");
+    let implementer_fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/implementer-prompt.md"),
+    )
+    .expect("read implementer fallback prompt");
+    let receiving_review =
+        fs::read_to_string(source_root.join("skills/receiving-code-review/SKILL.md"))
+            .expect("read receiving-code-review skill");
 
     // Act
     let orchestrator =
@@ -848,6 +896,22 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .collect::<Vec<_>>()
         .join(" ");
     let reviewer_fallback = reviewer_fallback
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let code_quality_fallback = code_quality_fallback
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let specification_fallback = specification_fallback
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let implementer_fallback = implementer_fallback
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let receiving_review = receiving_review
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
@@ -910,6 +974,52 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
             .contains("Resolve current Git, authority, verification, and review evidence directly")
     );
     assert!(reviewer_fallback.contains("never edit the Feature-lead-owned cache"));
+    for (role, contract, lookup, current_evidence, ownership, candidate) in [
+        (
+            "code-quality reviewer fallback",
+            code_quality_fallback.as_str(),
+            "When the handoff supplies a current `search-cache.md` entry",
+            "Resolve current Git, authority, verification, and review evidence directly",
+            "never edit the Feature-lead-owned cache",
+            "return any attributable cache candidate separately from the verdict",
+        ),
+        (
+            "specification reviewer fallback",
+            specification_fallback.as_str(),
+            "When the handoff supplies a current `search-cache.md` entry",
+            "Resolve current Git, authority, verification, and review evidence directly",
+            "never edit the Feature-lead-owned cache",
+            "return any attributable cache candidate separately from the verdict",
+        ),
+        (
+            "implementer fallback",
+            implementer_fallback.as_str(),
+            "look up a current matching `search-cache.md` entry before new discovery",
+            "never as Git, authority, verification, or review proof",
+            "The Feature lead is the only writer",
+            "return attributable cache candidates instead of editing the file",
+        ),
+        (
+            "receiving-code-review",
+            receiving_review.as_str(),
+            "look up a current matching cache entry before new discovery",
+            "Resolve the workspace, branch, base, merge base, head, range or composition, diff, status, and changed files directly from Git",
+            "this role never edits `search-cache.md`",
+            "return attributable cache candidates to the Feature lead",
+        ),
+    ] {
+        for (group, expected) in [
+            ("current lookup", lookup),
+            ("direct current evidence", current_evidence),
+            ("Feature-lead ownership and no-edit boundary", ownership),
+            ("attributable candidate return", candidate),
+        ] {
+            assert!(
+                contract.contains(expected),
+                "{role} omits {group}: {expected:?}"
+            );
+        }
+    }
 }
 
 #[test]
@@ -1072,7 +1182,9 @@ fn managed_example_plan_defines_the_planned_discovery_cache_shared_interface() {
         "docs/plans/YYYY-MM-DD-<feature>/search-cache.md",
         "Feature lead is the only writer",
         "Consumers: new-format planned coordinators, Task orchestrators, and leaves",
-        "source identity, positive and useful negative results",
+        "source identity",
+        "observation date or repository identity",
+        "positive and useful negative results",
         "reuse conditions and source-aware invalidation conditions",
         "never replaces current Git, authority, verification, or review evidence",
         "same lifecycle as the ignored Implementation Plan",
@@ -1094,23 +1206,55 @@ fn managed_example_behavior_task_separates_historical_red_from_current_acceptanc
         .expect("read example implementation plan");
 
     // Act
-    let behavior_task = example
+    let parser_task = example
         .split("## Task Contract 1: Parse the approved form")
         .nth(1)
         .and_then(|section| section.split("## Task Contract 2").next())
-        .expect("example behavior Task Contract")
+        .expect("example parser Task Contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let renderer_task = example
+        .split("## Task Contract 2: Render the approved value")
+        .nth(1)
+        .and_then(|section| section.split("## Task Contract 3").next())
+        .expect("example renderer Task Contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let cli_task = example
+        .split("## Task Contract 3: Complete the CLI journey")
+        .nth(1)
+        .and_then(|section| section.split("## Feature acceptance").next())
+        .expect("example CLI Task Contract")
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
 
     // Assert
-    assert!(behavior_task.contains("actual pre-production RED and its reason"));
-    assert!(behavior_task.contains("before the production edit"));
-    assert!(behavior_task.contains("never recreate historical RED evidence"));
-    assert!(behavior_task.contains("exact current head and range"));
-    assert!(behavior_task.contains("fresh verification and selected review"));
-    assert!(behavior_task.contains(
+    assert!(parser_task.contains("actual pre-production RED and its reason"));
+    assert!(parser_task.contains("before the production edit"));
+    assert!(parser_task.contains("never recreate historical RED evidence"));
+    assert!(parser_task.contains("exact current head and range"));
+    assert!(parser_task.contains("fresh verification and selected review"));
+    assert!(parser_task.contains(
         "history-only gap is not a blocker without a reachable current defect, material current evidence gap, material contract deviation, or controlling authority"
+    ));
+    assert!(renderer_task.contains("actual renderer RED before production output changes"));
+    assert!(
+        renderer_task.contains(
+            "exact current head and range through fresh verification and selected review"
+        )
+    );
+    assert!(renderer_task.contains(
+        "history alone does not block without a reachable current defect, material current evidence gap, material contract deviation, or controlling authority"
+    ));
+    assert!(cli_task.contains("real-process RED before production wiring"));
+    assert!(cli_task.contains(
+        "Current CLI Acceptance remains bound to the exact head and range, fresh verification, and selected review"
+    ));
+    assert!(cli_task.contains(
+        "history alone does not block unless it exposes a reachable current defect, material current evidence gap, material contract deviation, or controlling authority"
     ));
 }
 

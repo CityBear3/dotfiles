@@ -47,8 +47,9 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - Path: `docs/plans/YYYY-MM-DD-<feature>/search-cache.md`.
 - Owner: The Feature lead is the only writer.
 - Consumers: new-format planned coordinators, Task orchestrators, and leaves.
-- Entry: Record purpose and scope, source identity, positive and useful negative
-  results, reuse conditions and source-aware invalidation conditions.
+- Entry: Record purpose and scope, source identity, observation date or
+  repository identity, positive and useful negative results, reuse conditions
+  and source-aware invalidation conditions.
 - Boundary: The cache never replaces current Git, authority, verification, or
   review evidence.
 - Lifecycle: It has the same lifecycle as the ignored Implementation Plan.
@@ -178,6 +179,11 @@ results and this stack are current.
 - **Constraints:** No field loss or new formatting contract.
 - **Verification:** Record the focused red failure, then observe exact new and
   representative existing output.
+- **Historical TDD / Current Acceptance:** Preserve the actual renderer RED
+  before production output changes. Judge the exact current head and range
+  through fresh verification and selected review; history alone does not block
+  without a reachable current defect, material current evidence gap, material
+  contract deviation, or controlling authority.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
@@ -201,6 +207,11 @@ results and this stack are current.
 - **Constraints:** Keep parsing and rendering in the library.
 - **Verification:** Exercise new, existing, and malformed forms through the real
   process.
+- **Historical TDD / Current Acceptance:** Record the real-process RED before
+  production wiring. Current CLI Acceptance remains bound to the exact head and
+  range, fresh verification, and selected review; history alone does not block
+  unless it exposes a reachable current defect, material current evidence gap,
+  material contract deviation, or controlling authority.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
