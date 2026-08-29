@@ -917,6 +917,28 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .join(" ");
     let workflow_contract = workflow.split_whitespace().collect::<Vec<_>>().join(" ");
     let create_plan_contract = create_plan.split_whitespace().collect::<Vec<_>>().join(" ");
+    let lightweight_contract = execute_task
+        .split("The lightweight variant adds:")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("For a plan already executing before the contract-centered format")
+                .next()
+        })
+        .expect("bounded lightweight handoff section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let planned_cache_start = execute_task
+        .find("For new-format planned work, look up a current matching cache entry")
+        .expect("planned cache lookup scope");
+    let planned_cache_contract = execute_task[planned_cache_start..]
+        .split("Independent initial authority reads")
+        .next()
+        .expect("bounded planned cache lookup section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
 
     // Assert
     for producer in [&workflow, &create_plan] {
@@ -974,6 +996,15 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
             .contains("Resolve current Git, authority, verification, and review evidence directly")
     );
     assert!(reviewer_fallback.contains("never edit the Feature-lead-owned cache"));
+    assert!(!lightweight_contract.contains("search-cache.md"));
+    assert!(lightweight_contract.contains("The lightweight variant never requires or fabricates"));
+    assert!(lightweight_contract.contains("another planned-only artifact"));
+    assert!(planned_cache_contract.starts_with("For new-format planned work"));
+    assert!(
+        planned_cache_contract
+            .contains("look up a current matching cache entry before new discovery")
+    );
+    assert!(planned_cache_contract.contains("only that lead edits `search-cache.md`"));
     for (role, contract, lookup, current_evidence, ownership, candidate) in [
         (
             "code-quality reviewer fallback",
