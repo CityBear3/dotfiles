@@ -1319,6 +1319,185 @@ fn managed_task_loop_routes_planned_and_lightweight_to_distinct_executors() {
 }
 
 #[test]
+fn managed_lightweight_writer_result_is_classified_before_the_authoritative_gate() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_lightweight_task =
+        fs::read_to_string(source_root.join("skills/execute-lightweight-task/SKILL.md"))
+            .expect("read execute-lightweight-task skill");
+
+    // Act
+    let writer_result_contract = execute_lightweight_task
+        .split("The writer reports `DONE`")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Produce current lightweight Task PR evidence")
+                .next()
+        })
+        .expect("bounded lightweight writer-result contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let acceptance_contract = execute_lightweight_task
+        .split("## Return lightweight task acceptance")
+        .nth(1)
+        .expect("bounded lightweight Acceptance contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let evidence_contract = execute_lightweight_task
+        .split("## Produce current lightweight Task PR evidence")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Resume only safe attributable state")
+                .next()
+        })
+        .expect("bounded lightweight evidence contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let checks_contract = execute_lightweight_task
+        .split("## Invoke the authoritative lightweight Task PR checks")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Correct and re-review without an open-ended loop")
+                .next()
+        })
+        .expect("bounded lightweight checks contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let verify = checks_contract
+        .find("Invoke `verify` first against the exact current lightweight Task PR")
+        .expect("lightweight gate invokes verify");
+    let unchanged_pass = checks_contract
+        .find("Continue only on fresh `PASS` for the unchanged base")
+        .expect("lightweight gate requires unchanged-target PASS");
+    let review = checks_contract
+        .find("Then invoke `review` with that matrix")
+        .expect("lightweight gate invokes review after verification");
+
+    // Assert
+    for required in [
+        "Only verified `DONE` may advance",
+        "Candidate evidence only, never task acceptance",
+        "For `DONE_WITH_CONCERNS`, classify each concern as an authorized correction, operational `BLOCKED`, or user-owned `Escalate`",
+        "`BLOCKED` preserves the gap and observed state",
+        "`NEEDS_CONTEXT` is `BLOCKED` when the missing input is safely discoverable within current authority; otherwise it is `Escalate`",
+        "Do not let another writer result enter Task evidence or the authoritative gate unclassified",
+    ] {
+        assert!(
+            writer_result_contract.contains(required),
+            "lightweight writer-result contract omits {required:?}"
+        );
+    }
+    assert!(evidence_contract.contains("build one in-memory current-head"));
+    assert!(verify < unchanged_pass && unchanged_pass < review);
+    assert!(acceptance_contract.contains(
+        "the complete selected gate is closed by `CLEAN` or resolved current `Push back` triage"
+    ));
+}
+
+#[test]
+fn managed_lightweight_correction_reenters_the_same_executor_with_mode_aware_fallback() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_lightweight_task =
+        fs::read_to_string(source_root.join("skills/execute-lightweight-task/SKILL.md"))
+            .expect("read execute-lightweight-task skill");
+    let workflow =
+        fs::read_to_string(source_root.join("skills/agentic-engineering-workflow/SKILL.md"))
+            .expect("read agentic workflow skill");
+    let fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/implementer-prompt.md"),
+    )
+    .expect("read implementer fallback prompt");
+
+    // Act
+    let executor_correction = execute_lightweight_task
+        .split("## Correct and re-review without an open-ended loop")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Return lightweight task acceptance")
+                .next()
+        })
+        .expect("bounded lightweight executor correction section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let workflow_lightweight_route = workflow
+        .split("## Prepare the lightweight task")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Maintain the planned-lifecycle search cache")
+                .next()
+        })
+        .expect("bounded lightweight workflow route")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let workflow_correction = workflow
+        .split("## Advance only on current evidence")
+        .nth(1)
+        .expect("bounded workflow correction routing")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let fallback_correction = fallback
+        .split("## Correction message")
+        .nth(1)
+        .and_then(|section| section.split("```").nth(1))
+        .expect("bounded implementer fallback correction message")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    assert!(executor_correction.contains("For each authorized lightweight correction"));
+    assert!(
+        executor_correction
+            .contains("Do not add a planned cache or route correction through `execute-plan`")
+    );
+    assert!(workflow_lightweight_route.contains(
+        "When an authorized lightweight correction re-enters `execute-lightweight-task`"
+    ));
+    for route in [
+        "lightweight correction directly to its combined-contract Task in `execute-lightweight-task`",
+        "For lightweight work, route the `Fix` directly to its combined-contract Task through `execute-lightweight-task`",
+    ] {
+        assert!(
+            workflow_correction.contains(route),
+            "workflow correction omits same-executor route {route:?}"
+        );
+    }
+    assert!(
+        !workflow_lightweight_route.contains("lightweight correction re-enters `execute-plan`")
+    );
+    assert!(!workflow_correction.contains(
+        "lightweight correction directly to its combined-contract Task in `execute-plan`"
+    ));
+    assert!(fallback_correction.contains(
+        "Authority: <unchanged planned Feature and Task Contracts, unchanged lightweight combined contract, or exact eligible legacy task authority and referenced design sources>"
+    ));
+    assert!(fallback_correction.contains(
+        "Working directory and PR range: <task path, branch, exact applicable Task base, and current head>"
+    ));
+    assert!(fallback_correction.contains(
+        "Search cache (new-format planned corrections only; omit for lightweight and eligible legacy)"
+    ));
+    assert!(!fallback_correction.contains("branch, planned base, and current head"));
+}
+
+#[test]
 fn managed_task_loop_separates_tdd_history_from_current_acceptance() {
     // Arrange
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))

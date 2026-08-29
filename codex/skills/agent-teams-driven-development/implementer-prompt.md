@@ -129,11 +129,11 @@ Correct one bounded task.
 Concrete finding: <failed command or review finding with evidence>
 Observed attempts: <prior actions and results; empty for the first attempt>
 Approved correction: <smallest authorized action>
-Authority: <unchanged Feature and Task Contracts or exact eligible legacy task authority and referenced design sources>
+Authority: <unchanged planned Feature and Task Contracts, unchanged lightweight combined contract, or exact eligible legacy task authority and referenced design sources>
 Shared interfaces and responsibility: <unchanged boundaries>
 Commit: <correction scope bounded to the finding and fixed message or writer message-selection authority>
 Discipline: <declared value>
-Working directory and PR range: <task path, branch, planned base, and current head>
+Working directory and PR range: <task path, branch, exact applicable Task base, and current head>
 Verification: <obligations, routes, and contractually fixed commands>
 Search cache (new-format planned corrections only; omit for lightweight and
 eligible legacy): <exact planned path, current matching entry or miss, source

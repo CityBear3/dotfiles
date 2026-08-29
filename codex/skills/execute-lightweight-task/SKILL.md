@@ -116,7 +116,14 @@ material evidence gaps, contract deviations, and controlling authority.
 The writer reports `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`,
 changed files and behavior, actual discipline history, all commands and observed
 results, pre-commit inspection, the commit and new head when complete, concerns,
-and gaps. Writer completion is Candidate evidence, never task acceptance.
+and gaps. Classify that result before producing Task evidence. Only verified
+`DONE` may advance, and it is Candidate evidence only, never task acceptance.
+For `DONE_WITH_CONCERNS`, classify each concern as an authorized correction,
+operational `BLOCKED`, or user-owned `Escalate`.
+`BLOCKED` preserves the gap and observed state. `NEEDS_CONTEXT` is `BLOCKED`
+when the missing input is safely discoverable within current authority;
+otherwise it is `Escalate`. Do not let another writer result enter Task evidence
+or the authoritative gate unclassified.
 
 ## Produce current lightweight Task PR evidence
 
