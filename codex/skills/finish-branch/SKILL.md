@@ -101,6 +101,11 @@ contract requires; do not impose the new planned-feature lifecycle.
 
 ## Keep workspace-only artifacts with their worktree
 
+This section applies only to new-format planned Task and Feature modes.
+Eligible legacy mode follows its original completion and retention contract,
+does not require `search-cache.md`, and does not manufacture new-format
+artifacts.
+
 Do not remove the planned feature's ignored `feature-contract.md`,
 `implementation-plan.md`, or `search-cache.md` as a separate Feature Accepted
 action. Confirm that all three remain ignored, untracked, unstaged, and inside

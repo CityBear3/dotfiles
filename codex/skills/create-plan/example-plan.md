@@ -42,6 +42,17 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - **Contract:** The Feature Contract fixes the public representation and error
   meaning; private parser helpers remain delegated.
 
+### Planned discovery cache
+
+- Path: `docs/plans/YYYY-MM-DD-<feature>/search-cache.md`.
+- Owner: The Feature lead is the only writer.
+- Consumers: new-format planned coordinators, Task orchestrators, and leaves.
+- Entry: Record purpose and scope, source identity, positive and useful negative
+  results, reuse conditions and source-aware invalidation conditions.
+- Boundary: The cache never replaces current Git, authority, verification, or
+  review evidence.
+- Lifecycle: It has the same lifecycle as the ignored Implementation Plan.
+
 ## Task dependency DAG
 
 ```text
@@ -138,6 +149,12 @@ results and this stack are current.
 - **Constraints:** Preserve public errors and accepted forms.
 - **Verification:** Record the focused red failure, then observe the complete
   value and representative compatibility behavior.
+- **Historical TDD:** Record the actual pre-production RED and its reason before
+  the production edit; never recreate historical RED evidence after the edit.
+- **Current Acceptance:** Evaluate the exact current head and range through
+  fresh verification and selected review. A history-only gap is not a blocker
+  without a reachable current defect, material current evidence gap, material
+  contract deviation, or controlling authority.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.

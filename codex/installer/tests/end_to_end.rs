@@ -263,6 +263,13 @@ fn managed_task_loop_implementer_receives_only_writer_role_input() {
         writer_handoff_contract,
         (true, true, true, true, true, true)
     );
+    assert_eq!(
+        (
+            profile.get("name").and_then(toml::Value::as_str),
+            profile.get("sandbox_mode").and_then(toml::Value::as_str),
+        ),
+        (Some("implementer"), Some("workspace-write"))
+    );
 }
 
 #[test]
@@ -534,7 +541,7 @@ fn managed_task_loop_correction_review_is_delta_first_with_a_fresh_full_verdict(
 }
 
 #[test]
-fn managed_task_loop_dispatches_new_roles_without_parent_history_and_with_complete_handoffs() {
+fn managed_task_loop_blocks_when_new_roles_cannot_drop_parent_history() {
     // Arrange
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -574,48 +581,92 @@ fn managed_task_loop_dispatches_new_roles_without_parent_history_and_with_comple
         .join(" ");
 
     // Assert
-    for required in [
-        "explicit `fork_turns=\"none\"`",
-        "newly spawned Task orchestrator",
-        "complete Task-orchestrator handoff",
-        "exact authority sources directly readable",
-    ] {
-        assert!(
-            task_dispatch.contains(required),
-            "Task dispatch contract omits {required:?}"
-        );
-    }
-    for required in [
-        "explicit `fork_turns=\"none\"`",
-        "newly spawned implementer, verifier, reviewer, adversarial-integrator, or review-integrator",
-        "complete role-specific message unchanged",
-        "directly re-resolve current Git and authority",
-    ] {
-        assert!(
-            leaf_dispatch.contains(required),
-            "leaf dispatch contract omits {required:?}"
-        );
-    }
-    assert!(
-        execute_plan.contains("new Task orchestrator with explicit `fork_turns=\"none\"`")
-            && execute_plan.contains("complete Task-local authority")
-            && execute_plan.contains("directly revalidate Git and authority")
-    );
+    assert!(task_dispatch.contains("explicit `fork_turns=\"none\"`"));
+    assert!(task_dispatch.contains(
+        "If explicit no-history creation is unavailable, return `BLOCKED`; do not silently inherit turns"
+    ));
+    assert!(leaf_dispatch.contains("explicit `fork_turns=\"none\"`"));
+    assert!(leaf_dispatch.contains(
+        "If the runtime cannot establish no-history creation, return `BLOCKED` instead of inheriting parent turns"
+    ));
+    assert!(execute_plan.contains("new Task orchestrator with explicit `fork_turns=\"none\"`"));
+    assert!(execute_plan.contains(
+        "If no-history creation is unavailable, return `BLOCKED` instead of falling back to inherited turns"
+    ));
     assert_eq!(
         orchestrator.get("name").and_then(toml::Value::as_str),
         Some("task-orchestrator")
     );
-    for required in [
-        "explicit `fork_turns=\"none\"`",
-        "complete role-specific handoff",
-        "directly revalidate current Git and authority",
-        "Parent conversation, identity, and liveness are never correctness evidence",
+    assert!(orchestrator_instructions.contains("explicit `fork_turns=\"none\"`"));
+    assert!(
+        orchestrator_instructions
+            .contains("inability to establish no-history creation is `BLOCKED`")
+    );
+}
+
+#[test]
+fn managed_task_loop_gives_each_role_a_complete_handoff_and_reentry() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let task_dispatch =
+        fs::read_to_string(source_root.join("skills/dispatching-parallel-agents/SKILL.md"))
+            .expect("read Task orchestrator dispatch skill");
+    let leaf_dispatch =
+        fs::read_to_string(source_root.join("skills/agent-teams-driven-development/SKILL.md"))
+            .expect("read Task leaf dispatch skill");
+    let execute_plan = fs::read_to_string(source_root.join("skills/execute-plan/SKILL.md"))
+        .expect("read execute-plan skill");
+
+    // Act
+    let task_dispatch = task_dispatch
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let leaf_dispatch = leaf_dispatch
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let execute_plan = execute_plan
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    for required_group in [
+        "purpose and expected result, bounded responsibility",
+        "applicable authority identity and currentness",
+        "working directory, exact task branch",
+        "starting head, range, status, source-state boundary",
+        "required observations and commands, output schema, stop conditions, and re-entry evidence",
+        "current root-granted leaf count and selected-role queue",
+        "prohibited from spawning descendants",
     ] {
         assert!(
-            orchestrator_instructions.contains(required),
-            "Task orchestrator profile omits {required:?}"
+            task_dispatch.contains(required_group),
+            "Task-orchestrator handoff omits semantic group {required_group:?}"
         );
     }
+    for required_group in [
+        "complete role-specific message unchanged",
+        "exact authority identity and currentness evidence",
+        "assigned Feature clauses and Task Contract",
+        "owned responsibility",
+        "exact target",
+        "mutation boundary",
+        "required completed-matrix `PASS`, `FAIL`, or `BLOCKED` evidence",
+        "tell every leaf not to spawn descendants",
+        "existing idle identity uses `followup_task` with a fresh complete role message and fresh Git and authority validation",
+    ] {
+        assert!(
+            leaf_dispatch.contains(required_group),
+            "leaf handoff omits semantic group {required_group:?}"
+        );
+    }
+    assert!(execute_plan.contains(
+        "complete new handoff and revalidate all authority, policy, Git, writer, and capacity evidence"
+    ));
 }
 
 #[test]
@@ -645,15 +696,31 @@ fn managed_task_loop_waits_for_events_in_normal_five_to_ten_minute_bounds() {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
-    let owner_contracts = [&task_dispatch, &leaf_dispatch, &execute_plan]
-        .map(|contract| contract.split_whitespace().collect::<Vec<_>>().join(" "));
+    let task_dispatch = task_dispatch
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let leaf_dispatch = leaf_dispatch
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let execute_plan = execute_plan
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let owner_contracts = [&task_dispatch, &leaf_dispatch, &execute_plan];
 
     // Assert
-    for contract in owner_contracts.iter().chain([&orchestrator_instructions]) {
+    for contract in owner_contracts
+        .iter()
+        .copied()
+        .chain([&orchestrator_instructions])
+    {
         for required in [
             "normally 300,000 to 600,000 milliseconds",
             "returns early on mailbox, completion, or steered user input",
             "deadline, teardown, or interruption boundary",
+            "record the reason",
             "do not replace it with repeated short polls",
         ] {
             assert!(
@@ -667,6 +734,21 @@ fn managed_task_loop_waits_for_events_in_normal_five_to_ten_minute_bounds() {
             .contains("A terminal Task-orchestrator result ends the turn without another wait")
             && orchestrator_instructions
                 .contains("A terminal result ends the turn without another wait or poll")
+    );
+    assert!(
+        task_dispatch.contains(
+            "Inspect live state at dispatch and phase boundaries and after an early return"
+        )
+    );
+    assert!(leaf_dispatch.contains(
+        "Inspect live agents at dispatch and phase boundaries and after an early return"
+    ));
+    assert!(execute_plan.contains(
+        "Reinspect live state after early return and before any interruption or replacement"
+    ));
+    assert!(
+        orchestrator_instructions
+            .contains("Reinspect live state after early return and at phase boundaries")
     );
 }
 
@@ -744,6 +826,10 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
     let implementer_text = fs::read_to_string(source_root.join("agents/implementer.toml"))
         .expect("read implementer profile");
     let readme = fs::read_to_string(source_root.join("README.md")).expect("read Codex README");
+    let reviewer_fallback = fs::read_to_string(
+        source_root.join("skills/agent-teams-driven-development/focused-reviewer-prompt.md"),
+    )
+    .expect("read focused reviewer fallback prompt");
 
     // Act
     let orchestrator =
@@ -761,6 +847,12 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
+    let reviewer_fallback = reviewer_fallback
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let workflow_contract = workflow.split_whitespace().collect::<Vec<_>>().join(" ");
+    let create_plan_contract = create_plan.split_whitespace().collect::<Vec<_>>().join(" ");
 
     // Assert
     for producer in [&workflow, &create_plan] {
@@ -768,6 +860,24 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         assert!(producer.contains("Feature lead is the only writer"));
         assert!(producer.contains("ignored, workspace-only, and non-authoritative"));
     }
+    for entry_field in [
+        "source identity",
+        "observation date or repository identity",
+        "positive and useful negative results",
+        "reuse conditions",
+        "source-aware invalidation conditions",
+    ] {
+        assert!(
+            workflow_contract.contains(entry_field) && create_plan_contract.contains(entry_field),
+            "cache producers omit entry field {entry_field:?}"
+        );
+    }
+    assert!(workflow_contract.contains("current purpose, scope, and source identity"));
+    assert!(create_plan_contract.contains("purpose and scope, exact source identity"));
+    assert!(workflow_contract.contains("A stale or contradictory entry is a miss, not a failure"));
+    assert!(workflow_contract.contains(
+        "Lightweight and eligible legacy work do not acquire this artifact solely to fit the new format"
+    ));
     for consumer in [&execute_plan, &execute_task, &verify, &review] {
         assert!(consumer.contains("look up a current matching cache entry before new discovery"));
         assert!(
@@ -775,6 +885,7 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
                 .contains("never replaces fresh Git, authority, verification, or review evidence")
         );
         assert!(consumer.contains("return attributable cache candidates to the Feature lead"));
+        assert!(consumer.contains("source identity and invalidation conditions"));
     }
     for profile in [orchestrator_instructions, implementer_instructions.as_str()] {
         assert!(
@@ -793,6 +904,12 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
     );
     assert!(readme.contains("`docs/plans/YYYY-MM-DD-<feature>/search-cache.md`"));
     assert!(readme.contains("same lifecycle as the ignored Implementation Plan"));
+    assert!(reviewer_fallback.contains("use it only as source-identified navigation"));
+    assert!(
+        reviewer_fallback
+            .contains("Resolve current Git, authority, verification, and review evidence directly")
+    );
+    assert!(reviewer_fallback.contains("never edit the Feature-lead-owned cache"));
 }
 
 #[test]
@@ -815,6 +932,24 @@ fn managed_task_loop_separates_tdd_history_from_current_acceptance() {
         source_root.join("skills/agent-teams-driven-development/implementer-prompt.md"),
     )
     .expect("read implementer fallback prompt");
+    let workflow =
+        fs::read_to_string(source_root.join("skills/agentic-engineering-workflow/SKILL.md"))
+            .expect("read agentic workflow skill");
+    let create_plan = fs::read_to_string(source_root.join("skills/create-plan/SKILL.md"))
+        .expect("read create-plan skill");
+    let reviewer_prompts = [
+        "focused-reviewer-prompt.md",
+        "spec-reviewer-prompt.md",
+        "code-quality-reviewer-prompt.md",
+    ]
+    .map(|name| {
+        fs::read_to_string(
+            source_root
+                .join("skills/agent-teams-driven-development")
+                .join(name),
+        )
+        .unwrap_or_else(|error| panic!("read reviewer fallback {name}: {error}"))
+    });
 
     // Act
     let implementer =
@@ -828,6 +963,10 @@ fn managed_task_loop_separates_tdd_history_from_current_acceptance() {
         .join(" ");
     let history_contracts = [tdd, execute_task, review, triage, fallback]
         .map(|contract| contract.split_whitespace().collect::<Vec<_>>().join(" "));
+    let workflow = workflow.split_whitespace().collect::<Vec<_>>().join(" ");
+    let create_plan = create_plan.split_whitespace().collect::<Vec<_>>().join(" ");
+    let reviewer_prompts =
+        reviewer_prompts.map(|prompt| prompt.split_whitespace().collect::<Vec<_>>().join(" "));
 
     // Assert
     for contract in history_contracts.iter().chain([&implementer_instructions]) {
@@ -844,6 +983,135 @@ fn managed_task_loop_separates_tdd_history_from_current_acceptance() {
             );
         }
     }
+    assert!(workflow.contains(
+        "Historical TDD evidence remains an implementer-history input, not current proof"
+    ));
+    assert!(workflow.contains("do not turn it into an Acceptance blocker without a reachable current defect, material current evidence gap, material contract deviation, or controlling authority"));
+    assert!(
+        create_plan.contains(
+            "truthful pre-production RED history and separate current-Acceptance treatment"
+        )
+    );
+    for prompt in reviewer_prompts {
+        assert!(prompt.contains("actual pre-production RED as immutable history"));
+        assert!(prompt.contains("do not make history alone a finding without"));
+        assert!(prompt.contains(
+            "reachable current defect, material current evidence gap, material contract deviation, or controlling authority"
+        ));
+    }
+}
+
+#[test]
+fn managed_task_loop_legacy_completion_does_not_require_new_format_cache_artifacts() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let finish = fs::read_to_string(source_root.join("skills/finish-branch/SKILL.md"))
+        .expect("read finish-branch skill");
+
+    // Act
+    let legacy_contract = finish
+        .split("## Require eligible legacy evidence")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Keep workspace-only artifacts with their worktree")
+                .next()
+        })
+        .expect("eligible legacy completion section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let workspace_artifact_contract = finish
+        .split("## Keep workspace-only artifacts with their worktree")
+        .nth(1)
+        .and_then(|section| section.split("## Present applicable choices").next())
+        .expect("workspace-only artifact section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    assert!(legacy_contract.contains("unchanged completion contract"));
+    assert!(legacy_contract.contains("do not impose the new planned-feature lifecycle"));
+    assert!(
+        workspace_artifact_contract
+            .contains("applies only to new-format planned Task and Feature modes")
+    );
+    assert!(
+        workspace_artifact_contract.contains(
+            "Eligible legacy mode follows its original completion and retention contract"
+        )
+    );
+    assert!(workspace_artifact_contract.contains("does not require `search-cache.md`"));
+}
+
+#[test]
+fn managed_example_plan_defines_the_planned_discovery_cache_shared_interface() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let example = fs::read_to_string(source_root.join("skills/create-plan/example-plan.md"))
+        .expect("read example implementation plan");
+
+    // Act
+    let shared_interfaces = example
+        .split("## Shared interface contracts")
+        .nth(1)
+        .and_then(|section| section.split("## Task dependency DAG").next())
+        .expect("example shared-interface section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    for required_group in [
+        "### Planned discovery cache",
+        "docs/plans/YYYY-MM-DD-<feature>/search-cache.md",
+        "Feature lead is the only writer",
+        "Consumers: new-format planned coordinators, Task orchestrators, and leaves",
+        "source identity, positive and useful negative results",
+        "reuse conditions and source-aware invalidation conditions",
+        "never replaces current Git, authority, verification, or review evidence",
+        "same lifecycle as the ignored Implementation Plan",
+    ] {
+        assert!(
+            shared_interfaces.contains(required_group),
+            "example cache interface omits {required_group:?}"
+        );
+    }
+}
+
+#[test]
+fn managed_example_behavior_task_separates_historical_red_from_current_acceptance() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let example = fs::read_to_string(source_root.join("skills/create-plan/example-plan.md"))
+        .expect("read example implementation plan");
+
+    // Act
+    let behavior_task = example
+        .split("## Task Contract 1: Parse the approved form")
+        .nth(1)
+        .and_then(|section| section.split("## Task Contract 2").next())
+        .expect("example behavior Task Contract")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    // Assert
+    assert!(behavior_task.contains("actual pre-production RED and its reason"));
+    assert!(behavior_task.contains("before the production edit"));
+    assert!(behavior_task.contains("never recreate historical RED evidence"));
+    assert!(behavior_task.contains("exact current head and range"));
+    assert!(behavior_task.contains("fresh verification and selected review"));
+    assert!(behavior_task.contains(
+        "history-only gap is not a blocker without a reachable current defect, material current evidence gap, material contract deviation, or controlling authority"
+    ));
 }
 
 #[test]
@@ -852,75 +1120,118 @@ fn managed_task_loop_asset_inventory_remains_unchanged() {
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .expect("installer crate must be nested under the Codex source root");
-    let mut agent_names = fs::read_dir(source_root.join("agents"))
-        .expect("read managed agent directory")
-        .map(|entry| {
-            entry
-                .expect("read managed agent entry")
-                .file_name()
-                .into_string()
-                .expect("managed agent name is UTF-8")
-        })
-        .collect::<Vec<_>>();
-    let mut skill_names = fs::read_dir(source_root.join("skills"))
-        .expect("read managed skill directory")
-        .map(|entry| {
-            entry
-                .expect("read managed skill entry")
-                .file_name()
-                .into_string()
-                .expect("managed skill name is UTF-8")
-        })
-        .collect::<Vec<_>>();
+    let mut destination_relative_files = Vec::new();
+    if source_root.join("AGENTS.global.md").is_file() {
+        destination_relative_files.push("AGENTS.md".to_owned());
+    }
+    destination_relative_files.extend(
+        fs::read_dir(source_root.join("agents"))
+            .expect("read managed agent directory")
+            .map(|entry| {
+                entry
+                    .expect("read managed agent entry")
+                    .file_name()
+                    .into_string()
+                    .expect("managed agent name is UTF-8")
+            })
+            .map(|name| format!("agents/{name}")),
+    );
+    let mut pending_directories = vec![source_root.join("skills")];
+    while let Some(directory) = pending_directories.pop() {
+        for entry in fs::read_dir(&directory).expect("read managed Skill directory") {
+            let entry = entry.expect("read managed Skill entry");
+            let file_type = entry.file_type().expect("read managed Skill entry type");
+            if file_type.is_dir() {
+                pending_directories.push(entry.path());
+            } else if file_type.is_file() {
+                destination_relative_files.push(
+                    entry
+                        .path()
+                        .strip_prefix(source_root)
+                        .expect("managed Skill stays under source root")
+                        .to_str()
+                        .expect("managed Skill path is UTF-8")
+                        .to_owned(),
+                );
+            }
+        }
+    }
 
     // Act
-    agent_names.sort();
-    skill_names.sort();
+    destination_relative_files.sort();
+    let agent_count = destination_relative_files
+        .iter()
+        .filter(|path| path.starts_with("agents/"))
+        .count();
+    let skill_count = destination_relative_files
+        .iter()
+        .filter(|path| path.starts_with("skills/"))
+        .count();
 
     // Assert
     assert_eq!(
-        agent_names,
-        [
-            "adversarial-api-reviewer.toml",
-            "adversarial-integrator.toml",
-            "adversarial-performance-reviewer.toml",
-            "adversarial-robustness-reviewer.toml",
-            "adversarial-tests-reviewer.toml",
-            "code-architect.toml",
-            "code-quality-reviewer.toml",
-            "code-reviewer.toml",
-            "design-alignment-reviewer.toml",
-            "implementation-verifier.toml",
-            "implementer.toml",
-            "review-integrator.toml",
-            "scope-reviewer.toml",
-            "spec-reviewer.toml",
-            "task-orchestrator.toml",
-            "test-coverage-reviewer.toml",
-        ]
+        (
+            destination_relative_files
+                .iter()
+                .filter(|path| *path == "AGENTS.md")
+                .count(),
+            agent_count,
+            skill_count,
+            destination_relative_files.len(),
+        ),
+        (1, 16, 31, 48)
     );
     assert_eq!(
-        skill_names,
+        destination_relative_files,
         [
-            "agent-teams-driven-development",
-            "agentic-engineering-workflow",
-            "commit",
-            "create-plan",
-            "create-pr",
-            "create-workspace",
-            "design-discussion",
-            "design-doc",
-            "dispatching-parallel-agents",
-            "execute-plan",
-            "execute-task",
-            "finish-branch",
-            "receiving-code-review",
-            "review",
-            "session-teardown",
-            "systematic-debugging",
-            "test-driven-development",
-            "verify",
-            "walkthrough-plan",
+            "AGENTS.md",
+            "agents/adversarial-api-reviewer.toml",
+            "agents/adversarial-integrator.toml",
+            "agents/adversarial-performance-reviewer.toml",
+            "agents/adversarial-robustness-reviewer.toml",
+            "agents/adversarial-tests-reviewer.toml",
+            "agents/code-architect.toml",
+            "agents/code-quality-reviewer.toml",
+            "agents/code-reviewer.toml",
+            "agents/design-alignment-reviewer.toml",
+            "agents/implementation-verifier.toml",
+            "agents/implementer.toml",
+            "agents/review-integrator.toml",
+            "agents/scope-reviewer.toml",
+            "agents/spec-reviewer.toml",
+            "agents/task-orchestrator.toml",
+            "agents/test-coverage-reviewer.toml",
+            "skills/agent-teams-driven-development/SKILL.md",
+            "skills/agent-teams-driven-development/code-quality-reviewer-prompt.md",
+            "skills/agent-teams-driven-development/focused-reviewer-prompt.md",
+            "skills/agent-teams-driven-development/implementer-prompt.md",
+            "skills/agent-teams-driven-development/spec-reviewer-prompt.md",
+            "skills/agentic-engineering-workflow/SKILL.md",
+            "skills/commit/SKILL.md",
+            "skills/create-plan/SKILL.md",
+            "skills/create-plan/example-plan.md",
+            "skills/create-pr/SKILL.md",
+            "skills/create-workspace/SKILL.md",
+            "skills/design-discussion/SKILL.md",
+            "skills/design-doc/SKILL.md",
+            "skills/design-doc/references/api-section-format.md",
+            "skills/design-doc/references/detailed-design-guide.md",
+            "skills/dispatching-parallel-agents/SKILL.md",
+            "skills/execute-plan/SKILL.md",
+            "skills/execute-task/SKILL.md",
+            "skills/finish-branch/SKILL.md",
+            "skills/receiving-code-review/SKILL.md",
+            "skills/review/SKILL.md",
+            "skills/review/hints/go.md",
+            "skills/review/hints/python.md",
+            "skills/review/hints/rust.md",
+            "skills/review/hints/typescript.md",
+            "skills/session-teardown/SKILL.md",
+            "skills/systematic-debugging/SKILL.md",
+            "skills/test-driven-development/SKILL.md",
+            "skills/test-driven-development/references/rust.md",
+            "skills/verify/SKILL.md",
+            "skills/walkthrough-plan/SKILL.md",
         ]
     );
 }
