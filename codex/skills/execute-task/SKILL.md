@@ -1,24 +1,23 @@
 ---
 name: execute-task
-description: Produce or accept one Task PR with one writer, an exact planned base-to-head range, fresh verification, policy-selected review, and bounded correction.
+description: Produce or accept one planned or eligible legacy Task PR with one writer, an exact base-to-head range, fresh verification, policy-selected review, and bounded correction.
 ---
 
 # Execute one task
 
 Own candidate implementation and authoritative acceptance of exactly one
-lightweight Task PR, approved-plan Task PR, or bounded correction. Do not select
-a workflow path, schedule dependencies or PR topology, publish, merge, or choose
+planned and eligible legacy Task PR or bounded correction. Do not select a
+workflow path, schedule dependencies or PR topology, publish, merge, or choose
 branch disposition from this skill.
 
 ## Require one task handoff
 
 Before implementation, require one concise plain-language handoff containing
-the new contract form, an explicitly eligible legacy form, or an approved
-promotion-reconciliation form.
+the new planned contract form, an explicitly eligible legacy form, or an
+approved promotion-reconciliation form.
 
-For the new form, require one common core and exactly one planned or lightweight
-variant. Reject a superset that leaves execution context ambiguous and reject a
-handoff that omits its selected variant.
+For the new form, require the common core and planned variant. Reject a
+lightweight handoff instead of interpreting its root-owned authority here.
 
 The common core contains:
 
@@ -57,18 +56,6 @@ The planned variant adds:
 - for re-entry, prior candidate, acceptance, interruption, correction, or stale
   evidence, including authorized final-base materialization or restack evidence
   when applicable.
-
-The lightweight variant adds:
-
-- the complete recoverable combined in-memory Feature/Task Contract and its
-  original request and design authority;
-- the root-owned lightweight loop identity and its current root-granted
-  lightweight leaf count.
-
-The lightweight variant never requires or fabricates a Task orchestrator,
-Herdr workspace, Task DAG, PR topology, or another planned-only artifact. The
-planned variant is invalid without its bound Task orchestrator; the lightweight
-variant is invalid when it claims one.
 
 For a plan already executing before the contract-centered format, accept its
 approved task specification and referenced design sources as the authority only
@@ -120,12 +107,9 @@ return `BLOCKED`; never rewrite history to manufacture the planned topology.
 
 For new-format planned work, this skill runs inside the non-writing Task
 orchestrator bound to the supplied Task Contract. Only that orchestrator
-dispatches this Task's leaves. For lightweight work, the root owns this loop and
-dispatches the same bounded leaves directly; do not introduce a Task
-orchestrator, planned Task artifacts, or Herdr requirement solely for
-lightweight execution. Eligible legacy work retains its exact approved invoking
-context. Reject a new-format planned handoff delivered to an unbound identity
-or a lightweight handoff that pretends to have a planned Task orchestrator.
+dispatches this Task's leaves. Eligible legacy work retains its exact approved
+invoking context. Reject a new-format planned handoff delivered to an unbound
+identity and reject root-owned lightweight authority.
 
 Treat `agents.max_threads` as subagent capacity across the complete descendant
 tree, excluding the root and counting every Task orchestrator and leaf. Use the
@@ -370,11 +354,11 @@ unchanged planned base, merge base, head, range, diff, and status. Then invoke
 return `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
 All new-format planned verifier and reviewer leaves remain descendants of the
-bound Task orchestrator; all lightweight leaves remain direct descendants of
-the root. Schedule them through `agent-teams-driven-development` under the
-unchanged current lease. Queue a selected check when capacity is insufficient;
-do not move it to the root, substitute another role, or treat a self-observed
-free slot as a lease expansion.
+bound Task orchestrator. Schedule them through
+`agent-teams-driven-development` under the unchanged current lease. Queue a
+selected check when capacity is insufficient; do not move it to the root,
+substitute another role, or treat a self-observed free slot as a lease
+expansion.
 
 Do not substitute writer self-checks, preliminary candidate checks, standalone
 results, or a lead summary for either coordinator-managed phase. An approved
@@ -420,17 +404,16 @@ For each authorized correction, retain the exact concrete finding or failed
 observation, every observed correction attempt, prior reviewed head `H1`, prior
 reviewer reports and triage, and the unchanged complete selected reviewer set.
 Give the existing writer only the bounded correction, unchanged Feature and Task
-Contracts with shared interfaces, unchanged lightweight combined contract, or
-unchanged eligible legacy task authority, current planned PR base,
-responsibility boundaries, focused writer obligations, and a correction commit
-intent bounded to the finding with its fixed message or explicit writer
-message-selection authority.
+Contracts with shared interfaces or unchanged eligible legacy task authority,
+current planned PR base, responsibility boundaries, focused writer obligations,
+and a correction commit intent bounded to the finding with its fixed message or
+explicit writer message-selection authority.
 
 For a new-format planned correction, also give the writer the exact planned
 `search-cache.md` path, current matching entry or miss, its source identity,
 currentness, and invalidation conditions, and the Feature-lead-only writer and
-non-authority boundary. Omit this planned-only cache input for lightweight and
-eligible legacy corrections.
+non-authority boundary. Omit this planned-only cache input for eligible legacy
+corrections.
 
 Then:
 
@@ -468,12 +451,11 @@ gap. Do not create another identifier or tracking schema for the finding.
 
 Return the complete result to the owning caller without translating or dropping
 evidence. For new-format planned work, the Task orchestrator returns it to
-`execute-plan`; for lightweight work, the root consumes it directly.
-`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current planned
-Task-orchestrator turn. An Accepted result does not start a wait or polling
-loop. Re-entry always requires a fresh complete handoff and Git revalidation,
-whether the same idle identity is reused or an attributable replacement is
-selected.
+`execute-plan`. `Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the
+current planned Task-orchestrator turn. An Accepted result does not start a wait
+or polling loop. Re-entry always requires a fresh complete handoff and Git
+revalidation, whether the same idle identity is reused or an attributable
+replacement is selected.
 
 Return:
 

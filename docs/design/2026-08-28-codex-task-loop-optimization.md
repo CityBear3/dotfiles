@@ -4,12 +4,12 @@
 - Drafted by: Codex from owner-settled design decisions
 - Date: 2026-08-28
 - Revised: 2026-08-29
-- Status: Kotlin network-boundary revision approved by the repository owner on
+- Status: Minimal Task-executor Skill split approved by the repository owner on
   2026-08-29
 - Approved draft SHA-256:
-  `70debc1d10ba0d7c876634233a0994f29ed8e80e526b6f30de377efedf3fd00c`
+  `100d80bfda76377ca923fbaaa7f86b2983c4581c4dfe1432c412d3e2b1875069`
 - Prior approved document SHA-256:
-  `68d74d9a1eee94d7ae6f39a847bebcc6d75ddc5004e412f7ac17b5ecd7768b6b`
+  `102f55e61810cdb4faef93a3d58c24f497807ebc47c3df6ff5cc4d54b24e9b8e`
 - Repository baseline: `d32ec49957eb419dd12095b69c196eb0128619bb`
 - Extends:
   - `docs/design/2026-08-25-codex-task-orchestrator-subagents.md`
@@ -63,6 +63,16 @@ are observed rather than scripted. Three language repositories are reused only
 as Git containers: frozen before and after branches start at the same base while
 run state, evidence, sessions, and caches remain isolated by side.
 
+Operational use then exposed an authority-boundary problem inside the shared
+`execute-task` Skill. It accepts both a Task-orchestrator-owned planned variant
+and a root-owned lightweight variant, so a consumer must repeatedly interpret
+which Task-loop owner and lifecycle apply. The selected correction is deliberately
+narrow: keep existing `execute-task` for planned and eligible legacy work, add
+one `execute-lightweight-task` Skill for the root-owned lightweight loop, and
+change only the lightweight calls in `agentic-engineering-workflow`. The
+coordinator, planned topology, check-only phases, completion modes, and benchmark
+design remain shared or unchanged.
+
 This design preserves the Task orchestrator topology and acceptance gates while
 optimizing the phases inside one Task loop. It supersedes the earlier generic
 lease rule only where it permits spare Task leaves outside the reviewer wave,
@@ -72,6 +82,8 @@ the approved Review policy selects.
 ### Goals
 
 - Keep one Task orchestrator responsible for one complete planned Task loop.
+- Prevent planned and lightweight Task-loop authority from sharing one executor
+  contract by moving the lightweight variant to one dedicated Skill.
 - Establish one concise current-head Verification Matrix as the authoritative
   verifier handoff and result spine.
 - Limit writer-side checking to candidate-quality evidence and remove repeated
@@ -119,6 +131,9 @@ the approved Review policy selects.
 - Change `agents.max_threads`, its installer tiers, `agents.max_depth`, or the
   existing maximum of three concurrent Task leaves.
 - Add a Task orchestrator to the lightweight path.
+- Split the complete coordinator, verification, review, workspace, or completion
+  lifecycle into parallel planned and lightweight Skill families.
+- Rename `execute-task` or redesign its planned and eligible-legacy callers.
 - Treat conversation history, `search-cache.md`, agent identity, or liveness as
   correctness or Acceptance authority.
 - Weaken the requirement to use TDD for applicable implementation work or claim
@@ -165,7 +180,51 @@ The root still selects ready Tasks and controls global subagent capacity. The
 Task orchestrator still validates complete Task identity and owns the Task-local
 sequence. Leaves remain bounded, and only the implementer writes source.
 
+The Skill boundary around those unchanged state transitions is:
+
+```text
+agentic-engineering-workflow
+  +-- planned --------> execute-plan -> Task orchestrator -> execute-task
+  +-- lightweight --------------------------------------> execute-lightweight-task
+
+execute-task              planned and eligible legacy; Task-orchestrator-owned
+execute-lightweight-task  lightweight only; root-owned
+verify/review/triage      explicit-input check phases shared by both paths
+finish-branch             existing completion modes shared by both paths
+```
+
+The router still owns classification and cross-phase transitions. The split is
+at the Task executor only; it does not create a second coordinator family.
+
 ## Detailed design
+
+### Minimal Task-executor Skill boundary
+
+`execute-task` removes its lightweight handoff variant and rejects lightweight
+authority. Its planned Task-orchestrator binding, planned cache input,
+Verification Matrix, reviewer wave, bounded correction, and eligible-legacy
+compatibility otherwise retain their existing meanings.
+
+The new `execute-lightweight-task` accepts the recoverable combined
+Feature/Task Contract, root-owned loop identity and capacity grant, exact Task
+PR target, Review context and policy, discipline, verification obligations, and
+prior attributable lightweight evidence. It rejects a Task orchestrator, Herdr
+workspace requirement, Task DAG, PR topology, planned `search-cache.md`, or any
+other planned-only authority. Its correction loop retains the same reviewer set
+and fresh-current-head gate without passing through `execute-plan`.
+
+`agentic-engineering-workflow` continues to classify requests and prepare both
+routes. Its planned calls still enter `execute-plan` and `execute-task`; only
+lightweight implementation, correction, and re-entry calls change to
+`execute-lightweight-task`. Shared exact-target `verify`, `review`,
+`receiving-code-review`, profiles, fallback prompts, `create-workspace`, and
+`finish-branch` contracts are not split. Direct wording or inventory references
+may change only where the new executor identity must be observable.
+
+This boundary is complete when neither executor contains the other route's
+handoff variant or claims the other route's loop owner. Shared check phases
+remain safe because they receive an explicit target and authority rather than
+selecting a lifecycle route.
 
 ### Evidence ownership by phase
 
@@ -577,14 +636,17 @@ Acceptance evidence.
 ### Compatibility and rollout
 
 Existing approved plans and eligible legacy work retain their authority form.
-New Task-loop behavior is encoded in shared skills and profiles and applies
+Existing planned callers continue to use `execute-task`. Existing lightweight
+entry points move to `execute-lightweight-task` without acquiring a plan,
+Task-orchestrator, or workspace-only planned artifact. The new boundary applies
 after the updated bundle is installed and a new Codex session loads it.
 
 `search-cache.md` is a per-feature workspace artifact, not an installed managed
-asset. The installer inventory therefore does not add or remove an asset. It
-distributes changed skill and profile bytes through the existing mapping. The
-implementation must keep all affected skills, fallback prompts, agent profiles,
-README guidance, and asset-contract tests semantically aligned.
+asset. The installer inventory nevertheless adds exactly one managed Skill,
+`execute-lightweight-task`, while retaining `execute-task` at its existing
+destination. The implementation must keep both executor contracts, their direct
+callers and references, fallback prompts, README guidance, and asset-contract
+tests semantically aligned.
 
 Local implementation and verification do not install into the live Codex home.
 After candidate verification, the rollout fingerprints the still-installed old
@@ -711,6 +773,20 @@ contract coverage, fresh verification, every policy-selected review, complete
 handoff evidence, and no unresolved Acceptance blocker.
 
 ## Alternatives considered
+
+### Split every planned and lightweight lifecycle Skill
+
+Rejected because the observed collision is inside the mixed Task executor.
+Duplicating or renaming the coordinator, check-only phases, workspace handling,
+and completion workflow would enlarge migration and policy-drift risk without
+strengthening the selected authority boundary.
+
+### Keep lightweight as an `execute-task` variant
+
+Rejected because additional conditional guards preserve the same mixed executor
+contract that caused planned and lightweight loop ownership to be confused. One
+dedicated lightweight executor removes that ambiguity with the smallest
+installed Skill and caller change.
 
 ### Root-driven phase orchestration
 

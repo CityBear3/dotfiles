@@ -142,8 +142,8 @@ For `Fix`, return one bounded plain-language correction handoff:
 - observed prior attempts, concerns, and gaps.
 
 Do not choose the lightweight or planned builder here. The coordinator routes
-the handoff directly to `execute-task` for lightweight work or through
-`execute-plan` for planned work.
+the handoff directly to `execute-lightweight-task` for lightweight work or
+through `execute-plan` for planned work.
 
 For `Push back`, cite controlling code, test, Design, plan, or approved decision
 evidence. The same finding may be reconsidered only with materially new evidence

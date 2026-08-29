@@ -98,6 +98,8 @@ Every safe `agents/*.toml` source is included in the managed agent inventory. In
 
 Planned Task leaves run below their bound Task orchestrator. Lightweight Task leaves and explicitly standalone verifier, reviewer, adversarial-integrator, or review-integrator leaves run directly below the root under a bounded grant. Standalone results are labeled `standalone-only` and cannot satisfy Task or Feature acceptance. A general review integrator is not run after an all-clean review.
 
+Planned and eligible legacy Tasks use `execute-task`; root-owned lightweight Tasks use `execute-lightweight-task`. The route owner is `agentic-engineering-workflow`, while each executor owns its complete Task PR loop. No shared verification, review, workspace, or completion Skill is duplicated, and the existing source-to-destination mapping installs the new Skill under `$HOME/.agents/skills/execute-lightweight-task/`.
+
 Every newly created Task orchestrator and leaf is spawned with explicit `fork_turns="none"` and receives one complete role-specific handoff with directly readable authority and Git sources. Parent conversation, identity, and liveness are not correctness evidence; each role resolves the current target and authority itself. If no-history creation is unavailable, the applicable loop stops as `BLOCKED` instead of silently inheriting turns.
 
 After useful independent work is exhausted, Task-loop owners normally use one five-to-ten-minute bounded wait that returns early for mailbox, completion, or user-input events. Shorter waits are limited to a nearer deadline, teardown, or interruption boundary with a recorded reason. A terminal Task-orchestrator result ends its turn without another wait or polling loop.

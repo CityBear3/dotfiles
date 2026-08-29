@@ -121,16 +121,16 @@ baseline.
 
 ## Prepare the lightweight task
 
-Before invoking `execute-task`, derive a concise Review context from the approved
-request and repository evidence. State the artifact and purpose, its consumers
-and interpretation or execution model, material quality criteria and realistic
-failures, approved non-problems, and inapplicable assumptions. Keep it separate
-from the Review policy.
+Before invoking `execute-lightweight-task`, derive a concise Review context from
+the approved request and repository evidence. State the artifact and purpose,
+its consumers and interpretation or execution model, material quality criteria
+and realistic failures, approved non-problems, and inapplicable assumptions.
+Keep it separate from the Review policy.
 
 Materialize the complete lightweight policy before implementation. If completing
 that policy requires a material user-owned choice, or observed risk makes
 `focused` inappropriate, return to the planned path before invoking
-`execute-task`. Do not silently select or strengthen policy to keep the
+`execute-lightweight-task`. Do not silently select or strengthen policy to keep the
 lightweight path.
 
 Use `focused` as the lightweight default:
@@ -170,7 +170,7 @@ reviewer. If a required independent reviewer cannot be established, report
 with an approved independent gate is `Escalate` unless the user approves a
 policy change.
 
-Give `execute-task` one plain-language task handoff containing:
+Give `execute-lightweight-task` one plain-language task handoff containing:
 
 - the complete in-memory Feature/Task Contract, including its design sources and
   approved decisions, goal, observable and preserved behavior, compatibility,
@@ -203,11 +203,12 @@ another planned-only field.
 Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
 
-When an authorized lightweight correction re-enters `execute-task`, retain prior
-reviewed head `H1`, prior reports and triage, and the unchanged complete selected
-reviewer set. Require one bounded correction commit to `H2`, a rebuilt matrix,
-fresh `H2` verification, and review that traverses `H1..H2` first while returning
-fresh full `base..H2` verdicts. Earlier verdicts are navigation evidence only.
+When an authorized lightweight correction re-enters `execute-lightweight-task`,
+retain prior reviewed head `H1`, prior reports and triage, and the unchanged
+complete selected reviewer set. Require one bounded correction commit to `H2`,
+a rebuilt matrix, fresh `H2` verification, and review that traverses `H1..H2`
+first while returning fresh full `base..H2` verdicts. Earlier verdicts are
+navigation evidence only.
 Planned correction mechanics remain owned by `execute-plan` and its bound Task
 orchestrator under the same contract.
 
@@ -421,8 +422,8 @@ Standalone verification or review never substitutes for coordinator evidence.
 
 Advance automatically within approved local scope:
 
-1. Accept from lightweight `execute-task` only a current `Accepted` result for
-   its exact Task PR range. When its combined contract has no integration-only
+1. Accept from lightweight `execute-lightweight-task` only a current `Accepted`
+   result for its exact Task PR range. When its combined contract has no integration-only
    obligation, that result is also Feature Accepted; do not repeat verification
    or review.
    When a named integration-only obligation remains, use that accepted head and
@@ -442,8 +443,8 @@ Advance automatically within approved local scope:
    Diagnose a `FAIL` before correction. Route an authorized planned correction
    through its owning Task Contract in `execute-plan`; route an authorized
    lightweight correction directly to its combined-contract Task in
-   `execute-task`. After the new Task head passes its complete fresh task gate,
-   rerun the same named integration evidence.
+   `execute-lightweight-task`. After the new Task head passes its complete fresh
+   task gate, rerun the same named integration evidence.
 5. Invoke `review` only when the approved policy requires or conditionally
    triggers a targeted integration perspective. Pass the same exact integration
    authority and evidence to every selected reviewer. Do not invoke ordinary
@@ -455,8 +456,9 @@ Advance automatically within approved local scope:
    through `execute-plan`, mark only semantically affected results and their
    transitive dependents stale, and rerun fresh affected task and integration
    evidence. For lightweight work, route the `Fix` directly to its
-   combined-contract Task through `execute-task`, then rerun its complete fresh
-   task gate and the same named integration evidence on the new head. Preserve
+   combined-contract Task through `execute-lightweight-task`, then rerun its
+   complete fresh task gate and the same named integration evidence on the new
+   head. Preserve
    `Push back` while its target and controlling evidence remain unchanged.
    Retain an independent out-of-scope valid problem as a non-blocking concern
    without expanding the current Task or creating a backlog. Return a

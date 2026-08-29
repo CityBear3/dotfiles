@@ -879,6 +879,9 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .expect("read execute-plan skill");
     let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
         .expect("read execute-task skill");
+    let execute_lightweight_task =
+        fs::read_to_string(source_root.join("skills/execute-lightweight-task/SKILL.md"))
+            .expect("read execute-lightweight-task skill");
     let verify =
         fs::read_to_string(source_root.join("skills/verify/SKILL.md")).expect("read verify skill");
     let review =
@@ -983,19 +986,19 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
     let planned_handoff_contract = execute_task
         .split("The planned variant adds:")
         .nth(1)
-        .and_then(|section| section.split("The lightweight variant adds:").next())
-        .expect("bounded planned Task handoff section")
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ");
-    let lightweight_contract = execute_task
-        .split("The lightweight variant adds:")
-        .nth(1)
         .and_then(|section| {
             section
                 .split("For a plan already executing before the contract-centered format")
                 .next()
         })
+        .expect("bounded planned Task handoff section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let lightweight_contract = execute_lightweight_task
+        .split("The lightweight handoff contains:")
+        .nth(1)
+        .and_then(|section| section.split("Reject a planned-only handoff").next())
         .expect("bounded lightweight handoff section")
         .split_whitespace()
         .collect::<Vec<_>>()
@@ -1089,9 +1092,8 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
                 .contains("source identity, currentness, and invalidation conditions")
             && correction_writer_handoff
                 .contains("Feature-lead-only writer and non-authority boundary")
-            && correction_writer_handoff.contains(
-                "Omit this planned-only cache input for lightweight and eligible legacy corrections",
-            ),
+            && correction_writer_handoff
+                .contains("Omit this planned-only cache input for eligible legacy corrections"),
         fallback_correction_message.contains(
             "Search cache (new-format planned corrections only; omit for lightweight and eligible legacy)",
         ) && fallback_correction_message.contains("exact planned path, current matching entry or miss")
@@ -1168,6 +1170,152 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
             );
         }
     }
+}
+
+#[test]
+fn managed_task_loop_routes_planned_and_lightweight_to_distinct_executors() {
+    // Arrange
+    let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root");
+    let execute_task = fs::read_to_string(source_root.join("skills/execute-task/SKILL.md"))
+        .expect("read execute-task skill");
+    let execute_lightweight_task =
+        fs::read_to_string(source_root.join("skills/execute-lightweight-task/SKILL.md"))
+            .expect("read execute-lightweight-task skill");
+    let workflow =
+        fs::read_to_string(source_root.join("skills/agentic-engineering-workflow/SKILL.md"))
+            .expect("read agentic workflow skill");
+    let scheduler =
+        fs::read_to_string(source_root.join("skills/agent-teams-driven-development/SKILL.md"))
+            .expect("read scheduling adapter skill");
+    let receiving_review =
+        fs::read_to_string(source_root.join("skills/receiving-code-review/SKILL.md"))
+            .expect("read receiving-code-review skill");
+    let readme = fs::read_to_string(source_root.join("README.md")).expect("read Codex README");
+
+    // Act
+    let planned_handoff = execute_task
+        .split("The planned variant adds:")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("For a plan already executing before the contract-centered format")
+                .next()
+        })
+        .expect("bounded planned executor handoff");
+    let lightweight_handoff = execute_lightweight_task
+        .split("The lightweight handoff contains:")
+        .nth(1)
+        .and_then(|section| section.split("Reject a planned-only handoff").next())
+        .expect("bounded lightweight executor handoff");
+    let lightweight_route = workflow
+        .split("## Prepare the lightweight task")
+        .nth(1)
+        .and_then(|section| {
+            section
+                .split("## Maintain the planned-lifecycle search cache")
+                .next()
+        })
+        .expect("bounded lightweight workflow route");
+    let execute_task_contract = execute_task
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let workflow_contract = workflow.split_whitespace().collect::<Vec<_>>().join(" ");
+    let scheduler_contract = scheduler.split_whitespace().collect::<Vec<_>>().join(" ");
+    let receiving_review_contract = receiving_review
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let readme_contract = readme.split_whitespace().collect::<Vec<_>>().join(" ");
+
+    // Assert
+    assert!(execute_task_contract.contains("planned and eligible legacy Task PR"));
+    assert!(!execute_task.contains("The lightweight variant adds:"));
+    assert!(!planned_handoff.contains("root-owned lightweight"));
+    assert!(
+        execute_task.contains("For a plan already executing before the contract-centered format")
+    );
+    assert!(execute_task_contract.contains("Reject a lightweight handoff"));
+
+    for required in [
+        "name: execute-lightweight-task",
+        "root-owned lightweight Task PR",
+        "## Choose one writer",
+        "## Produce current lightweight Task PR evidence",
+        "## Invoke the authoritative lightweight Task PR checks",
+        "## Correct and re-review without an open-ended loop",
+        "## Return lightweight task acceptance",
+    ] {
+        assert!(
+            execute_lightweight_task.contains(required),
+            "lightweight executor omits {required:?}"
+        );
+    }
+    for required in [
+        "complete recoverable combined in-memory Feature/Task Contract",
+        "root-owned lightweight loop identity",
+        "exact Task PR target",
+        "Review context and complete active Review policy",
+        "discipline and applicable repository guidance",
+        "verification obligations",
+        "prior attributable lightweight evidence",
+    ] {
+        assert!(
+            lightweight_handoff.contains(required),
+            "lightweight handoff omits {required:?}"
+        );
+    }
+    for planned_only in [
+        "Task orchestrator",
+        "Herdr",
+        "Task DAG",
+        "PR topology",
+        "search-cache.md",
+        "execute-plan",
+    ] {
+        assert!(
+            !lightweight_handoff.contains(planned_only),
+            "lightweight handoff accepts planned-only authority {planned_only:?}"
+        );
+    }
+    assert!(execute_lightweight_task.contains("Reject a planned-only handoff"));
+
+    assert!(!lightweight_route.contains("`execute-task`"));
+    for route in [
+        "Before invoking `execute-lightweight-task`",
+        "Give `execute-lightweight-task` one plain-language task handoff",
+        "When an authorized lightweight correction re-enters `execute-lightweight-task`",
+        "Accept from lightweight `execute-lightweight-task`",
+        "lightweight correction directly to its combined-contract Task in `execute-lightweight-task`",
+        "For lightweight work, route the `Fix` directly to its combined-contract Task through `execute-lightweight-task`",
+    ] {
+        assert!(
+            workflow_contract.contains(route),
+            "lightweight workflow omits direct executor route {route:?}"
+        );
+    }
+    assert!(
+        workflow_contract.contains("planned Task orchestrator owns its one `execute-task` loop")
+    );
+    assert!(
+        workflow_contract
+            .contains("Pass the explicit legacy status and authority to `execute-plan`")
+    );
+
+    assert!(scheduler_contract.contains("`execute-task` or `execute-lightweight-task`"));
+    assert!(receiving_review_contract.contains(
+        "directly to `execute-lightweight-task` for lightweight work or through `execute-plan` for planned work"
+    ));
+    assert!(readme_contract.contains(
+        "Planned and eligible legacy Tasks use `execute-task`; root-owned lightweight Tasks use `execute-lightweight-task`"
+    ));
+    assert!(
+        readme_contract.contains(
+            "No shared verification, review, workspace, or completion Skill is duplicated"
+        )
+    );
 }
 
 #[test]
@@ -1407,7 +1555,7 @@ fn managed_example_behavior_task_separates_historical_red_from_current_acceptanc
 }
 
 #[test]
-fn managed_task_loop_asset_inventory_remains_unchanged() {
+fn managed_task_loop_asset_inventory_adds_only_the_lightweight_executor() {
     // Arrange
     let source_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -1459,6 +1607,11 @@ fn managed_task_loop_asset_inventory_remains_unchanged() {
         .iter()
         .filter(|path| path.starts_with("skills/"))
         .count();
+    let top_level_skill_count = fs::read_dir(source_root.join("skills"))
+        .expect("read top-level managed Skill directory")
+        .filter_map(Result::ok)
+        .filter(|entry| entry.file_type().is_ok_and(|file_type| file_type.is_dir()))
+        .count();
 
     // Assert
     assert_eq!(
@@ -1471,8 +1624,9 @@ fn managed_task_loop_asset_inventory_remains_unchanged() {
             skill_count,
             destination_relative_files.len(),
         ),
-        (1, 16, 31, 48)
+        (1, 16, 32, 49)
     );
+    assert_eq!(top_level_skill_count, 20);
     assert_eq!(
         destination_relative_files,
         [
@@ -1509,6 +1663,7 @@ fn managed_task_loop_asset_inventory_remains_unchanged() {
             "skills/design-doc/references/api-section-format.md",
             "skills/design-doc/references/detailed-design-guide.md",
             "skills/dispatching-parallel-agents/SKILL.md",
+            "skills/execute-lightweight-task/SKILL.md",
             "skills/execute-plan/SKILL.md",
             "skills/execute-task/SKILL.md",
             "skills/finish-branch/SKILL.md",
