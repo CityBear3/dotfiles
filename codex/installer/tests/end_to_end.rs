@@ -907,6 +907,23 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
+    let fallback_task_message = implementer_fallback
+        .split("## Task message")
+        .nth(1)
+        .and_then(|section| section.split("## Correction message").next())
+        .expect("implementer fallback Task message section");
+    let eligible_legacy_fallback = fallback_task_message
+        .split("For eligible legacy work")
+        .nth(1)
+        .and_then(|section| section.split("For promotion reconciliation").next())
+        .expect("eligible legacy fallback guidance")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let fallback_task_message = fallback_task_message
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let implementer_fallback = implementer_fallback
         .split_whitespace()
         .collect::<Vec<_>>()
@@ -1005,6 +1022,18 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
             .contains("look up a current matching cache entry before new discovery")
     );
     assert!(planned_cache_contract.contains("only that lead edits `search-cache.md`"));
+    let fallback_mode_contract = (
+        fallback_task_message.contains("Search cache (new-format planned only"),
+        fallback_task_message.contains("omit for lightweight and eligible legacy"),
+        fallback_task_message.contains(
+            "exact planned path, current matching entry or miss, invalidation conditions, and Feature-lead-only writer boundary",
+        ),
+        eligible_legacy_fallback
+            .contains("Keep every remaining applicable execution and evidence field"),
+        !eligible_legacy_fallback
+            .contains("Keep every remaining execution and evidence field"),
+    );
+    assert_eq!(fallback_mode_contract, (true, true, true, true, true));
     for (role, contract, lookup, current_evidence, ownership, candidate) in [
         (
             "code-quality reviewer fallback",

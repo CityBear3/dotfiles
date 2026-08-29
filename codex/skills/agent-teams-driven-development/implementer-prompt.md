@@ -106,13 +106,14 @@ Discipline: <TDD, green-baseline refactor, content migration, or other declared 
 Working directory and workspace: <coordination path, task path, and approved branch or worktree>
 PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
 Verification: <observable obligations, routes, and contractually fixed exact commands>
-Search cache: <exact planned path, current matching entry or miss, invalidation conditions, and Feature-lead-only writer boundary>
+Search cache (new-format planned only; omit for lightweight and eligible
+legacy): <exact planned path, current matching entry or miss, invalidation conditions, and Feature-lead-only writer boundary>
 Repository guidance: <applicable instructions>
 ```
 
 For eligible legacy work, replace the first three fields with the exact approved
 legacy task specification, referenced design sources, and coordinator-confirmed
-eligibility. Keep every remaining execution and evidence field.
+eligibility. Keep every remaining applicable execution and evidence field.
 
 For promotion reconciliation, replace them with the current approved contracts,
 dedicated reconciliation Task Contract, original lightweight base, preserved
