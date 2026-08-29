@@ -162,25 +162,12 @@ Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run in one bounded programmatic batch only when their
 results remain separately attributable. End the batch and stop before a
 result-dependent judgment, approval, escalation, semantic diagnosis, edit, or
-dependent validation. Before editing, require the declared discipline to
-classify TDD as `applicable`, `not applicable`, or `required but blocked` with a
-reason. Only when TDD is `applicable`, preserve this sequence exactly: focused
-RED -> production edit -> focused GREEN -> refactor while green. Run independent
-mechanical post-edit checks only after focused GREEN and never batch across
-those ordered stages. For `not applicable`, preserve the declared baseline and
-proportionate validation. Return `BLOCKED` when TDD is required but its intended
-RED cannot be established safely.
-
-When TDD applies, require the writer to report the actual pre-production RED and
-its reason and never recreate or repair historical RED evidence after the
-production edit. Otherwise require the applicability reason and observed
-baseline.
-Disclose an unrepairable historical discipline gap. It is not an Acceptance
-blocker by itself unless it exposes a reachable current defect, material current
-evidence gap, material contract deviation, or controlling authority that makes
-the history material. For content, configuration, refactoring, or mechanical
-migrations, apply the declared discipline and preserve the relevant green
-baseline. Preserve unrelated changes.
+dependent validation. Pass the declared `test-driven-development` applicability
+decision and reason unchanged. Require the writer to apply that Skill when TDD
+is applicable, use the supplied baseline and validation when it is not, and
+return `BLOCKED` for `required but blocked`. Preserve the returned discipline
+evidence for later gates. For other declared disciplines, preserve their
+baseline and validation. Preserve unrelated changes.
 
 Inside the applicable new-format or legacy authority, let the writer choose
 private files, helpers, local types and interfaces, algorithms, edit order,
@@ -195,8 +182,7 @@ Require the writer to report:
 
 - `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`;
 - changed files and implemented behavior;
-- actual TDD history or declared green baseline and attributable cache
-  candidates;
+- discipline decision and evidence plus attributable cache candidates;
 - every command, why it was required or selected, and its expected and observed
   result;
 - pre-commit diff inspection and self-review;
@@ -279,11 +265,6 @@ For authoritative mode, continue:
 Acceptance remains attached to that exact Task Contract authority, PR base,
 head, merge base, range, and status. Never replace it with a later descendant or
 synthetic feature range.
-
-Treat immutable TDD history and current Acceptance as separate evidence. A
-different or missing historical RED category never becomes current proof and
-does not fail an otherwise supported current head unless it exposes one of the
-current defects, evidence gaps, deviations, or authority requirements above.
 
 For promotion reconciliation, replace implementation steps 1–8 with inspection
 of the supplied original base-to-current range, validation of every ownership
@@ -477,8 +458,8 @@ status, starting Git status and final Git status, each including index, worktree
 and relevant untracked state, task and correction commits, workspace and branch,
 planned PR base ref and commit, merge base, current head, exact range, changed
 files, commands and observed results, pre-commit inspection, gate result when
-authoritative, reviewer and findings-integration outcomes, triage, TDD history,
-cache candidates, non-blocking concerns, owning Task-loop identity, configured,
+authoritative, reviewer and findings-integration outcomes, triage, discipline
+evidence, cache candidates, non-blocking concerns, owning Task-loop identity, configured,
 observed, and
 effective capacity, root grant, selected and queued roles, concerns, gaps, and
 exact re-entry condition.

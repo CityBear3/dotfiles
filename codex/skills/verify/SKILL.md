@@ -257,27 +257,23 @@ Return the completed Verification Matrix and exactly one verdict:
 - `BLOCKED` — a command, dependency, permission, input, range, or current-head
   guarantee could not be established.
 
-Report:
+Keep the report compact and do not repeat unchanged authority, Review policy,
+capacity, queue, or contract prose already held by the owner. Return:
 
-- verdict and Task PR, integration-only, eligible legacy, or standalone status;
-- workspace, branch, planned base, merge base, starting and ending head, exact
-  range, composed tree, snapshot, or bounded fileset;
-- starting and ending `git status --short`, changed files, and unrelated state;
-- for dispatched checks, the owning execution context, configured, observed,
-  and effective capacity, root grant, live identities, and queue order;
-- Review context and approved criteria inspected when available;
-- approved Design Doc, Feature Contract, applicable Task Contract and dependency
-  evidence, integration-only obligation and accepted task set, complete
-  lightweight contract, or eligible legacy authority inspected;
-- each assigned task, integration-only, lightweight, or legacy criterion, its
-  matrix row, command or check, expected observation, observed evidence, and
-  pass, fail, or blocked result;
-- every command, expected result, observed result, and match status;
-- matrix rows and checks not run and why;
-- cache entry consulted and any attributable cache candidate returned to the
-  Feature lead;
-- for `FAIL` or `BLOCKED`, the failed command or unmet guarantee, likely
-  ownership, every gap, and the exact condition for safe re-entry.
+1. one target block containing the target form and only its applicable identity
+   fields: workspace, branch, base, merge base, range, composed tree, snapshot,
+   or bounded fileset; starting head and `git status --short`; changed files and
+   unrelated state only when they are part of the target guarantee;
+2. one row table in input order with exactly
+   `ID | command/check | expected | observed | result`; use supplied row IDs or
+   assign report-local `V1`, `V2`, and so on without changing matrix meaning;
+3. one final-state block containing the ending head, mutation-invariant result,
+   and allowed artifacts actually observed;
+4. unrun row IDs with one reason each;
+5. a consulted cache entry or attributable cache candidate only when present;
+6. gaps only when present and, for `FAIL` or `BLOCKED`, the failed row or unmet
+   guarantee, likely ownership when known, and exact safe re-entry condition;
+7. exactly `PASS`, `FAIL`, or `BLOCKED`.
 
 For coordinator-managed verification, return evidence to the coordinator and do
 not start review. For standalone verification, report directly to the requester.

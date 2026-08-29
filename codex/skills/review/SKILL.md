@@ -316,16 +316,11 @@ reviewer may be skipped, and no prior verdict alone authorizes `H2`.
 
 ## Apply the common Acceptance threshold
 
-Treat discipline history separately from the current artifact verdict. When TDD
-was applicable, require the actual pre-production RED and its reason and never
-recreate or repair historical RED evidence after the production edit. When it
-was not applicable, inspect the recorded reason, baseline, and proportionate
-validation without demanding manufactured RED evidence. Disclose an
-unrepairable historical discipline gap. It is not an Acceptance blocker by
-itself unless it exposes a reachable current defect, material current evidence
-gap, material contract deviation, or controlling authority that makes the
-history material. Review current test adequacy and current contract evidence on
-their own merits.
+Treat discipline history separately from the current artifact verdict. Review
+current test adequacy and contract evidence on their own merits. Report a
+history-only discrepancy only when it demonstrates a reachable current defect,
+material current evidence gap, material contract deviation, or controlling
+authority that makes it material.
 
 Every finding must include severity `Must Fix` or `Should Improve`, file and
 line, concrete observed or reachable behavior, violated requirement or quality

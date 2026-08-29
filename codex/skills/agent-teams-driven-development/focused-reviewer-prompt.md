@@ -25,12 +25,10 @@ head and verify completion claims independently.
 When the handoff supplies a current `search-cache.md` entry, use it only as
 source-identified navigation. Resolve current Git, authority, verification, and
 review evidence directly, never edit the Feature-lead-owned cache, and return
-any attributable cache candidate separately from the verdict. When TDD was
-applicable, treat the implementer's actual pre-production RED as immutable
-history. When it was not applicable, inspect the recorded reason and baseline
-without demanding RED evidence. Do not make history alone a finding without a
-reachable current defect, material current evidence gap, material contract
-deviation, or controlling authority that makes it material.
+any attributable cache candidate separately from the verdict. Treat supplied
+discipline evidence as history and report it only when it demonstrates a
+current material defect, evidence gap, contract deviation, or controlling
+authority requirement.
 
 For a correction from `H1` to `H2`, receive the prior report and triage,
 `H1..H2` delta, corrected finding, fresh `H2` matrix, and direct full

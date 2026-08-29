@@ -164,12 +164,9 @@ For each Task Contract include:
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
 - discipline: the `test-driven-development` applicability decision and reason,
-  followed by TDD when applicable or an existing green baseline and explicit
-  content/configuration or mechanical discipline when not applicable;
+  or the explicit non-TDD baseline and validation discipline;
 - a responsibility-scoped commit intent and whether the plan or writer selects
   its message;
-- truthful pre-production RED history and separate current-Acceptance treatment
-  when the task changes behavior;
 - contractually significant files, signatures, ordering, commands, exact commit
   paths, or fixed commit message only when their identity is part of correctness.
 
@@ -189,15 +186,9 @@ a new owner, public seam, shared interface, invariant, or contract meaning is.
 ## Test planning
 
 - Define observable verification by behavioral viewpoint.
-- When TDD is applicable, specify the failing test and expected RED before
-  implementation. When it is not applicable, specify the baseline and
-  proportionate validation instead.
-- Prefer unit tests for module or component behavior, including filesystem
-  behavior.
-- Use integration tests only for public-crate, multi-component, or real process
-  journeys.
-- Require Arrange, Act, Assert; DAMP setup; returned-result assertions; and
-  relevant side-effect assertions.
+- Record the `test-driven-development` applicability decision and reason. When
+  applicable, name the behavior that must be absent before the production edit;
+  otherwise name the baseline and proportionate validation.
 - Name applicable repository or project verification routes. Require exact
   commands only when their identity or flags are needed for safety,
   reproducibility, coverage, environment selection, or migration correctness.

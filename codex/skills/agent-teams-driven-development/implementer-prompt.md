@@ -50,20 +50,11 @@ focused non-destructive checks when those choices are delegated or unspecified.
 A private file inside the owned responsibility does not require a plan change; a
 new owner or shared seam does.
 
-Before editing, confirm the supplied discipline classifies TDD as `applicable`,
-`not applicable`, or `required but blocked` with a reason. If the actual task
-contradicts that classification, return `NEEDS_CONTEXT`. Only when TDD is
-`applicable`, preserve this sequence exactly: focused RED -> production edit ->
-focused GREEN -> refactor while green. Run independent mechanical post-edit
-checks only after focused GREEN and keep one behavioral viewpoint per test.
-Report the actual pre-production RED and its reason; never recreate or repair
-historical RED evidence after the production edit. When TDD is `not applicable`,
-report the reason, declared baseline, and proportionate validation without
-manufacturing RED evidence. Return `BLOCKED` when TDD is required but its
-intended RED cannot be established safely. Disclose an unrepairable historical
-discipline gap. It is not an Acceptance blocker by itself unless it exposes a
-reachable current defect, material current evidence gap, material contract
-deviation, or controlling authority that makes the history material.
+Before editing, confirm the supplied `test-driven-development` applicability
+decision and reason. If the actual task contradicts it, return `NEEDS_CONTEXT`.
+Apply that Skill when TDD is applicable, use the supplied baseline and validation
+when it is not, and return `BLOCKED` for `required but blocked`. Report the
+discipline evidence required by its owning Skill.
 
 Run every contractually required exact writer command, focused tests for the
 owned responsibility, and only a local type or build check needed for a coherent
@@ -89,7 +80,7 @@ Report in Japanese:
 - Status
 - Commit and new head when complete
 - Changed files, local decisions, and behavior implemented
-- TDD history or declared baseline and attributable cache candidates
+- Discipline decision and evidence plus attributable cache candidates
 - Every required or selected command, reason, expected result, observed result,
   and match status
 - Pre-commit diff and committed range inspection
@@ -106,7 +97,7 @@ Feature Contract: <approved artifact or lightweight contract and assigned clause
 Task Contract: <purpose, expected result, constraints, non-goals, dependencies, and delegated decisions>
 Shared interfaces and responsibility: <owners, consumers, adjacent obligations, and owned boundary>
 Commit: <responsibility-scoped intent and fixed message or message-selection authority>
-Discipline: <TDD, green-baseline refactor, content migration, or other declared discipline>
+Discipline: <TDD applicability decision and reason, or other declared discipline and baseline>
 Working directory and workspace: <coordination path, task path, and approved branch or worktree>
 PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
 Verification: <observable obligations, routes, and contractually fixed exact commands>

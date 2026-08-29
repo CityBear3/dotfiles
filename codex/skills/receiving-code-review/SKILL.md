@@ -74,16 +74,10 @@ evidence and state the exact re-entry condition.
 
 ## Process each finding
 
-Keep immutable discipline history separate from current finding classification.
-When TDD was applicable, require the actual pre-production RED and its reason
-and never recreate or repair historical RED evidence after the production edit.
-When it was not applicable, inspect the recorded reason, baseline, and
-validation without demanding manufactured RED evidence. Disclose an
-unrepairable historical discipline gap. It is not an Acceptance blocker by
-itself unless it exposes a reachable current defect, material current evidence
-gap, material contract deviation, or controlling authority that makes the
-history material. A history-only discrepancy without one of those consequences
-is `Push back`, while a material authority rule is `Escalate`.
+Keep discipline history separate from current finding classification. A
+history-only discrepancy is `Push back` unless it demonstrates a reachable
+current defect, material current evidence gap, or material contract deviation;
+a controlling authority that makes the history material is `Escalate`.
 
 For each item:
 

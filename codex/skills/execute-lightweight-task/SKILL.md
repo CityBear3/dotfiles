@@ -102,22 +102,14 @@ scheduling, capacity, and queue state from the writer message.
 
 Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run in one bounded programmatic batch only when each
-result remains attributable. Stop before a result-dependent judgment. Preserve
-the supplied TDD applicability decision: `applicable`, `not applicable`, or
-`required but blocked`, with its reason. Only when TDD is `applicable`, preserve
-this sequence exactly: focused RED -> production edit -> focused GREEN ->
-refactor while green. Run independent mechanical post-edit checks only after
-focused GREEN and never batch across those stages. Return `BLOCKED` when TDD is
-required but its intended RED cannot be established safely.
-
-When TDD applies, require the writer to report the actual pre-production RED and
-reason and never recreate historical RED evidence after the production edit.
-Otherwise require the applicability reason, declared green baseline, and
-proportionate validation. Historical discipline gaps are separate from current
-defects, material evidence gaps, contract deviations, and controlling authority.
+result remains attributable. Stop before a result-dependent judgment. Pass the
+supplied `test-driven-development` applicability decision and reason unchanged.
+Require the writer to apply that Skill when TDD is applicable, use the supplied
+baseline and validation when it is not, and return `BLOCKED` for `required but
+blocked`. Preserve the writer's returned discipline evidence for later gates.
 
 The writer reports `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`,
-changed files and behavior, actual discipline history, all commands and observed
+changed files and behavior, discipline decision and evidence, all commands and observed
 results, pre-commit inspection, the commit and new head when complete, concerns,
 and gaps. Classify that result before producing Task evidence. Only verified
 `DONE` may advance, and it is Candidate evidence only, never task acceptance.
@@ -248,6 +240,6 @@ Return:
 Include exact authority identity/currentness, writer state, starting and final
 Git status, commits, workspace and branch, base, merge base, head, exact range,
 changed files, commands and results, pre-commit inspection, matrix and gate
-results, review/integration/triage, TDD history, non-blocking concerns, root loop
-identity, capacity, grant, queue, gaps, and exact re-entry condition. Do not
+results, review/integration/triage, discipline evidence, non-blocking concerns,
+root loop identity, capacity, grant, queue, gaps, and exact re-entry condition. Do not
 advance an integration-only gate, publication, or branch disposition here.

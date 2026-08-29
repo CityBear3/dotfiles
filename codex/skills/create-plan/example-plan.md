@@ -148,14 +148,8 @@ results and this stack are current.
 - **Ownership:** Existing library parser and its focused tests.
 - **Shared interface:** Own the parsed input representation.
 - **Constraints:** Preserve public errors and accepted forms.
-- **Verification:** Record the focused red failure, then observe the complete
-  value and representative compatibility behavior.
-- **Historical TDD:** Record the actual pre-production RED and its reason before
-  the production edit; never recreate historical RED evidence after the edit.
-- **Current Acceptance:** Evaluate the exact current head and range through
-  fresh verification and selected review. A history-only gap is not a blocker
-  without a reachable current defect, material current evidence gap, material
-  contract deviation, or controlling authority.
+- **Verification:** Observe the complete value and representative compatibility
+  behavior.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
@@ -164,7 +158,8 @@ results and this stack are current.
 - **Concurrency:** May run with Task 2 in a separate checkout.
 - **Non-goals:** No CLI, persistence, or API redesign.
 - **Delegation:** Private helpers, local types, and focused tests.
-- **Discipline:** TDD.
+- **Discipline:** TDD applicable because the parser behavior is executable before
+  production editing.
 - **Commit intent:** Parser responsibility and tests; writer chooses the
   message.
 
@@ -177,13 +172,7 @@ results and this stack are current.
 - **Shared interface:** Consume the parsed input representation without changing
   its ownership.
 - **Constraints:** No field loss or new formatting contract.
-- **Verification:** Record the focused red failure, then observe exact new and
-  representative existing output.
-- **Historical TDD / Current Acceptance:** Preserve the actual renderer RED
-  before production output changes. Judge the exact current head and range
-  through fresh verification and selected review; history alone does not block
-  without a reachable current defect, material current evidence gap, material
-  contract deviation, or controlling authority.
+- **Verification:** Observe exact new and representative existing output.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
@@ -193,7 +182,7 @@ results and this stack are current.
 - **Concurrency:** May implement with Task 1 in a separate checkout.
 - **Non-goals:** No parser or CLI edits.
 - **Delegation:** Private rendering helpers and test arrangement.
-- **Discipline:** TDD.
+- **Discipline:** TDD applicable because renderer output is directly observable.
 - **Commit intent:** Renderer responsibility and tests; writer chooses the
   message.
 
@@ -207,11 +196,6 @@ results and this stack are current.
 - **Constraints:** Keep parsing and rendering in the library.
 - **Verification:** Exercise new, existing, and malformed forms through the real
   process.
-- **Historical TDD / Current Acceptance:** Record the real-process RED before
-  production wiring. Current CLI Acceptance remains bound to the exact head and
-  range, fresh verification, and selected review; history alone does not block
-  unless it exposes a reachable current defect, material current evidence gap,
-  material contract deviation, or controlling authority.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
@@ -221,7 +205,7 @@ results and this stack are current.
   current.
 - **Non-goals:** No new CLI ownership or persistence.
 - **Delegation:** Test fixtures and private CLI wiring.
-- **Discipline:** TDD.
+- **Discipline:** TDD applicable because the real process journey is executable.
 - **Commit intent:** CLI composition and process tests; writer chooses the
   message.
 

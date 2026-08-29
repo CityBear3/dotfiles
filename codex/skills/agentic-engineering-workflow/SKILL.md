@@ -469,14 +469,6 @@ Advance automatically within approved local scope:
    obligation is current and no finding, policy gap, design gap, or operational
    gap survives.
 
-Historical discipline evidence remains an implementer-history input, not current
-proof. Require a TDD applicability decision and reason. When TDD applied,
-disclose an immutable RED gap, but do not turn it into an Acceptance blocker
-without a reachable current defect, material current evidence gap, material
-contract deviation, or controlling authority that makes the history material.
-When it did not apply, retain the declared baseline and validation instead of
-demanding RED evidence.
-
 Diagnose failed verification before correction. Never advance failed or blocked
 verification to review, blocked review to triage, unresolved triage to
 correction, or incomplete evidence to completion. Stop repeated non-progress
