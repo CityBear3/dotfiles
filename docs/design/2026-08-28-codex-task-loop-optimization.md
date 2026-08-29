@@ -96,8 +96,8 @@ the approved Review policy selects.
   handoffs and reports.
 - Expand a Task's leaf lease only for the independent reviewer wave and revoke
   the expansion before integration, triage, or correction.
-- Review corrections delta-first while requiring the same reviewer set and a
-  fresh full-current-head verdict.
+- Review corrections against their bounded affected surface by default while
+  retaining the same reviewer set and explicit full-traversal escalation.
 - Keep verification on `gpt-5.6-sol`, initially at `medium` reasoning effort.
 - Preserve fresh evidence, Review breadth, Acceptance, and correction authority.
 - Start every new Task orchestrator and leaf without inherited parent
@@ -106,6 +106,8 @@ the approved Review policy selects.
   that return early on mailbox or completion events.
 - Batch independent implementer discovery and mechanical post-edit checks while
   preserving every judgment-dependent and TDD ordering boundary.
+- Decide whether TDD is applicable before editing and preserve an explicit
+  baseline discipline without manufactured RED evidence when it is not.
 - Prevent repeated planned-lifecycle searches through an ignored,
   feature-local `search-cache.md` with source-aware invalidation.
 - Keep historical TDD discipline evidence distinct from the evidence that
@@ -173,7 +175,7 @@ Task orchestrator
   +-- findings integration and triage when needed
   |
   +-- bounded correction
-        new head -> fresh matrix/verify -> delta-first fresh review
+        new head -> fresh matrix/verify -> targeted fresh review
 ```
 
 The root still selects ready Tasks and controls global subagent capacity. The
@@ -384,20 +386,29 @@ edits, semantic diagnosis, and any final validation that depends on earlier
 output remain separate stages. A tool batch is not permission to collapse
 several judgment points into one opaque operation.
 
-For TDD work, RED execution, production editing, GREEN execution, and refactor
-remain ordered stages. No GREEN check is launched speculatively before the edit
-that it is meant to validate. After the edit and focused GREEN have completed,
-independent mechanical post-edit checks may be grouped when their individual
-results remain attributable. The verifier's fail-fast order and stronger
-current-head boundary remain unchanged.
+Before editing, classify TDD as `applicable`, `not applicable`, or `required but
+blocked` and record the reason. It is applicable when observable production-code
+behavior changes and a focused executable test can demonstrate the missing
+behavior before the edit. Documentation, instructions, metadata, formatting,
+generated output, and behavior-preserving mechanical changes use an existing
+green baseline and proportionate validation. A required behavior-change RED
+that cannot be established safely is blocked rather than reclassified.
+
+For applicable TDD work, RED execution, production editing, GREEN execution,
+and refactor remain ordered stages. No GREEN check is launched speculatively
+before the edit that it is meant to validate. After the edit and focused GREEN
+have completed, independent mechanical post-edit checks may be grouped when
+their individual results remain attributable. The verifier's fail-fast order
+and stronger current-head boundary remain unchanged.
 
 ### TDD history and current Acceptance
 
-TDD discipline evidence records an execution history: the test written for one
-behavioral viewpoint, the observed pre-production RED and its reason, the
-subsequent edit, focused GREEN, and any refactor while green. The implementer
-must still attempt and report this sequence honestly and must never claim TDD
-when the intended RED was not observed.
+When applicable, TDD discipline evidence records an execution history: the test
+written for one behavioral viewpoint, the observed pre-production RED and its
+reason, the subsequent edit, focused GREEN, and any refactor while green. The
+implementer must report this sequence honestly and never claim TDD when the
+intended RED was not observed. A non-applicable change reports its reason,
+baseline, and validation instead.
 
 Acceptance evidence answers a different question: whether the current exact
 head and range satisfy the approved contract with adequate current tests,
@@ -525,10 +536,10 @@ boundary and records that reason. Terminal `Candidate`, `Accepted`, `BLOCKED`,
 or `Escalate` results end the current Task-orchestrator turn; neither the
 orchestrator nor its scheduler waits or polls after returning one.
 
-### Delta-first correction review
+### Targeted correction review
 
-A correction changes the reviewed head from `H1` to `H2`. All earlier verdicts
-are stale for `H2`, so the ordinary correction sequence still requires:
+A correction changes the reviewed head from `H1` to `H2`. An earlier verdict
+cannot authorize `H2` by itself, so the correction sequence still requires:
 
 ```text
 bounded correction commit
@@ -549,13 +560,15 @@ Review traversal is optimized, not review authority. Each reviewer receives:
 - the fresh completed Verification Matrix for `H2`;
 - the same applicable authority, Review context, policy, and perspective.
 
-The reviewer starts with the correction delta, confirms whether the finding is
-resolved, and follows affected callers, tests, interfaces, responsibilities,
-and obligations. It may use the earlier report only as navigation evidence.
-It returns a new perspective result that covers the full current target and is
-bound to `H2`.
+`review` owns correction-review scope and escalation. Targeted re-review is the
+default: the reviewer confirms the corrected finding, inspects `H1..H2`, follows
+affected callers, tests, interfaces, responsibilities, and obligations, and
+establishes which prior clean conclusions remain unaffected. The exact prior
+report supplies that unchanged coverage; the new result is bound to `H2` and
+the bounded correction. Together they form current evidence for that
+perspective.
 
-The reviewer switches to ordinary full traversal when:
+The reviewer escalates to full current-target traversal when:
 
 - the correction changes files or behavior outside its bounded authorization;
 - a public or shared interface, responsibility boundary, schema, error model,
@@ -582,8 +595,8 @@ The existing `PASS`, `FAIL`, `BLOCKED`, `CLEAN`, `FINDINGS`, `Candidate`,
   `BLOCKED`.
 - A missing reviewer-wave expansion queues reviewers under the baseline lease;
   it is `BLOCKED` only when the required queue cannot make progress.
-- A stale prior correction report disables delta-first optimization but does not
-  remove the required fresh review; reviewers use ordinary full traversal.
+- A stale prior correction report prevents bounded unaffected coverage and
+  therefore escalates that reviewer to full current-target traversal.
 - A correction that changes contract meaning returns to the existing authority
   or plan gate rather than being treated as a larger delta.
 
@@ -598,8 +611,9 @@ baseline evidence is complete.
 
 The Verification Matrix removes repeated prose and gives verification one
 current-head evidence format. Role-specific messages stop every leaf from
-receiving the complete Task orchestration state. Delta-first review reuses
-earlier evidence without reusing its verdict. Context-isolated dispatch prevents
+receiving the complete Task orchestration state. Targeted correction review
+reuses exact unaffected coverage without letting an earlier verdict authorize
+the new head. Context-isolated dispatch prevents
 the parent transcript from being copied into every new role. Decision-aware
 batching removes unnecessary model turns, and `search-cache.md` prevents the
 same discovery from being repeated across the planned lifecycle.
@@ -645,8 +659,12 @@ after the updated bundle is installed and a new Codex session loads it.
 asset. The installer inventory nevertheless adds exactly one managed Skill,
 `execute-lightweight-task`, while retaining `execute-task` at its existing
 destination. The implementation must keep both executor contracts, their direct
-callers and references, fallback prompts, README guidance, and asset-contract
-tests semantically aligned.
+callers and references, fallback prompts, README guidance, and installer
+inventory mapping semantically aligned. Rust installer tests use only
+test-owned source fixtures and do not read or assert the semantics of tracked
+Skills, agent profiles, or Codex configuration. Those assets are validated and
+reviewed directly, so an instruction-only change does not require installer
+tests.
 
 Local implementation and verification do not install into the live Codex home.
 After candidate verification, the rollout fingerprints the still-installed old
@@ -656,10 +674,11 @@ remain separate owner-controlled actions.
 
 ### Evaluation
 
-Completion requires fresh repository validation of the changed assets and
-focused contract tests. Operational evaluation then runs one minimal canonical
-product specification through the real complete Task loop in Rust, Go, and
-Kotlin. The product is a deterministic `task-filter` CLI:
+Completion requires fresh direct validation of changed assets and focused
+installer tests only when installer behavior changes. Operational evaluation
+then runs one minimal canonical product specification through the real complete
+Task loop in Rust, Go, and Kotlin. The product is a deterministic `task-filter`
+CLI:
 
 - it accepts one file whose non-empty records have the exact TSV form
   `id<TAB>priority<TAB>status`;
@@ -823,14 +842,15 @@ the independent reviewer wave and otherwise reduce global scheduling fairness.
 ### Selectively rerun reviewers after correction
 
 Rejected because reviewer invalidation is a new Review-policy mechanism with a
-higher risk of missed cross-perspective regressions. Delta-first traversal gives
-most of the context benefit while preserving the existing selected set and a
-fresh verdict.
+higher risk of missed cross-perspective regressions. Targeted traversal gives
+most of the context benefit while preserving the existing selected set and
+fresh current correction evidence.
 
 ### Reuse the previous review verdict
 
-Rejected because review evidence is bound to an exact head and range. Prior
-reports can guide inspection but cannot make a new head accepted.
+Rejected because a prior verdict alone cannot make a new head accepted. An exact
+prior report may establish unaffected coverage only when targeted inspection of
+the current correction confirms that its surface remains bounded.
 
 ### Use Luna/Max for verification
 

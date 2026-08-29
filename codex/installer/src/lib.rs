@@ -31,6 +31,6 @@ where
     T: Into<std::ffi::OsString>,
     F: Fn(&str) -> Option<std::ffi::OsString>,
 {
-    let command = command::parse_command_from_with_environment(arguments, environment)?;
-    application::execute(command)
+    let invocation = command::parse_command_from_with_environment(arguments, environment)?;
+    application::execute(invocation)
 }

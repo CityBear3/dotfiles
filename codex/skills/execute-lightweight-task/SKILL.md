@@ -103,15 +103,18 @@ scheduling, capacity, and queue state from the writer message.
 Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run in one bounded programmatic batch only when each
 result remains attributable. Stop before a result-dependent judgment. Preserve
-behavior-change order exactly: focused RED -> production edit -> focused GREEN
--> refactor while green. Run independent mechanical post-edit checks only after
-focused GREEN and never batch across those stages.
+the supplied TDD applicability decision: `applicable`, `not applicable`, or
+`required but blocked`, with its reason. Only when TDD is `applicable`, preserve
+this sequence exactly: focused RED -> production edit -> focused GREEN ->
+refactor while green. Run independent mechanical post-edit checks only after
+focused GREEN and never batch across those stages. Return `BLOCKED` when TDD is
+required but its intended RED cannot be established safely.
 
-Require the writer to report the actual pre-production RED and reason; never
-recreate historical RED evidence after the production edit. For content,
-configuration, refactoring, or mechanical migrations, preserve the declared
-green baseline. Historical discipline gaps are separate from current defects,
-material evidence gaps, contract deviations, and controlling authority.
+When TDD applies, require the writer to report the actual pre-production RED and
+reason and never recreate historical RED evidence after the production edit.
+Otherwise require the applicability reason, declared green baseline, and
+proportionate validation. Historical discipline gaps are separate from current
+defects, material evidence gaps, contract deviations, and controlling authority.
 
 The writer reports `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`,
 changed files and behavior, actual discipline history, all commands and observed
@@ -217,15 +220,13 @@ Then:
 3. rebuild the matrix and invoke fresh `verify` against `H2`;
 4. after `PASS`, rerun the same complete reviewer set with prior evidence, the
    correction delta, full target, and fresh matrix;
-5. require delta-first traversal and a fresh full-target verdict, then integrate
-   and triage any findings against unchanged `H2`.
+5. `review` owns correction-review scope and escalation; apply its
+   targeted-default policy, then integrate and triage any findings against
+   unchanged `H2`.
 
-Prior verdicts are navigation only and never authorize `H2`. Switch to ordinary
-full traversal when the correction escapes authorization; changes a material
-interface, responsibility, authority, policy, or test strategy; lacks complete
-prior evidence; exposes another finding; or cannot prove prior areas unaffected.
-Do not recalculate reviewer selection from the delta. If the same concrete
-problem repeats without progress, stop with `Escalate` and report the attempts.
+Do not recalculate reviewer selection from the delta or duplicate `review`'s
+correction traversal rules. If the same concrete problem repeats without
+progress, stop with `Escalate` and report the attempts.
 
 ## Return lightweight task acceptance
 

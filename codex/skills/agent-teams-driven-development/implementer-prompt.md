@@ -50,16 +50,20 @@ focused non-destructive checks when those choices are delegated or unspecified.
 A private file inside the owned responsibility does not require a plan change; a
 new owner or shared seam does.
 
-For behavior changes preserve this sequence exactly: focused RED -> production
-edit -> focused GREEN -> refactor while green. Run independent mechanical
-post-edit checks only after focused GREEN. Keep one behavioral viewpoint per
-test. Report the actual pre-production RED and its reason; never recreate or
-repair historical RED evidence after the production edit. Disclose an
-unrepairable historical discipline gap. It is not an Acceptance blocker by
-itself unless it exposes a reachable current defect, material current evidence
-gap, material contract deviation, or controlling authority that makes the
-history material. For refactors and content migrations, preserve the declared
-green baseline.
+Before editing, confirm the supplied discipline classifies TDD as `applicable`,
+`not applicable`, or `required but blocked` with a reason. If the actual task
+contradicts that classification, return `NEEDS_CONTEXT`. Only when TDD is
+`applicable`, preserve this sequence exactly: focused RED -> production edit ->
+focused GREEN -> refactor while green. Run independent mechanical post-edit
+checks only after focused GREEN and keep one behavioral viewpoint per test.
+Report the actual pre-production RED and its reason; never recreate or repair
+historical RED evidence after the production edit. When TDD is `not applicable`,
+report the reason, declared baseline, and proportionate validation without
+manufacturing RED evidence. Return `BLOCKED` when TDD is required but its
+intended RED cannot be established safely. Disclose an unrepairable historical
+discipline gap. It is not an Acceptance blocker by itself unless it exposes a
+reachable current defect, material current evidence gap, material contract
+deviation, or controlling authority that makes the history material.
 
 Run every contractually required exact writer command, focused tests for the
 owned responsibility, and only a local type or build check needed for a coherent

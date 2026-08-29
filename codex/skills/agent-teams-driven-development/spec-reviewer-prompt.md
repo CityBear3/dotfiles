@@ -24,21 +24,19 @@ head and verify completion claims independently.
 When the handoff supplies a current `search-cache.md` entry, use it only as
 source-identified navigation. Resolve current Git, authority, verification, and
 review evidence directly, never edit the Feature-lead-owned cache, and return
-any attributable cache candidate separately from the verdict. Treat the
-implementer's actual pre-production RED as immutable history. Disclose a missing
-or different historical RED, but do not make history alone a finding without a
+any attributable cache candidate separately from the verdict. When TDD was
+applicable, treat the implementer's actual pre-production RED as immutable
+history. When it was not applicable, inspect the recorded reason and baseline
+without demanding RED evidence. Do not make history alone a finding without a
 reachable current defect, material current evidence gap, material contract
 deviation, or controlling authority that makes it material.
 
 For a correction from `H1` to `H2`, receive the prior report and triage,
 `H1..H2` delta, corrected finding, fresh `H2` matrix, and direct full
-`base..H2` access. Inspect the finding and delta first, follow affected callers,
-tests, interfaces, responsibilities, and obligations, and return a fresh result
-for the full current target. Prior review evidence is navigation evidence only.
-Use ordinary full traversal when authorization, a material contract or shared
-interface, base or policy, evidence completeness, another finding, or unaffected
-prior coverage cannot be preserved. Never skip a selected reviewer or let an
-earlier verdict authorize `H2`.
+`base..H2` access. Apply the supplied correction-review scope: inspect the
+finding and delta, follow affected surfaces as needed, and expand only when the
+handoff records an escalation trigger. Return a current result for `H2` and
+never skip a selected reviewer.
 
 Use the Review context to interpret the artifact and its consumers. Check for:
 - missing behavior, tests, interface obligations, or verification required by

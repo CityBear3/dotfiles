@@ -8,6 +8,7 @@ use crate::InstallerError;
 #[cfg(target_os = "macos")]
 use crate::backup::BackupStore;
 use crate::command::InstallerCommand;
+use crate::command::InstallerInvocation;
 #[cfg(target_os = "macos")]
 use crate::platform::macos::MacOsPlatform;
 use crate::resources::MachineResources;
@@ -25,20 +26,23 @@ pub(crate) struct ApplicationContext {
     pub(crate) resources: MachineResources,
 }
 
-pub(crate) fn execute(command: InstallerCommand) -> Result<String, InstallerError> {
-    let resources = resources_for(&command)?;
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let source_root = manifest_dir
-        .parent()
-        .expect("installer crate must be nested under the Codex source root")
-        .to_path_buf();
+pub(crate) fn execute(invocation: InstallerInvocation) -> Result<String, InstallerError> {
+    let resources = resources_for(&invocation.command)?;
+    let source_root = invocation.source_root.unwrap_or_else(default_source_root);
     execute_with_context(
-        command,
+        invocation.command,
         ApplicationContext {
             source_root,
             resources,
         },
     )
+}
+
+fn default_source_root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer crate must be nested under the Codex source root")
+        .to_path_buf()
 }
 
 pub(crate) fn execute_with_context(

@@ -23,7 +23,8 @@ fn no_subcommand_is_install_shorthand() {
     ];
 
     // Act
-    let result = parse_command_from_with_environment(arguments, |_| None);
+    let result = parse_command_from_with_environment(arguments, |_| None)
+        .map(|invocation| invocation.command);
 
     // Assert
     assert_eq!(
@@ -58,7 +59,8 @@ fn explicit_install_arguments_are_preserved() {
     ];
 
     // Act
-    let result = parse_command_from_with_environment(arguments, |_| None);
+    let result = parse_command_from_with_environment(arguments, |_| None)
+        .map(|invocation| invocation.command);
 
     // Assert
     assert_eq!(
@@ -89,7 +91,8 @@ fn environment_defaults_resolve_install_paths() {
         "CODEX_HOME" => Some(codex_home.clone().into_os_string()),
         "XDG_STATE_HOME" => Some(xdg_state_home.clone().into_os_string()),
         _ => None,
-    });
+    })
+    .map(|invocation| invocation.command);
 
     // Assert
     assert_eq!(
@@ -115,7 +118,8 @@ fn home_defaults_resolve_install_paths() {
     // Act
     let result = parse_command_from_with_environment(arguments, |name| {
         (name == "HOME").then(|| home.clone().into_os_string())
-    });
+    })
+    .map(|invocation| invocation.command);
 
     // Assert
     assert_eq!(
@@ -137,7 +141,8 @@ fn restore_resolves_the_latest_selection_from_state_directory() {
     let arguments = ["installer", "restore", "--state-dir", "/explicit/state"];
 
     // Act
-    let result = parse_command_from_with_environment(arguments, |_| None);
+    let result = parse_command_from_with_environment(arguments, |_| None)
+        .map(|invocation| invocation.command);
 
     // Assert
     assert_eq!(
@@ -158,7 +163,8 @@ fn restore_uses_xdg_state_default_without_home() {
     // Act
     let result = parse_command_from_with_environment(arguments, |name| {
         (name == "XDG_STATE_HOME").then(|| xdg_state_home.clone().into_os_string())
-    });
+    })
+    .map(|invocation| invocation.command);
 
     // Assert
     assert_eq!(

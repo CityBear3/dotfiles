@@ -163,8 +163,9 @@ For each Task Contract include:
 - workspace ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
-- discipline: TDD for production behavior, an existing green baseline for
-  refactoring, or an explicit content/configuration migration discipline;
+- discipline: the `test-driven-development` applicability decision and reason,
+  followed by TDD when applicable or an existing green baseline and explicit
+  content/configuration or mechanical discipline when not applicable;
 - a responsibility-scoped commit intent and whether the plan or writer selects
   its message;
 - truthful pre-production RED history and separate current-Acceptance treatment
@@ -188,8 +189,9 @@ a new owner, public seam, shared interface, invariant, or contract meaning is.
 ## Test planning
 
 - Define observable verification by behavioral viewpoint.
-- For behavior changes, specify the failing test and expected red result before
-  implementation.
+- When TDD is applicable, specify the failing test and expected RED before
+  implementation. When it is not applicable, specify the baseline and
+  proportionate validation instead.
 - Prefer unit tests for module or component behavior, including filesystem
   behavior.
 - Use integration tests only for public-crate, multi-component, or real process
@@ -280,12 +282,10 @@ correction. A free slot is not authority.
 
 Correction policy must retain prior head `H1`, create one bounded correction
 commit to `H2`, rebuild the Verification Matrix, rerun fresh `H2` verification,
-and rerun the same complete selected reviewer set. Require reviewers to inspect
-`H1..H2` first and return fresh results for full `base..H2`. Record ordinary
-full-traversal fallback for escaped authorization, material contract or
-shared/public-interface change, base or policy change, incomplete prior
-evidence, a newly exposed finding, or inability to establish unaffected prior
-coverage. Earlier verdicts never authorize `H2`.
+and rerun the same complete selected reviewer set. Record that `review` owns
+correction-review scope and escalation; plans supply the exact prior evidence,
+correction delta, current target, and fresh matrix without copying its traversal
+rules.
 
 Use the same proportional Acceptance threshold in every mode. A finding survives
 only when it applies to the artifact and consumer model, cites an approved

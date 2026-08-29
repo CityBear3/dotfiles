@@ -114,8 +114,9 @@ exact Task PR, integration-only composition, eligible legacy range, or
 standalone target. Pass its perspective, Review context and policy, completed
 Verification Matrix, and relevant prior triage. For correction review also pass
 `H1`, `H2`, full `base..H2`, the `H1..H2` delta, corrected finding, and prior
-report and triage. Keep full sources directly available without copying
-unrelated unchanged prose into each message.
+report and triage. `review` owns correction-review scope and escalation; pass
+that selected scope instead of reproducing its rules. Keep full sources directly
+available without copying unrelated unchanged prose into each message.
 Tell `adversarial-integrator` or `review-integrator` that it is read-only, must
 use the supplied unchanged target and complete input reports, and may not invent
 findings, classify final workflow authority, dispatch descendants, or mutate

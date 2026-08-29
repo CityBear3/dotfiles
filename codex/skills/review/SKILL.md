@@ -282,7 +282,7 @@ owns whole-contract coverage. Other perspectives start with applicable clauses
 and inspect additional source sections when their evidence requires it; do not
 copy or require an unconditional reread of unrelated unchanged prose.
 
-## Review a corrected head delta-first
+## Review a bounded correction
 
 For a bounded correction from prior reviewed head `H1` to current head `H2`,
 rerun the same complete policy-selected reviewer set. Do not recalculate
@@ -294,26 +294,34 @@ perspectives from the delta. Give every reviewer:
 - the fresh completed Verification Matrix for `H2`; and
 - the same authority, Review context, Review policy, and selected perspective.
 
-Traversal is delta-first: start with the corrected finding and `H1..H2`, then
-follow affected callers, tests, interfaces, responsibilities, and obligations.
-Prior review evidence is navigation only. Return a new perspective result bound
-to `H2` and a fresh verdict for the full `base..H2` target.
+Targeted re-review is the default. Start with the corrected finding and
+`H1..H2`, follow only affected callers, tests, interfaces, responsibilities,
+and obligations, and establish which prior clean conclusions remain unaffected.
+Return a current perspective result bound to `H2` for that bounded correction.
+The exact prior report and triage are evidence for unchanged coverage, not a
+substitute for inspecting the correction.
 
-Use ordinary full traversal when the correction escapes its bounded
-authorization; changes a public or shared interface, responsibility boundary,
-schema, error model, concurrency, security, dependency, or test strategy;
-changes the base, controlling authority, or Review policy; lacks complete prior
-reviewer or triage evidence; exposes another finding; or cannot establish that
-previously inspected areas remain unaffected. A missing or stale prior report
-disables the delta-first optimization but never removes fresh review. No prior
-verdict authorizes `H2`, and no policy-selected reviewer may be skipped.
+Escalate that reviewer to full current-target traversal when:
+
+- the correction escapes its bounded authorization;
+- the base, controlling authority, Review policy, public or shared interface,
+  responsibility boundary, schema, error model, concurrency, security,
+  dependency, or test strategy materially changes;
+- its prior report or triage is missing, stale, or incomplete;
+- the affected surface or previously unaffected coverage cannot be bounded; or
+- targeted review exposes another finding or unrelated regression evidence.
+
+A changed head alone does not require a full traversal. No policy-selected
+reviewer may be skipped, and no prior verdict alone authorizes `H2`.
 
 ## Apply the common Acceptance threshold
 
-Treat TDD history separately from the current artifact verdict. Require the
-implementer to report the actual pre-production RED and its reason and never
-recreate or repair historical RED evidence after the production edit. Disclose
-an unrepairable historical discipline gap. It is not an Acceptance blocker by
+Treat discipline history separately from the current artifact verdict. When TDD
+was applicable, require the actual pre-production RED and its reason and never
+recreate or repair historical RED evidence after the production edit. When it
+was not applicable, inspect the recorded reason, baseline, and proportionate
+validation without demanding manufactured RED evidence. Disclose an
+unrepairable historical discipline gap. It is not an Acceptance blocker by
 itself unless it exposes a reachable current defect, material current evidence
 gap, material contract deviation, or controlling authority that makes the
 history material. Review current test adequacy and current contract evidence on

@@ -92,9 +92,11 @@ Treat the complete lightweight alignment source as implementation approval when
 every eligibility criterion holds. Confirm the workspace with
 `create-workspace`. Derive one concise in-memory Feature Contract from the
 alignment source and repository evidence; because the route is one coherent
-task, use the same contract as its Task Contract. Select TDD for production
-behavior and a contract-appropriate discipline for content, configuration,
-refactoring, or mechanical migrations.
+task, use the same contract as its Task Contract. Apply the
+`test-driven-development` applicability decision before selecting discipline.
+Record TDD as `applicable`, `not applicable`, or `required but blocked`, with
+its reason; select a contract-appropriate baseline and validation discipline
+when it is not applicable.
 
 The lightweight Feature/Task Contract must make the context and goal, scope and
 non-goals, design sources and approved decisions with precedence, observable and
@@ -206,9 +208,9 @@ corrections in this coordinator.
 When an authorized lightweight correction re-enters `execute-lightweight-task`,
 retain prior reviewed head `H1`, prior reports and triage, and the unchanged
 complete selected reviewer set. Require one bounded correction commit to `H2`,
-a rebuilt matrix, fresh `H2` verification, and review that traverses `H1..H2`
-first while returning fresh full `base..H2` verdicts. Earlier verdicts are
-navigation evidence only.
+a rebuilt matrix, and fresh `H2` verification before the selected reviewers
+rerun. `review` owns correction-review scope and escalation; do not restate its
+traversal rules in this coordinator.
 Planned correction mechanics remain owned by `execute-plan` and its bound Task
 orchestrator under the same contract.
 
@@ -467,10 +469,13 @@ Advance automatically within approved local scope:
    obligation is current and no finding, policy gap, design gap, or operational
    gap survives.
 
-Historical TDD evidence remains an implementer-history input, not current proof.
-Disclose an immutable RED gap, but do not turn it into an Acceptance blocker
+Historical discipline evidence remains an implementer-history input, not current
+proof. Require a TDD applicability decision and reason. When TDD applied,
+disclose an immutable RED gap, but do not turn it into an Acceptance blocker
 without a reachable current defect, material current evidence gap, material
 contract deviation, or controlling authority that makes the history material.
+When it did not apply, retain the declared baseline and validation instead of
+demanding RED evidence.
 
 Diagnose failed verification before correction. Never advance failed or blocked
 verification to review, blocked review to triage, unresolved triage to

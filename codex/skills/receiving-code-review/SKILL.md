@@ -74,15 +74,16 @@ evidence and state the exact re-entry condition.
 
 ## Process each finding
 
-Keep immutable TDD history separate from current finding classification.
-Require the implementer record to contain the actual pre-production RED and its
-reason and never recreate or repair historical RED evidence after the
-production edit. Disclose an unrepairable historical discipline gap. It is not
-an Acceptance blocker by itself unless it exposes a reachable current defect,
-material current evidence gap, material contract deviation, or controlling
-authority that makes the history material. A history-only discrepancy without
-one of those consequences is `Push back`, while a material authority rule is
-`Escalate`.
+Keep immutable discipline history separate from current finding classification.
+When TDD was applicable, require the actual pre-production RED and its reason
+and never recreate or repair historical RED evidence after the production edit.
+When it was not applicable, inspect the recorded reason, baseline, and
+validation without demanding manufactured RED evidence. Disclose an
+unrepairable historical discipline gap. It is not an Acceptance blocker by
+itself unless it exposes a reachable current defect, material current evidence
+gap, material contract deviation, or controlling authority that makes the
+history material. A history-only discrepancy without one of those consequences
+is `Push back`, while a material authority rule is `Escalate`.
 
 For each item:
 
@@ -190,14 +191,11 @@ remains within scope. A Task PR fix still requires bounded implementation, a
 single correction commit and new head `H2`, a rebuilt current-head Verification
 Matrix, fresh `H2` verification, and the same complete policy-selected reviewer
 set. Each reviewer receives prior evidence, the `H1..H2` delta, and full
-`base..H2` access; it inspects the corrected finding and delta first but returns
-a fresh verdict for the full current target. Ordinary full traversal applies
-when the correction escapes authorization, changes a material contract or
-shared/public interface, changes base or policy, lacks complete prior evidence,
-exposes another finding, or cannot establish unaffected prior coverage. Earlier
-evidence is navigation only and never authorizes `H2`. An integration finding
-routes to its owning Task Contract, invalidates affected descendants through
-both topologies, and then requires fresh affected task and integration evidence.
+`base..H2` access. `review` owns correction-review scope and escalation; this
+skill authorizes the bounded fix but does not redefine traversal. An integration
+finding routes to its owning Task Contract, invalidates affected descendants
+through both topologies, and then requires fresh affected task and integration
+evidence.
 
 A `Design Escalation` stops unstarted review and correction work for the
 affected target and returns to the engineer immediately. After an approved

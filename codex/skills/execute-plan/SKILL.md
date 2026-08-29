@@ -312,9 +312,9 @@ a correction commit intent bounded to the finding with its fixed message or
 approved writer message-selection authority. Also supply prior reviewed head
 `H1`, prior reviewer reports and triage, and the unchanged complete selected
 reviewer set. Require one correction commit to `H2`, a rebuilt Verification
-Matrix, fresh `H2` verification, and correction review that starts with
-`H1..H2` but returns fresh verdicts for the full `base..H2` target. Earlier
-reports guide traversal only and never authorize `H2`.
+Matrix, and fresh `H2` verification before review. `review` owns
+correction-review scope and escalation; pass its required correction evidence
+without restating traversal rules here.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do

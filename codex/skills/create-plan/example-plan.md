@@ -241,11 +241,9 @@ fresh verification and the complete task gate for changed ranges. Route a
 concrete in-scope finding through its owning Task Contract; return semantic or
 topology changes to approval. For a bounded correction from `H1` to `H2`, create
 one correction commit, rebuild the matrix, run fresh `H2` verification, and
-rerun the same complete reviewer set. Review `H1..H2` first but return fresh
-verdicts for full `base..H2`; prior verdicts are navigation only. Use ordinary
-full traversal for escaped authorization, material contract or shared-interface
-change, base or policy change, incomplete prior evidence, another finding, or
-uncertain unaffected coverage.
+rerun the same complete reviewer set. `review` owns correction-review scope and
+escalation; supply its exact prior evidence, correction delta, current target,
+and fresh matrix without duplicating traversal rules in the plan.
 
 ## Publication
 

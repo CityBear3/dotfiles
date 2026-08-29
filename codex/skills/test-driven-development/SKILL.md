@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Implement new behavior and bug fixes through a red, green, refactor loop with focused behavioral tests. Use while changing production-code behavior or when an approved plan specifies TDD.
+description: Decide whether TDD applies, then use a focused red, green, refactor loop for testable production-code behavior changes and bug fixes. Use before editing when the task may require TDD or an approved plan specifies it.
 ---
 
 # Test-driven development
@@ -9,13 +9,34 @@ Establish evidence that the test detects the missing behavior before writing pro
 
 For Rust work, read [references/rust.md](references/rust.md) before choosing test placement or structure.
 
+## Decide whether TDD applies
+
+Before editing, classify TDD as `applicable`, `not applicable`, or
+`required but blocked` and record the reason.
+
+- `applicable`: the task changes observable production-code behavior or fixes a
+  defect, and a focused executable test can demonstrate the missing behavior
+  before the production edit.
+- `not applicable`: the task is limited to documentation, instructions,
+  metadata, formatting, generated output, or a behavior-preserving mechanical
+  change. Preserve an existing green baseline and run proportionate validation;
+  do not manufacture a failing test or claim TDD.
+- `required but blocked`: behavior changes or approved authority requires TDD,
+  but the intended RED cannot be observed safely because the test seam,
+  environment, or authority is missing. Stop and report the missing condition
+  instead of silently reclassifying the work.
+
+Updating an existing test whose old expectation would contradict an approved
+content or contract change is maintenance, not by itself a TDD RED.
+
 Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run before the first TDD stage in one bounded
 programmatic batch only when every result remains separately attributable. End
 that batch and stop before a result-dependent judgment, test selection, edit,
 or dependent validation.
 
-Keep this order explicit and never batch across it:
+Only when TDD is `applicable`, keep this order explicit and never batch across
+it:
 
 ```text
 focused RED -> production edit -> focused GREEN -> refactor while green
@@ -44,14 +65,15 @@ Improve names, responsibilities, and duplication while the tests remain green. P
 
 ## History and current evidence
 
-Record the actual pre-production RED and its reason, the subsequent production
-edit, focused GREEN, and any refactor, and never recreate or repair historical
-RED evidence after the production edit. Disclose an unrepairable historical
-discipline gap. It is not an Acceptance blocker by itself unless it exposes a
-reachable current defect, material current evidence gap, material contract
-deviation, or controlling authority that makes the history material. Current
-Acceptance still requires adequate tests, fresh verification, and selected
-review for the exact current target.
+When TDD applies, record the actual pre-production RED and its reason, the
+subsequent production edit, focused GREEN, and any refactor, and never recreate
+or repair historical RED evidence after the production edit. Otherwise record
+the applicability decision, reason, baseline, and validation used. Disclose an
+unrepairable historical discipline gap. It is not an Acceptance blocker by
+itself unless it exposes a reachable current defect, material current evidence
+gap, material contract deviation, or controlling authority that makes the
+history material. Current Acceptance still requires adequate tests, fresh
+verification, and selected review for the exact current target.
 
 ## Test contract
 
@@ -62,9 +84,5 @@ review for the exact current target.
 - Keep tests deterministic, independent, and parallel-safe.
 - Use real collaborators when inexpensive; fake only at a meaningful boundary.
 - Do not change production visibility solely to reach internals.
-
-## Exceptions
-
-Pure documentation, formatting, generated output, and behavior-preserving mechanical refactors do not require a new failing test. They still require an existing green baseline and fresh verification.
 
 Never claim TDD if the red result was not observed.
