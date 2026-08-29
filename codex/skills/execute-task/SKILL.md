@@ -426,6 +426,12 @@ responsibility boundaries, focused writer obligations, and a correction commit
 intent bounded to the finding with its fixed message or explicit writer
 message-selection authority.
 
+For a new-format planned correction, also give the writer the exact planned
+`search-cache.md` path, current matching entry or miss, its source identity,
+currentness, and invalidation conditions, and the Feature-lead-only writer and
+non-authority boundary. Omit this planned-only cache input for lightweight and
+eligible legacy corrections.
+
 Then:
 
 1. implement only the bounded correction and inspect its diff;

@@ -135,6 +135,10 @@ Commit: <correction scope bounded to the finding and fixed message or writer mes
 Discipline: <declared value>
 Working directory and PR range: <task path, branch, planned base, and current head>
 Verification: <obligations, routes, and contractually fixed commands>
+Search cache (new-format planned corrections only; omit for lightweight and
+eligible legacy): <exact planned path, current matching entry or miss, source
+identity, currentness, and invalidation conditions, and Feature-lead-only
+writer/non-authority boundary>
 
 Do not repeat an observed failed correction without new evidence. Re-run every
 required command and applicable selected check, inspect the correction diff and

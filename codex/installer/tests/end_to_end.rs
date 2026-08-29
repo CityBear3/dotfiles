@@ -631,6 +631,14 @@ fn managed_task_loop_gives_each_role_a_complete_handoff_and_reentry() {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
+    let task_orchestrator_handoff = execute_plan
+        .split("Give it one concise plain-language handoff containing:")
+        .nth(1)
+        .and_then(|section| section.split("Do not inline or require").next())
+        .expect("bounded initial Task-orchestrator handoff")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let task_dispatch = task_dispatch
         .split_whitespace()
         .collect::<Vec<_>>()
@@ -678,6 +686,29 @@ fn managed_task_loop_gives_each_role_a_complete_handoff_and_reentry() {
     assert!(execute_plan.contains(
         "complete new handoff and revalidate all authority, policy, Git, writer, and capacity evidence"
     ));
+    let initial_task_orchestrator_contract = (
+        task_orchestrator_handoff.contains(
+            "exact Feature Contract identity, path, approval/currentness evidence, and the clauses assigned to this task",
+        ) && task_orchestrator_handoff.contains(
+            "the exact applicable Task Contract, including purpose, expected result, constraints, dependencies, non-goals, and delegated local decisions",
+        ),
+        task_orchestrator_handoff.contains("the Review context and complete Review policy"),
+        task_orchestrator_handoff.contains(
+            "current merge base, exact base-to-head range, inspected diff, and starting Git status including index, worktree, and relevant untracked state",
+        ) && task_orchestrator_handoff.contains(
+            "attributable commits, prior verification and review, concerns, gaps, and re-entry evidence when applicable",
+        ),
+        task_orchestrator_handoff.contains("the current granted leaf count")
+            && task_orchestrator_handoff
+                .contains("any roles already selected by `execute-task` or `review` for this wave"),
+        execute_plan.contains(
+            "Require the new Task orchestrator and every replacement to directly revalidate Git and authority before acting",
+        ),
+    );
+    assert_eq!(
+        initial_task_orchestrator_contract,
+        (true, true, true, true, true)
+    );
     for required in [
         "same idle Task orchestrator needs an attributable re-entry",
         "use `followup_task` with a fresh complete handoff",
@@ -912,6 +943,13 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .nth(1)
         .and_then(|section| section.split("## Correction message").next())
         .expect("implementer fallback Task message section");
+    let fallback_correction_message = implementer_fallback
+        .split("## Correction message")
+        .nth(1)
+        .expect("implementer fallback Correction message section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let eligible_legacy_fallback = fallback_task_message
         .split("For eligible legacy work")
         .nth(1)
@@ -934,6 +972,22 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
         .join(" ");
     let workflow_contract = workflow.split_whitespace().collect::<Vec<_>>().join(" ");
     let create_plan_contract = create_plan.split_whitespace().collect::<Vec<_>>().join(" ");
+    let common_handoff_contract = execute_task
+        .split("The common core contains:")
+        .nth(1)
+        .and_then(|section| section.split("The planned variant adds:").next())
+        .expect("bounded common Task handoff section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let planned_handoff_contract = execute_task
+        .split("The planned variant adds:")
+        .nth(1)
+        .and_then(|section| section.split("The lightweight variant adds:").next())
+        .expect("bounded planned Task handoff section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
     let lightweight_contract = execute_task
         .split("The lightweight variant adds:")
         .nth(1)
@@ -943,6 +997,14 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
                 .next()
         })
         .expect("bounded lightweight handoff section")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let correction_writer_handoff = execute_task
+        .split("For each authorized correction")
+        .nth(1)
+        .and_then(|section| section.split("Then:").next())
+        .expect("bounded correction writer handoff section")
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ");
@@ -1013,6 +1075,32 @@ fn managed_task_loop_search_cache_has_one_writer_and_plan_matched_lifecycle() {
             .contains("Resolve current Git, authority, verification, and review evidence directly")
     );
     assert!(reviewer_fallback.contains("never edit the Feature-lead-owned cache"));
+    let task_cache_mode_contract = (
+        !common_handoff_contract.contains("search-cache.md"),
+        planned_handoff_contract.contains("exact planned `search-cache.md` path")
+            && planned_handoff_contract.contains("a current matching entry or miss")
+            && planned_handoff_contract.contains("source identity and invalidation conditions")
+            && planned_handoff_contract.contains("Feature-lead-only writer boundary"),
+        !lightweight_contract.contains("search-cache.md"),
+        correction_writer_handoff.contains("For a new-format planned correction")
+            && correction_writer_handoff.contains("exact planned `search-cache.md` path")
+            && correction_writer_handoff.contains("current matching entry or miss")
+            && correction_writer_handoff
+                .contains("source identity, currentness, and invalidation conditions")
+            && correction_writer_handoff
+                .contains("Feature-lead-only writer and non-authority boundary")
+            && correction_writer_handoff.contains(
+                "Omit this planned-only cache input for lightweight and eligible legacy corrections",
+            ),
+        fallback_correction_message.contains(
+            "Search cache (new-format planned corrections only; omit for lightweight and eligible legacy)",
+        ) && fallback_correction_message.contains("exact planned path, current matching entry or miss")
+            && fallback_correction_message
+                .contains("source identity, currentness, and invalidation conditions")
+            && fallback_correction_message
+                .contains("Feature-lead-only writer/non-authority boundary"),
+    );
+    assert_eq!(task_cache_mode_contract, (true, true, true, true, true));
     assert!(!lightweight_contract.contains("search-cache.md"));
     assert!(lightweight_contract.contains("The lightweight variant never requires or fabricates"));
     assert!(lightweight_contract.contains("another planned-only artifact"));
