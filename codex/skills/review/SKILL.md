@@ -10,6 +10,12 @@ check-only and read-only. Keep every reviewer and integrator read-only. Do not
 mutate source or Git state, implement or stage a fix, classify findings for
 triage, or advance another workflow phase.
 
+For new-format planned work, look up a current matching cache entry before new discovery.
+A cache hit never replaces fresh Git, authority, verification, or review evidence.
+Use it only as source-identified navigation, let each reviewer inspect the
+current target independently, and return attributable cache candidates to the Feature lead.
+Reviewers and integrators never edit `search-cache.md`.
+
 ## Resolve the review target
 
 Use one target form:
@@ -43,10 +49,10 @@ For a Task PR require:
 - applicable Feature and Task Contract authority, current dependency and shared-
   interface evidence, observed commands, concerns, prior triage decisions, and
   known gaps;
-- execution context: the bound Task orchestrator for new-format planned work or
-  the root-owned loop for lightweight work, plus configured, observed, and
-  effective subagent capacity, current root-granted leaf count, live identities,
-  and the ordered selected-reviewer queue.
+- for new-format planned work, the exact `search-cache.md` path and any current
+  matching entry with its source identity and invalidation conditions;
+- the root-owned execution context, relevant live identities, ordered selected
+  or pending reviewers, and attributable runtime-rejection evidence.
 
 For a planned targeted integration review require:
 
@@ -121,12 +127,10 @@ substitutes for current-head coordinator review.
 Every standalone review result is labeled `standalone-only` whether the root
 dispatches leaves or the lead applies an explicit no-agent fallback.
 
-Record standalone as a root-owned execution context, configured, observed, and
-effective global subagent capacity, live identities, the selected-role queue,
-and a root-granted target-local count of normally one and at most three
-concurrent leaves. It has no Task lease. Selected roles beyond the current grant
-remain queued in their original order, and the target never infers authority to
-consume every globally free slot.
+Record standalone as a root-owned execution context with relevant live
+identities and selected or pending roles. Runtime admission determines which
+roles start. Preserve rejected spawns in their original order and retry after a
+completion or mailbox event without reducing selected scope.
 
 Review context is an interpretation aid. It must not add to, weaken, or replace
 an available Design Doc, Feature Contract, Task Contract, or Implementation
@@ -146,7 +150,7 @@ When a Review policy exists, require:
 - findings-only general integration and authority-defect priority rules; treat
   these as current workflow invariants rather than requiring an eligible legacy
   plan to manufacture a new stored policy field;
-- residual risk, capacity, deterministic queue order, and Acceptance.
+- residual risk, pending-role order, and Acceptance.
 
 Compare the actual artifact, diff, behavior, tests, public seams, responsibilities,
 and failure paths with the recorded risks and skips. A material risk absent from
@@ -203,7 +207,7 @@ review for a plan or narrow migration; architecture for material responsibility
 changes; adversarial profiles only for their corresponding concrete risk. Record
 every run and skip with reasons.
 
-## Preserve independence and capacity
+## Preserve independence under runtime admission
 
 An approved `focused` policy may use a complete lead Task PR review when the
 user prohibits agents. `Adaptive` and `deep` independent perspectives cannot be
@@ -217,28 +221,19 @@ policy requires adaptive or deep independence, disclose that it is not
 policy-complete; standalone evidence is never coordinator completion evidence.
 
 Otherwise pass each already-selected perspective and complete reviewer message
-to `agent-teams-driven-development`. For new-format planned work, only the bound
-Task orchestrator dispatches these reviewer leaves; for lightweight work, the
-root dispatches them in its Task loop; for standalone work, the root dispatches
-them as direct leaves of the standalone target. Another coordinator-owned target
-uses its explicit root-owned context. The adapter calls `list_agents` before
-each wave and uses the lower of configured `agents.max_threads` and observed
-runtime capacity. The root is excluded from `max_threads`; every Task
-orchestrator and leaf is counted.
+to `agent-teams-driven-development`. The root dispatches planned, lightweight,
+standalone, and integration reviewers directly in their explicit owning
+context. After fresh verification passes, independent policy-selected reviewers
+may run concurrently when runtime admission allows it.
 
-Outside the source-reviewer wave, a Task loop uses its one root-granted baseline
-leaf. When fresh verification passes and the policy selected at least two
-independent source reviewers, the Task-loop owner may request a temporary
-reviewer-wave expansion. Only the root may grant it, up to three total Task
-leaves or the smaller current capacity, and only policy-selected source
-reviewers consume it. Queue remaining reviewers in deterministic policy order
-without reducing scope, independence, or breadth. Free capacity is not lease
-authority, and unavailable expansion only increases latency while the baseline
-queue can progress. The expansion must be revoked before findings integration,
-triage, or correction and also when review exits early for a priority authority
-assessment. An unavailable required reviewer or queue that cannot progress
-returns `BLOCKED` with the role, configured/observed/effective capacity,
-execution context, grant, queue, gap, and re-entry condition.
+Keep a runtime-rejected reviewer pending in deterministic policy order. After
+useful independent work, wait for a mailbox or completion event and retry. Do
+not reduce scope, independence, or breadth because admission is temporarily
+unavailable. Return operational `BLOCKED` only when repeated non-progress means
+a required reviewer cannot run; report the role, pending order, observed runtime
+error, and exact re-entry condition. Use live-agent inspection for duplicate,
+liveness, failure, interruption, recovery, or teardown decisions rather than as
+a capacity probe before every wave.
 
 Use named profiles when selectable; otherwise provide a complete fallback role
 prompt. Reviewers and integrators do not edit files or spawn descendants.
@@ -260,6 +255,8 @@ Pass directly to every selected reviewer:
   observations, and observed results;
 - relevant dependency and Task PR outcomes, prior triage decisions, concerns,
   and gaps;
+- the applicable current cache hit as navigation plus its source identity and
+  invalidation conditions, without treating it as review evidence;
 - that reviewer's selected perspective and output expectations.
 
 Do not create another wrapper identity or repeat the evidence in competing
@@ -272,7 +269,7 @@ owns whole-contract coverage. Other perspectives start with applicable clauses
 and inspect additional source sections when their evidence requires it; do not
 copy or require an unconditional reread of unrelated unchanged prose.
 
-## Review a corrected head delta-first
+## Review a bounded correction
 
 For a bounded correction from prior reviewed head `H1` to current head `H2`,
 rerun the same complete policy-selected reviewer set. Do not recalculate
@@ -284,21 +281,38 @@ perspectives from the delta. Give every reviewer:
 - the fresh completed Verification Matrix for `H2`; and
 - the same authority, Review context, Review policy, and selected perspective.
 
-Traversal is delta-first: start with the corrected finding and `H1..H2`, then
-follow affected callers, tests, interfaces, responsibilities, and obligations.
-Prior review evidence is navigation only. Return a new perspective result bound
-to `H2` and a fresh verdict for the full `base..H2` target.
+Targeted re-review is the default. Start with the corrected finding and
+`H1..H2`, follow only affected callers, tests, interfaces, responsibilities,
+and obligations, and establish which prior clean conclusions remain unaffected.
+Return a current perspective result bound to `H2` for that bounded correction.
+The exact prior report and triage are evidence for unchanged coverage, not a
+substitute for inspecting the correction.
 
-Use ordinary full traversal when the correction escapes its bounded
-authorization; changes a public or shared interface, responsibility boundary,
-schema, error model, concurrency, security, dependency, or test strategy;
-changes the base, controlling authority, or Review policy; lacks complete prior
-reviewer or triage evidence; exposes another finding; or cannot establish that
-previously inspected areas remain unaffected. A missing or stale prior report
-disables the delta-first optimization but never removes fresh review. No prior
-verdict authorizes `H2`, and no policy-selected reviewer may be skipped.
+Escalate that reviewer to full current-target traversal when:
+
+- the correction escapes its bounded authorization;
+- the base, controlling authority, Review policy, public or shared interface,
+  responsibility boundary, schema, error model, concurrency, security,
+  dependency, or test strategy materially changes;
+- its prior report or triage is missing, stale, or incomplete;
+- the affected surface or previously unaffected coverage cannot be bounded; or
+- targeted review exposes another finding or unrelated regression evidence.
+
+A changed head alone does not require a full traversal. No policy-selected
+reviewer may be skipped, and no prior verdict alone authorizes `H2`.
 
 ## Apply the common Acceptance threshold
+
+Treat discipline history separately from the current artifact verdict. Review
+current test adequacy and contract evidence on their own merits. Report a
+history-only discrepancy only when it demonstrates a reachable current defect,
+material current evidence gap, material contract deviation, or controlling
+authority that makes it material.
+
+Every source reviewer applies this threshold before returning its perspective.
+An alternative implementation or mutation that passes current tests is an
+investigation technique, not sufficient finding evidence without an approved
+requirement or realistic reachable behavior and material consequence.
 
 Every finding must include severity `Must Fix` or `Should Improve`, file and
 line, concrete observed or reachable behavior, violated requirement or quality
@@ -345,11 +359,11 @@ When every selected reviewer and any required adversarial integration return
 clean, do not run a general review integrator. When any source report returns a
 finding, the owning Task loop or standalone root must run
 `review-integrator` against the exact unchanged target before this skill reports
-`FINDINGS`. For planned work the bound Task orchestrator dispatches it; for
-lightweight, standalone, and another root-owned coordinator target the root
-dispatches it in that explicit context. First revoke any temporary
-reviewer-wave expansion, then use `agent-teams-driven-development` under the
-baseline one-leaf grant and the same global capacity accounting.
+`FINDINGS`. The root dispatches it directly in the explicit planned,
+lightweight, standalone, or integration context through
+`agent-teams-driven-development`. Findings integration begins only after the
+applicable source-review phase has stopped; runtime admission may delay it but
+does not change its authority.
 
 Give `review-integrator`:
 
@@ -363,6 +377,11 @@ Give `review-integrator`:
   remedy validity, and to record reproduction, exact authority, origin, scope
   owner, proportionality, design sufficiency, and confidence without inventing
   findings or issuing final workflow classifications.
+
+Require the integrator to check approved requirement or realistic reachability,
+artifact applicability, concrete evidence, and materiality before deeper
+reproduction or remedy analysis. It drops a candidate missing those
+prerequisites without runtime probes performed solely to disprove speculation.
 
 For ordinary implementation findings, wait for every selected reviewer to
 complete and run one general integration over the complete reports. When a
@@ -404,12 +423,14 @@ Merge duplicates and report in Japanese:
 - Review context and disclosed standalone assumptions;
 - approved mode or `none`, observed risks, and policy reconciliation;
 - fresh verification commands and results inspected;
+- cache entry consulted and any attributable cache candidate returned to the
+  Feature lead;
 - assigned Feature and Task Contract observations, targeted integration
   alignment, or eligible legacy criteria and original-authority alignment
   inspected;
 - reviewers run, queued, and skipped with reasons;
-- owning Task-loop context, configured/observed/effective capacity, root grant,
-  live identities, and reviewer dispatch order;
+- owning root Task-loop context, relevant live identities, reviewer dispatch and
+  pending order, and runtime-rejection evidence;
 - source reviewer, adversarial-integrator, and general review-integrator
   outcomes, including any priority authority assessment and paused queue;
 - accepted Must Fix and Should Improve findings;

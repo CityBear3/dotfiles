@@ -113,12 +113,25 @@ do not copy or mutate its meaning. Treat both files as ignored, workspace-only
 execution artifacts. Do not force-add, stage, or commit either file unless the
 user explicitly chooses archival.
 
+Also declare the planned discovery cache at
+`docs/plans/YYYY-MM-DD-<feature>/search-cache.md`. The Feature lead is the only writer. The file is ignored, workspace-only, and non-authoritative.
+Define its entry contract as purpose and scope, exact source identity,
+observation date or repository identity, positive and useful negative results,
+reuse conditions, and source-aware invalidation conditions. Require every
+planned consumer to look up a current matching entry before new discovery and
+return attributable candidates rather than editing it. State that the cache
+never replaces current Git, authority, verification, or review evidence and has
+the same publication, feedback-reentry, disposition, and authorized-worktree-
+removal lifecycle as the Implementation Plan.
+
 Include:
 
 - goal, authorities and precedence, architecture summary, technologies, working
   directory, branch, and observed baseline;
 - fixed decisions and explicit non-goals;
 - shared interface contracts and their owners and consumers;
+- the search-cache path, Feature-lead-only writer boundary, consumers, entry
+  contract, invalidation, non-authority rule, and plan-matched lifecycle;
 - the Task dependency DAG, deterministic ready order, PR topology, planned
   bases, fan-in linearizations, and exact integration-only composition inputs,
   order, mechanism, workspace, identity checks, and retention;
@@ -150,8 +163,9 @@ For each Task Contract include:
 - workspace ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
-- discipline: TDD for production behavior, an existing green baseline for
-  refactoring, or an explicit content/configuration migration discipline;
+- discipline: the material property, reliable verification oracle,
+  `test-driven-development` applicability decision and reason, or the explicit
+  non-TDD baseline and validation discipline;
 - a responsibility-scoped commit intent and whether the plan or writer selects
   its message;
 - contractually significant files, signatures, ordering, commands, exact commit
@@ -172,15 +186,15 @@ a new owner, public seam, shared interface, invariant, or contract meaning is.
 
 ## Test planning
 
-- Define observable verification by behavioral viewpoint.
-- For behavior changes, specify the failing test and expected red result before
-  implementation.
-- Prefer unit tests for module or component behavior, including filesystem
-  behavior.
-- Use integration tests only for public-crate, multi-component, or real process
-  journeys.
-- Require Arrange, Act, Assert; DAMP setup; returned-result assertions; and
-  relevant side-effect assertions.
+- Identify each Task's material property and reliable verification oracle.
+- Record the `test-driven-development` applicability decision and reason. When
+  applicable, name the causal behavioral slice that must be absent before the
+  production edit and whether one focused test or a coherent, separately
+  attributable matrix proves it. Keep result-dependent cases sequential.
+- When TDD is not applicable, name the baseline and proportionate property,
+  model, differential, fault, integration, hardware, benchmark, or other
+  validation. Mark exploratory implementation as non-Candidate work with an
+  explicit productionization boundary.
 - Name applicable repository or project verification routes. Require exact
   commands only when their identity or flags are needed for safety,
   reproducibility, coverage, environment selection, or migration correctness.
@@ -208,8 +222,8 @@ new evidence of a concrete reachable failure or approved-contract violation.
 ## Review policy
 
 Include a separate `Review policy` section in every plan. The policy controls
-breadth, independence, capacity, and Acceptance; it references the Review context
-without repeating it.
+breadth, independence, and Acceptance; it references the Review context without
+repeating it.
 
 Use `adaptive` as the default for planned work. Recommend `focused` or `deep`
 only when repository evidence, approved decisions, and concrete risk surfaces
@@ -251,26 +265,23 @@ Record:
 - **Integration conditional reviewers with exact triggers**
 - **Explicitly skipped perspectives and reasons**
 - **Residual risk**
-- **Capacity and deterministic queue order**
+- **Deterministic reviewer order under runtime admission**
 - **Findings-only integration and Design Escalation priority**
 - **Acceptance threshold**
 
-Capacity policy must start each Task loop with one baseline leaf for serial
-implementation, verification, findings integration, triage, and correction.
-Permit temporary expansion only after verifier `PASS` for a policy-selected wave
-of at least two independent source reviewers; only the root grants up to three
-total Task leaves or smaller current capacity. Require deterministic queueing
-when unavailable and revocation before findings integration, triage, or
-correction. A free slot is not authority.
+Runtime admission does not change Review selection. Record the deterministic
+reviewer order used when a selected spawn is temporarily rejected. Keep phase
+gates explicit so implementation, verification, findings integration, triage,
+and correction remain ordered while independent source reviewers may run after
+fresh verifier `PASS`. Do not encode leases, grants, or thread arithmetic in the
+plan.
 
 Correction policy must retain prior head `H1`, create one bounded correction
 commit to `H2`, rebuild the Verification Matrix, rerun fresh `H2` verification,
-and rerun the same complete selected reviewer set. Require reviewers to inspect
-`H1..H2` first and return fresh results for full `base..H2`. Record ordinary
-full-traversal fallback for escaped authorization, material contract or
-shared/public-interface change, base or policy change, incomplete prior
-evidence, a newly exposed finding, or inability to establish unaffected prior
-coverage. Earlier verdicts never authorize `H2`.
+and rerun the same complete selected reviewer set. Record that `review` owns
+correction-review scope and escalation; plans supply the exact prior evidence,
+correction delta, current target, and fresh matrix without copying its traversal
+rules.
 
 Use the same proportional Acceptance threshold in every mode. A finding survives
 only when it applies to the artifact and consumer model, cites an approved
@@ -286,15 +297,15 @@ violation.
 
 Keep model and reasoning-effort choices in reviewer profiles, not in the plan.
 
-## Agent capacity
+## Execution concurrency
 
 When execution may use subagents, identify one writer per task workspace and
 read-only reviewers. Permit multiple active writers only for dependency-ready,
 ownership-disjoint tasks in separate checkouts without conflicting shared
 state. Require every named reviewer to have a resolvable profile or complete
-fallback prompt. Record configured capacity and deterministic ready-task and
-reviewer queue order. Queue when capacity is lower; never reduce approved scope
-or independence silently.
+fallback prompt. Record deterministic ready-Task and reviewer order. Runtime
+admission may delay a selected role but never reduces approved scope or
+independence.
 
 ## Quality
 

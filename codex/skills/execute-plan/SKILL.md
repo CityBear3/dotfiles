@@ -5,11 +5,10 @@ description: Orchestrate an approved Implementation Plan across its Task depende
 
 # Execute an approved plan
 
-Own approved-plan validation, dependency and PR-topology scheduling, per-task
-Task-orchestrator handoff, root-granted capacity leases, workspace and agent
-mapping, staleness propagation, and exact evidence aggregation. Do not edit
-files, select implementer or reviewer roles, normalize findings, publish,
-merge, or run verification or review itself.
+Own approved-plan validation, dependency and PR-topology scheduling, root-owned
+Task-loop handoffs, workspace and leaf mapping, staleness propagation, and exact
+evidence aggregation. Do not edit files, select implementer or reviewer roles,
+normalize findings, publish, merge, or run verification or review itself.
 
 ## Validate plan entry
 
@@ -19,6 +18,8 @@ For new-format work, require:
 
 - the approved, current Feature Contract and its design sources;
 - an approved, current implementation plan;
+- the exact planned `search-cache.md` path, current matching entries, and its
+  Feature-lead-only writer boundary;
 - its complete Task Contract set, shared interface contracts, Feature Contract
   coverage, and integration-only obligations;
 - its separate Review context and complete approved Review policy;
@@ -76,25 +77,15 @@ A task is dependency-ready only when every logical predecessor is internally
 
 Permit multiple active tasks only when the approved plan marks them ready,
 ownership-disjoint, free of conflicting shared state, and assigned to separate
-branches and checkouts. Keep one writer per checkout and remain within approved
-and observed capacity. Use `dispatching-parallel-agents` only as an adapter for
-already bounded Task-orchestrator handoffs; queue deterministically rather than
-weakening a gate.
+branches and checkouts. Keep one writer per checkout. Use
+`dispatching-parallel-agents` only for already-selected Task roles; preserve
+approved ready-Task and reviewer order rather than weakening a gate.
 
-Before every dispatch wave, resolve configured `agents.max_threads`, currently
-observed runtime capacity, and all live descendants. Effective subagent capacity
-is the lower configured or observed value. It excludes the root and counts each
-Task orchestrator and leaf. The root alone grants leaf capacity. Start each
-schedulable active Task with one root-granted baseline leaf; do not dispatch a
-Task orchestrator unless capacity exists for both it and that leaf. The baseline
-leaf is used serially outside review. Only after fresh verifier `PASS` and
-selection of at least two independent source reviewers may the Task orchestrator
-request temporary reviewer-wave expansion. The root may then grant at most three
-total Task leaves or the smaller current capacity in deterministic queue order.
-Only selected source reviewers use it, and the root revokes it before findings
-integration, triage, or correction. Free global capacity is not grant authority.
-Capacity rejection is backpressure: retain Task and role order without dropping,
-substituting, or weakening work.
+Runtime admission owns thread concurrency. When a selected spawn reaches the
+runtime limit, retain it as pending, wait for a mailbox or completion event, and
+retry after progress. Do not calculate leases or grants, probe live agents
+before every ordinary dispatch, or reduce selected work to fit temporary
+availability.
 
 A task whose logical inputs are ready but whose final PR base is not yet
 materialized may run in candidate mode when the plan permits it. Candidate work
@@ -103,35 +94,44 @@ authoritative acceptance, materialize the approved final base, perform any
 authorized restack or retarget operation, and require fresh exact-range
 verification and review.
 
-For each ready new-format planned Task, dispatch the exact `task-orchestrator`
-profile through `dispatching-parallel-agents` and bind that identity to only
-that Task Contract. Give it one concise plain-language handoff containing:
+For new-format planned work, look up a current matching cache entry before new discovery.
+The cache never replaces fresh Git, authority, verification, or review evidence.
+Consumers preserve the entry's source identity and invalidation conditions and
+return attributable cache candidates to the Feature lead; they never edit
+`search-cache.md` themselves.
+
+For each ready new-format planned Task, enter its root-owned `execute-task` loop
+and use `dispatching-parallel-agents` for each already-selected direct leaf.
+Give the Task loop one concise plain-language handoff containing:
 
 - exact Feature Contract identity, path, approval/currentness evidence, and the
   clauses assigned to this task;
 - the exact applicable Task Contract, including purpose, expected result,
   constraints, dependencies, non-goals, and delegated local decisions;
+- the complete Task-local authority needed for its loop, with exact authority
+  paths kept directly readable;
 - applicable shared interface contracts and adjacent-task obligations;
 - the Review context and complete Review policy;
 - the declared discipline and applicable repository guidance;
 - the coordination directory, exact Herdr workspace and initial pane identities,
   Task worktree, branch, and planned PR identity, plus direct Git validation and
   any non-blocking lazygit warning;
+- the exact planned `search-cache.md` path, any current matching entry, its
+  invalidation conditions, and the rule that only the Feature lead writes it;
 - the starting commit, planned PR base ref and commit, current head, and whether
   the handoff is candidate or authoritative;
 - current merge base, exact base-to-head range, inspected diff, and starting Git
   status including index, worktree, and relevant untracked state; attributable
   commits, prior verification and review, concerns, gaps, and re-entry evidence
   when applicable;
-- configured, observed, and effective subagent capacity; all relevant live
-  identities; the current granted leaf count; and any roles already selected by
-  `execute-task` or `review` for this wave;
+- relevant live identities, roles already selected or pending for this Task,
+  and attributable runtime-rejection or interruption evidence;
 - for authoritative re-entry of a prior candidate, its candidate commit, head,
   preliminary evidence, and the authorized final-base materialization or
   restack evidence;
 - responsibility and ownership boundaries;
 - verification routes and observable obligations;
-- authority for the Task orchestrator to build one in-memory current-head
+- authority for the root to build one in-memory current-head
   Verification Matrix after each candidate or correction head resolves, and to
   invalidate it on a head, range, controlling-authority, or material-route
   change;
@@ -145,26 +145,29 @@ Feature Contract or Design Doc prose. Keep the exact sources directly available
 for lookup when an assigned clause, shared interface, finding, or changed
 evidence requires more context.
 
-The Task orchestrator runs `execute-task` for that Task and may dispatch only
-its policy-selected implementer, verifier, reviewer, adversarial-integrator, or
+Require the root and every direct leaf to revalidate its role-material Git and
+authority inputs before acting. Parent conversation, identity, and liveness do
+not prove either input. Every new leaf uses explicit `fork_turns="none"`; if
+no-history creation is unavailable, return `BLOCKED` instead of inheriting
+turns.
+
+The root runs `execute-task` for that Task and dispatches only its
+policy-selected implementer, verifier, reviewer, adversarial-integrator, or
 findings-only review-integrator leaves through
-`agent-teams-driven-development`, within the current root grant.
-It is non-writing, keeps one source writer, sends compact role-specific
-handoffs, and tells every leaf not to spawn descendants. The root does not
-dispatch planned Task leaves. The Task orchestrator may request more capacity
-only for the eligible source-reviewer wave; it may not grant or infer capacity,
-use expanded capacity for another phase, reorder selected roles, release
-dependencies, or decide Feature acceptance.
+`agent-teams-driven-development`. Keep one source writer, send compact
+role-specific handoffs, and prohibit leaf descendants. Runtime availability
+does not authorize reordering selected roles, invalid phase overlap, dependency
+release, or Feature acceptance.
 
 For an eligible legacy task, pass the approved legacy task specification and its
 referenced design sources as the explicit authority, plus the same workspace,
 base, discipline, verification, review, commit, and evidence fields available in
 that plan. Preserve its exact approved execution topology; do not retrofit a
-Task orchestrator or relabel it as a new Feature or Task Contract. Stop if a
-missing field creates material ambiguity; do not force migration or infer a
-decision.
+new-format execution topology or relabel it as a new Feature or Task Contract.
+Stop if a missing field creates material ambiguity; do not force migration or
+infer a decision.
 
-For a new-format planned Task, let the Task orchestrator's `execute-task` loop
+For a new-format planned Task, let the root-owned `execute-task` loop
 own that workspace's writer, commit, exact PR range, verification,
 policy-selected review, correction, and stop condition. Accept `Candidate` only
 for a plan-authorized early implementation whose final PR base is still
@@ -172,16 +175,21 @@ unavailable. Re-enter the Task in authoritative mode after that base is current,
 passing the attributable candidate and restack evidence so `execute-task` can
 skip duplicate implementation and commit work.
 
-`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the Task orchestrator's
-current turn. Record its stable identity with the Task Contract, Task PR, Herdr
-workspace, branch, and returned Git evidence; never assign it to another Task.
-Prefer the same idle identity for a fresh attributable re-entry, but give it a
-complete new handoff and revalidate all authority, policy, Git, writer, and
-capacity evidence. If it is unavailable, dispatch a replacement only after the
-earlier writer is proven inactive and all state is attributable. Otherwise
-preserve state and return `BLOCKED`. Accepted identities do not wait or poll
-through Feature completion and reserve no leaf capacity while idle; any identity
-still reported live continues to count against observed capacity.
+`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current Task-loop
+transition. Record the Task Contract, Task PR, Herdr workspace, branch, direct
+leaf identities, pending roles, and returned Git evidence. A compatible idle
+leaf may receive a fresh attributable handoff after current authority, policy,
+Git, and writer state are revalidated. Dispatch a replacement only after the
+earlier writer is inactive and all state is attributable; otherwise preserve
+state and return `BLOCKED`.
+
+After useful independent root work is exhausted, use one bounded `wait_agent`
+call of normally 300,000 to 600,000 milliseconds. It returns early on mailbox,
+completion, or steered user input; do not replace it with repeated short polls.
+Use a shorter bound only for a nearer explicit deadline, teardown, or
+interruption boundary and record the reason. Reinspect live state after early
+return and before any interruption or replacement. A terminal Task result ends
+that turn without another wait.
 
 Before releasing a dependency or aggregating Feature evidence, directly resolve
 the reported workspace, branch, planned base, merge base, head, range, diff, and
@@ -206,11 +214,11 @@ currentness analysis.
 
 Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
 PR topology, contract authorities, shared interfaces, task branches, bases,
-heads, merge bases, diffs, statuses, live agent identities, and current capacity.
+heads, merge bases, diffs, statuses, and decision-relevant live agent state.
 Traverse both graphs when an ancestor, topology edge, contract meaning, logical
 dependency, or consumed interface changes. Mark every affected result stale,
-remove it from dependency release and feature coverage, and re-enter its Task
-orchestrator for authoritative `execute-task` after the approved final base is
+remove it from dependency release and feature coverage, and re-enter its
+root-owned authoritative `execute-task` loop after the approved final base is
 restored.
 
 Do not mark the complete accepted set stale merely because a Design Doc,
@@ -226,8 +234,8 @@ acceptance.
 
 ## Reconcile promoted lightweight work
 
-Before ordinary planned tasks, give the bound Task orchestrator the approved
-promotion-reconciliation Task Contract for its `execute-task` loop, original
+Before ordinary planned tasks, give the root-owned `execute-task` loop the
+approved promotion-reconciliation Task Contract, original
 lightweight base, promotion head,
 execution-starting head, exact unaccepted range and commits,
 attributable approved artifact state, complete change-to-Task-Contract mapping,
@@ -240,11 +248,11 @@ the current approved contracts. The preserved commits satisfy the reconciliation
 commit intent when no correction is needed. If approved design or plan artifacts
 remain uncommitted, the reconciliation Task Contract must declare their bounded
 commit and one writer creates it before the gate. If correction is authorized,
-use one writer and record a new bounded commit. Accept reconciliation only when every
-preserved change has unambiguous ownership and current evidence; otherwise return
-`BLOCKED` or a material plan deviation. Include the original lightweight base in
-that task's accepted range and feature evidence, and do not release dependent
-tasks before reconciliation is accepted.
+use one writer and record a new bounded commit. Accept reconciliation only when
+every preserved change has unambiguous ownership and current evidence;
+otherwise return `BLOCKED` or a material plan deviation. Include the original
+lightweight base in that task's accepted range and feature evidence, and do not
+release dependent tasks before reconciliation is accepted.
 
 ## Resume only attributable work
 
@@ -252,9 +260,8 @@ After an interrupted or incomplete task, retain accepted and candidate results
 for every other workspace separately from the observed in-flight work. Before
 resuming one task:
 
-1. confirm through the scheduling result that the prior Task orchestrator and
-   leaf identities are known, the prior writer is inactive, and no writer
-   overlaps;
+1. confirm through the scheduling result that prior leaf identities are known,
+   the prior writer is inactive, and no writer overlaps;
 2. inspect that workspace's branch, HEAD, status, commits, planned base, and
    exact base-to-head diff;
 3. confirm the observed edits and commits are attributable to that task and
@@ -275,20 +282,20 @@ do not add it to accepted results, feature coverage, or dependency release until
 
 Treat an authorized correction as work on its owning Task PR. Preserve every
 other task's exact result and the original implementation base. For new-format
-planned work, give `execute-task` the exact finding or failed observation and
-approved correction through the Task's retained or safely replaced orchestrator
-identity. For eligible legacy work, preserve its approved invoking context.
+planned work, give the root-owned `execute-task` loop the exact finding or
+failed observation and approved correction. For eligible legacy work, preserve
+its approved invoking context.
 Supply the observed attempts and results, unchanged Feature and Task Contracts
 with shared interfaces or unchanged eligible legacy authority, Review context,
 Review policy, current planned PR base and accepted head, responsibility
-boundaries, verification obligations, fresh capacity grant when applicable, and
-a correction commit intent bounded to the finding with its fixed message or
+boundaries, verification obligations, selected or pending roles, and a
+correction commit intent bounded to the finding with its fixed message or
 approved writer message-selection authority. Also supply prior reviewed head
 `H1`, prior reviewer reports and triage, and the unchanged complete selected
 reviewer set. Require one correction commit to `H2`, a rebuilt Verification
-Matrix, fresh `H2` verification, and correction review that starts with
-`H1..H2` but returns fresh verdicts for the full `base..H2` target. Earlier
-reports guide traversal only and never authorize `H2`.
+Matrix, and fresh `H2` verification before review. `review` owns
+correction-review scope and escalation; pass its required correction evidence
+without restating traversal rules here.
 
 When the same concrete problem repeats without progress, or the next action would
 repeat an observed failed correction, stop and return the attempt evidence. Do
@@ -325,9 +332,8 @@ After each accepted task, append a result keyed by Task Contract and PR identity
 containing:
 
 - task name and dependency position;
-- Task orchestrator identity, Herdr workspace and pane mapping, configured,
-  observed, and effective capacity, granted leaves, selected-role queue, and
-  dispatch or replacement evidence;
+- Herdr workspace and pane mapping, direct leaf identities, selected or pending
+  roles, and dispatch or replacement evidence;
 - exact authority and Task Contract content/currentness accepted;
 - Feature Contract clauses and Task Contract obligations, eligible legacy
   completion criteria, or promotion mappings proved;
@@ -340,7 +346,7 @@ containing:
   results as the completed current-head Verification Matrix;
 - per-task gate result;
 - reviewer and findings-integration outcomes, triage, non-blocking concerns,
-  changed files, and gaps.
+  changed files, cache candidates, and gaps.
 
 After every planned task is accepted and current:
 
@@ -371,9 +377,9 @@ Return:
   composition, or the exact eligible legacy authority, plus Review context and
   complete Review policy; no candidate, stale result, or unreconciled promoted
   range may contribute;
-- `BLOCKED` with all accepted and candidate results, observed in-flight agents
-  and per-workspace Git state, configured/observed/effective capacity, current
-  leases and queues, gaps, and exact re-entry condition;
+- `BLOCKED` with all accepted and candidate results, observed in-flight agents,
+  per-workspace Git state, pending roles, runtime-rejection evidence, gaps, and
+  exact re-entry condition;
 - `Escalate` with the exact plan deviation, missing decision, policy conflict,
   task escalation, or `Design Escalation` authority defect and its integrated
   evidence.

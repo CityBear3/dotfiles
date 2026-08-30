@@ -1,24 +1,23 @@
 ---
 name: execute-task
-description: Produce or accept one Task PR with one writer, an exact planned base-to-head range, fresh verification, policy-selected review, and bounded correction.
+description: Produce or accept one planned or eligible legacy Task PR with one writer, an exact base-to-head range, fresh verification, policy-selected review, and bounded correction.
 ---
 
 # Execute one task
 
 Own candidate implementation and authoritative acceptance of exactly one
-lightweight Task PR, approved-plan Task PR, or bounded correction. Do not select
-a workflow path, schedule dependencies or PR topology, publish, merge, or choose
+planned and eligible legacy Task PR or bounded correction. Do not select a
+workflow path, schedule dependencies or PR topology, publish, merge, or choose
 branch disposition from this skill.
 
 ## Require one task handoff
 
 Before implementation, require one concise plain-language handoff containing
-the new contract form, an explicitly eligible legacy form, or an approved
-promotion-reconciliation form.
+the new planned contract form, an explicitly eligible legacy form, or an
+approved promotion-reconciliation form.
 
-For the new form, require one common core and exactly one planned or lightweight
-variant. Reject a superset that leaves execution context ambiguous and reject a
-handoff that omits its selected variant.
+For the new form, require the common core and planned variant. Reject a
+lightweight handoff instead of interpreting its root-owned authority here.
 
 The common core contains:
 
@@ -35,8 +34,8 @@ The common core contains:
   message or approved writer message-selection authority;
 - attributable commits, prior verification and review, concerns, gaps, and
   re-entry evidence when applicable;
-- configured, observed, and effective subagent capacity, currently live
-  identities, and every selected or queued role;
+- relevant live identities, every selected or pending role, and attributable
+  runtime-rejection or interruption evidence when applicable;
 - contractually significant files, interfaces, signatures, ordering, and exact
   commands only when the authority fixes them.
 
@@ -49,23 +48,12 @@ The planned variant adds:
 - coordination directory, Task worktree, Herdr workspace and pane identities,
   branch, Task PR, planned base, starting head, and candidate or authoritative
   mode;
-- the one bound `task-orchestrator` identity and its current root-granted Task
-  leaf lease;
+- the exact planned `search-cache.md` path, a current matching entry or miss,
+  its source identity and invalidation conditions, and the Feature-lead-only
+  writer boundary;
 - for re-entry, prior candidate, acceptance, interruption, correction, or stale
   evidence, including authorized final-base materialization or restack evidence
   when applicable.
-
-The lightweight variant adds:
-
-- the complete recoverable combined in-memory Feature/Task Contract and its
-  original request and design authority;
-- the root-owned lightweight loop identity and its current root-granted
-  lightweight leaf count.
-
-The lightweight variant never requires or fabricates a Task orchestrator,
-Herdr workspace, Task DAG, PR topology, or another planned-only artifact. The
-planned variant is invalid without its bound Task orchestrator; the lightweight
-variant is invalid when it claims one.
 
 For a plan already executing before the contract-centered format, accept its
 approved task specification and referenced design sources as the authority only
@@ -89,8 +77,8 @@ execution model, material quality criteria and realistic failures, approved
 non-problems, and inapplicable assumptions. The Review policy records mode,
 rationale, risk surfaces, per-task gate, integration required and conditional
 perspectives, skips with reasons, findings-only general integration and
-authority-defect priority, residual risk, capacity and queue rules, and the
-common Acceptance threshold.
+authority-defect priority, residual risk, pending-role order, and the common
+Acceptance threshold.
 
 Reject missing, stale, contradictory, or mode-inconsistent input. Return the
 named gap to the invoking skill; do not infer a decision, expand scope, duplicate
@@ -113,30 +101,20 @@ supplied attributable envelope. Recheck ancestry, base, branch, range, and
 status after commits and before acceptance. On failure, preserve state and
 return `BLOCKED`; never rewrite history to manufacture the planned topology.
 
-## Run in the owning Task-loop context
+## Run in the root-owned Task-loop context
 
-For new-format planned work, this skill runs inside the non-writing Task
-orchestrator bound to the supplied Task Contract. Only that orchestrator
-dispatches this Task's leaves. For lightweight work, the root owns this loop and
-dispatches the same bounded leaves directly; do not introduce a Task
-orchestrator, planned Task artifacts, or Herdr requirement solely for
-lightweight execution. Eligible legacy work retains its exact approved invoking
-context. Reject a new-format planned handoff delivered to an unbound identity
-or a lightweight handoff that pretends to have a planned Task orchestrator.
+For new-format planned work, the root owns this Task loop and dispatches its
+selected leaves directly through `agent-teams-driven-development`. Eligible
+legacy work retains its exact approved invoking context. Reject root-owned
+lightweight authority because it belongs to `execute-lightweight-task`.
 
-Treat `agents.max_threads` as subagent capacity across the complete descendant
-tree, excluding the root and counting every Task orchestrator and leaf. Use the
-lower configured or currently observed capacity. The root alone grants leaf
-capacity. Start this loop with one baseline leaf and use it serially for the
-writer, verifier, findings integration, triage, and correction. Only after a
-fresh verifier `PASS` and selection of at least two independent source reviewers
-may the owner request a temporary reviewer-wave expansion. The root may grant at
-most three total Task leaves or the smaller current capacity; only the selected
-source reviewers use that expansion. Revoke it before findings integration,
-triage, or correction. Free capacity is availability, not authority. Queue
-already-selected roles in deterministic policy order without dropping,
-substituting, reordering, or weakening them. Do not begin a planned orchestrator
-turn unless its grant includes the baseline leaf.
+Runtime admission determines which selected leaves start. A thread-limit
+rejection keeps the role pending in approved Task or policy order; after useful
+independent work, wait for a mailbox or completion event and retry. Do not drop,
+substitute, reorder, or weaken selected work because admission is temporarily
+unavailable. Phase gates still keep implementation, verification, findings
+integration, triage, and correction ordered. Independent policy-selected
+reviewers may run concurrently only after fresh verifier `PASS`.
 
 ## Choose one writer
 
@@ -150,25 +128,38 @@ prompt: use the named profile when available, or
 as its fallback. Keep the complete Task-loop handoff and evidence at the owning
 coordinator. Construct one compact writer role message from the complete
 Task-loop handoff containing only the owned responsibility, applicable
-authority clauses and preserved boundaries, discipline, candidate target,
+authority clauses and preserved boundaries, material property, verification
+oracle, discipline, candidate target,
 commit intent, focused writer-side obligations, exact workspace/base/head,
-one-writer boundary, and escalation conditions. Keep the exact authority
-sources directly available. Omit Review context and Review policy, review
-scheduling, completed gate evidence, capacity, and queue state from the writer
-message. Pass only the selected role and writer role message to
+one-writer boundary, applicable planned cache path and current hit, and
+escalation conditions. Keep the exact authority sources directly available.
+Omit Review context and Review policy, review scheduling, completed gate
+evidence, and pending-role state from the writer message. Pass only the selected
+role and writer role message to
 `agent-teams-driven-development`.
 
 Every implementer, verifier, reviewer, adversarial integrator, and review
-integrator dispatched by this loop is a leaf and must not spawn descendants. A
-capacity lease changes
-only scheduling concurrency; it grants no source, Git, policy, publication, or
-cleanup authority. The Task orchestrator remains non-writing, and the
-implementer remains the sole Task source writer.
+integrator dispatched by this loop is a leaf and must not spawn descendants.
+Runtime admission changes only scheduling concurrency; it grants no source,
+Git, policy, publication, or cleanup authority. The implementer remains the
+sole Task source writer.
 
-Require production behavior changes to use red, green, refactor and report the
-observed red failure. For content, configuration, refactoring, or mechanical
-migrations, apply the declared discipline and preserve the relevant green
-baseline. Preserve unrelated changes.
+For new-format planned work, look up a current matching cache entry before new discovery.
+The cache never replaces fresh Git, authority, verification, or review evidence.
+Every consumer must return attributable cache candidates to the Feature lead;
+only that lead edits `search-cache.md`.
+
+Independent initial authority reads, repository searches, relevant file reads,
+and Git inspection may run in one bounded programmatic batch only when their
+results remain separately attributable. End the batch and stop before a
+result-dependent judgment, approval, escalation, semantic diagnosis, edit, or
+dependent validation. Pass the declared material property, verification oracle,
+and `test-driven-development` applicability decision and reason unchanged.
+Require the writer to apply that Skill when TDD is applicable, use the supplied
+baseline and validation when it is not, and return `BLOCKED` for `required but
+blocked`. Preserve the returned discipline evidence for later gates. For other
+declared disciplines, preserve their baseline and validation. Preserve
+unrelated changes.
 
 Inside the applicable new-format or legacy authority, let the writer choose
 private files, helpers, local types and interfaces, algorithms, edit order,
@@ -183,6 +174,7 @@ Require the writer to report:
 
 - `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`;
 - changed files and implemented behavior;
+- discipline decision and evidence plus attributable cache candidates;
 - every command, why it was required or selected, and its expected and observed
   result;
 - pre-commit diff inspection and self-review;
@@ -209,8 +201,8 @@ confirmed inactive.
 For candidate or fresh authoritative implementation:
 
 1. Record the task and PR identities, workspace, branch, starting commit,
-   planned base ref and commit, current head, status, owning Task-loop context,
-   current capacity evidence, grant, and selected-role queue.
+   planned base ref and commit, current head, status, owning root Task-loop
+   context, and selected or pending roles.
 2. Implement only the declared scope with the selected discipline.
 3. Run every contractually required exact command, select applicable standard
    and focused checks, and record all observed results.
@@ -306,6 +298,12 @@ invariant, and `PASS`/`FAIL`/`BLOCKED` report contract. Keep exact authority
 sources directly available for a matrix row, but do not send the complete Review
 policy unless one of its exact constraints changes the verification route.
 
+When a verifier, reviewer, or integrator needs discovery, pass any current
+matching cache hit as navigation together with its source identity and
+invalidation conditions. The recipient still resolves the exact current target
+and authority directly and returns any cache candidate separately from its
+verdict.
+
 After a fresh verifier `PASS`, give each selected reviewer the exact unchanged
 verified target, diff, changed files, its applicable authority clauses and
 perspective, Review context and complete Review policy, the completed
@@ -334,12 +332,10 @@ unchanged planned base, merge base, head, range, diff, and status. Then invoke
 `review` select and schedule only the policy-required task perspectives and
 return `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
-All new-format planned verifier and reviewer leaves remain descendants of the
-bound Task orchestrator; all lightweight leaves remain direct descendants of
-the root. Schedule them through `agent-teams-driven-development` under the
-unchanged current lease. Queue a selected check when capacity is insufficient;
-do not move it to the root, substitute another role, or treat a self-observed
-free slot as a lease expansion.
+The root schedules all new-format planned verifier and reviewer leaves directly
+through `agent-teams-driven-development`. Keep a runtime-rejected check pending
+in policy order and retry after progress; do not substitute another role or
+weaken the gate.
 
 Do not substitute writer self-checks, preliminary candidate checks, standalone
 results, or a lead summary for either coordinator-managed phase. An approved
@@ -385,11 +381,16 @@ For each authorized correction, retain the exact concrete finding or failed
 observation, every observed correction attempt, prior reviewed head `H1`, prior
 reviewer reports and triage, and the unchanged complete selected reviewer set.
 Give the existing writer only the bounded correction, unchanged Feature and Task
-Contracts with shared interfaces, unchanged lightweight combined contract, or
-unchanged eligible legacy task authority, current planned PR base,
-responsibility boundaries, focused writer obligations, and a correction commit
-intent bounded to the finding with its fixed message or explicit writer
-message-selection authority.
+Contracts with shared interfaces or unchanged eligible legacy task authority,
+current planned PR base, responsibility boundaries, focused writer obligations,
+and a correction commit intent bounded to the finding with its fixed message or
+explicit writer message-selection authority.
+
+For a new-format planned correction, also give the writer the exact planned
+`search-cache.md` path, current matching entry or miss, its source identity,
+currentness, and invalidation conditions, and the Feature-lead-only writer and
+non-authority boundary. Omit this planned-only cache input for eligible legacy
+corrections.
 
 Then:
 
@@ -404,19 +405,12 @@ Then:
 6. only after `PASS`, rerun the same complete policy-selected reviewer set with
    prior reports and triage, the `H1..H2` correction delta, direct access to the
    full `base..H2` target, and the fresh completed matrix;
-7. require every reviewer to inspect the corrected finding and delta first,
-   follow affected callers, tests, interfaces, responsibilities, and
-   obligations, then return a fresh verdict for the complete current target;
+7. `review` owns correction-review scope and escalation; apply its
+   targeted-default policy to the unchanged reviewer set;
 8. run required findings integration and triage against the unchanged `H2`.
 
-Prior verdicts are navigation evidence only and never authorize `H2`. Switch a
-reviewer to ordinary full traversal when the correction escapes its bounded
-authorization; changes a public or shared interface, responsibility, schema,
-error model, concurrency, security, dependency, or test strategy; changes the
-base, controlling authority, or Review policy; lacks complete prior reviewer or
-triage evidence; exposes another finding; or cannot establish that prior
-inspected areas remain unaffected. Reviewer selection is never recalculated from
-the delta.
+Reviewer selection is never recalculated from the delta. Do not duplicate or
+override `review`'s correction traversal rules here.
 
 Do not reuse stale verification, approval, head, or range. If the same concrete
 problem repeats without progress or another action would repeat an observed
@@ -425,13 +419,12 @@ gap. Do not create another identifier or tracking schema for the finding.
 
 ## Return task acceptance
 
-Return the complete result to the owning caller without translating or dropping
-evidence. For new-format planned work, the Task orchestrator returns it to
-`execute-plan`; for lightweight work, the root consumes it directly.
-`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current planned
-Task-orchestrator turn. An Accepted result does not start a wait or polling
-loop. Re-entry always requires a fresh complete handoff and Git revalidation,
-whether the same idle identity is reused or an attributable replacement is
+Return the complete result to the owning root caller without translating or
+dropping evidence. For new-format planned work, return it to `execute-plan`.
+`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current Task-loop
+transition. An Accepted result does not start another wait or polling loop.
+Re-entry always requires a fresh complete role handoff and Git revalidation,
+whether a compatible idle identity is reused or an attributable replacement is
 selected.
 
 Return:
@@ -455,9 +448,9 @@ status, starting Git status and final Git status, each including index, worktree
 and relevant untracked state, task and correction commits, workspace and branch,
 planned PR base ref and commit, merge base, current head, exact range, changed
 files, commands and observed results, pre-commit inspection, gate result when
-authoritative, reviewer and findings-integration outcomes, triage,
-non-blocking concerns, owning Task-loop identity, configured, observed, and
-effective capacity, root grant, selected and queued roles, concerns, gaps, and
-exact re-entry condition.
+authoritative, reviewer and findings-integration outcomes, triage, discipline
+evidence, cache candidates, non-blocking concerns, owning root Task-loop
+identity, selected and pending roles, runtime-rejection evidence, concerns,
+gaps, and exact re-entry condition.
 Return this evidence to the invoking coordinator or
 `execute-plan`; do not advance another task or cross-phase gate.

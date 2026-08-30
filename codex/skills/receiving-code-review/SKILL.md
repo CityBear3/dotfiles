@@ -9,6 +9,11 @@ Treat review as technical evidence, not an instruction to agree. Remain
 check-only and read-only. Do not mutate source or Git state, implement or stage a
 fix, dispatch a writer, or advance another workflow phase.
 
+For new-format planned work, look up a current matching cache entry before new discovery.
+Use a current hit only as navigation and return attributable cache candidates
+to the Feature lead; it never replaces current Git, authority, verification,
+review, or triage evidence, and this role never edits `search-cache.md`.
+
 ## Coordinator-managed entry
 
 Require:
@@ -33,6 +38,8 @@ Require:
   Implementation Plan, and applicable Task Contracts; the complete lightweight
   combined Feature/Task Contract with original request authority and exact task
   evidence; or the exact eligible legacy plan authority;
+- for new-format planned work, the exact `search-cache.md` path and any current matching
+  navigation entry with its source identity and invalidation conditions;
 - observed correction attempts and prior triage decisions.
 
 Resolve the workspace, branch, base, merge base, head, range or composition,
@@ -66,6 +73,11 @@ is missing, return top-level `BLOCKED` before classification. Preserve observed
 evidence and state the exact re-entry condition.
 
 ## Process each finding
+
+Keep discipline history separate from current finding classification. A
+history-only discrepancy is `Push back` unless it demonstrates a reachable
+current defect, material current evidence gap, or material contract deviation;
+a controlling authority that makes the history material is `Escalate`.
 
 For each item:
 
@@ -125,8 +137,8 @@ For `Fix`, return one bounded plain-language correction handoff:
 - observed prior attempts, concerns, and gaps.
 
 Do not choose the lightweight or planned builder here. The coordinator routes
-the handoff directly to `execute-task` for lightweight work or through
-`execute-plan` for planned work.
+the handoff directly to `execute-lightweight-task` for lightweight work or
+through `execute-plan` for planned work.
 
 For `Push back`, cite controlling code, test, Design, plan, or approved decision
 evidence. The same finding may be reconsidered only with materially new evidence
@@ -173,14 +185,11 @@ remains within scope. A Task PR fix still requires bounded implementation, a
 single correction commit and new head `H2`, a rebuilt current-head Verification
 Matrix, fresh `H2` verification, and the same complete policy-selected reviewer
 set. Each reviewer receives prior evidence, the `H1..H2` delta, and full
-`base..H2` access; it inspects the corrected finding and delta first but returns
-a fresh verdict for the full current target. Ordinary full traversal applies
-when the correction escapes authorization, changes a material contract or
-shared/public interface, changes base or policy, lacks complete prior evidence,
-exposes another finding, or cannot establish unaffected prior coverage. Earlier
-evidence is navigation only and never authorizes `H2`. An integration finding
-routes to its owning Task Contract, invalidates affected descendants through
-both topologies, and then requires fresh affected task and integration evidence.
+`base..H2` access. `review` owns correction-review scope and escalation; this
+skill authorizes the bounded fix but does not redefine traversal. An integration
+finding routes to its owning Task Contract, invalidates affected descendants
+through both topologies, and then requires fresh affected task and integration
+evidence.
 
 A `Design Escalation` stops unstarted review and correction work for the
 affected target and returns to the engineer immediately. After an approved

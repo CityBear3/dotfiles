@@ -12,6 +12,12 @@ pub enum InstallerCommand {
     Restore(RestoreCommand),
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct InstallerInvocation {
+    pub(crate) source_root: Option<PathBuf>,
+    pub(crate) command: InstallerCommand,
+}
+
 /// Fully resolved arguments for an install or dry-run.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InstallCommand {
@@ -32,6 +38,10 @@ pub struct RestoreCommand {
 #[derive(Debug, Parser)]
 #[command(name = "dotfiles-codex-installer", disable_help_subcommand = true)]
 struct Cli {
+    /// Override the bundled source only for isolated installer tests.
+    #[arg(long, global = true, value_name = "PATH", hide = true)]
+    source_root: Option<PathBuf>,
+
     #[command(subcommand)]
     command: RawCommand,
 }
@@ -84,7 +94,7 @@ struct InstallerEnvironment {
 pub(crate) fn parse_command_from_with_environment<I, T, F>(
     arguments: I,
     environment: F,
-) -> Result<InstallerCommand, InstallerError>
+) -> Result<InstallerInvocation, InstallerError>
 where
     I: IntoIterator<Item = T>,
     T: Into<OsString>,
@@ -99,19 +109,45 @@ where
     if arguments.is_empty() {
         arguments.push(OsString::from("dotfiles-codex-installer"));
     }
-    if arguments.len() == 1 || arguments.get(1).is_some_and(|value| is_option(value)) {
-        arguments.insert(1, OsString::from("install"));
+    let command_index = command_index(&arguments);
+    if arguments.len() == command_index
+        || arguments
+            .get(command_index)
+            .is_some_and(|value| is_option(value))
+    {
+        arguments.insert(command_index, OsString::from("install"));
     }
 
     let parsed = Cli::try_parse_from(arguments).map_err(InstallerError::from_clap)?;
-    match parsed.command {
+    let command = match parsed.command {
         RawCommand::Install(arguments) => {
             resolve_install_command(arguments, &environment).map(InstallerCommand::Install)
         }
         RawCommand::Restore(arguments) => Ok(InstallerCommand::Restore(RestoreCommand {
             state_dir: resolve_state_dir(arguments.state_dir, &environment)?,
         })),
+    }?;
+    Ok(InstallerInvocation {
+        source_root: parsed.source_root,
+        command,
+    })
+}
+
+fn command_index(arguments: &[OsString]) -> usize {
+    let mut index = 1;
+    while let Some(argument) = arguments.get(index) {
+        if argument == "--source-root" && arguments.get(index + 1).is_some() {
+            index += 2;
+        } else if argument
+            .to_str()
+            .is_some_and(|argument| argument.starts_with("--source-root="))
+        {
+            index += 1;
+        } else {
+            break;
+        }
     }
+    index
 }
 
 fn resolve_install_command(

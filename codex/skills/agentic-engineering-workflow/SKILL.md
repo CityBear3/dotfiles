@@ -50,16 +50,16 @@ Treat a user-requested verification or review outside a planned, lightweight,
 integration-only, or eligible legacy Task gate as standalone authority. Resolve
 an exact committed range, current index/worktree snapshot, or explicit bounded
 fileset and pass it to `verify` or `review`. Standalone is not a CLI, session,
-branch, or worktree mode and does not require Herdr, a Task Contract, DAG, PR
-topology, or Task orchestrator.
+branch, or worktree mode and does not require Herdr, a Task Contract, DAG, or
+PR topology.
 
 The root owns the target and any verifier, reviewer, adversarial-integrator, or
-review-integrator leaves directly. Apply the same global configured and observed
-subagent ceiling and give the target a local grant of normally one and at most
-three concurrent leaves; queue the remaining selected roles in order. When the
-user explicitly prohibits agents, the lead may run the compatible checks and
-perspectives sequentially. Label the result `standalone-only`; never use it as
-Task, coordinator, or Acceptance evidence.
+review-integrator leaves directly. Runtime admission determines which selected
+roles start; retain a rejected spawn as pending and retry after a completion or
+mailbox event without reducing selected scope. When the user explicitly
+prohibits agents, the lead may run compatible checks and perspectives
+sequentially. Label the result `standalone-only`; never use it as Task,
+coordinator, or Acceptance evidence.
 
 ## Use the lightweight path only when fully eligible
 
@@ -92,9 +92,12 @@ Treat the complete lightweight alignment source as implementation approval when
 every eligibility criterion holds. Confirm the workspace with
 `create-workspace`. Derive one concise in-memory Feature Contract from the
 alignment source and repository evidence; because the route is one coherent
-task, use the same contract as its Task Contract. Select TDD for production
-behavior and a contract-appropriate discipline for content, configuration,
-refactoring, or mechanical migrations.
+task, use the same contract as its Task Contract. Identify the material property
+and reliable verification oracle, then apply the `test-driven-development`
+applicability decision before selecting discipline. Record TDD as `applicable`,
+`not applicable`, or `required but blocked`, with its reason; select a
+contract-appropriate baseline and validation discipline when it is not
+applicable.
 
 The lightweight Feature/Task Contract must make the context and goal, scope and
 non-goals, design sources and approved decisions with precedence, observable and
@@ -121,16 +124,16 @@ baseline.
 
 ## Prepare the lightweight task
 
-Before invoking `execute-task`, derive a concise Review context from the approved
-request and repository evidence. State the artifact and purpose, its consumers
-and interpretation or execution model, material quality criteria and realistic
-failures, approved non-problems, and inapplicable assumptions. Keep it separate
-from the Review policy.
+Before invoking `execute-lightweight-task`, derive a concise Review context from
+the approved request and repository evidence. State the artifact and purpose,
+its consumers and interpretation or execution model, material quality criteria
+and realistic failures, approved non-problems, and inapplicable assumptions.
+Keep it separate from the Review policy.
 
 Materialize the complete lightweight policy before implementation. If completing
 that policy requires a material user-owned choice, or observed risk makes
 `focused` inappropriate, return to the planned path before invoking
-`execute-task`. Do not silently select or strengthen policy to keep the
+`execute-lightweight-task`. Do not silently select or strengthen policy to keep the
 lightweight path.
 
 Use `focused` as the lightweight default:
@@ -139,17 +142,9 @@ Use `focused` as the lightweight default:
 - a Task PR `test-coverage-reviewer` when behavior or tests changed;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
-- effective subagent capacity equal to the lower of configured
-  `agents.max_threads` and currently observed runtime capacity, with the root
-  excluded from `max_threads` and every live descendant counted;
-- one root-granted baseline leaf for serial implementation, verification,
-  findings integration, triage, and correction;
-- temporary expansion only after verifier `PASS` for a policy-selected wave of
-  at least two independent source reviewers, granted only by the root up to
-  three total Task leaves or smaller current capacity, and revoked before
-  integration, triage, or correction;
-- deterministic queueing without reducing selected scope when expansion is
-  unavailable; free capacity is not authority;
+- direct root dispatch of phase-valid leaves with no descendants;
+- runtime-managed thread admission, preserving selected roles as pending in
+  policy order when admission is temporarily unavailable;
 - findings-only general integration, with authority-defect priority and no
   general integrator after an all-clean review;
 - the common Acceptance threshold.
@@ -170,7 +165,7 @@ reviewer. If a required independent reviewer cannot be established, report
 with an approved independent gate is `Escalate` unless the user approves a
 policy change.
 
-Give `execute-task` one plain-language task handoff containing:
+Give `execute-lightweight-task` one plain-language task handoff containing:
 
 - the complete in-memory Feature/Task Contract, including its design sources and
   approved decisions, goal, observable and preserved behavior, compatibility,
@@ -190,26 +185,47 @@ Give `execute-task` one plain-language task handoff containing:
   controlling-authority, or material-route change;
 - attributable commits, prior verification and review, concerns, gaps, and
   re-entry evidence when applicable;
-- configured, observed, and effective subagent capacity, live identities,
-  selected or queued roles, the root-owned lightweight loop identity, and its
-  current root-granted lightweight leaf count;
+- the root-owned lightweight loop identity, selected or pending roles, and
+  attributable runtime-rejection or interruption evidence when applicable;
 - exact files, signatures, ordering, or commands only when their identity is
   contractually significant.
 
 This is the common Task evidence plus exactly the lightweight variant. Do not
-add a Task orchestrator identity, Herdr workspace, Task DAG, PR topology, or
-another planned-only field.
+add a Herdr workspace, Task DAG, PR topology, or another planned-only field.
 
 Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
 
-When an authorized lightweight correction re-enters `execute-task`, retain prior
-reviewed head `H1`, prior reports and triage, and the unchanged complete selected
-reviewer set. Require one bounded correction commit to `H2`, a rebuilt matrix,
-fresh `H2` verification, and review that traverses `H1..H2` first while returning
-fresh full `base..H2` verdicts. Earlier verdicts are navigation evidence only.
-Planned correction mechanics remain owned by `execute-plan` and its bound Task
-orchestrator under the same contract.
+When an authorized lightweight correction re-enters `execute-lightweight-task`,
+retain prior reviewed head `H1`, prior reports and triage, and the unchanged
+complete selected reviewer set. Require one bounded correction commit to `H2`,
+a rebuilt matrix, and fresh `H2` verification before the selected reviewers
+rerun. `review` owns correction-review scope and escalation; do not restate its
+traversal rules in this coordinator.
+Planned correction mechanics remain root-owned through `execute-plan` and
+`execute-task` under the same contract.
+
+## Maintain the planned-lifecycle search cache
+
+For new-format planned work, maintain
+`docs/plans/YYYY-MM-DD-<feature>/search-cache.md` beside the Feature Contract and
+Implementation Plan. The Feature lead is the only writer. The file is ignored, workspace-only, and non-authoritative.
+Lightweight and eligible legacy work do not acquire this artifact solely to fit
+the new format.
+
+Before repeating discovery, look up an entry matching the current purpose,
+scope, and source identity. Each entry records its observation date or repository
+identity, positive and useful negative results, reuse conditions, and explicit
+source-aware invalidation conditions. A stale or contradictory entry is a miss,
+not a failure. Leaves return attributable cache candidates to the Feature lead
+instead of editing the file.
+
+The cache never substitutes for direct current Git and authority resolution,
+mechanical verification, or policy-selected review. Keep it with the approved
+Implementation Plan through publication, feedback re-entry, and disposition
+evidence. Retire it only when removal of that exact coordination worktree is
+separately authorized; warn that ignored artifacts are not recoverable from Git
+unless the owner chooses archival.
 
 ## Use approval gates on the planned path
 
@@ -336,15 +352,15 @@ matches the approved plan.
 Pass exact authority paths and approval/currentness evidence, applicable Feature
 Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
-decisions, and any promoted unaccepted range to `execute-plan`. Reference
+decisions, the exact planned `search-cache.md` path and current matching entries,
+and any promoted unaccepted range to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
-That skill owns readiness, global capacity leases, dispatch of the exact
-`task-orchestrator` profile for each ready new-format planned Task, candidate and
-authoritative Task handoffs, workspace and orchestrator mappings, staleness
-propagation, promotion reconciliation, and exact evidence aggregation. The
-planned Task orchestrator owns its one `execute-task` loop; the root does not
-dispatch planned leaves directly. Lightweight work remains root-owned and does
-not create Task-orchestrator or planned-Task artifacts.
+That skill owns readiness, direct dispatch of already-selected Task roles,
+candidate and authoritative Task handoffs, workspace and leaf mappings,
+staleness propagation, promotion reconciliation, and exact evidence
+aggregation. The root owns every planned `execute-task` loop and dispatches its
+leaves directly. Lightweight work remains root-owned and does not acquire
+planned-Task artifacts.
 
 ### Continue an eligible legacy plan
 
@@ -381,6 +397,8 @@ For planned work retain:
 - approved Design Doc when applicable, Feature Contract, complete Task Contract
   set, coverage, shared interfaces, integration-only obligations, Review
   context, and policy;
+- exact `search-cache.md` path, source identities, current hits, invalidations,
+  and attributable candidates while keeping the Feature lead as sole writer;
 - exact temporary integration compositions and their evidence;
 - concerns, unresolved findings, and every gap.
 
@@ -396,8 +414,8 @@ Standalone verification or review never substitutes for coordinator evidence.
 
 Advance automatically within approved local scope:
 
-1. Accept from lightweight `execute-task` only a current `Accepted` result for
-   its exact Task PR range. When its combined contract has no integration-only
+1. Accept from lightweight `execute-lightweight-task` only a current `Accepted`
+   result for its exact Task PR range. When its combined contract has no integration-only
    obligation, that result is also Feature Accepted; do not repeat verification
    or review.
    When a named integration-only obligation remains, use that accepted head and
@@ -417,8 +435,8 @@ Advance automatically within approved local scope:
    Diagnose a `FAIL` before correction. Route an authorized planned correction
    through its owning Task Contract in `execute-plan`; route an authorized
    lightweight correction directly to its combined-contract Task in
-   `execute-task`. After the new Task head passes its complete fresh task gate,
-   rerun the same named integration evidence.
+   `execute-lightweight-task`. After the new Task head passes its complete fresh
+   task gate, rerun the same named integration evidence.
 5. Invoke `review` only when the approved policy requires or conditionally
    triggers a targeted integration perspective. Pass the same exact integration
    authority and evidence to every selected reviewer. Do not invoke ordinary
@@ -430,8 +448,9 @@ Advance automatically within approved local scope:
    through `execute-plan`, mark only semantically affected results and their
    transitive dependents stale, and rerun fresh affected task and integration
    evidence. For lightweight work, route the `Fix` directly to its
-   combined-contract Task through `execute-task`, then rerun its complete fresh
-   task gate and the same named integration evidence on the new head. Preserve
+   combined-contract Task through `execute-lightweight-task`, then rerun its
+   complete fresh task gate and the same named integration evidence on the new
+   head. Preserve
    `Push back` while its target and controlling evidence remain unchanged.
    Retain an independent out-of-scope valid problem as a non-blocking concern
    without expanding the current Task or creating a backlog. Return a
@@ -479,7 +498,7 @@ topologies. Return `Escalate` to the owning approval gate. Any resulting push,
 restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to
-`finish-branch` feature mode. Keep ignored plan artifacts in the coordination
+`finish-branch` feature mode. Keep ignored plan artifacts and `search-cache.md` in the coordination
 worktree; let an explicitly authorized later removal of that worktree clean them
 up with the workspace. Preserve durable Design Docs and present remaining
 publication or branch-disposition choices. Archive plan artifacts only when the

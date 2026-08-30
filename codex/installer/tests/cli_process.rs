@@ -2,12 +2,13 @@ mod support;
 
 use std::process::Command;
 
-use support::process_tempdir;
+use support::{process_tempdir, source_fixture};
 
 #[test]
 fn compiled_binary_dry_run_is_non_mutating() {
     // Arrange
     let temporary = process_tempdir("compiled-dry-run");
+    let source_root = source_fixture(temporary.path());
     let destination_root = temporary.path().join("test-destination");
     assert!(
         !destination_root.exists(),
@@ -25,6 +26,8 @@ fn compiled_binary_dry_run_is_non_mutating() {
         .env("XDG_STATE_HOME", &state_root)
         .env("TMPDIR", temporary.path())
         .env("PATH", "/usr/bin:/bin")
+        .arg("--source-root")
+        .arg(&source_root)
         .args([
             "install",
             "--dry-run",
@@ -54,8 +57,8 @@ fn compiled_binary_dry_run_is_non_mutating() {
     assert!(stdout.contains("dry-run: max_threads=6"));
     assert!(stdout.contains("CREATE config"));
     assert!(stdout.contains("CREATE global-agents"));
-    assert!(stdout.contains("CREATE skill"));
-    assert!(stdout.contains("CREATE agent task-orchestrator.toml"));
+    assert!(stdout.contains("CREATE skill fixture-skill"));
+    assert!(stdout.contains("CREATE agent fixture-agent.toml"));
     assert!(stdout.contains("CREATE manifest"));
     assert_eq!(
         (

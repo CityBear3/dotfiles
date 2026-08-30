@@ -28,9 +28,8 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - Keep parser, renderer, and CLI responsibilities separate.
 - Do not change persistence, permissions, or error ownership.
 - Allow parser and renderer work to begin independently.
-- Run each ready planned Task through one non-writing Task orchestrator; keep
-  the root responsible for global leases, dependency release, and Feature
-  acceptance.
+- Keep the root as the sole orchestrator for every ready planned Task, direct
+  role dispatch, dependency release, and Feature acceptance.
 
 ## Shared interface contracts
 
@@ -41,6 +40,18 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - **Consumers:** Tasks 2 and 3.
 - **Contract:** The Feature Contract fixes the public representation and error
   meaning; private parser helpers remain delegated.
+
+### Planned discovery cache
+
+- Path: `docs/plans/YYYY-MM-DD-<feature>/search-cache.md`.
+- Owner: The Feature lead is the only writer.
+- Consumers: the root coordinator and planned leaves.
+- Entry: Record purpose and scope, source identity, observation date or
+  repository identity, positive and useful negative results, reuse conditions
+  and source-aware invalidation conditions.
+- Boundary: The cache never replaces current Git, authority, verification, or
+  review evidence.
+- Lifecycle: It has the same lifecycle as the ignored Implementation Plan.
 
 ## Task dependency DAG
 
@@ -112,17 +123,12 @@ results and this stack are current.
   unless recovery behavior changes; skip scope because each Task gate receives
   exact clauses and ownership.
 - **Residual risk:** No exhaustive grammar fuzzing.
-- **Capacity and queue:** Effective subagent capacity is the lower configured
-  `agents.max_threads` or observed runtime value, excludes the root, and counts
-  every Task orchestrator and leaf. The root grants each schedulable Task a
-  baseline leaf for serial implementation, verification, findings integration,
-  triage, and correction. Only after verifier `PASS` may a Task with at least two
-  selected independent source reviewers request temporary expansion; only the
-  root grants up to three total Task leaves, and revokes the expansion before
-  integration, triage, or correction. Queue unavailable expansion in policy
-  order; free capacity is not authority. Schedule ready Task 1 and Task 2
-  candidates in deterministic order in separate worktrees, then their Task
-  gates, Task 3, and integration review.
+- **Runtime admission and order:** Schedule ready Task 1 and Task 2 candidates
+  in deterministic order in separate worktrees, then their Task gates, Task 3,
+  and integration review. Keep a runtime-rejected role pending in that order and
+  retry after progress without reducing reviewer breadth. Phase gates keep
+  implementation, verification, findings integration, triage, and correction
+  ordered; independent reviewers may run only after verifier `PASS`.
 - **Acceptance:** Keep only artifact-applicable findings with an approved
   requirement, reachable evidence, material consequence, and proportionate
   correction. Drop preference, speculation, optional polish, and objections to
@@ -136,8 +142,8 @@ results and this stack are current.
 - **Ownership:** Existing library parser and its focused tests.
 - **Shared interface:** Own the parsed input representation.
 - **Constraints:** Preserve public errors and accepted forms.
-- **Verification:** Record the focused red failure, then observe the complete
-  value and representative compatibility behavior.
+- **Verification:** Observe the complete value and representative compatibility
+  behavior.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
@@ -146,7 +152,8 @@ results and this stack are current.
 - **Concurrency:** May run with Task 2 in a separate checkout.
 - **Non-goals:** No CLI, persistence, or API redesign.
 - **Delegation:** Private helpers, local types, and focused tests.
-- **Discipline:** TDD.
+- **Discipline:** TDD applicable because the parser behavior is executable before
+  production editing.
 - **Commit intent:** Parser responsibility and tests; writer chooses the
   message.
 
@@ -159,8 +166,7 @@ results and this stack are current.
 - **Shared interface:** Consume the parsed input representation without changing
   its ownership.
 - **Constraints:** No field loss or new formatting contract.
-- **Verification:** Record the focused red failure, then observe exact new and
-  representative existing output.
+- **Verification:** Observe exact new and representative existing output.
 - **Verification Matrix:** After the commit, map every obligation to one bounded
   check, expected observation, and `FAIL` or `BLOCKED` non-match category;
   rebuild after a head, range, authority, or material route change.
@@ -170,7 +176,7 @@ results and this stack are current.
 - **Concurrency:** May implement with Task 1 in a separate checkout.
 - **Non-goals:** No parser or CLI edits.
 - **Delegation:** Private rendering helpers and test arrangement.
-- **Discipline:** TDD.
+- **Discipline:** TDD applicable because renderer output is directly observable.
 - **Commit intent:** Renderer responsibility and tests; writer chooses the
   message.
 
@@ -193,7 +199,7 @@ results and this stack are current.
   current.
 - **Non-goals:** No new CLI ownership or persistence.
 - **Delegation:** Test fixtures and private CLI wiring.
-- **Discipline:** TDD.
+- **Discipline:** TDD applicable because the real process journey is executable.
 - **Commit intent:** CLI composition and process tests; writer chooses the
   message.
 
@@ -213,16 +219,16 @@ fresh verification and the complete task gate for changed ranges. Route a
 concrete in-scope finding through its owning Task Contract; return semantic or
 topology changes to approval. For a bounded correction from `H1` to `H2`, create
 one correction commit, rebuild the matrix, run fresh `H2` verification, and
-rerun the same complete reviewer set. Review `H1..H2` first but return fresh
-verdicts for full `base..H2`; prior verdicts are navigation only. Use ordinary
-full traversal for escaped authorization, material contract or shared-interface
-change, base or policy change, incomplete prior evidence, another finding, or
-uncertain unaffected coverage.
+rerun the same complete reviewer set. `review` owns correction-review scope and
+escalation; supply its exact prior evidence, correction delta, current target,
+and fresh matrix without duplicating traversal rules in the plan.
 
 ## Publication
 
 An internally accepted Task PR may be published with explicit user authority
-before feature acceptance. Keep Feature Contract and Implementation Plan files
-ignored in the coordination worktree until that worktree is explicitly removed;
-do not delete them as a separate Feature Accepted action. Do not infer push,
-merge, retarget, force, or cleanup authority.
+before feature acceptance. Keep Feature Contract, Implementation Plan, and
+`search-cache.md` files ignored in the coordination worktree until that worktree
+is explicitly removed; do not delete them as a separate Feature Accepted
+action. The Feature lead is the cache's only writer, and consumers use it only
+as source-aware discovery navigation. Do not infer push, merge, retarget,
+force, or cleanup authority.

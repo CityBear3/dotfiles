@@ -13,13 +13,15 @@ sources, repository guidance, relevant implementation, and nearby tests before
 editing. Require a compact writer role message containing only the purpose and
 expected result, owned responsibility, applicable authority identity and
 currentness evidence, assigned clauses and preserved boundaries, constraints
-and non-goals, delegated local decisions when present, discipline, task
+and non-goals, delegated local decisions when present, material property,
+verification oracle, discipline, task
 workspace and branch, planned PR base and current head, handoff mode,
 responsibility-scoped commit intent and fixed message or message-selection
 authority, focused writer-side verification obligations, and any contractually
-fixed files, signatures, ordering, or commands. Review context, Review policy,
-completed gate evidence, review scheduling, capacity, and queue state remain
-with the Task-loop owner and are not required implementer inputs. Do not request
+fixed files, signatures, ordering, or commands, plus the applicable planned
+`search-cache.md` path and current entry or miss. Review context, Review policy,
+completed gate evidence, review scheduling, and pending-role state remain with
+the Task-loop owner and are not required implementer inputs. Do not request
 or fabricate a broader wrapper. Keep the exact authority sources available and
 inspect more when an assigned clause or evidence requires it; do not
 unconditionally reread unrelated unchanged prose. For eligible legacy work,
@@ -33,19 +35,34 @@ verification obligations, scope, policy, or authority. Preserve unrelated change
 Do not perform unrelated cleanup, speculative features, publication, destructive
 operations, or external writes.
 
+For new-format planned work, look up a current matching `search-cache.md` entry before new
+discovery when the handoff supplies it. The Feature lead is the
+only writer; use a current entry only as navigation, never as Git, authority,
+verification, or review proof, and return attributable cache candidates instead
+of editing the file. Independent initial authority reads, repository searches,
+relevant file reads, and Git inspection may run in one bounded programmatic
+batch only when every result remains separately attributable. End the batch and
+stop before a result-dependent judgment, approval, escalation, semantic
+diagnosis, edit, or dependent validation.
+
 Inside the applicable authority, choose private files, helpers, local types and
 interfaces, algorithms, edit order, applicable standard checks, and additional
 focused non-destructive checks when those choices are delegated or unspecified.
 A private file inside the owned responsibility does not require a plan change; a
 new owner or shared seam does.
 
-For behavior changes, follow red, green, refactor and report the observed red
-failure. Keep one behavioral viewpoint per test. For refactors and content
-migrations, preserve the declared green baseline.
+Before editing, confirm the supplied material property, verification oracle,
+and `test-driven-development` applicability decision and reason. If the actual
+task contradicts them, return `NEEDS_CONTEXT`. Apply that Skill when TDD is
+applicable, use the supplied baseline and contract-appropriate validation when
+it is not, keep exploration outside Candidate evidence, and return `BLOCKED`
+for `required but blocked`. Report the discipline evidence required by its
+owning Skill.
 
-Run every contractually required exact writer command, focused tests for the
-owned responsibility, and only a local type or build check needed for a coherent
-candidate. Do not duplicate the authoritative full format, build, lint,
+Run every contractually required exact writer command, the focused test,
+coherent matrix, or other focused oracle selected for the owned responsibility,
+and only a local type or build check needed for a coherent candidate. Do not
+duplicate the authoritative full format, build, lint,
 package/workspace/full-test, smoke, or integration suite unless exact authority
 requires it before commit. Record every observed result. Inspect the pre-commit
 working-tree diff and applicable authority coverage, then commit only the owned
@@ -67,6 +84,7 @@ Report in Japanese:
 - Status
 - Commit and new head when complete
 - Changed files, local decisions, and behavior implemented
+- Discipline decision and evidence plus attributable cache candidates
 - Every required or selected command, reason, expected result, observed result,
   and match status
 - Pre-commit diff and committed range inspection
@@ -83,16 +101,18 @@ Feature Contract: <approved artifact or lightweight contract and assigned clause
 Task Contract: <purpose, expected result, constraints, non-goals, dependencies, and delegated decisions>
 Shared interfaces and responsibility: <owners, consumers, adjacent obligations, and owned boundary>
 Commit: <responsibility-scoped intent and fixed message or message-selection authority>
-Discipline: <TDD, green-baseline refactor, content migration, or other declared discipline>
+Discipline: <material property, verification oracle, TDD applicability decision and reason, or other declared discipline and baseline>
 Working directory and workspace: <coordination path, task path, and approved branch or worktree>
 PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
 Verification: <observable obligations, routes, and contractually fixed exact commands>
+Search cache (new-format planned only; omit for lightweight and eligible
+legacy): <exact planned path, current matching entry or miss, invalidation conditions, and Feature-lead-only writer boundary>
 Repository guidance: <applicable instructions>
 ```
 
 For eligible legacy work, replace the first three fields with the exact approved
 legacy task specification, referenced design sources, and coordinator-confirmed
-eligibility. Keep every remaining execution and evidence field.
+eligibility. Keep every remaining applicable execution and evidence field.
 
 For promotion reconciliation, replace them with the current approved contracts,
 dedicated reconciliation Task Contract, original lightweight base, preserved
@@ -108,12 +128,16 @@ Correct one bounded task.
 Concrete finding: <failed command or review finding with evidence>
 Observed attempts: <prior actions and results; empty for the first attempt>
 Approved correction: <smallest authorized action>
-Authority: <unchanged Feature and Task Contracts or exact eligible legacy task authority and referenced design sources>
+Authority: <unchanged planned Feature and Task Contracts, unchanged lightweight combined contract, or exact eligible legacy task authority and referenced design sources>
 Shared interfaces and responsibility: <unchanged boundaries>
 Commit: <correction scope bounded to the finding and fixed message or writer message-selection authority>
 Discipline: <declared value>
-Working directory and PR range: <task path, branch, planned base, and current head>
+Working directory and PR range: <task path, branch, exact applicable Task base, and current head>
 Verification: <obligations, routes, and contractually fixed commands>
+Search cache (new-format planned corrections only; omit for lightweight and
+eligible legacy): <exact planned path, current matching entry or miss, source
+identity, currentness, and invalidation conditions, and Feature-lead-only
+writer/non-authority boundary>
 
 Do not repeat an observed failed correction without new evidence. Re-run every
 required command and applicable selected check, inspect the correction diff and

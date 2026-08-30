@@ -101,16 +101,22 @@ contract requires; do not impose the new planned-feature lifecycle.
 
 ## Keep workspace-only artifacts with their worktree
 
-Do not remove the planned feature's ignored `feature-contract.md` or
-`implementation-plan.md` as a separate Feature Accepted action. Confirm that
-both remain ignored, untracked, unstaged, and inside the current feature plan
-directory. Keep them in the coordination worktree while they may still be
+This section applies only to new-format planned Task and Feature modes.
+Eligible legacy mode follows its original completion and retention contract,
+does not require `search-cache.md`, and does not manufacture new-format
+artifacts.
+
+Do not remove the planned feature's ignored `feature-contract.md`,
+`implementation-plan.md`, or `search-cache.md` as a separate Feature Accepted
+action. Confirm that all three remain ignored, untracked, unstaged, and inside
+the current feature plan directory. Retain `search-cache.md` with `implementation-plan.md` through publication, feedback re-entry, and disposition evidence.
+Keep them in the coordination worktree while they may still be
 needed for publication, human-feedback re-entry, or disposition evidence.
 
 When the user later authorizes removal of that exact coordination worktree and
 its retained evidence is no longer required, let removal of the worktree clean
-up these ignored files with the workspace. Warn that they are not recoverable
-from Git. If either artifact is tracked, staged, outside the expected directory,
+up these ignored files with the workspace and retire all three only with authorized removal of that coordination worktree. Warn that they are not recoverable
+from Git. If any artifact is tracked, staged, outside the expected directory,
 or the user requests preservation beyond the worktree lifecycle, return
 `Escalate` for an explicit retention or archival decision. Preserve every
 Design Doc.
