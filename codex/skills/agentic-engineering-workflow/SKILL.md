@@ -50,16 +50,16 @@ Treat a user-requested verification or review outside a planned, lightweight,
 integration-only, or eligible legacy Task gate as standalone authority. Resolve
 an exact committed range, current index/worktree snapshot, or explicit bounded
 fileset and pass it to `verify` or `review`. Standalone is not a CLI, session,
-branch, or worktree mode and does not require Herdr, a Task Contract, DAG, PR
-topology, or Task orchestrator.
+branch, or worktree mode and does not require Herdr, a Task Contract, DAG, or
+PR topology.
 
 The root owns the target and any verifier, reviewer, adversarial-integrator, or
-review-integrator leaves directly. Apply the same global configured and observed
-subagent ceiling and give the target a local grant of normally one and at most
-three concurrent leaves; queue the remaining selected roles in order. When the
-user explicitly prohibits agents, the lead may run the compatible checks and
-perspectives sequentially. Label the result `standalone-only`; never use it as
-Task, coordinator, or Acceptance evidence.
+review-integrator leaves directly. Runtime admission determines which selected
+roles start; retain a rejected spawn as pending and retry after a completion or
+mailbox event without reducing selected scope. When the user explicitly
+prohibits agents, the lead may run compatible checks and perspectives
+sequentially. Label the result `standalone-only`; never use it as Task,
+coordinator, or Acceptance evidence.
 
 ## Use the lightweight path only when fully eligible
 
@@ -142,17 +142,9 @@ Use `focused` as the lightweight default:
 - a Task PR `test-coverage-reviewer` when behavior or tests changed;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
-- effective subagent capacity equal to the lower of configured
-  `agents.max_threads` and currently observed runtime capacity, with the root
-  excluded from `max_threads` and every live descendant counted;
-- one root-granted baseline leaf for serial implementation, verification,
-  findings integration, triage, and correction;
-- temporary expansion only after verifier `PASS` for a policy-selected wave of
-  at least two independent source reviewers, granted only by the root up to
-  three total Task leaves or smaller current capacity, and revoked before
-  integration, triage, or correction;
-- deterministic queueing without reducing selected scope when expansion is
-  unavailable; free capacity is not authority;
+- direct root dispatch of phase-valid leaves with no descendants;
+- runtime-managed thread admission, preserving selected roles as pending in
+  policy order when admission is temporarily unavailable;
 - findings-only general integration, with authority-defect priority and no
   general integrator after an all-clean review;
 - the common Acceptance threshold.
@@ -193,15 +185,13 @@ Give `execute-lightweight-task` one plain-language task handoff containing:
   controlling-authority, or material-route change;
 - attributable commits, prior verification and review, concerns, gaps, and
   re-entry evidence when applicable;
-- configured, observed, and effective subagent capacity, live identities,
-  selected or queued roles, the root-owned lightweight loop identity, and its
-  current root-granted lightweight leaf count;
+- the root-owned lightweight loop identity, selected or pending roles, and
+  attributable runtime-rejection or interruption evidence when applicable;
 - exact files, signatures, ordering, or commands only when their identity is
   contractually significant.
 
 This is the common Task evidence plus exactly the lightweight variant. Do not
-add a Task orchestrator identity, Herdr workspace, Task DAG, PR topology, or
-another planned-only field.
+add a Herdr workspace, Task DAG, PR topology, or another planned-only field.
 
 Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
@@ -212,8 +202,8 @@ complete selected reviewer set. Require one bounded correction commit to `H2`,
 a rebuilt matrix, and fresh `H2` verification before the selected reviewers
 rerun. `review` owns correction-review scope and escalation; do not restate its
 traversal rules in this coordinator.
-Planned correction mechanics remain owned by `execute-plan` and its bound Task
-orchestrator under the same contract.
+Planned correction mechanics remain root-owned through `execute-plan` and
+`execute-task` under the same contract.
 
 ## Maintain the planned-lifecycle search cache
 
@@ -227,8 +217,8 @@ Before repeating discovery, look up an entry matching the current purpose,
 scope, and source identity. Each entry records its observation date or repository
 identity, positive and useful negative results, reuse conditions, and explicit
 source-aware invalidation conditions. A stale or contradictory entry is a miss,
-not a failure. Task orchestrators and leaves return attributable cache
-candidates to the Feature lead instead of editing the file.
+not a failure. Leaves return attributable cache candidates to the Feature lead
+instead of editing the file.
 
 The cache never substitutes for direct current Git and authority resolution,
 mechanical verification, or policy-selected review. Keep it with the approved
@@ -365,13 +355,12 @@ coordination workspace, Task DAG, PR topology, task workspace rules, retained
 decisions, the exact planned `search-cache.md` path and current matching entries,
 and any promoted unaccepted range to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
-That skill owns readiness, global capacity leases, dispatch of the exact
-`task-orchestrator` profile for each ready new-format planned Task, candidate and
-authoritative Task handoffs, workspace and orchestrator mappings, staleness
-propagation, promotion reconciliation, and exact evidence aggregation. The
-planned Task orchestrator owns its one `execute-task` loop; the root does not
-dispatch planned leaves directly. Lightweight work remains root-owned and does
-not create Task-orchestrator or planned-Task artifacts.
+That skill owns readiness, direct dispatch of already-selected Task roles,
+candidate and authoritative Task handoffs, workspace and leaf mappings,
+staleness propagation, promotion reconciliation, and exact evidence
+aggregation. The root owns every planned `execute-task` loop and dispatches its
+leaves directly. Lightweight work remains root-owned and does not acquire
+planned-Task artifacts.
 
 ### Continue an eligible legacy plan
 

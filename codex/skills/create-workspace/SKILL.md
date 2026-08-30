@@ -186,9 +186,9 @@ interactive Git observation in its initial pane:
 herdr pane run <initial-pane-id> lazygit
 ```
 
-The pane is for engineer observation only. It is not the Task orchestrator
-process, carries no Task handoff, and provides no scheduling, verification, or
-Acceptance evidence. If lazygit does not start, do not retry or block Task
+The pane is for engineer observation only. It is not an agent process, carries
+no Task handoff, and provides no scheduling, verification, or Acceptance
+evidence. If lazygit does not start, do not retry or block Task
 execution. Keep or return the pane to a shell and emit one non-blocking warning
 that names the Task PR, worktree path, Herdr workspace and pane, attempted
 `herdr pane run <initial-pane-id> lazygit` launch, observed error, and that Task
@@ -196,9 +196,9 @@ execution continues.
 
 For a coordination workspace, ask the user to continue the session in the
 returned path when the active writer must move there. For a planned Task PR,
-return the validated Git and Herdr mapping to `execute-plan`; its Task
-orchestrator and source writer receive the exact path in their durable handoffs
-and are not launched in the pane. For an integration workspace, return the path
+return the validated Git and Herdr mapping to `execute-plan`; the root and
+source writer receive the exact path in their role handoffs and are not launched
+in the pane. For an integration workspace, return the path
 and identity directly to `execute-plan`; do not move the user session or run
 `herdr agent start`.
 

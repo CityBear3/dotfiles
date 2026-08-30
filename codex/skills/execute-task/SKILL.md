@@ -34,8 +34,8 @@ The common core contains:
   message or approved writer message-selection authority;
 - attributable commits, prior verification and review, concerns, gaps, and
   re-entry evidence when applicable;
-- configured, observed, and effective subagent capacity, currently live
-  identities, and every selected or queued role;
+- relevant live identities, every selected or pending role, and attributable
+  runtime-rejection or interruption evidence when applicable;
 - contractually significant files, interfaces, signatures, ordering, and exact
   commands only when the authority fixes them.
 
@@ -51,8 +51,6 @@ The planned variant adds:
 - the exact planned `search-cache.md` path, a current matching entry or miss,
   its source identity and invalidation conditions, and the Feature-lead-only
   writer boundary;
-- the one bound `task-orchestrator` identity and its current root-granted Task
-  leaf lease;
 - for re-entry, prior candidate, acceptance, interruption, correction, or stale
   evidence, including authorized final-base materialization or restack evidence
   when applicable.
@@ -79,8 +77,8 @@ execution model, material quality criteria and realistic failures, approved
 non-problems, and inapplicable assumptions. The Review policy records mode,
 rationale, risk surfaces, per-task gate, integration required and conditional
 perspectives, skips with reasons, findings-only general integration and
-authority-defect priority, residual risk, capacity and queue rules, and the
-common Acceptance threshold.
+authority-defect priority, residual risk, pending-role order, and the common
+Acceptance threshold.
 
 Reject missing, stale, contradictory, or mode-inconsistent input. Return the
 named gap to the invoking skill; do not infer a decision, expand scope, duplicate
@@ -103,27 +101,20 @@ supplied attributable envelope. Recheck ancestry, base, branch, range, and
 status after commits and before acceptance. On failure, preserve state and
 return `BLOCKED`; never rewrite history to manufacture the planned topology.
 
-## Run in the owning Task-loop context
+## Run in the root-owned Task-loop context
 
-For new-format planned work, this skill runs inside the non-writing Task
-orchestrator bound to the supplied Task Contract. Only that orchestrator
-dispatches this Task's leaves. Eligible legacy work retains its exact approved
-invoking context. Reject a new-format planned handoff delivered to an unbound
-identity and reject root-owned lightweight authority.
+For new-format planned work, the root owns this Task loop and dispatches its
+selected leaves directly through `agent-teams-driven-development`. Eligible
+legacy work retains its exact approved invoking context. Reject root-owned
+lightweight authority because it belongs to `execute-lightweight-task`.
 
-Treat `agents.max_threads` as subagent capacity across the complete descendant
-tree, excluding the root and counting every Task orchestrator and leaf. Use the
-lower configured or currently observed capacity. The root alone grants leaf
-capacity. Start this loop with one baseline leaf and use it serially for the
-writer, verifier, findings integration, triage, and correction. Only after a
-fresh verifier `PASS` and selection of at least two independent source reviewers
-may the owner request a temporary reviewer-wave expansion. The root may grant at
-most three total Task leaves or the smaller current capacity; only the selected
-source reviewers use that expansion. Revoke it before findings integration,
-triage, or correction. Free capacity is availability, not authority. Queue
-already-selected roles in deterministic policy order without dropping,
-substituting, reordering, or weakening them. Do not begin a planned orchestrator
-turn unless its grant includes the baseline leaf.
+Runtime admission determines which selected leaves start. A thread-limit
+rejection keeps the role pending in approved Task or policy order; after useful
+independent work, wait for a mailbox or completion event and retry. Do not drop,
+substitute, reorder, or weaken selected work because admission is temporarily
+unavailable. Phase gates still keep implementation, verification, findings
+integration, triage, and correction ordered. Independent policy-selected
+reviewers may run concurrently only after fresh verifier `PASS`.
 
 ## Choose one writer
 
@@ -142,17 +133,16 @@ oracle, discipline, candidate target,
 commit intent, focused writer-side obligations, exact workspace/base/head,
 one-writer boundary, applicable planned cache path and current hit, and
 escalation conditions. Keep the exact authority sources directly available.
-Omit Review context and Review policy, review
-scheduling, completed gate evidence, capacity, and queue state from the writer
-message. Pass only the selected role and writer role message to
+Omit Review context and Review policy, review scheduling, completed gate
+evidence, and pending-role state from the writer message. Pass only the selected
+role and writer role message to
 `agent-teams-driven-development`.
 
 Every implementer, verifier, reviewer, adversarial integrator, and review
-integrator dispatched by this loop is a leaf and must not spawn descendants. A
-capacity lease changes
-only scheduling concurrency; it grants no source, Git, policy, publication, or
-cleanup authority. The Task orchestrator remains non-writing, and the
-implementer remains the sole Task source writer.
+integrator dispatched by this loop is a leaf and must not spawn descendants.
+Runtime admission changes only scheduling concurrency; it grants no source,
+Git, policy, publication, or cleanup authority. The implementer remains the
+sole Task source writer.
 
 For new-format planned work, look up a current matching cache entry before new discovery.
 The cache never replaces fresh Git, authority, verification, or review evidence.
@@ -211,8 +201,8 @@ confirmed inactive.
 For candidate or fresh authoritative implementation:
 
 1. Record the task and PR identities, workspace, branch, starting commit,
-   planned base ref and commit, current head, status, owning Task-loop context,
-   current capacity evidence, grant, and selected-role queue.
+   planned base ref and commit, current head, status, owning root Task-loop
+   context, and selected or pending roles.
 2. Implement only the declared scope with the selected discipline.
 3. Run every contractually required exact command, select applicable standard
    and focused checks, and record all observed results.
@@ -342,12 +332,10 @@ unchanged planned base, merge base, head, range, diff, and status. Then invoke
 `review` select and schedule only the policy-required task perspectives and
 return `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
-All new-format planned verifier and reviewer leaves remain descendants of the
-bound Task orchestrator. Schedule them through
-`agent-teams-driven-development` under the unchanged current lease. Queue a
-selected check when capacity is insufficient; do not move it to the root,
-substitute another role, or treat a self-observed free slot as a lease
-expansion.
+The root schedules all new-format planned verifier and reviewer leaves directly
+through `agent-teams-driven-development`. Keep a runtime-rejected check pending
+in policy order and retry after progress; do not substitute another role or
+weaken the gate.
 
 Do not substitute writer self-checks, preliminary candidate checks, standalone
 results, or a lead summary for either coordinator-managed phase. An approved
@@ -431,13 +419,13 @@ gap. Do not create another identifier or tracking schema for the finding.
 
 ## Return task acceptance
 
-Return the complete result to the owning caller without translating or dropping
-evidence. For new-format planned work, the Task orchestrator returns it to
-`execute-plan`. `Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the
-current planned Task-orchestrator turn. An Accepted result does not start a wait
-or polling loop. Re-entry always requires a fresh complete handoff and Git
-revalidation, whether the same idle identity is reused or an attributable
-replacement is selected.
+Return the complete result to the owning root caller without translating or
+dropping evidence. For new-format planned work, return it to `execute-plan`.
+`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current Task-loop
+transition. An Accepted result does not start another wait or polling loop.
+Re-entry always requires a fresh complete role handoff and Git revalidation,
+whether a compatible idle identity is reused or an attributable replacement is
+selected.
 
 Return:
 
@@ -461,9 +449,8 @@ and relevant untracked state, task and correction commits, workspace and branch,
 planned PR base ref and commit, merge base, current head, exact range, changed
 files, commands and observed results, pre-commit inspection, gate result when
 authoritative, reviewer and findings-integration outcomes, triage, discipline
-evidence, cache candidates, non-blocking concerns, owning Task-loop identity, configured,
-observed, and
-effective capacity, root grant, selected and queued roles, concerns, gaps, and
-exact re-entry condition.
+evidence, cache candidates, non-blocking concerns, owning root Task-loop
+identity, selected and pending roles, runtime-rejection evidence, concerns,
+gaps, and exact re-entry condition.
 Return this evidence to the invoking coordinator or
 `execute-plan`; do not advance another task or cross-phase gate.

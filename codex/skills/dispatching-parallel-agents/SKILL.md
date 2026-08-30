@@ -1,117 +1,73 @@
 ---
 name: dispatching-parallel-agents
-description: Dispatch root-selected ready planned Tasks to dedicated Task orchestrators while respecting approved dependencies, isolated workspaces, root leases, and shared-state constraints.
+description: Dispatch root-selected ready planned Task roles directly while preserving dependency readiness, isolated workspaces, one-writer ownership, and runtime backpressure.
 ---
 
 # Dispatch parallel agents
 
-Parallelize only independent planned Task loops. When invoked from
-`execute-plan`, act as the root scheduling adapter for Tasks that it already
-marked ready; do not reinterpret the Task DAG, PR topology, ownership, Review
-policy, or selected leaf roles. Dispatch one exact `task-orchestrator` profile
-per selected Task. This skill does not dispatch planned implementer, verifier,
-reviewer, or integrator leaves; the bound Task orchestrator owns those
-dispatches. This topology applies to new-format planned work; eligible legacy
-plans retain their exact approved scheduling authority.
+Act as the root's scheduling adapter for Task phases already selected by
+`execute-plan`, `execute-task`, `verify`, or `review`. Do not reinterpret the
+Task DAG, PR topology, Task Contract, Review policy, selected role, or phase
+transition. The root remains the sole orchestrator.
 
-## Decide whether to dispatch
+## Require ready work
 
-For each candidate task identify:
+For each selected Task role require:
 
-- exact scope and expected output;
-- files or external state it may read or write;
-- required context;
-- dependencies on other tasks;
-- approved branch and checkout, planned PR base, and candidate or authoritative
-  mode when applicable;
-- completion evidence;
-- configured, observed, and effective subagent capacity, current live
-  identities, the root-granted leaf count, and any already-selected roles for
-  the wave.
+- the exact Task and PR identity, current phase, purpose, and expected result;
+- applicable authority and a complete role-specific message;
+- isolated workspace, branch, planned base, current head, and source-state
+  boundary;
+- dependency readiness and ownership-disjoint concurrency evidence;
+- whether this is a fresh dispatch, compatible follow-up, or replacement; and
+- required result fields and stop conditions.
 
-Do not parallelize tasks that edit the same files, share a checkout or active
-writer, mutate conflicting state, depend on one another's results, lack an
-approved workspace, or require a single evolving judgment. A PR stack edge alone
-is not a logical dependency when the approved plan permits an early candidate.
+Do not run Tasks concurrently when they share a checkout or active writer,
+overlap write ownership, mutate conflicting external state, depend on one
+another's unfinished result, or require one evolving judgment. A PR stack edge
+alone is not a logical dependency when the approved plan permits an early
+candidate.
 
-## Capacity
+## Dispatch direct leaves
 
-Use `list_agents` before every dispatch wave. Effective subagent capacity is the
-lower of configured `agents.max_threads` and currently observed runtime
-capacity. `max_threads` excludes the root and counts every live Task
-orchestrator and leaf across the complete tree. Never infer that every
-configured slot is currently available.
+Pass each already-selected role to `agent-teams-driven-development`. Every new
+implementer, verifier, reviewer, adversarial integrator, or review integrator
+uses explicit `fork_turns="none"`, receives one complete role-specific handoff,
+and may not spawn descendants. The root retains Task state, phase transitions,
+Review selection, and acceptance authority.
 
-The root grants leases. A new Task orchestrator consumes one slot and must also
-receive capacity for its baseline one-leaf grant. Do not dispatch it when those
-two slots are unavailable. That baseline is the Task's only leaf outside the
-source-reviewer wave. Only after fresh verifier `PASS` and selection of at least
-two independent source reviewers may an orchestrator request temporary
-expansion. The root may grant at most three total Task leaves or the smaller
-current capacity, only to the selected source reviewers, in the approved
-deterministic queue order. Revoke the expansion when the reviewer wave ends or
-exits for priority authority assessment, before integration, triage, or
-correction. A free slot is availability, not permission. Count writers and
-reviewers from every active Task PR. Queue ready Tasks or selected roles rather
-than dropping, reordering, substituting, or oversubscribing them.
+Keep exactly one active writer in each Task workspace. Independent readers may
+run concurrently only after their owning phase gate permits it. Removal of
+workflow leases does not authorize overlapping implementation and verification,
+duplicate verifiers, early findings integration, or correction before triage.
 
-## Dispatch
+Runtime admission determines which spawn requests start. When a request is
+rejected because the thread limit is reached, retain that selected role as
+pending in approved ready-Task or reviewer order. After useful independent work
+is exhausted, wait once for normally 300,000 to 600,000 milliseconds; mailbox,
+completion, or user-input events may return earlier. Retry pending admission
+after progress. Do not drop, replace, reorder, or weaken selected work merely to
+fit current runtime availability, and do not classify thread pressure as a
+Design escalation.
 
-Call `spawn_agent` with the exact `task-orchestrator` profile and explicit
-`fork_turns="none"` once per concrete selected Task. Every newly spawned Task
-orchestrator therefore starts without parent conversation. If explicit
-no-history creation is unavailable, return `BLOCKED`; do not silently inherit
-turns. Use a stable, descriptive Task name, bind the returned identity to that
-Task Contract for its lifetime, and send one complete Task-orchestrator handoff
-while keeping exact authority sources directly readable.
+Use live-agent inspection when duplicate prevention, liveness, failure,
+interruption, replacement, or teardown is decision-relevant. Do not require a
+capacity snapshot before every ordinary dispatch.
 
-Each prompt states:
+## Integrate scheduling results
 
-- purpose and expected result, bounded responsibility, allowed actions, and
-  prohibited overlap;
-- applicable authority identity and currentness, assigned clauses, constraints,
-  non-goals, delegated decisions, and direct source paths;
-- working directory, exact task branch, checkout, planned PR base, starting
-  head, range, status, source-state boundary, and mode;
-- required observations and commands, output schema, stop conditions, and
-  re-entry evidence;
-- the current root-granted leaf count and selected-role queue;
-- authority to spawn only policy-selected bounded leaves inside that grant,
-  with every such leaf prohibited from spawning descendants, the baseline leaf
-  used serially, and any temporary expansion reserved for the source-reviewer
-  wave and revoked before later phases.
+Validate each returned result against the exact Task workspace and requested
+role. Re-resolve branch, planned base, merge base, head, range, diff, status,
+writer activity, and attribution before a phase transition or dependency
+release. Agent identity, memory, liveness, Herdr, lazygit, and pane state are
+operational observations rather than acceptance evidence.
 
-Require the Task orchestrator to directly revalidate Git and authority from
-those sources at every gate. Parent conversation, identity, liveness, Herdr,
-and pane state remain operational context rather than correctness evidence.
+Use a compatible idle identity only with a fresh complete handoff and current
+Git and authority validation. Start a replacement only after the prior writer
+is inactive and all in-scope state is attributable; otherwise return `BLOCKED`
+without cleaning or rewriting state.
 
-Continue useful lead work while agents run. After that work is exhausted, use
-one bounded `wait_agent` call of normally 300,000 to 600,000 milliseconds. It
-returns early on mailbox, completion, or steered user input; do not replace it
-with repeated short polls. Use a shorter bound only for a nearer explicit
-deadline, teardown, or interruption boundary and record the reason. Inspect
-live state at dispatch and phase boundaries and after an early return.
-A terminal Task-orchestrator result ends the turn without another wait.
-
-## Integrate
-
-Validate each result against the requested output and its exact workspace. Check
-for conflicting edits, branches, state, or assumptions. Return candidate and
-authoritative results unchanged to the owning scheduler. The root directly
-re-resolves branch, planned base, merge base, head, range, diff, and status
-before dependency release or Feature aggregation. Agent identity, liveness,
-Herdr, lazygit, and pane state are not acceptance evidence. Do not release a
-dependency or claim feature completion here. If the same idle Task orchestrator
-needs an attributable re-entry, use `followup_task` with a fresh complete
-handoff and require it to directly revalidate Git and authority; use
-`send_message` for information that should not start a new turn.
-
-`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the orchestrator's current
-turn. Never reassign that identity to another Task. Prefer it for a fresh
-handoff on candidate, stale, correction, or human-review re-entry when available.
-If unavailable, dispatch a replacement only after the prior writer is inactive
-and all Task state is attributable; otherwise preserve state and return
-`BLOCKED`. A returned or idle identity reserves no leaf lease, but any identity
-still observed live counts against capacity.
-
-Synthesize results once. Do not repeat completed work merely because agents ran independently.
+Return the Task-to-role-to-leaf-to-workspace mapping, pending order, completion
+or interruption state, role reports, directly observed Git evidence, and every
+gap to the owning root phase. Do not release a dependency, decide Task or
+Feature acceptance, publish, merge, or dispose of a workspace here.

@@ -20,8 +20,8 @@ responsibility-scoped commit intent and fixed message or message-selection
 authority, focused writer-side verification obligations, and any contractually
 fixed files, signatures, ordering, or commands, plus the applicable planned
 `search-cache.md` path and current entry or miss. Review context, Review policy,
-completed gate evidence, review scheduling, capacity, and queue state remain
-with the Task-loop owner and are not required implementer inputs. Do not request
+completed gate evidence, review scheduling, and pending-role state remain with
+the Task-loop owner and are not required implementer inputs. Do not request
 or fabricate a broader wrapper. Keep the exact authority sources available and
 inspect more when an assigned clause or evidence requires it; do not
 unconditionally reread unrelated unchanged prose. For eligible legacy work,

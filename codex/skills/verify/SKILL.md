@@ -160,30 +160,22 @@ when its effective instructions retain those boundaries; its workspace-write
 sandbox exists only for the bounded ignored artifacts and does not weaken the
 check-only contract.
 
-For a new-format planned Task PR, `execute-task` selects the exact
-`implementation-verifier` role and the bound Task orchestrator dispatches that
-leaf through `agent-teams-driven-development` under the current root-granted
-lease. For a lightweight Task PR, the root dispatches the same selected verifier
-leaf through that adapter. For an eligible legacy Task, preserve its exact
-approved invoking context. The verifier is always a leaf and may not spawn
-descendants.
+For a new-format planned or lightweight Task PR, the applicable Task executor
+selects the exact `implementation-verifier` role and the root dispatches that
+leaf through `agent-teams-driven-development`. For an eligible legacy Task,
+preserve its exact approved invoking context. The verifier is always a leaf and
+may not spawn descendants.
 
-For another coordinator-managed target, the root dispatches the compatible
-named verifier through the same adapter under the applicable capacity policy.
-If a required compatible verifier cannot be instantiated, return `BLOCKED` with
-the role, capacity, queue, and exact re-entry condition. Do not substitute the
-root, Task orchestrator, or another role, and do not weaken a planned or
-lightweight gate.
+For another coordinator-managed or standalone target, the root dispatches the
+compatible named verifier through the same adapter. If runtime admission
+rejects the spawn, keep the selected verifier pending and retry after a mailbox
+or completion event. Return operational `BLOCKED` only after repeated
+non-progress prevents the required verifier from running. Do not substitute the
+root or another role and do not weaken a planned or lightweight gate.
 
-For a standalone target, the root normally dispatches the compatible named
-verifier as its direct leaf through `agent-teams-driven-development`. Record the
-standalone execution context, configured, observed, and effective global
-subagent capacity, live identities, a root-granted target-local count of
-normally one and at most three concurrent leaves, and the selected-role queue.
-The target has no Task lease and may not consume capacity beyond that grant.
-Only an explicitly requested no-agent execution may let the lead run these
-checks under this complete check-only contract. Report either form as
-`standalone-only`, never as coordinator or Acceptance evidence.
+Only an explicitly requested no-agent execution may let the lead run standalone
+checks under this complete check-only contract. Report either standalone form
+as `standalone-only`, never as coordinator or Acceptance evidence.
 
 ## Execute the matrix in mechanical fail-fast order
 
@@ -258,7 +250,7 @@ Return the completed Verification Matrix and exactly one verdict:
   guarantee could not be established.
 
 Keep the report compact and do not repeat unchanged authority, Review policy,
-capacity, queue, or contract prose already held by the owner. Return:
+scheduling, pending-role, or contract prose already held by the owner. Return:
 
 1. one target block containing the target form and only its applicable identity
    fields: workspace, branch, base, merge base, range, composed tree, snapshot,

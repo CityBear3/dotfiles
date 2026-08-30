@@ -28,9 +28,8 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - Keep parser, renderer, and CLI responsibilities separate.
 - Do not change persistence, permissions, or error ownership.
 - Allow parser and renderer work to begin independently.
-- Run each ready planned Task through one non-writing Task orchestrator; keep
-  the root responsible for global leases, dependency release, and Feature
-  acceptance.
+- Keep the root as the sole orchestrator for every ready planned Task, direct
+  role dispatch, dependency release, and Feature acceptance.
 
 ## Shared interface contracts
 
@@ -46,7 +45,7 @@ topology, task acceptance, integration evidence, and publication boundaries.
 
 - Path: `docs/plans/YYYY-MM-DD-<feature>/search-cache.md`.
 - Owner: The Feature lead is the only writer.
-- Consumers: new-format planned coordinators, Task orchestrators, and leaves.
+- Consumers: the root coordinator and planned leaves.
 - Entry: Record purpose and scope, source identity, observation date or
   repository identity, positive and useful negative results, reuse conditions
   and source-aware invalidation conditions.
@@ -124,17 +123,12 @@ results and this stack are current.
   unless recovery behavior changes; skip scope because each Task gate receives
   exact clauses and ownership.
 - **Residual risk:** No exhaustive grammar fuzzing.
-- **Capacity and queue:** Effective subagent capacity is the lower configured
-  `agents.max_threads` or observed runtime value, excludes the root, and counts
-  every Task orchestrator and leaf. The root grants each schedulable Task a
-  baseline leaf for serial implementation, verification, findings integration,
-  triage, and correction. Only after verifier `PASS` may a Task with at least two
-  selected independent source reviewers request temporary expansion; only the
-  root grants up to three total Task leaves, and revokes the expansion before
-  integration, triage, or correction. Queue unavailable expansion in policy
-  order; free capacity is not authority. Schedule ready Task 1 and Task 2
-  candidates in deterministic order in separate worktrees, then their Task
-  gates, Task 3, and integration review.
+- **Runtime admission and order:** Schedule ready Task 1 and Task 2 candidates
+  in deterministic order in separate worktrees, then their Task gates, Task 3,
+  and integration review. Keep a runtime-rejected role pending in that order and
+  retry after progress without reducing reviewer breadth. Phase gates keep
+  implementation, verification, findings integration, triage, and correction
+  ordered; independent reviewers may run only after verifier `PASS`.
 - **Acceptance:** Keep only artifact-applicable findings with an approved
   requirement, reachable evidence, material consequence, and proportionate
   correction. Drop preference, speculation, optional polish, and objections to

@@ -222,8 +222,8 @@ new evidence of a concrete reachable failure or approved-contract violation.
 ## Review policy
 
 Include a separate `Review policy` section in every plan. The policy controls
-breadth, independence, capacity, and Acceptance; it references the Review context
-without repeating it.
+breadth, independence, and Acceptance; it references the Review context without
+repeating it.
 
 Use `adaptive` as the default for planned work. Recommend `focused` or `deep`
 only when repository evidence, approved decisions, and concrete risk surfaces
@@ -265,17 +265,16 @@ Record:
 - **Integration conditional reviewers with exact triggers**
 - **Explicitly skipped perspectives and reasons**
 - **Residual risk**
-- **Capacity and deterministic queue order**
+- **Deterministic reviewer order under runtime admission**
 - **Findings-only integration and Design Escalation priority**
 - **Acceptance threshold**
 
-Capacity policy must start each Task loop with one baseline leaf for serial
-implementation, verification, findings integration, triage, and correction.
-Permit temporary expansion only after verifier `PASS` for a policy-selected wave
-of at least two independent source reviewers; only the root grants up to three
-total Task leaves or smaller current capacity. Require deterministic queueing
-when unavailable and revocation before findings integration, triage, or
-correction. A free slot is not authority.
+Runtime admission does not change Review selection. Record the deterministic
+reviewer order used when a selected spawn is temporarily rejected. Keep phase
+gates explicit so implementation, verification, findings integration, triage,
+and correction remain ordered while independent source reviewers may run after
+fresh verifier `PASS`. Do not encode leases, grants, or thread arithmetic in the
+plan.
 
 Correction policy must retain prior head `H1`, create one bounded correction
 commit to `H2`, rebuild the Verification Matrix, rerun fresh `H2` verification,
@@ -298,15 +297,15 @@ violation.
 
 Keep model and reasoning-effort choices in reviewer profiles, not in the plan.
 
-## Agent capacity
+## Execution concurrency
 
 When execution may use subagents, identify one writer per task workspace and
 read-only reviewers. Permit multiple active writers only for dependency-ready,
 ownership-disjoint tasks in separate checkouts without conflicting shared
 state. Require every named reviewer to have a resolvable profile or complete
-fallback prompt. Record configured capacity and deterministic ready-task and
-reviewer queue order. Queue when capacity is lower; never reduce approved scope
-or independence silently.
+fallback prompt. Record deterministic ready-Task and reviewer order. Runtime
+admission may delay a selected role but never reduces approved scope or
+independence.
 
 ## Quality
 

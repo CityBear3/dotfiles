@@ -17,7 +17,7 @@ The lightweight handoff contains:
   request and design authority, exact authority identity and currentness,
   assigned obligations, protected constraints, non-goals, and delegated local
   decisions;
-- the root-owned lightweight loop identity and current root-granted leaf count;
+- the root-owned lightweight loop identity and selected or pending roles;
 - the exact Task PR target: workspace, branch, base ref and exact base commit,
   current head, merge base, exact base-to-head range, inspected diff, and
   starting Git status including index, worktree, and relevant untracked state;
@@ -28,8 +28,8 @@ The lightweight handoff contains:
   message or approved writer message-selection authority;
 - attributable commits, prior verification and review, concerns, gaps, and
   prior attributable lightweight evidence for correction or re-entry;
-- configured, observed, and effective subagent capacity, live identities, and
-  every selected or queued role;
+- relevant live identities and attributable runtime-rejection or interruption
+  evidence when applicable;
 - contractually significant files, interfaces, signatures, ordering, and exact
   commands only when the authority fixes them.
 
@@ -37,16 +37,16 @@ The lightweight variant never requires or fabricates another planned-only
 artifact.
 
 Reject a planned-only handoff instead of interpreting it as lightweight. A
-Task orchestrator, Herdr workspace requirement, Task DAG, PR topology, planned
-`search-cache.md`, or `execute-plan` correction route belongs to the planned
-executor. Do not infer or discard those fields to force this route.
+Herdr workspace requirement, Task DAG, PR topology, planned `search-cache.md`,
+or `execute-plan` correction route belongs to the planned executor. Do not
+infer or discard those fields to force this route.
 
 The Review context describes the artifact, purpose, consumers, interpretation
 or execution model, material quality criteria and realistic failures, approved
 non-problems, and inapplicable assumptions. The Review policy records mode,
 rationale, risk surfaces, the Task PR gate, any integration perspective, skips
 with reasons, findings-only general integration, authority-defect priority,
-residual risk, capacity and queue rules, and the common Acceptance threshold.
+residual risk, pending-role order, and the common Acceptance threshold.
 
 Reject missing, stale, contradictory, or unrecoverable input. Return the named
 gap to `agentic-engineering-workflow`; do not infer a decision, expand scope,
@@ -72,15 +72,13 @@ role-specific handoff with directly readable authority and Git sources. If
 no-history creation is unavailable, return `BLOCKED` instead of inheriting
 parent turns.
 
-Treat `agents.max_threads` as subagent capacity across the complete descendant
-tree, excluding the root and counting every live leaf. Use the lower configured
-or currently observed capacity. The root alone grants leaf capacity. Start with
-one baseline leaf and use it serially for the writer, verifier, findings
-integration, triage, and correction. Only after fresh verifier `PASS` and
-selection of at least two independent source reviewers may the root temporarily
-expand the reviewer wave, up to three total Task leaves or smaller current
-capacity. Revoke expansion before integration, triage, or correction. Queue
-selected roles in policy order; free capacity is availability, not authority.
+Runtime admission determines which selected leaves start. A thread-limit
+rejection keeps the role pending in policy order; after useful independent work,
+wait for a mailbox or completion event and retry. Do not weaken or substitute a
+selected role because admission is temporarily unavailable. Phase gates still
+keep implementation, verification, findings integration, triage, and correction
+ordered; independent policy-selected reviewers may run concurrently after fresh
+verifier `PASS`.
 
 ## Choose one writer
 
@@ -99,7 +97,7 @@ base and starting head, responsibility-scoped commit intent and message
 authority, focused writer-side checks, and every contractually fixed file,
 signature, ordering rule, or command. Keep exact authority sources directly
 available. Omit Review context and policy, completed gate evidence, review
-scheduling, capacity, and queue state from the writer message.
+scheduling and pending-role state from the writer message.
 
 Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run in one bounded programmatic batch only when each
@@ -127,8 +125,8 @@ or the authoritative gate unclassified.
 For fresh implementation:
 
 1. Record the combined-contract identity and currentness, workspace, branch,
-   starting commit, exact base, head, merge base, range, diff, status, root-owned
-   loop identity, capacity, grant, and queue.
+   starting commit, exact base, head, merge base, range, diff, status, and
+   root-owned loop identity.
 2. Implement only the declared scope with the selected discipline.
 3. Run every contractually required exact command plus focused checks needed for
    the owned responsibility.
@@ -184,8 +182,8 @@ base, head, range, diff, and status. Then invoke `review` with that matrix and
 complete policy. Let it select and schedule only required perspectives and
 return `CLEAN`, `FINDINGS`, or `BLOCKED`.
 
-The root dispatches these leaves through `agent-teams-driven-development` under
-the current grant. Do not substitute writer self-checks, preliminary checks,
+The root dispatches these leaves through `agent-teams-driven-development`. Do
+not substitute writer self-checks, preliminary checks,
 standalone results, or a root summary for the gate. Require `review` to
 integrate `FINDINGS` before `receiving-code-review` triage. Raw findings never
 authorize correction.
@@ -243,5 +241,6 @@ Include exact authority identity/currentness, writer state, starting and final
 Git status, commits, workspace and branch, base, merge base, head, exact range,
 changed files, commands and results, pre-commit inspection, matrix and gate
 results, review/integration/triage, discipline evidence, non-blocking concerns,
-root loop identity, capacity, grant, queue, gaps, and exact re-entry condition. Do not
-advance an integration-only gate, publication, or branch disposition here.
+root loop identity, selected or pending roles, runtime-rejection evidence, gaps,
+and exact re-entry condition. Do not advance an integration-only gate,
+publication, or branch disposition here.
