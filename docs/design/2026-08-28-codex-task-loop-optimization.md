@@ -3,13 +3,15 @@
 - Owner: Repository owner
 - Drafted by: Codex from owner-settled design decisions
 - Date: 2026-08-28
-- Revised: 2026-08-29
-- Status: Minimal Task-executor Skill split approved by the repository owner on
-  2026-08-29
-- Approved draft SHA-256:
-  `100d80bfda76377ca923fbaaa7f86b2983c4581c4dfe1432c412d3e2b1875069`
-- Prior approved document SHA-256:
-  `102f55e61810cdb4faef93a3d58c24f497807ebc47c3df6ff5cc4d54b24e9b8e`
+- Revised: 2026-08-30
+- Status: Source/benchmark separation approved by the repository owner on
+  2026-08-30
+- Approved separation draft SHA-256:
+  `71f46d3e6531a16bfe2e9611cd2ab351205c0d907ca73addeae8907e4ade879d`
+- Previous PR candidate SHA-256:
+  `e06a28b4b036c4df926567ef9892874b21f7221c5489286f01d3b08741fd6eca`
+- Prior approved source document SHA-256:
+  `6fc0766f02c3cc40735d6b77ae12bed0df48c6f1795a3540f97a0928eb0c6cbb`
 - Repository baseline: `d32ec49957eb419dd12095b69c196eb0128619bb`
 - Extends:
   - `docs/design/2026-08-25-codex-task-orchestrator-subagents.md`
@@ -51,17 +53,8 @@ material evidence gap.
 This revision extends the original design with context-isolated dispatch,
 event-responsive waiting, decision-aware implementer batching, a feature-local
 search cache, explicit separation of historical TDD discipline from current
-Acceptance, and a comparable operational evaluation boundary. It revises the
-same durable authority rather than adding a precedence-bearing addendum.
-
-Before implementation, the owner refined that evaluation boundary to reduce
-benchmark-only work and make the observation more representative. The earlier
-synthetic clean path and forced-correction path are replaced by one minimal
-fixed product specification implemented independently in Rust, Go, and Kotlin.
-Each language executes the real complete Task loop; findings and corrections
-are observed rather than scripted. Three language repositories are reused only
-as Git containers: frozen before and after branches start at the same base while
-run state, evidence, sessions, and caches remain isolated by side.
+Acceptance. It revises the same durable authority rather than adding a
+precedence-bearing addendum.
 
 Operational use then exposed an authority-boundary problem inside the shared
 `execute-task` Skill. It accepts both a Task-orchestrator-owned planned variant
@@ -70,8 +63,8 @@ which Task-loop owner and lifecycle apply. The selected correction is deliberate
 narrow: keep existing `execute-task` for planned and eligible legacy work, add
 one `execute-lightweight-task` Skill for the root-owned lightweight loop, and
 change only the lightweight calls in `agentic-engineering-workflow`. The
-coordinator, planned topology, check-only phases, completion modes, and benchmark
-design remain shared or unchanged.
+coordinator, planned topology, check-only phases, and completion modes remain
+shared or unchanged.
 
 This design preserves the Task orchestrator topology and acceptance gates while
 optimizing the phases inside one Task loop. It supersedes the earlier generic
@@ -112,10 +105,6 @@ the approved Review policy selects.
   feature-local `search-cache.md` with source-aware invalidation.
 - Keep historical TDD discipline evidence distinct from the evidence that
   establishes current-head Acceptance.
-- Compare the complete before and after Task loops in minimal equivalent Rust,
-  Go, and Kotlin workloads with dual-layer call counts, token use, wait
-  behavior, elapsed time, repeated searches, and an unchanged
-  completion-quality bar.
 
 ### Non-goals
 
@@ -140,13 +129,8 @@ the approved Review policy selects.
   correctness or Acceptance authority.
 - Weaken the requirement to use TDD for applicable implementation work or claim
   TDD when an intended RED was not observed.
-- Embed benchmark scenarios or run results as permanent runtime Skill prose.
-- Force a review finding or correction solely to make benchmark paths match.
-- Treat cross-language absolute duration as Task-loop overhead, or require a
-  large sample application when a minimal equivalent workload exposes the same
-  workflow behavior.
-- Install the changed bundle before baseline measurement or make installation,
-  publication, or branch disposition implicit in Design Doc approval.
+- Make an external benchmark, installation, publication, or branch disposition
+  implicit in source Feature Acceptance or Design Doc approval.
 
 ### Explicit deferrals
 
@@ -637,15 +621,8 @@ describes `medium` as a balanced default, `low` as appropriate for
 straightforward latency-sensitive work, and higher effort as more costly but
 potentially useful for complex reasoning. It also confirms that different
 roles can select different model and reasoning settings and that each subagent
-performs its own model and tool work. The benchmark therefore measures the
-actual role mix rather than inferring savings from profile declarations alone.
-
-[Official OpenAI non-interactive-mode guidance](https://learn.chatgpt.com/docs/non-interactive-mode)
-defines `--ephemeral` as avoiding persisted session rollout files and `--json`
-as a JSONL event stream containing command, file-change, tool, search, and turn
-usage evidence. Those interfaces supply the fresh-session and dual-layer raw
-measurement boundary; they do not replace repository manifests or
-Acceptance evidence.
+performs its own model and tool work. Any external evaluation must observe the
+actual role mix rather than infer savings from profile declarations alone.
 
 ### Compatibility and rollout
 
@@ -667,129 +644,23 @@ reviewed directly, so an instruction-only change does not require installer
 tests.
 
 Local implementation and verification do not install into the live Codex home.
-After candidate verification, the rollout fingerprints the still-installed old
-bundle, performs the complete before measurement, and only then crosses the
-owner-controlled installation boundary. Publication and branch disposition
-remain separate owner-controlled actions.
+Installation, publication, and branch disposition remain separate
+owner-controlled actions.
 
-### Evaluation
+### Independent operational evaluation
 
-Completion requires fresh direct validation of changed assets and focused
-installer tests only when installer behavior changes. Operational evaluation
-then runs one minimal canonical product specification through the real complete
-Task loop in Rust, Go, and Kotlin. The product is a deterministic `task-filter`
-CLI:
+Operational comparison is intentionally outside this source Feature's Design,
+Contract, Implementation Plan, and Acceptance. A standalone `benchmark-plan.md`
+under `/Users/sakumatomoya/workspace/codex-task-loop-benchmark` may consume an
+exact accepted candidate and compare it with an installed baseline. The owner
+may wait for that evidence before merging, but benchmark completion or an
+efficiency threshold does not make the source Feature accepted or rejected.
 
-- it accepts one file whose non-empty records have the exact TSV form
-  `id<TAB>priority<TAB>status`;
-- identifiers match `[a-z0-9-]+`; non-ASCII identifiers are invalid;
-- priorities are integers from 0 through 9 and status is `open` or `done`;
-- it emits only open records as `id<TAB>priority`, ordered by descending
-  priority and then ascending ASCII identifier;
-- it ignores empty lines and treats duplicate identifiers as independent
-  records;
-- an invalid record produces no standard output, a line-numbered diagnostic,
-  and exit status 2; and
-- an input read failure produces no standard output, a stable diagnostic, and
-  exit status 1.
-
-Equivalent native tests cover filtering, deterministic ordering, invalid input,
-and read failure. The implementation stays deliberately small and uses no
-third-party Rust crate or Go module. Kotlin keeps the prepared project's fixed
-Kotlin JVM plugin 2.3.20, Gradle 9.2.1, JVM 25, standard runtime, and
-`kotlin("test")` declarations. Gradle resolution may use the network, but the
-benchmark adds no plugin, application or test library, repository, dependency
-declaration, or version.
-
-The benchmark root is
-`/Users/sakumatomoya/workspace/codex-task-loop-benchmark`. It contains exactly
-three language repositories:
-
-- `task-filter-rust`;
-- `task-filter-go`; and
-- `koltin`, retaining the owner-selected project name.
-
-Each repository records one base commit and creates `benchmark/before` and
-`benchmark/after` from that exact commit before the first observed run. The
-before and after sides execute sequentially by switching branches in the same
-language repository. This is repository reuse, not execution-state reuse. The
-before result remains committed on its branch, and the controller preserves
-raw run evidence outside the language repositories at:
-
-```text
-evidence/{before,after}/{rust,go,kotlin}/
-```
-
-Mutable compiler, package, build, and temporary state is redirected outside the
-language repositories from the start and separated by side at:
-
-```text
-run-state/{before,after}/{rust,go,kotlin}/
-```
-
-Rust redirects Cargo home and target state. Go redirects build, module, GOPATH,
-and temporary state and disables network module paths. Kotlin gives each side a
-separate mutable Gradle home, project cache, build output, and temporary state.
-Before observation, the controller resolves only the fixed declared Kotlin
-graph into a fingerprinted input snapshot. Both sides start from equivalent
-copies of that snapshot; later network and download events are recorded
-observations rather than automatic failures. Environment preparation is
-excluded from observed Task-loop time; the global Gradle home, build outputs,
-compiler daemon state, and mutable Gradle state are never shared or mutated by
-the measured runs.
-
-Before switching to an after branch, the controller records the before result
-head, raw JSONL, metrics, current-head evidence, tracked/untracked/ignored status
-manifests, and the per-run `search-cache.md` when the installed bundle creates
-one. Absence is recorded rather than synthesized. The controller then proves
-that the frozen after branch still equals the recorded base and that the
-language workspace has no residual before search cache, build output,
-conversation state, verdict, or other run-only artifact. Unexpected residual
-state blocks the pair instead of being silently reused.
-
-All three before workloads run against the fingerprinted installed baseline
-before candidate installation. All three after workloads run only after the
-candidate is installed and fingerprinted. Every side uses a new
-`codex exec --ephemeral --json` process and its own empty run-state directory.
-The exact prompt, canonical product contract, starting Git tree, Review context,
-Review policy, root capacity, top-level model settings, and expected quality bar
-remain fixed within each language pair. Leaf conversation inheritance,
-role-specific handoff content, search-cache behavior, waiting, batching, and
-role settings follow the installed Task-loop bundle and are observed rather
-than imposed by the benchmark controller.
-
-The complete Task loop includes implementation, fresh verification,
-policy-selected review, findings integration and triage when findings occur,
-bounded authorized correction when needed, fresh post-correction gates, and the
-final Task outcome. No finding or correction is injected. Naturally occurring
-findings, correction cycles, convergence, and final quality are measurements.
-The exact repository setup, fixtures, prompt bytes, status-manifest procedure,
-language dependency and state boundaries, and run commands live in the
-Implementation Plan rather than reusable Skill prose.
-
-Measurement reports two layers:
-
-- model-facing tool calls and turns; and
-- the underlying operations, commands, and checks inside direct or
-  programmatic calls.
-
-Waits are reported separately by call count, requested bound, observed elapsed
-time, and early-return event. The report also includes phase and end-to-end
-elapsed time, repeated searches, required-evidence completeness, verdict and
-finding agreement, mutation and target-identity detection, and correction-loop
-convergence. No persistent telemetry or event-log service is introduced.
-
-Absolute values and before-to-after percentage changes are reported within each
-language pair. Cross-language absolute durations remain descriptive because
-compiler, build-tool, and ecosystem costs differ. The initial evaluation runs
-each side once to bound time and token use; it preserves raw values so a later
-repeat can investigate a noisy or surprising result without changing this
-feature's benchmark contract.
-
-Lower calls, turns, operations, waits, searches, tokens, or elapsed time count
-as an improvement only when both sides satisfy the same quality bar: complete
-contract coverage, fresh verification, every policy-selected review, complete
-handoff evidence, and no unresolved Acceptance blocker.
+A concrete source correctness defect discovered during the benchmark returns to
+the ordinary source workflow. Only measurements that depend on a changed
+candidate or behavior identity become stale. Benchmark procedure, fixtures,
+toolchains, evidence, and lifecycle remain outside this repository and are not
+installed runtime guidance.
 
 ## Alternatives considered
 
@@ -905,58 +776,6 @@ Rejected because Git refs, versioned documentation, mutable external pages, and
 negative search results have different currentness semantics. Source-aware
 identity and invalidation avoid both unnecessary local searches and unsafe
 reuse of mutable information.
-
-### Count only top-level calls or add persistent telemetry
-
-Top-level-only counting was rejected because programmatic batching could hide
-unchanged or increased underlying work. A persistent event log or telemetry
-service was rejected as unnecessary new operational state. Dual counters and
-bounded run evidence expose both layers without adding a service.
-
-### Script one clean path and one forced correction path
-
-Rejected after operational use because a mandated finding or correction tests a
-benchmark script more than the real Review loop. The selected evaluation runs
-the full loop for every fixed workload and records naturally occurring findings
-and corrections while holding the final quality bar constant.
-
-### Use six before/after language checkouts
-
-Rejected because two frozen branches from the same recorded base preserve the
-source starting point without doubling the number of project directories.
-Separate controller-owned evidence and run-state trees plus an exact residual-
-state check provide the required execution isolation.
-
-### Keep Kotlin strictly offline
-
-Rejected after E1 setup proved that the local Kotlin 2.3.20 cache lacks part of
-the compiler/build-tool artifact graph. The repository owner selected fixed
-dependency declarations, not offline execution, as the material boundary.
-Network resolution therefore remains limited to the already-declared graph and
-does not authorize another plugin, library, repository, or version.
-
-### Keep Python or use Java for the JVM workload
-
-Python was rejected because it is not representative of the owner's primary or
-workplace workloads. Java was superseded by the locally prepared Kotlin/JVM
-project, which better represents the workplace environment while retaining a
-fixed Kotlin 2.3.20, Gradle 9.2.1, and JVM 25 toolchain. Rust, Go, and Kotlin
-provide three relevant paired workloads while keeping the benchmark bounded.
-
-### Use a larger application or third-party dependencies
-
-Rejected because the benchmark compares workflow overhead, convergence, and
-quality on the same fixed task within each language. Additional product scope
-or dependency declarations would spend more time and tokens without improving
-that comparison. Kotlin's fixed build-tool graph may resolve over the network,
-but that does not authorize another application or test dependency.
-
-### Compare unrelated live Tasks after rollout
-
-Rejected as the sole evaluation because Task difficulty, findings, and runtime
-conditions would confound the result. Fixed language-local pairs establish a
-controlled before/after comparison; later live observations may inform future
-work but are not this revision's acceptance evidence.
 
 ### Publish the revision as a separate addendum
 
