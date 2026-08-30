@@ -13,7 +13,7 @@
 ## Engineering workflow
 
 - The engineer owns architecture, scope, and design decisions. Implement only an approved plan or an explicitly requested change.
-- Use test-driven development for production-code behavior changes: establish a failing test, make the smallest implementation pass, then refactor.
+- Select verification from the material property. Use TDD for production-code behavior when a focused executable test or coherent matrix can demonstrate the missing behavior, preserving causal RED, production edit, and GREEN order. Use property, model, differential, fault, integration, hardware, or benchmark evidence when it is the reliable oracle; exploratory code is not production evidence until its intended behavior and validation are explicit.
 - Prefer one writer for a shared worktree. Reviewers inspect and report without editing unless explicitly assigned a fix.
 - Keep unit tests focused on one behavioral viewpoint. Structure them as Arrange, Act, Assert; prefer DAMP clarity over DRY test abstraction.
 - Use integration tests for public-crate, multi-component, or real process journeys, not merely because a unit touches the filesystem.

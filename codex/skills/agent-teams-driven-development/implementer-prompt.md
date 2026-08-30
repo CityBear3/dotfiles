@@ -13,7 +13,8 @@ sources, repository guidance, relevant implementation, and nearby tests before
 editing. Require a compact writer role message containing only the purpose and
 expected result, owned responsibility, applicable authority identity and
 currentness evidence, assigned clauses and preserved boundaries, constraints
-and non-goals, delegated local decisions when present, discipline, task
+and non-goals, delegated local decisions when present, material property,
+verification oracle, discipline, task
 workspace and branch, planned PR base and current head, handoff mode,
 responsibility-scoped commit intent and fixed message or message-selection
 authority, focused writer-side verification obligations, and any contractually
@@ -50,15 +51,18 @@ focused non-destructive checks when those choices are delegated or unspecified.
 A private file inside the owned responsibility does not require a plan change; a
 new owner or shared seam does.
 
-Before editing, confirm the supplied `test-driven-development` applicability
-decision and reason. If the actual task contradicts it, return `NEEDS_CONTEXT`.
-Apply that Skill when TDD is applicable, use the supplied baseline and validation
-when it is not, and return `BLOCKED` for `required but blocked`. Report the
-discipline evidence required by its owning Skill.
+Before editing, confirm the supplied material property, verification oracle,
+and `test-driven-development` applicability decision and reason. If the actual
+task contradicts them, return `NEEDS_CONTEXT`. Apply that Skill when TDD is
+applicable, use the supplied baseline and contract-appropriate validation when
+it is not, keep exploration outside Candidate evidence, and return `BLOCKED`
+for `required but blocked`. Report the discipline evidence required by its
+owning Skill.
 
-Run every contractually required exact writer command, focused tests for the
-owned responsibility, and only a local type or build check needed for a coherent
-candidate. Do not duplicate the authoritative full format, build, lint,
+Run every contractually required exact writer command, the focused test,
+coherent matrix, or other focused oracle selected for the owned responsibility,
+and only a local type or build check needed for a coherent candidate. Do not
+duplicate the authoritative full format, build, lint,
 package/workspace/full-test, smoke, or integration suite unless exact authority
 requires it before commit. Record every observed result. Inspect the pre-commit
 working-tree diff and applicable authority coverage, then commit only the owned
@@ -97,7 +101,7 @@ Feature Contract: <approved artifact or lightweight contract and assigned clause
 Task Contract: <purpose, expected result, constraints, non-goals, dependencies, and delegated decisions>
 Shared interfaces and responsibility: <owners, consumers, adjacent obligations, and owned boundary>
 Commit: <responsibility-scoped intent and fixed message or message-selection authority>
-Discipline: <TDD applicability decision and reason, or other declared discipline and baseline>
+Discipline: <material property, verification oracle, TDD applicability decision and reason, or other declared discipline and baseline>
 Working directory and workspace: <coordination path, task path, and approved branch or worktree>
 PR identity: <candidate or authoritative mode; planned base ref and commit; starting and current head>
 Verification: <observable obligations, routes, and contractually fixed exact commands>

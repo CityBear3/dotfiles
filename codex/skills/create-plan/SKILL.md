@@ -163,8 +163,9 @@ For each Task Contract include:
 - workspace ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
-- discipline: the `test-driven-development` applicability decision and reason,
-  or the explicit non-TDD baseline and validation discipline;
+- discipline: the material property, reliable verification oracle,
+  `test-driven-development` applicability decision and reason, or the explicit
+  non-TDD baseline and validation discipline;
 - a responsibility-scoped commit intent and whether the plan or writer selects
   its message;
 - contractually significant files, signatures, ordering, commands, exact commit
@@ -185,10 +186,15 @@ a new owner, public seam, shared interface, invariant, or contract meaning is.
 
 ## Test planning
 
-- Define observable verification by behavioral viewpoint.
+- Identify each Task's material property and reliable verification oracle.
 - Record the `test-driven-development` applicability decision and reason. When
-  applicable, name the behavior that must be absent before the production edit;
-  otherwise name the baseline and proportionate validation.
+  applicable, name the causal behavioral slice that must be absent before the
+  production edit and whether one focused test or a coherent, separately
+  attributable matrix proves it. Keep result-dependent cases sequential.
+- When TDD is not applicable, name the baseline and proportionate property,
+  model, differential, fault, integration, hardware, benchmark, or other
+  validation. Mark exploratory implementation as non-Candidate work with an
+  explicit productionization boundary.
 - Name applicable repository or project verification routes. Require exact
   commands only when their identity or flags are needed for safety,
   reproducibility, coverage, environment selection, or migration correctness.

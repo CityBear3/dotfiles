@@ -93,7 +93,8 @@ as its fallback.
 Construct one compact writer role message containing only the purpose and
 expected result, owned responsibility, applicable combined-contract identity
 and currentness, assigned clauses and preserved boundaries, constraints and
-non-goals, delegated local decisions, discipline, workspace and branch, exact
+non-goals, delegated local decisions, material property, verification oracle,
+discipline, workspace and branch, exact
 base and starting head, responsibility-scoped commit intent and message
 authority, focused writer-side checks, and every contractually fixed file,
 signature, ordering rule, or command. Keep exact authority sources directly
@@ -103,10 +104,11 @@ scheduling, capacity, and queue state from the writer message.
 Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run in one bounded programmatic batch only when each
 result remains attributable. Stop before a result-dependent judgment. Pass the
-supplied `test-driven-development` applicability decision and reason unchanged.
-Require the writer to apply that Skill when TDD is applicable, use the supplied
-baseline and validation when it is not, and return `BLOCKED` for `required but
-blocked`. Preserve the writer's returned discipline evidence for later gates.
+supplied material property, verification oracle, and `test-driven-development`
+applicability decision and reason unchanged. Require the writer to apply that
+Skill when TDD is applicable, use the supplied baseline and validation when it
+is not, and return `BLOCKED` for `required but blocked`. Preserve the writer's
+returned discipline evidence for later gates.
 
 The writer reports `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`,
 changed files and behavior, discipline decision and evidence, all commands and observed

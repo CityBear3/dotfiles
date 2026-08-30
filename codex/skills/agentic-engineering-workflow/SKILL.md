@@ -92,11 +92,12 @@ Treat the complete lightweight alignment source as implementation approval when
 every eligibility criterion holds. Confirm the workspace with
 `create-workspace`. Derive one concise in-memory Feature Contract from the
 alignment source and repository evidence; because the route is one coherent
-task, use the same contract as its Task Contract. Apply the
-`test-driven-development` applicability decision before selecting discipline.
-Record TDD as `applicable`, `not applicable`, or `required but blocked`, with
-its reason; select a contract-appropriate baseline and validation discipline
-when it is not applicable.
+task, use the same contract as its Task Contract. Identify the material property
+and reliable verification oracle, then apply the `test-driven-development`
+applicability decision before selecting discipline. Record TDD as `applicable`,
+`not applicable`, or `required but blocked`, with its reason; select a
+contract-appropriate baseline and validation discipline when it is not
+applicable.
 
 The lightweight Feature/Task Contract must make the context and goal, scope and
 non-goals, design sources and approved decisions with precedence, observable and

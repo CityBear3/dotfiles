@@ -92,11 +92,13 @@ or complete fallback contract. Create every newly spawned implementer,
 verifier, reviewer, adversarial-integrator, or review-integrator with explicit
 `fork_turns="none"` on its `spawn_agent` call. If the runtime cannot establish no-history creation,
 return `BLOCKED` instead of inheriting parent turns. Pass the selected role and
-complete role-specific message unchanged, and tell every leaf not to spawn
-descendants. Require each recipient to directly re-resolve current Git and
-authority from the supplied exact sources; parent conversation, identity, and
-liveness are never proof. An existing idle identity uses `followup_task` with a
-fresh complete role message and fresh Git and authority validation; it is not a
+role-complete message unchanged, and tell every leaf not to spawn descendants.
+Require each recipient to re-resolve only its exact target identity and the
+role-material authority inputs from supplied exact sources; do not copy or
+require workflow-owner topology, scheduling, queue, completed-gate, or unrelated
+authority state. Parent conversation, identity, and liveness are never proof.
+An existing idle identity uses `followup_task` with a fresh role-complete
+message and fresh validation inside the same correctness boundary; it is not a
 new spawn. Tell an
 implementer the exact authority identity and currentness evidence plus one of:
 assigned Feature clauses and Task Contract, exact eligible legacy authority and

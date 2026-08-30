@@ -4,12 +4,19 @@
 - Drafted by: Codex from owner-settled design decisions
 - Date: 2026-08-28
 - Revised: 2026-08-30
-- Status: Source/benchmark separation approved by the repository owner on
-  2026-08-30
-- Approved separation draft SHA-256:
+- Status: Operational benchmark follow-up revision approved by the repository
+  owner on 2026-08-30
+- Approved operational revision draft SHA-256:
+  `791530fa0bd64c49c59fe7d0b376be8e653d9102e6243bb46620d3b52f642875`
+- Retired revision settled source:
+  `docs/plans/2026-08-28-codex-task-loop-structural-optimization/decision-record.md`
+- Prior approved source/benchmark separation SHA-256:
   `71f46d3e6531a16bfe2e9611cd2ab351205c0d907ca73addeae8907e4ade879d`
 - Previous PR candidate SHA-256:
   `e06a28b4b036c4df926567ef9892874b21f7221c5489286f01d3b08741fd6eca`
+- Direct implementation reconciliation: verifier references reflect the
+  separately approved `gpt-5.6-sol/low` state already committed at
+  `caafd15bff5bc648d8bb27055f9e9cd818191542`.
 - Prior approved source document SHA-256:
   `6fc0766f02c3cc40735d6b77ae12bed0df48c6f1795a3540f97a0928eb0c6cbb`
 - Repository baseline: `d32ec49957eb419dd12095b69c196eb0128619bb`
@@ -32,12 +39,13 @@ may hold spare leaf capacity during phases that can use only one leaf. A small
 correction causes every reviewer to rediscover the complete Task range from the
 beginning even when exact prior review evidence is available.
 
-The verifier profile also currently uses `gpt-5.6-sol` with `high` reasoning.
-The repository owner has observed that `gpt-5.6-luna` with `max` effort can stop
-responding in long verification workflows and wants verification to be a
-shorter mechanical phase. The design therefore keeps Sol for reliability,
-reduces its initial verifier effort to `medium`, and narrows the role so later
-evaluation may safely compare `low`.
+The verifier profile originally used `gpt-5.6-sol` with `high` reasoning. The
+repository owner observed that `gpt-5.6-luna` with `max` effort could stop
+responding in long verification workflows and wanted verification to be a
+shorter mechanical phase. The initial design therefore kept Sol for
+reliability and reduced verifier effort to `medium`. A later owner-approved
+direct streamlining changed the already bounded mechanical role to `low`; this
+operational follow-up preserves that current setting.
 
 Operational use of the first optimization exposed another class of repeated
 work. New subagents still inherit parent conversation by default unless dispatch
@@ -72,6 +80,23 @@ lease rule only where it permits spare Task leaves outside the reviewer wave,
 and it refines the correction-review behavior without changing which reviewers
 the approved Review policy selects.
 
+The first controlled Rust operational comparison confirmed that the optimized
+workflow preserved source quality but did not improve end-to-end efficiency for
+one minimal planned Task. Wall time increased from 25m13.649s to 37m08.136s
+while total model tokens increased only 1.76%. The implementer added 303.453s
+and the general review integrator added 265.212s, together explaining about 80%
+of the wall-time regression. Wait calls and timeouts decreased, so the bounded
+wait design is not reopened. Spawn handoffs grew about 1.7--2.3 times, and the
+test reviewer sent hypothetical mutation gaps into expensive late integration.
+This single comparison is causal operational evidence for the observed run, not
+a statistical performance claim across workloads.
+
+The follow-up revision therefore broadens test-first discipline into a
+risk-directed verification strategy without weakening RED causality when TDD is
+selected, moves the existing Acceptance threshold to source-review admission,
+and makes role-complete handoff and revalidation ownership explicit while
+retaining context-isolated dispatch.
+
 ### Goals
 
 - Keep one Task orchestrator responsible for one complete planned Task loop.
@@ -85,22 +110,27 @@ the approved Review policy selects.
   does not perform semantic code review.
 - Preserve only the Git identity and mutation checks the verifier must observe
   directly while keeping full Task Git ownership with the Task orchestrator.
-- Give writers, verifiers, reviewers, and integrators compact role-specific
-  handoffs and reports.
+- Give writers, verifiers, reviewers, and integrators role-complete rather than
+  workflow-complete handoffs and reports.
 - Expand a Task's leaf lease only for the independent reviewer wave and revoke
   the expansion before integration, triage, or correction.
 - Review corrections against their bounded affected surface by default while
   retaining the same reviewer set and explicit full-traversal escalation.
-- Keep verification on `gpt-5.6-sol`, initially at `medium` reasoning effort.
+- Keep verification on `gpt-5.6-sol` and preserve its current `low` reasoning
+  effort.
 - Preserve fresh evidence, Review breadth, Acceptance, and correction authority.
 - Start every new Task orchestrator and leaf without inherited parent
   conversation and give it one complete role-specific handoff.
 - Replace routine short polling with normally five-to-ten-minute bounded waits
   that return early on mailbox or completion events.
 - Batch independent implementer discovery and mechanical post-edit checks while
-  preserving every judgment-dependent and TDD ordering boundary.
-- Decide whether TDD is applicable before editing and preserve an explicit
-  baseline discipline without manufactured RED evidence when it is not.
+  preserving judgment-dependent boundaries and causal test-first ordering.
+- Select the verification discipline from the material property under
+  development, including coherent RED/GREEN matrices and non-example oracles
+  where appropriate, without manufacturing TDD evidence.
+- Apply the common Acceptance threshold before a source reviewer emits a
+  finding and avoid expensive integration probes used only to disprove an
+  unsupported hypothesis.
 - Prevent repeated planned-lifecycle searches through an ignored,
   feature-local `search-cache.md` with source-aware invalidation.
 - Keep historical TDD discipline evidence distinct from the evidence that
@@ -111,6 +141,8 @@ the approved Review policy selects.
 - Replace the Task orchestrator with root-driven phase checkpoints.
 - Change Task decomposition, the Task dependency DAG, PR topology, Review
   modes, reviewer selection, or the common Acceptance threshold.
+- Remove general findings integration or triage for a concrete admitted
+  finding.
 - Skip a policy-selected reviewer after correction or reuse a prior verdict for
   a new head.
 - Remove fresh verification after implementation or correction.
@@ -127,8 +159,11 @@ the approved Review policy selects.
 - Rename `execute-task` or redesign its planned and eligible-legacy callers.
 - Treat conversation history, `search-cache.md`, agent identity, or liveness as
   correctness or Acceptance authority.
-- Weaken the requirement to use TDD for applicable implementation work or claim
-  TDD when an intended RED was not observed.
+- Weaken RED-before-production causality after TDD is selected, accept an
+  exploratory implementation as production evidence, or claim TDD when an
+  intended RED was not observed.
+- Re-enable parent conversation inheritance or impose a fixed handoff byte or
+  token limit that could omit role-material authority.
 - Make an external benchmark, installation, publication, or branch disposition
   implicit in source Feature Acceptance or Design Doc approval.
 
@@ -260,7 +295,8 @@ not source discovery or correction authorization.
 Every newly spawned Task orchestrator and leaf uses explicit
 `fork_turns="none"`. Parent conversation is neither inherited execution context
 nor correctness evidence. Re-entry through an existing idle identity still
-receives a fresh complete handoff and revalidates every current input.
+receives a fresh complete handoff and revalidates the current inputs inside that
+role's correctness boundary.
 
 Complete means complete for the receiving role, not a copy of the Task owner's
 entire state. Each handoff contains:
@@ -280,6 +316,24 @@ evidence needed to own the whole loop. Each leaf receives only the subset that
 can change its bounded decision, while exact sources remain directly readable.
 A leaf or replacement resolves Git and authority from those sources; it never
 uses identity, prior conversation, or a plausible summary as proof.
+
+Authority prose is referenced by exact path or in-memory identity, approval and
+currentness evidence, and stable applicable clause or interface identity rather
+than copied into competing wrappers. The Feature lead revalidates Feature
+topology and approval currentness; the Task orchestrator revalidates Task
+identity, gates, capacity, and phase state; the implementer revalidates writer
+isolation and its edit target; the verifier revalidates matrix target and
+mutation invariants; each reviewer revalidates the unchanged reviewed target;
+and an integrator revalidates the unchanged finding target. A role expands into
+additional directly available authority only when current evidence makes that
+authority decision-relevant.
+
+Role completeness is semantic, not a fixed byte or token budget. A compiler,
+DBMS, operating-system, SIMD, or asynchronous-system Task may require detailed
+invariants, failure semantics, concurrency guarantees, reference-oracle
+identity, or performance obligations. Those inputs remain when they can change
+the role's decision; unrelated topology, queue, completed-gate, and procedure
+detail remains with its owner.
 
 ### Current-head Verification Matrix
 
@@ -370,29 +424,60 @@ edits, semantic diagnosis, and any final validation that depends on earlier
 output remain separate stages. A tool batch is not permission to collapse
 several judgment points into one opaque operation.
 
-Before editing, classify TDD as `applicable`, `not applicable`, or `required but
-blocked` and record the reason. It is applicable when observable production-code
-behavior changes and a focused executable test can demonstrate the missing
-behavior before the edit. Documentation, instructions, metadata, formatting,
-generated output, and behavior-preserving mechanical changes use an existing
-green baseline and proportionate validation. A required behavior-change RED
-that cannot be established safely is blocked rather than reclassified.
+### Risk-directed verification discipline
 
-For applicable TDD work, RED execution, production editing, GREEN execution,
-and refactor remain ordered stages. No GREEN check is launched speculatively
-before the edit that it is meant to validate. After the edit and focused GREEN
-have completed, independent mechanical post-edit checks may be grouped when
-their individual results remain attributable. The verifier's fail-fast order
-and stronger current-head boundary remain unchanged.
+Before editing, identify the material property and available oracle, then
+classify TDD as `applicable`, `not applicable`, or `required but blocked` and
+record the reason. TDD is applicable when observable production-code behavior
+changes and a focused executable test or coherent test matrix can demonstrate
+the missing behavior before the edit. Documentation, instructions, metadata,
+formatting, generated output, and behavior-preserving mechanical changes use an
+existing green baseline and proportionate validation. A required behavior or
+verification route that cannot be established safely is blocked rather than
+silently reclassified.
+
+Applicable TDD uses the smallest causal behavioral slice:
+
+- one independently decided viewpoint uses focused `RED -> production edit ->
+  GREEN`;
+- several cases may use `RED matrix -> one causal production edit -> GREEN
+  matrix` when they exercise one missing capability, remain separately
+  attributable, and no case result changes the design, test selection, or input
+  of another; and
+- cases whose observations change a subsequent design, edit, or test remain
+  sequential.
+
+The order is strict at the selected slice boundary. No GREEN check is launched
+before the production edit it validates, and a broad matrix is not permission
+to combine unrelated behavior or hide an incorrect RED reason. After focused
+GREEN, independent mechanical post-edit checks may be grouped when their
+individual results remain attributable. The verifier's fail-fast order and
+stronger current-head boundary remain unchanged.
+
+Example-based TDD is not the only valid oracle. Property, model, differential,
+fault-injection, stress, integration, emulator or hardware, and benchmark
+evidence are selected when state space, semantic equivalence, concurrency,
+failure, environment, or performance is material. Correctness and performance
+obligations remain distinct: a noisy performance threshold is not manufactured
+as a unit-test RED, and a benchmark does not replace correctness evidence.
+
+A time-bounded exploratory implementation may establish feasibility, expose a
+hardware or runtime constraint, or help derive an oracle. It records its
+hypothesis and result but is not TDD, a production Candidate, or Acceptance
+evidence. Productionization requires explicit intended behavior and the
+contract-appropriate current verification route; exploratory code is discarded
+or enters that ordinary implementation boundary under current authority.
 
 ### TDD history and current Acceptance
 
-When applicable, TDD discipline evidence records an execution history: the test
-written for one behavioral viewpoint, the observed pre-production RED and its
-reason, the subsequent edit, focused GREEN, and any refactor while green. The
-implementer must report this sequence honestly and never claim TDD when the
-intended RED was not observed. A non-applicable change reports its reason,
-baseline, and validation instead.
+When applicable, TDD discipline evidence records an execution history: the
+selected causal behavioral slice, its test or coherent matrix, the observed
+pre-production RED results and reasons, the subsequent edit, focused GREEN
+results, and any refactor while green. The implementer must report this sequence
+honestly and never claim TDD when the intended RED was not observed. A
+non-applicable change reports its reason, baseline, and validation instead; an
+exploration reports its hypothesis and result without claiming Candidate or
+Acceptance evidence.
 
 Acceptance evidence answers a different question: whether the current exact
 head and range satisfy the approved contract with adequate current tests,
@@ -408,6 +493,37 @@ that missing historical evidence material, or when it exposes a user-owned
 scope, quality, or verification decision. A reachable current defect or missing
 current evidence follows the ordinary finding, verification, and correction
 path rather than being classified only as history.
+
+### Early review finding admission
+
+The common Acceptance threshold applies inside every source-review perspective
+before it emits a finding. A source finding must connect the inspected artifact
+to an approved requirement or realistic reachable consumer behavior, concrete
+evidence, a material consequence, and a proportionate correction. Preference,
+generic best practice, optional hardening, an imagined future consumer, and an
+unsupported second-order scenario return the perspective's clean result rather
+than becoming work for a later integrator.
+
+For test coverage, constructing an alternative implementation that passes the
+current tests is an investigation technique, not sufficient finding evidence by
+itself. The reviewer must also show that the escaping implementation violates
+an approved behavior or material quality obligation, or produces a realistic
+reachable failure. Missing property, model, differential, concurrency, failure,
+hardware, or performance evidence remains a valid finding when the applicable
+contract or observed risk requires it.
+
+When any source report remains non-clean, the existing general findings
+integration and triage path remains mandatory. The integrator evaluates
+authority, artifact applicability, reachability, and materiality before runtime
+reproduction or remedy analysis. It drops an item missing those prerequisites
+without running probes solely to disprove speculation. An evidence-grounded
+item receives the existing separate problem-validity and remedy-validity
+assessment and proceeds to `Fix`, `Push back`, or `Escalate` classification by
+`receiving-code-review`.
+
+This moves rejection earlier without lowering Acceptance, letting raw reviewer
+output authorize correction, or removing independent integration for concrete
+findings.
 
 ### Feature-local search cache
 
@@ -453,22 +569,28 @@ separately chooses archival.
 ### Role-specific handoffs and reports
 
 The Task-loop owner retains the complete durable evidence, but sends each leaf
-only the subset that changes that role's decisions.
+only the subset that changes that role's decisions. Exact authority is passed
+as directly readable source identity plus applicable clauses rather than copied
+in full, and the same fact is not repeated in a second wrapper schema.
 
 The implementer message contains owned responsibility, applicable authority
 clauses, preserved boundaries, discipline, candidate target, commit intent, and
 writer-side checks. Review scheduling, completed verification output, and
-unrelated contract prose are omitted.
+unrelated contract prose, global capacity, Feature topology, and other Task
+state are omitted.
 
 The verifier message contains target identity, the Verification Matrix,
 command-environment facts, required source-state boundary, and verdict schema.
 The full Review policy is not copied unless one of its exact constraints changes
-the verification route.
+the verification route. It does not receive Task scheduling or approval history
+that the Task-loop owner has already resolved.
 
 Each reviewer message contains the verified target, current diff, changed
 files, its applicable authority clauses and selected perspective, Review context
 and policy, the completed Verification Matrix, and relevant prior triage.
-Unrelated authority remains directly readable but is not eagerly copied.
+Unrelated authority remains directly readable but is not eagerly copied. Prior
+reports are included only for correction re-entry or another explicit decision
+that depends on them.
 
 An adversarial or general findings integrator receives the unchanged target,
 complete source reports relevant to that integration, applicable authority,
@@ -480,6 +602,8 @@ Writer reports return candidate and commit evidence, verifier reports return the
 completed matrix and verdict, reviewer reports return perspective-specific
 findings or clean status, and integrators return reconciled evidence. The
 scheduler preserves these reports without translating them into another wrapper.
+Handoff size is observed during operational evaluation but has no fixed limit;
+missing role-material evidence is never traded for a smaller prompt.
 
 ### Phase-scoped Task leaf leases
 
@@ -583,6 +707,11 @@ The existing `PASS`, `FAIL`, `BLOCKED`, `CLEAN`, `FINDINGS`, `Candidate`,
   therefore escalates that reviewer to full current-target traversal.
 - A correction that changes contract meaning returns to the existing authority
   or plan gate rather than being treated as a larger delta.
+- A required verification oracle or safe test seam that cannot be established
+  is `BLOCKED`; exploratory implementation does not bypass that evidence gap.
+- A source-review candidate that lacks approved or reachable behavior and a
+  material consequence is a clean source result, not a deferred integration
+  problem.
 
 No optimization authorizes cleaning, resetting, amending, rebasing, discarding,
 publishing, or installing live assets merely because an intermediate phase
@@ -599,22 +728,28 @@ receiving the complete Task orchestration state. Targeted correction review
 reuses exact unaffected coverage without letting an earlier verdict authorize
 the new head. Context-isolated dispatch prevents
 the parent transcript from being copied into every new role. Decision-aware
-batching removes unnecessary model turns, and `search-cache.md` prevents the
-same discovery from being repeated across the planned lifecycle.
+batching and coherent causal test matrices remove unnecessary model turns,
+source-review admission prevents speculative late integration, and
+`search-cache.md` prevents the same discovery from being repeated across the
+planned lifecycle.
 
 These are context reductions, not permission to omit exact authority. Every
 role keeps direct access to the source artifacts and expands its inspection when
 current evidence requires it. A cache hit or compact handoff remains operational
 context, never proof that the current Git target or authority still matches.
+The operational target is less irrelevant copied context and repeated semantic
+work, not minimum prompt length or minimum test count.
 
 ### Reliability and model configuration
 
-The verifier profile remains on `gpt-5.6-sol` and changes from `high` to
-`medium` reasoning effort. The role's narrower decision surface and explicit
-matrix reduce the need for exploratory reasoning. `low` is not part of the
-initial rollout and may replace `medium` only after representative verification
-tasks show unchanged target correctness, matrix completeness, failure
-classification, and mutation detection.
+The verifier profile remains on `gpt-5.6-sol`. The initial rollout changed
+reasoning effort from `high` to `medium`; the later owner-approved direct
+streamlining changed the already bounded mechanical role to `low`. This
+follow-up leaves that setting unchanged. The role's narrow decision surface and
+explicit matrix reduce the need for exploratory reasoning, while target
+correctness, matrix completeness, failure classification, and mutation
+detection remain Acceptance obligations rather than assumptions inferred from
+the effort level.
 
 [Official OpenAI subagent guidance](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 describes `medium` as a balanced default, `low` as appropriate for
@@ -726,8 +861,8 @@ the current correction confirms that its surface remains bounded.
 ### Use Luna/Max for verification
 
 Rejected because the owner observed non-response in long verification turns and
-the redesigned role is bounded and mechanical. Sol/medium is the conservative
-initial reliability setting; Sol/low remains an evaluation option.
+the redesigned role is bounded and mechanical. Sol was retained for reliability;
+the current mechanical verifier uses the separately approved `low` effort.
 
 ### Add a persistent matrix or runtime state schema
 
@@ -753,6 +888,28 @@ early. Five-to-ten-minute bounds retain liveness without busy waiting.
 Rejected because edits, approvals, diagnosis, and TDD transitions depend on
 earlier observations. Only independent discovery or mechanical post-edit checks
 are batched; judgment-dependent stages remain ordered.
+
+### Require one RED/edit/GREEN cycle per example
+
+Rejected because several independently observable cases may express one missing
+capability and require the same causal edit. A coherent RED/GREEN matrix keeps
+the test-first boundary while avoiding repeated edits. Complex state,
+equivalence, concurrency, failure, hardware, and performance properties may
+also require non-example oracles that small example cycles cannot prove.
+
+### Let the general integrator reject every speculative review item
+
+Rejected because it preserves a costly late validation path for candidates that
+never met the common Acceptance threshold. Source reviewers apply the same
+threshold before output; integration remains mandatory for concrete admitted
+findings.
+
+### Set a fixed maximum handoff length
+
+Rejected because relevance is role- and risk-dependent. A fixed size could omit
+material invariants from a difficult system while still allowing duplicated
+irrelevant prose. Role ownership, exact source references, and decision-driven
+expansion provide the useful boundary.
 
 ### Make every historical RED discrepancy an Acceptance blocker
 

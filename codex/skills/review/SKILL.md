@@ -322,6 +322,11 @@ history-only discrepancy only when it demonstrates a reachable current defect,
 material current evidence gap, material contract deviation, or controlling
 authority that makes it material.
 
+Every source reviewer applies this threshold before returning its perspective.
+An alternative implementation or mutation that passes current tests is an
+investigation technique, not sufficient finding evidence without an approved
+requirement or realistic reachable behavior and material consequence.
+
 Every finding must include severity `Must Fix` or `Should Improve`, file and
 line, concrete observed or reachable behavior, violated requirement or quality
 consequence, evidence, impact, proportionate correction, and confidence.
@@ -385,6 +390,11 @@ Give `review-integrator`:
   remedy validity, and to record reproduction, exact authority, origin, scope
   owner, proportionality, design sufficiency, and confidence without inventing
   findings or issuing final workflow classifications.
+
+Require the integrator to check approved requirement or realistic reachability,
+artifact applicability, concrete evidence, and materiality before deeper
+reproduction or remedy analysis. It drops a candidate missing those
+prerequisites without runtime probes performed solely to disprove speculation.
 
 For ordinary implementation findings, wait for every selected reviewer to
 complete and run one general integration over the complete reports. When a

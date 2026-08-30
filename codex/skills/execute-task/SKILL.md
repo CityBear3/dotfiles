@@ -137,7 +137,8 @@ prompt: use the named profile when available, or
 as its fallback. Keep the complete Task-loop handoff and evidence at the owning
 coordinator. Construct one compact writer role message from the complete
 Task-loop handoff containing only the owned responsibility, applicable
-authority clauses and preserved boundaries, discipline, candidate target,
+authority clauses and preserved boundaries, material property, verification
+oracle, discipline, candidate target,
 commit intent, focused writer-side obligations, exact workspace/base/head,
 one-writer boundary, applicable planned cache path and current hit, and
 escalation conditions. Keep the exact authority sources directly available.
@@ -162,12 +163,13 @@ Independent initial authority reads, repository searches, relevant file reads,
 and Git inspection may run in one bounded programmatic batch only when their
 results remain separately attributable. End the batch and stop before a
 result-dependent judgment, approval, escalation, semantic diagnosis, edit, or
-dependent validation. Pass the declared `test-driven-development` applicability
-decision and reason unchanged. Require the writer to apply that Skill when TDD
-is applicable, use the supplied baseline and validation when it is not, and
-return `BLOCKED` for `required but blocked`. Preserve the returned discipline
-evidence for later gates. For other declared disciplines, preserve their
-baseline and validation. Preserve unrelated changes.
+dependent validation. Pass the declared material property, verification oracle,
+and `test-driven-development` applicability decision and reason unchanged.
+Require the writer to apply that Skill when TDD is applicable, use the supplied
+baseline and validation when it is not, and return `BLOCKED` for `required but
+blocked`. Preserve the returned discipline evidence for later gates. For other
+declared disciplines, preserve their baseline and validation. Preserve
+unrelated changes.
 
 Inside the applicable new-format or legacy authority, let the writer choose
 private files, helpers, local types and interfaces, algorithms, edit order,
