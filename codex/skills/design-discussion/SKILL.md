@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Establish or reassess Design Readiness and Design Doc applicability for planned work, investigating and resolving material choices only when needed. Use on planned-path entry or when downstream work re-enters an affected design branch.
+description: Build an evidence-backed shared working model before resolving material design choices and assessing Design Readiness or Design Doc applicability. Use on planned-path entry or when downstream work re-enters an affected design branch.
 ---
 
 # Design discussion
@@ -8,23 +8,52 @@ description: Establish or reassess Design Readiness and Design Doc applicability
 Keep architecture, scope, algorithms, public contracts, and material trade-offs
 under user control. Act as an investigator and sounding board.
 
-## Establish the problem
+## Build and align the working model
 
 Accept from `agentic-engineering-workflow` the planned route, confirmed
-workspace, living-record location, exact existing authority and its currentness,
-and unresolved evidence. Do not persist a material decision until the
-coordinator has confirmed the checkout, branch, and starting ref.
+workspace, repository identity and evidence, living-record location, exact
+existing authority and its currentness, and unresolved evidence. Do not persist
+a material decision until the coordinator has confirmed the checkout, branch,
+and starting ref.
 
 Read relevant code, tests, documentation, and history before asking questions.
-Summarize:
+Present the smallest complete provisional working model that gives the user
+enough context to challenge it. Cover, when applicable:
 
-- current behavior;
-- desired outcome;
-- constraints and non-goals;
-- decisions already made;
-- remaining material ambiguity.
+- current processing, behavior, and responsibility placement;
+- desired outcome and observable completion;
+- constraints, invariants, and non-goals;
+- decisions already made and their exact authority;
+- assumptions, contradictions, and remaining ambiguity; and
+- success, failure, recovery, concurrency or conflict, and verification paths.
 
-Ask only for choices that cannot be resolved from available evidence.
+Distinguish repository-observed facts, user-stated intent, and Agent inference.
+The working model is a falsifiable account of the problem, not approved
+authority or a design proposal.
+
+Resolve repository-discoverable facts before asking the user. Then test the
+model one material misunderstanding or hidden assumption at a time, choosing
+the question whose answer could most change scope, responsibilities, paths, or
+later decisions. Do not frame an understanding question as a design choice, and
+do not attach options, a recommendation, or an approval request. Incorporate
+the answer, identify any newly exposed contradiction or dependency, and ask the
+next material understanding question. Show only the affected model slice after
+ordinary answers; re-synthesize the complete model at a branch boundary or
+before entering design decisions.
+
+Treat the shared model as aligned only when no known material error or omission
+remains, current and desired responsibilities and paths are mutually understood,
+and every remaining unknown is classified as a design decision or an explicit
+discovery need. Give the user a chance to correct the complete model at that
+checkpoint. Confirmation of understanding is not holistic design approval.
+Do not enter design choices before this checkpoint.
+
+Report the current conceptual phase as `Investigating`, `Model Aligning`,
+`Model Aligned`, `Decision Exploration`, `Discovery Pending`, or `Design Ready`.
+These names coordinate handoffs; do not add a state engine or infer that a later
+phase holds because a record exists. Stop with the exact unresolved claim and
+evidence already tried when repeated questions do not reduce the same material
+uncertainty.
 
 An exact, current, explicitly approved Design Doc or no-Design-Doc decision
 record can satisfy the readiness dimensions it covers. Do not repeat those
@@ -34,10 +63,13 @@ the settled decisions whose meaning depends on it.
 
 ## Maintain the living decision record
 
-For planned discussion, create the ignored workspace artifact
+For planned discussion that needs a recoverable living record, create the
+ignored workspace artifact
 `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-confirmation and before recording the first material decision. Update it as
-choices settle with:
+confirmation and before presenting the provisional model. Keep its
+evidence-backed current state, user-stated intent, Agent inferences, and
+unresolved model questions in a provisional section separate from settled
+decisions. Update the decision section as choices settle with:
 
 - selected approaches and rationale;
 - rejected alternatives and reasons;
@@ -50,7 +82,16 @@ recommendation is not a decision, and file existence is not approval. Do not
 treat a question as deferred unless the user explicitly accepts both the
 deferral and its impact.
 
+After interruption or compaction, recheck repository identity, authority
+currentness, and this record. Resume at the earliest conceptual phase whose exit
+conditions remain satisfied; do not infer model alignment or approval from a
+summary or file presence.
+
 ## Explore
+
+Enter this phase only after the shared-model checkpoint. Resolve understanding
+gaps first; presenting an option is not a substitute for learning what the
+system currently does or what outcome the user means.
 
 Resolve only one material decision at a time:
 
@@ -62,19 +103,24 @@ Resolve only one material decision at a time:
 6. record the answer and identify newly reachable branches and dependencies
    between decisions.
 
+If an answer or new evidence invalidates the shared model, return to model
+alignment before presenting the next design decision.
+
 When a decision requires a prototype, visual artifact, benchmark, or another
 discovery phase, record the explicit handoff and the evidence required to
 re-enter that branch. The question remains unresolved until that evidence is
-available. Support user-authored prototypes with research, diagnostics, or
-review; do not take over implementation while the user is using code to explore
-the design.
+available. Report `Discovery Pending`, then re-enter `Model Aligning` with the
+named evidence before presenting another design choice. Support user-authored
+prototypes with research, diagnostics, or review; do not take over
+implementation while the user is using code to explore the design.
 
 If the design scope is too broad to explore reliably, make scope decomposition
 the next user-owned design decision.
 
 ## Assess Design Readiness
 
-Report planned design as ready only when every applicable condition holds:
+Report planned design as ready only after the shared model is aligned and every
+applicable condition holds:
 
 1. repository-discoverable facts have been investigated;
 2. purpose and observable completion conditions are settled;
@@ -101,6 +147,9 @@ decisions, without copying them into a duplicate living record.
 ## Scale the process
 
 - Route bugs through systematic debugging before planning a fix.
+- For a small change, the initial model and alignment may take one exchange. For
+  a broad system, start with a coarse complete map, examine one subsystem or
+  path at a time, and re-synthesize the whole before design decisions.
 - Use a Design Doc for cross-cutting architecture, durable public contracts, or decisions worth preserving.
 - Skip the Design Doc when the settled scope does not need a durable architecture
   artifact, but still construct a Feature Contract before planning.
@@ -139,9 +188,12 @@ Implementation Plan.
 
 ## Handoff
 
-Return the current decision record, Design Readiness result, unresolved branches
-and dependencies, relevant evidence, existing-authority currentness, and whether
-the settled decisions warrant a Design Doc to `agentic-engineering-workflow`.
+Return the current conceptual phase, current decision record, repository and
+existing-authority identity and currentness, working-model alignment state,
+unresolved understanding questions, Design Readiness result, unresolved design
+branches and dependencies, relevant evidence and any discovery re-entry
+condition, and whether the settled decisions warrant a Design Doc to
+`agentic-engineering-workflow`.
 When no Design Doc is warranted, also return the decision-record approval state
 and draft Feature Contract. Let the coordinator own transitions and Feature
 Contract approval.

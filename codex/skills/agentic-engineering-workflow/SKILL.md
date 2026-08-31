@@ -34,8 +34,9 @@ For every transition retain:
   state and currentness;
 - the applicable Design Doc or decision record and the Feature Contract's
   source, approval state, storage form, and currentness;
-- for planned work, the living decision record location, Design Readiness
-  result, unresolved branches, and any re-entry evidence;
+- for planned work, the living decision record location, shared working-model
+  alignment state, Design Readiness result, unresolved understanding questions,
+  unresolved design branches, and any discovery re-entry evidence;
 - the Review context and complete active Review policy;
 - for planned work, the Task dependency DAG, PR topology, task workspaces,
   accepted and candidate results, stale descendants, and integration-only
@@ -229,6 +230,11 @@ unless the owner chooses archival.
 
 ## Use approval gates on the planned path
 
+Track planned discussion as `Investigating`, `Model Aligning`, `Model Aligned`,
+`Decision Exploration`, `Discovery Pending`, or `Design Ready`. These are
+handoff semantics, not a separately implemented state engine. Never infer a
+later phase from conversation history or artifact existence.
+
 Resolve planned-path entry in this order:
 
 1. Investigate repository facts until the purpose and initial feature boundary
@@ -238,42 +244,55 @@ Resolve planned-path entry in this order:
 2. Use `create-workspace` to establish or confirm the feature checkout, branch,
    and starting ref before writing the first recoverable planned-path artifact.
    An already suitable current checkout is sufficient.
-3. Use `design-discussion` for unresolved material choices. Create the ignored
+3. When unresolved discussion needs a recoverable living record, create the
+   ignored
    `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-   confirmation and before persisting the first material decision. Let the user
-   settle one material question at a time while the discussion follows reachable
-   branches and dependencies. File existence is not approval.
-4. Require `design-discussion` to report Design Readiness before advancing. Do
+   confirmation and before presenting the provisional model. Keep provisional
+   working-model state separate from settled decisions. File existence is not
+   alignment or approval. Do not create a duplicate record when exact current
+   authority already covers the work. Use `design-discussion` first to present
+   the smallest complete provisional working model of current processing and
+   responsibilities, desired outcome, constraints and non-goals, settled
+   decisions, remaining assumptions, and applicable success, failure, recovery,
+   concurrency or conflict, and verification paths. Resolve one material
+   misunderstanding or hidden assumption at a time until the user has had a
+   chance to correct the re-synthesized model. This alignment checkpoint is not
+   design approval; do not present options or recommendations during it.
+4. Only after the shared model is aligned, let the user settle one reachable
+   material design decision at a time while `design-discussion` follows branches
+   and dependencies.
+5. Require `design-discussion` to report Design Readiness before advancing. Do
    not replace the gate with an assertion that the design is probably settled.
-5. When a Design Doc is warranted, reuse an exact, current, approved Design Doc
+6. When a Design Doc is warranted, reuse an exact, current, approved Design Doc
    for unchanged coverage without repeating its completed approval. Otherwise,
    pass the settled source and readiness result to `design-doc`. The temporary
    decision record needs no separate holistic approval. Require user approval of
    the exact new or revised Design Doc as the one holistic design approval, then
    require a successful authority-transfer check before deleting the living
    record.
-6. When no Design Doc is warranted, present the complete decision record for the
+7. When no Design Doc is warranted, present the complete decision record for the
    one holistic design approval before Feature Contract drafting. Retain that
    approved record as design authority throughout the active workspace
    lifecycle.
-7. Construct a complete Feature Contract. After an approved Design Doc and, for
+8. Construct a complete Feature Contract. After an approved Design Doc and, for
    a new or revised document, its transfer check, use `design-doc` to derive it
    from that source. Without a Design Doc, use `design-discussion` to derive it
    from the approved decision record and repository evidence.
-8. Write the Feature Contract at
+9. Write the Feature Contract at
    `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
    workspace-only execution artifact and require its separate user approval.
    Do not force-add, stage, or commit it unless the user explicitly chooses
    archival. Do not treat Design Doc approval, artifact existence, or a
    conversation summary as Feature Contract approval.
-9. Only after the Feature Contract is approved and current, use `create-plan` to
+10. Only after the Feature Contract is approved and current, use `create-plan` to
    create the ignored, workspace-only `implementation-plan.md` beside it.
    Require separate approval of the complete Implementation Plan, its Task
    Contract set, Review context, and Review policy before using `execute-plan`.
    Do not force-add, stage, or commit the plan unless the user explicitly
    chooses archival.
 
-Design Readiness holds only when every applicable condition is satisfied:
+Design Readiness holds only after `design-discussion` reports an aligned shared
+working model and every applicable condition is satisfied:
 
 1. repository-discoverable facts have been investigated;
 2. purpose and observable completion conditions are settled;
@@ -297,11 +316,20 @@ covers, including consolidation of unchanged decisions, without creating a
 duplicate record solely to repeat them.
 
 The coordinator handoff to `design-discussion` carries the route, confirmed
-workspace, record location, exact existing authority, and unresolved evidence.
-Receive its readiness result, unresolved branches, Design Doc applicability,
-and current record. The handoff to `design-doc` carries the settled source and
-readiness result. Receive the exact approval state, transfer-check result,
-record lifecycle, and any re-entry gap.
+workspace, repository identity and evidence, record location, exact existing
+authority, and unresolved evidence. Receive its current conceptual phase,
+working-model alignment state, unresolved understanding questions, readiness
+result, unresolved design branches, discovery re-entry condition, Design Doc
+applicability, and current record. The handoff to `design-doc` carries the
+settled source and readiness result. Receive the exact approval state,
+transfer-check result, record lifecycle, and any re-entry gap.
+
+When discovery evidence arrives, return through `Model Aligning` before another
+design choice. After interruption or compaction, recheck repository identity,
+authority currentness, and the recoverable record, then resume at the earliest
+phase whose exit conditions remain satisfied. Stop with the exact unresolved
+claim and evidence already tried when repeated questions do not reduce the same
+material uncertainty.
 
 For a promotion with preserved unaccepted work, also give `create-plan` the
 recorded lightweight base-to-current range and evidence. Require the new plan to
