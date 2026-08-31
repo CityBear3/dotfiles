@@ -135,8 +135,12 @@ Include:
 - the Task dependency DAG, deterministic ready order, PR topology, planned
   bases, fan-in linearizations, and exact integration-only composition inputs,
   order, mechanism, workspace, identity checks, and retention;
-- task workspace ownership, concurrency eligibility, and shared-state or write
-  exclusions;
+- each Task workspace mode, branch identity, exact or deterministic starting-ref
+  resolution rule, ownership, concurrency eligibility, and shared-state or
+  write exclusions;
+- lazy Task workspace materialization and the boundary that Plan approval fixes
+  workspace identity while later authorization to start `execute-plan` grants
+  creation or reuse authority for that exact non-destructive local state;
 - complete Feature Contract coverage, including integration-only obligations;
 - a Review context;
 - a separate complete Review policy;
@@ -160,7 +164,8 @@ For each Task Contract include:
 - dependencies;
 - PR unit, planned parent or sibling relationship, and final-base readiness;
 - whether implementation may produce a candidate before that base exists;
-- workspace ownership, concurrency eligibility, and staleness triggers;
+- workspace mode, branch identity, exact or deterministic starting-ref
+  resolution rule, ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
 - discipline: the material property, reliable verification oracle,

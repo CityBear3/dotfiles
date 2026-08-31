@@ -3,6 +3,7 @@
 - Owner: Repository owner
 - Drafted by: Codex from owner-approved design decisions
 - Date: 2026-08-18
+- Last revised: 2026-08-31
 - Status: Approved
 - Extends:
   - `docs/design/2026-07-29-codex-agentic-engineering-workflow.md`
@@ -44,6 +45,9 @@ the required ancestor closure before the dependent task begins.
   review against the exact Task PR base-to-head range.
 - Let internally accepted prerequisite tasks release dependents without waiting
   for human PR review or merge.
+- Let authorization to start `execute-plan` cover exact, non-destructive Task
+  workspace and branch creation already defined by the approved plan, so DAG
+  execution does not stop for another per-Task approval.
 - Allow independent tasks to be implemented concurrently in separate branches
   and worktrees with one writer per checkout.
 - Record the implementation dependency DAG and PR topology separately in the
@@ -72,6 +76,9 @@ the required ancestor closure before the dependent task begins.
 - Require `gh-stack` or another particular branch-management tool.
 - Automatically publish, push, merge, force-push, retarget, or delete a branch
   or PR.
+- Authorize a workspace or Git operation that is absent from the approved plan,
+  repair a mismatched existing workspace, fetch an unresolved ref, or rewrite
+  history without its applicable authority.
 - Repeat a full feature-wide code review after every Task PR has already passed
   its approved review policy.
 - Redesign review-mode strength, reviewer count, or the common Acceptance
@@ -100,6 +107,20 @@ separate workspaces. When a downstream task has multiple parents, the planned
 PR order linearizes those parent branches before the downstream task starts.
 The linearization does not add a logical Task dependency: it only establishes a
 reviewable single-base Git range.
+
+Plan approval fixes each Task workspace identity and starting-ref resolution
+rule. A later authorization to start `execute-plan` grants operational authority
+to create or reuse those exact non-destructive local Task workspaces. Physical
+creation is lazy: `execute-plan` materializes a workspace when its Task becomes
+dependency-ready and the planned starting ref can be resolved. An internally
+`Accepted` predecessor therefore releases both workspace creation and Task
+execution without another approval stop.
+
+This authority is bounded by exact plan identity. A matching existing workspace
+may be reused. A missing or ambiguous identity, a workspace or branch mismatch,
+an unavailable ref requiring a fetch, an operation outside the plan, or a
+destructive or history-rewriting operation stops execution rather than being
+repaired or inferred automatically.
 
 Each Task PR follows this loop:
 
@@ -190,6 +211,8 @@ intent. It additionally identifies:
 - its PR unit and intended review responsibility;
 - its logical Task dependencies;
 - its planned PR parent or sibling relationship;
+- its workspace mode, branch identity, and exact or deterministic starting-ref
+  resolution rule;
 - whether its implementation may start before its final PR base is
   materialized;
 - conditions that make its accepted evidence stale;
@@ -246,16 +269,28 @@ Tasks with overlapping ownership, unresolved shared interfaces, shared mutable
 state, or a dependency remain sequential. Parallelism is an execution option,
 not a completion requirement.
 
-`create-workspace` establishes the coordination workspace and may establish or
-validate task workspaces described by the approved topology. It no longer
-assumes that one planned feature necessarily has one implementation branch.
-Branch creation, worktree creation, and any tool-specific operation retain their
-existing authority and safety boundaries.
+`create-workspace` establishes the coordination workspace under its existing
+branch-change approval boundary. For Task workspaces, it validates the approved
+workspace identity and performs creation or reuse under the authority granted
+when the user starts `execute-plan`; it does not request approval again for each
+Task. It no longer assumes that one planned feature necessarily has one
+implementation branch.
+
+Task workspaces are created lazily when their Tasks become dependency-ready,
+not eagerly as a prerequisite to entering the execution loop. This avoids
+creating unused workspaces and lets a dependent Task resolve its planned
+starting ref from current `Accepted` predecessor heads. Creation failure or any
+identity mismatch is `BLOCKED` and preserves the observed workspace; automatic
+repair, substitution, branch switching, fetching, rebasing, or cleanup is not
+implied by execution authority.
 
 `execute-plan` owns readiness calculation, deterministic scheduling, task and
-workspace mapping, and exact evidence aggregation. It must never use parallel
-execution to weaken a selected reviewer gate, exceed capacity, or place two
-writers in one checkout.
+workspace mapping, lazy workspace materialization, and exact evidence
+aggregation. It must never use parallel execution to weaken a selected reviewer
+gate, exceed capacity, or place two writers in one checkout. A Task acceptance
+notification is progress evidence, not a new approval gate: after recording it,
+`execute-plan` releases every newly ready Task whose approved workspace identity
+resolves safely.
 
 ### Authoritative Task PR loop
 
@@ -441,6 +476,22 @@ Rejected because it turns logical independence into execution dependence,
 delays parallel implementation, and increases avoidable rebase and review
 churn. The chosen design stacks dependent chains and fan-in closures only where
 a single PR base requires it.
+
+### Approve each Task workspace when it becomes ready
+
+Rejected because the approved plan already fixes the Task, workspace, branch,
+and starting-ref rule, while authorization to start execution expresses the
+owner's intent to run that DAG. Repeating the same approval after every
+predecessor acceptance adds latency and can make a progress notification behave
+like an unintended execution stop without adding a distinct safety decision.
+
+### Create every Task workspace before execution
+
+Rejected because a dependent Task's natural starting ref may not exist until
+its predecessors are internally accepted. Eager creation would require unused
+candidate workspaces or avoidable later restacking. Lazy creation retains one
+execution authorization while resolving each exact workspace only when its DAG
+inputs are current.
 
 ### Keep fan-in parents as sibling PRs and wait for both to merge
 

@@ -22,6 +22,11 @@ topology, task acceptance, integration evidence, and publication boundaries.
 - Implementation base: the observed current `main` commit.
 - Baseline: authoritative Rust checks pass.
 
+Task workspaces use separate Herdr-managed worktrees. They are materialized
+lazily when each Task becomes dependency-ready. Plan approval fixes their
+identity; authorization to start `execute-plan` grants creation or reuse of that
+exact non-destructive local state.
+
 ## Fixed decisions and non-goals
 
 - Preserve existing accepted forms and malformed-input behavior.
@@ -149,6 +154,8 @@ results and this stack are current.
   rebuild after a head, range, authority, or material route change.
 - **Dependencies:** None.
 - **PR relationship:** PR 1 against `main`; final base exists immediately.
+- **Workspace:** Herdr-managed branch `feature/input-form-parser`, starting from
+  the observed implementation-base commit.
 - **Concurrency:** May run with Task 2 in a separate checkout.
 - **Non-goals:** No CLI, persistence, or API redesign.
 - **Delegation:** Private helpers, local types, and focused tests.
@@ -173,6 +180,8 @@ results and this stack are current.
 - **Dependencies:** None logically.
 - **PR relationship:** PR 2 stacked on PR 1. A common-base candidate is allowed;
   final acceptance requires restacking and fresh verification and review.
+- **Workspace:** Herdr-managed branch `feature/input-form-renderer`, starting
+  from the observed implementation-base commit for candidate execution.
 - **Concurrency:** May implement with Task 1 in a separate checkout.
 - **Non-goals:** No parser or CLI edits.
 - **Delegation:** Private rendering helpers and test arrangement.
@@ -195,6 +204,8 @@ results and this stack are current.
   rebuild after a head, range, authority, or material route change.
 - **Dependencies:** Current internal acceptance of Tasks 1 and 2.
 - **PR relationship:** PR 3 stacked on PR 2.
+- **Workspace:** Herdr-managed branch `feature/input-form-cli`, starting from
+  the current accepted Task 2 head after the planned stack is materialized.
 - **Concurrency:** Not ready before both dependencies and the fan-in stack are
   current.
 - **Non-goals:** No new CLI ownership or persistence.
