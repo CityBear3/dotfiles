@@ -18,8 +18,11 @@ Design Doc, Feature Contract, or Implementation Plan draft. This timing keeps
 approved artifacts in the coordination workspace. After Implementation Plan
 approval, reuse this skill to establish only the task workspaces and branch
 relationships that plan defines, and later any exact temporary integration
-workspace requested by `execute-plan`. It does not change branch-selection
-approval or authorize a Git state change by itself.
+workspace requested by `execute-plan`. For a dependency-ready Task, require the
+approved plan identity and explicit execution-start authorization; that
+authorization covers creation or reuse of its exact non-destructive local Task
+branch and worktree without another approval. Other workspace and Git state
+changes retain their applicable authority boundaries.
 
 ## Inspect
 
@@ -83,8 +86,10 @@ Unless the user or repository requires a worktree, prefer a coordination branch
 in the current checkout. For a planned Task PR, follow the approved workspace
 and PR topology rather than this default. Propose a short branch name and an
 explicit starting ref; do not silently assume that the ref or PR base is
-`main`. If no starting ref was approved for a new branch, propose the current
-`HEAD`.
+`main`. If a planned Task's starting-ref resolution rule is missing or cannot be
+resolved exactly when it becomes dependency-ready, return `BLOCKED`; do not
+substitute the current `HEAD`. For another new branch without an approved
+starting ref, propose the current `HEAD`.
 
 Resolve branch and base names against local refs. A remote branch means the
 locally available remote-tracking ref such as `origin/develop`. Do not fetch
@@ -102,7 +107,11 @@ Before switching or creating a branch, report:
 - for a Task PR, its Task Contract, planned PR parent, and whether the final PR
   base is already materialized.
 
-Ask for approval before changing branches.
+Ask for approval before changing branches. The exception is creation or reuse
+of the exact planned Task branch in its separate Herdr worktree when
+`execute-plan` supplies both the approved identity and explicit execution-start
+authorization; do not ask again for that operation or use it to switch the
+user's current checkout.
 
 - Existing local branch: run `git switch <work-branch>`.
 - New branch from a local branch, tag, commit, or remote-tracking ref: run
@@ -134,6 +143,12 @@ Use this for every new planned Task worktree and for another persistent worktree
 when the user selects Herdr and the CLI is available. Always pass the repository
 root through `--cwd`, keep focus in the current session with `--no-focus`, and
 request structured output with `--json`.
+
+For a planned Task, accept creation only after `execute-plan` reports the Task
+dependency-ready and supplies its approved workspace mode, branch, resolved
+starting ref, planned PR base, and execution-start authorization. Treat that as
+the applicable authority for the exact Herdr creation below, not as authority
+for mismatch repair or any other Git operation.
 
 If the work branch already exists locally, omit `--base`:
 

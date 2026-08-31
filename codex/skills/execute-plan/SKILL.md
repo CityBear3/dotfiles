@@ -18,6 +18,8 @@ For new-format work, require:
 
 - the approved, current Feature Contract and its design sources;
 - an approved, current implementation plan;
+- explicit user authorization to start this exact approved plan, which grants
+  creation or reuse of its exact non-destructive local Task workspaces;
 - the exact planned `search-cache.md` path, current matching entries, and its
   Feature-lead-only writer boundary;
 - its complete Task Contract set, shared interface contracts, Feature Contract
@@ -31,7 +33,8 @@ For new-format work, require:
 - settled dependencies, responsibility and ownership boundaries, shared
   interface owners and consumers, and non-goals.
 - separate Task dependency DAG and PR topology, deterministic fan-in order,
-  Task PR bases, task workspaces, concurrency eligibility, staleness rules, and
+  Task PR bases, Task workspace modes, branch identities, exact or deterministic
+  starting-ref resolution rules, concurrency eligibility, staleness rules, and
   exact integration-only starting identities, accepted inputs, order,
   mechanism, workspace strategy, identity checks, and cleanup eligibility.
 
@@ -43,9 +46,10 @@ criteria, and confirmation that no material ambiguity exists and the owner did
 not choose migration. Keep that legacy plan as the authority; do not manufacture
 Feature or Task Contract files merely to satisfy the new shape.
 
-Record the original plan implementation base, coordination workspace, and every
-task branch, workspace, base, and head. Do not require all tasks to share one
-advancing HEAD. On re-entry,
+Record the original plan implementation base, coordination workspace, every
+planned Task workspace identity, and the branch, workspace, base, and head of
+each already materialized Task. Do not require every workspace to exist before
+execution or all tasks to share one advancing HEAD. On re-entry,
 retain an already accepted task only when its exact Feature Contract authority,
 assigned Feature clause meanings, Task Contract content, dependencies, and
 relied-on shared-interface meanings remain unchanged. Preserve its exact base,
@@ -93,6 +97,23 @@ never releases a dependent and cannot contribute to feature acceptance. Before
 authoritative acceptance, materialize the approved final base, perform any
 authorized restack or retarget operation, and require fresh exact-range
 verification and review.
+
+For each dependency-ready new-format Task, resolve its approved exact or
+deterministic starting ref from current Git and accepted predecessor evidence,
+then invoke `create-workspace` to create or reuse its exact Task workspace. The
+user's authorization to start this plan supplies authority for that
+non-destructive local branch and worktree operation; do not request another
+per-Task approval. Materialize lazily rather than creating every workspace at
+plan entry, and directly validate the returned branch, head, status, worktree,
+and Herdr identities before dispatch.
+
+Reuse a matching existing Task workspace. On a missing or ambiguous identity,
+an unavailable ref that would require an implicit fetch, a workspace or branch
+mismatch, an operation outside the plan, or a destructive or history-rewriting
+operation, preserve observed state and return `BLOCKED` or `Escalate` as
+applicable. Do not switch the user's coordination checkout, repair, substitute,
+fetch, rebase, clean up, or reinterpret state under Task workspace creation
+authority.
 
 For new-format planned work, look up a current matching cache entry before new discovery.
 The cache never replaces fresh Git, authority, verification, or review evidence.
@@ -196,6 +217,11 @@ the reported workspace, branch, planned base, merge base, head, range, diff, and
 status through Git. Agent identity, memory, liveness, progress messages, Herdr,
 lazygit, and pane state are operational observations only. A mismatch with the
 Task result is `BLOCKED`, not authority to repair or reinterpret the state.
+
+An `Accepted` Task result is progress evidence, not a new approval gate. After
+recording and directly validating it, recalculate readiness and materialize and
+dispatch every newly ready Task whose approved workspace identity resolves
+safely, unless the user explicitly requested a Task boundary stop.
 
 Do not start a logical dependent until every predecessor returns current
 `Accepted`. On `BLOCKED`, `Escalate`, plan deviation, missing evidence, a

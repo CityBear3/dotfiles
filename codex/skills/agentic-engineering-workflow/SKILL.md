@@ -368,19 +368,26 @@ scope expansion, external write, publication, merge, discard, destructive
 action, or other missing authority. Do not repeat an approval prompt while its
 exact decision and artifact remain applicable.
 
-After Implementation Plan approval and before `execute-plan`, use
-`create-workspace` to establish or validate every approved Task PR workspace and
-branch relationship. Plan approval fixes the requested topology but does not
-replace any separate approval that `create-workspace` requires for a branch or
-worktree state change. Stop at that gate when needed, then resume only after
-every task identity, workspace, branch, starting ref, and planned PR base
-matches the approved plan.
+After Implementation Plan approval, require its Task Contracts to fix each Task
+workspace mode, branch identity, exact or deterministic starting-ref resolution
+rule, and planned PR base. Treat explicit user authorization to start
+`execute-plan` as authority to create or reuse those exact non-destructive local
+Task workspaces when their Tasks become dependency-ready. Do not establish every
+Task workspace before execution or repeat approval for each planned branch or
+worktree creation.
+
+That execution authority does not cover an absent or ambiguous identity, a
+mismatched existing workspace, an implicit fetch, a change to the user's
+coordination checkout, an operation outside the approved plan, or a destructive,
+history-rewriting, external, publication, merge, or cleanup action. Preserve the
+observed state and stop at the applicable authority or correction boundary.
 
 Pass exact authority paths and approval/currentness evidence, applicable Feature
 Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
 decisions, the exact planned `search-cache.md` path and current matching entries,
-and any promoted unaccepted range to `execute-plan`. Reference
+the explicit execution-start authorization, and any promoted unaccepted range
+to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
 That skill owns readiness, direct dispatch of already-selected Task roles,
 candidate and authoritative Task handoffs, workspace and leaf mappings,
