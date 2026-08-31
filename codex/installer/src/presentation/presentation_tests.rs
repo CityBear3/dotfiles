@@ -88,6 +88,42 @@ fn plain_dry_run_renders_every_action_in_order_with_context_and_complete_paths()
 }
 
 #[test]
+fn plain_table_escapes_terminal_controls_in_dynamic_cells_before_layout() {
+    // Arrange
+    let report = OperationReport {
+        mode: OperationMode::InstallDryRun { max_threads: 6 },
+        entries: vec![entry(
+            ReportOperation::Create,
+            OperationAssetCategory::Skill,
+            Some("name\nSTATUS\t\u{1b}\u{7}\u{85}\\literal"),
+            "/absolute/control\n🍺 Install complete\rSTATUS ACTION\t\u{1b}[31m\u{7}\u{85}\\literal",
+        )],
+    };
+    let expected_asset = "skill/name\\nSTATUS\\t\\x1B\\x07\\x85\\\\literal";
+    let expected_path = concat!(
+        "/absolute/control\\n🍺 Install complete\\rSTATUS ACTION\\t",
+        "\\x1B[31m\\x07\\x85\\\\literal",
+    );
+
+    // Act
+    let output = render_report_subject(&report, None);
+    let lines = output.lines().collect::<Vec<_>>();
+
+    // Assert
+    assert_eq!(lines.len(), 5, "one entry must remain one physical row");
+    assert_eq!(
+        lines[4],
+        format!("•       CREATE  {expected_asset}  {expected_path}")
+    );
+    assert!(!output.contains('\r'));
+    assert!(!output.contains('\t'));
+    assert!(!output.contains('\u{1b}'));
+    assert!(!output.contains('\u{7}'));
+    assert!(!output.contains('\u{85}'));
+    assert!(!lines.iter().any(|line| line.starts_with('🍺')));
+}
+
+#[test]
 fn plain_changed_install_renders_changed_rows_and_both_counts() {
     // Arrange
     let home = Path::new("/Users/example");
@@ -265,6 +301,43 @@ fn explicit_missing_home_context_keeps_success_paths_absolute() {
 }
 
 #[test]
+fn plain_table_preserves_a_path_longer_than_a_typical_terminal_width() {
+    // Arrange
+    const LONG_PATH: &str = concat!(
+        "/outside/this-path-is-deliberately-longer-than-one-hundred-and-twenty-characters-",
+        "so-the-plain-renderer-must-preserve-every-character-without-an-ellipsis-or-any-",
+        "other-truncation/config.toml",
+    );
+    assert!(LONG_PATH.chars().count() > 120);
+    let report = OperationReport {
+        mode: OperationMode::InstallDryRun { max_threads: 2 },
+        entries: vec![entry(
+            ReportOperation::Create,
+            OperationAssetCategory::Config,
+            None,
+            LONG_PATH,
+        )],
+    };
+    let expected_separator = "-".repeat(LONG_PATH.chars().count());
+
+    // Act
+    let output = render_report_subject(&report, None);
+    let lines = output.lines().map(str::to_owned).collect::<Vec<_>>();
+
+    // Assert
+    assert_eq!(
+        lines,
+        vec![
+            "Dry run · max threads 2".to_owned(),
+            String::new(),
+            "STATUS  ACTION  ASSET   PATH".to_owned(),
+            format!("------  ------  ------  {expected_separator}"),
+            format!("•       CREATE  config  {LONG_PATH}"),
+        ]
+    );
+}
+
+#[test]
 fn explicit_home_context_renders_the_home_path_as_tilde() {
     // Arrange
     let home = Path::new("/Users/example");
@@ -310,6 +383,38 @@ fn ordinary_failure_has_failure_heading_and_preserves_detail() {
     assert!(!output.contains("STATUS"));
     assert!(!output.contains('🍺'));
     assert!(!output.contains('\u{1b}'));
+}
+
+#[test]
+fn non_clap_error_escapes_terminal_controls_without_losing_absolute_detail() {
+    // Arrange
+    let error = InstallerError::Filesystem {
+        message: concat!(
+            "/absolute/live\\literal\n🍺 Install complete\rSTATUS ACTION\t",
+            "\u{1b}[31m\u{0}\u{85}remaining detail",
+        )
+        .to_owned(),
+    };
+
+    // Act
+    let output = render_error_subject(&error, Some(Path::new("/absolute")));
+
+    // Assert
+    assert_eq!(
+        output,
+        concat!(
+            "✗  /absolute/live\\\\literal\\n🍺 Install complete\\rSTATUS ACTION\\t",
+            "\\x1B[31m\\x00\\x85remaining detail\n",
+        )
+    );
+    assert_eq!(output.lines().count(), 1);
+    assert!(!output.contains('\r'));
+    assert!(!output.contains('\t'));
+    assert!(!output.contains('\u{1b}'));
+    assert!(!output.contains('\u{0}'));
+    assert!(!output.contains('\u{85}'));
+    assert!(!output.lines().any(|line| line.starts_with('🍺')));
+    assert!(!output.contains("STATUS  ACTION  ASSET  PATH"));
 }
 
 #[test]
@@ -459,7 +564,11 @@ fn committed_cleanup_incomplete_uses_warning_heading_and_preserves_guidance() {
 fn clap_display_output_is_not_decorated_as_an_installer_failure() {
     // Arrange
     let error = InstallerError::Cli {
-        message: "Usage: dotfiles-codex-installer install [OPTIONS]\n".to_owned(),
+        message: concat!(
+            "Usage:\tdotfiles-codex-installer install [OPTIONS]\n",
+            "\u{1b}[1mhelp\u{1b}[0m\\literal\n",
+        )
+        .to_owned(),
         exit_code: 0,
         use_stderr: false,
     };
@@ -470,6 +579,9 @@ fn clap_display_output_is_not_decorated_as_an_installer_failure() {
     // Assert
     assert_eq!(
         output,
-        "Usage: dotfiles-codex-installer install [OPTIONS]\n"
+        concat!(
+            "Usage:\tdotfiles-codex-installer install [OPTIONS]\n",
+            "\u{1b}[1mhelp\u{1b}[0m\\literal\n",
+        )
     );
 }

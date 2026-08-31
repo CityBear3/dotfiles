@@ -78,7 +78,8 @@ pub fn render_error(error: &InstallerError, context: RenderContext<'_>) -> Strin
     } else {
         "✗"
     };
-    let mut output = format!("{status}  {error}");
+    let detail = escape_terminal_text(&error.to_string());
+    let mut output = format!("{status}  {detail}");
     if !output.ends_with('\n') {
         output.push('\n');
     }
@@ -209,17 +210,21 @@ fn write_table_line(
 }
 
 fn display_path(path: &Path, home: Option<&Path>) -> String {
-    if let Some(home) = home {
+    let display = if let Some(home) = home {
         if path == home {
             return "~".to_owned();
         }
         if let Ok(relative) = path.strip_prefix(home)
             && !relative.as_os_str().is_empty()
         {
-            return format!("~/{}", relative.display());
+            format!("~/{}", relative.display())
+        } else {
+            path.display().to_string()
         }
-    }
-    path.display().to_string()
+    } else {
+        path.display().to_string()
+    };
+    escape_terminal_text(&display)
 }
 
 fn operation_label(operation: ReportOperation) -> &'static str {
@@ -234,9 +239,32 @@ fn operation_label(operation: ReportOperation) -> &'static str {
 fn asset_label(category: OperationAssetCategory, name: Option<&str>) -> String {
     let category = category_label(category);
     match name {
-        Some(name) => format!("{category}/{name}"),
+        Some(name) => format!("{category}/{}", escape_terminal_text(name)),
         None => category.to_owned(),
     }
+}
+
+fn escape_terminal_text(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '\\' => escaped.push_str("\\\\"),
+            '\n' => escaped.push_str("\\n"),
+            '\r' => escaped.push_str("\\r"),
+            '\t' => escaped.push_str("\\t"),
+            character if character.is_control() => {
+                let codepoint = character as u32;
+                if codepoint <= u8::MAX.into() {
+                    write!(escaped, "\\x{codepoint:02X}").expect("writing to a String cannot fail");
+                } else {
+                    write!(escaped, "\\u{{{codepoint:X}}}")
+                        .expect("writing to a String cannot fail");
+                }
+            }
+            character => escaped.push(character),
+        }
+    }
+    escaped
 }
 
 fn category_label(category: OperationAssetCategory) -> &'static str {
