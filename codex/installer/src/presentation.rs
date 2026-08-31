@@ -15,12 +15,25 @@ pub enum RenderingCapability {
     Color,
 }
 
+/// Process stream selected by the outer presentation adapter.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum OutputDestination {
+    Stdout,
+    Stderr,
+}
+
 /// Select rendering capability from explicitly supplied destination state.
 pub fn capability_for_destination(
-    destination_is_terminal: bool,
+    destination: OutputDestination,
+    stdout_is_terminal: bool,
+    stderr_is_terminal: bool,
     no_color: Option<&OsStr>,
     term: Option<&OsStr>,
 ) -> RenderingCapability {
+    let destination_is_terminal = match destination {
+        OutputDestination::Stdout => stdout_is_terminal,
+        OutputDestination::Stderr => stderr_is_terminal,
+    };
     if destination_is_terminal
         && no_color.is_none_or(OsStr::is_empty)
         && term != Some(OsStr::new("dumb"))

@@ -3,14 +3,8 @@ use std::path::Path;
 use std::process::ExitCode;
 
 use dotfiles_codex_installer::presentation::{
-    RenderContext, capability_for_destination, render_error, render_report,
+    OutputDestination, RenderContext, capability_for_destination, render_error, render_report,
 };
-
-#[derive(Clone, Copy)]
-enum OutputDestination {
-    Stdout,
-    Stderr,
-}
 
 fn main() -> ExitCode {
     let home = std::env::var_os("HOME")
@@ -40,12 +34,12 @@ fn main() -> ExitCode {
 }
 
 fn render_context(home: Option<&Path>, destination: OutputDestination) -> RenderContext<'_> {
-    let destination_is_terminal = match destination {
-        OutputDestination::Stdout => io::stdout().is_terminal(),
-        OutputDestination::Stderr => io::stderr().is_terminal(),
-    };
+    let stdout_is_terminal = io::stdout().is_terminal();
+    let stderr_is_terminal = io::stderr().is_terminal();
     let capability = capability_for_destination(
-        destination_is_terminal,
+        destination,
+        stdout_is_terminal,
+        stderr_is_terminal,
         std::env::var_os("NO_COLOR").as_deref(),
         std::env::var_os("TERM").as_deref(),
     );

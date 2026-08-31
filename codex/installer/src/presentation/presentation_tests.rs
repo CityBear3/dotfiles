@@ -7,7 +7,8 @@ use crate::{
 };
 
 use super::{
-    RenderContext, RenderingCapability, capability_for_destination, render_error, render_report,
+    OutputDestination, RenderContext, RenderingCapability, capability_for_destination,
+    render_error, render_report,
 };
 
 const ANSI_BLUE: &str = "\u{1b}[34m";
@@ -49,14 +50,21 @@ fn strip_contracted_ansi(value: &str) -> String {
 }
 
 fn assert_capability_case(
+    destination: OutputDestination,
     destination_is_terminal: bool,
     no_color: Option<&str>,
     term: Option<&str>,
     expected: RenderingCapability,
 ) {
+    let (stdout_is_terminal, stderr_is_terminal) = match destination {
+        OutputDestination::Stdout => (destination_is_terminal, false),
+        OutputDestination::Stderr => (false, destination_is_terminal),
+    };
     assert_eq!(
         capability_for_destination(
-            destination_is_terminal,
+            destination,
+            stdout_is_terminal,
+            stderr_is_terminal,
             no_color.map(OsStr::new),
             term.map(OsStr::new),
         ),
@@ -1009,46 +1017,108 @@ fn color_capability_does_not_decorate_successful_clap_display() {
 }
 
 #[test]
+fn destination_selector_uses_each_streams_named_terminal_state() {
+    // Arrange
+    let cases = [
+        (OutputDestination::Stdout, true, false),
+        (OutputDestination::Stderr, true, false),
+        (OutputDestination::Stdout, false, true),
+        (OutputDestination::Stderr, false, true),
+    ];
+
+    // Act
+    let actual = cases.map(|(destination, stdout_is_terminal, stderr_is_terminal)| {
+        capability_for_destination(
+            destination,
+            stdout_is_terminal,
+            stderr_is_terminal,
+            None,
+            Some(OsStr::new("xterm")),
+        )
+    });
+
+    // Assert
+    assert_eq!(
+        actual,
+        [
+            RenderingCapability::Color,
+            RenderingCapability::Plain,
+            RenderingCapability::Plain,
+            RenderingCapability::Color,
+        ]
+    );
+}
+
+#[test]
 fn stdout_capability_truth_table_requires_tty_and_eligible_environment() {
-    // Arrange / Act / Assert
-    assert_capability_case(false, None, None, RenderingCapability::Plain);
-    assert_capability_case(false, Some(""), Some("xterm"), RenderingCapability::Plain);
-    assert_capability_case(true, None, None, RenderingCapability::Color);
-    assert_capability_case(true, Some(""), Some("xterm"), RenderingCapability::Color);
-    assert_capability_case(true, Some("1"), Some("xterm"), RenderingCapability::Plain);
-    assert_capability_case(true, None, Some("dumb"), RenderingCapability::Plain);
-    assert_capability_case(true, None, Some("DUMB"), RenderingCapability::Color);
+    // Arrange
+    let stdout = OutputDestination::Stdout;
+
+    // Act / Assert
+    assert_capability_case(stdout, false, None, None, RenderingCapability::Plain);
+    assert_capability_case(
+        stdout,
+        false,
+        Some(""),
+        Some("xterm"),
+        RenderingCapability::Plain,
+    );
+    assert_capability_case(stdout, true, None, None, RenderingCapability::Color);
+    assert_capability_case(
+        stdout,
+        true,
+        Some(""),
+        Some("xterm"),
+        RenderingCapability::Color,
+    );
+    assert_capability_case(
+        stdout,
+        true,
+        Some("1"),
+        Some("xterm"),
+        RenderingCapability::Plain,
+    );
+    assert_capability_case(stdout, true, None, Some("dumb"), RenderingCapability::Plain);
+    assert_capability_case(stdout, true, None, Some("DUMB"), RenderingCapability::Color);
 }
 
 #[test]
 fn stderr_capability_truth_table_is_independent_of_stdout_policy_use() {
-    // Arrange / Act / Assert
+    // Arrange
+    let stderr = OutputDestination::Stderr;
     let stderr_is_terminal = true;
+
+    // Act / Assert
     assert_capability_case(
+        stderr,
         stderr_is_terminal,
         None,
         Some("xterm-256color"),
         RenderingCapability::Color,
     );
     assert_capability_case(
+        stderr,
         !stderr_is_terminal,
         None,
         Some("xterm-256color"),
         RenderingCapability::Plain,
     );
     assert_capability_case(
+        stderr,
         stderr_is_terminal,
         Some("0"),
         None,
         RenderingCapability::Plain,
     );
     assert_capability_case(
+        stderr,
         stderr_is_terminal,
         Some(""),
         None,
         RenderingCapability::Color,
     );
     assert_capability_case(
+        stderr,
         stderr_is_terminal,
         Some(""),
         Some("dumb"),
