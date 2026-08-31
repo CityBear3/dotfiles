@@ -252,7 +252,11 @@ fn escape_terminal_text(value: &str) -> String {
             '\n' => escaped.push_str("\\n"),
             '\r' => escaped.push_str("\\r"),
             '\t' => escaped.push_str("\\t"),
-            character if character.is_control() => {
+            character
+                if character.is_control()
+                    || is_bidi_control(character)
+                    || matches!(character, '\u{2028}' | '\u{2029}') =>
+            {
                 let codepoint = character as u32;
                 if codepoint <= u8::MAX.into() {
                     write!(escaped, "\\x{codepoint:02X}").expect("writing to a String cannot fail");
@@ -265,6 +269,17 @@ fn escape_terminal_text(value: &str) -> String {
         }
     }
     escaped
+}
+
+fn is_bidi_control(character: char) -> bool {
+    matches!(
+        character,
+        '\u{061c}'
+            | '\u{200e}'
+            | '\u{200f}'
+            | '\u{202a}'..='\u{202e}'
+            | '\u{2066}'..='\u{2069}'
+    )
 }
 
 fn category_label(category: OperationAssetCategory) -> &'static str {

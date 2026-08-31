@@ -104,6 +104,76 @@ fn plain_table_escapes_terminal_controls_in_dynamic_cells_before_layout() {
         "/absolute/control\\n🍺 Install complete\\rSTATUS ACTION\\t",
         "\\x1B[31m\\x07\\x85\\\\literal",
     );
+    let expected_asset_width = expected_asset.chars().count();
+    let expected_path_width = expected_path.chars().count();
+
+    // Act
+    let output = render_report_subject(&report, None);
+    let lines = output.lines().map(str::to_owned).collect::<Vec<_>>();
+
+    // Assert
+    assert_eq!(
+        lines,
+        vec![
+            "Dry run · max threads 6".to_owned(),
+            String::new(),
+            format!(
+                "STATUS  ACTION  {asset:<asset_width$}  PATH",
+                asset = "ASSET",
+                asset_width = expected_asset_width,
+            ),
+            format!(
+                "------  ------  {}  {}",
+                "-".repeat(expected_asset_width),
+                "-".repeat(expected_path_width),
+            ),
+            format!("•       CREATE  {expected_asset}  {expected_path}"),
+        ],
+        "one escaped entry must determine exactly one complete physical table row",
+    );
+    assert!(!output.contains('\r'));
+    assert!(!output.contains('\t'));
+    assert!(!output.contains('\u{1b}'));
+    assert!(!output.contains('\u{7}'));
+    assert!(!output.contains('\u{85}'));
+    assert!(!lines.iter().any(|line| line.starts_with('🍺')));
+}
+
+#[test]
+fn plain_table_escapes_bidi_controls_and_line_separators_but_preserves_unicode() {
+    // Arrange
+    const BIDI_AND_LINE_SEPARATORS: &str = concat!(
+        "\u{61c}\u{200e}\u{200f}",
+        "\u{202a}\u{202b}\u{202c}\u{202d}\u{202e}",
+        "\u{2066}\u{2067}\u{2068}\u{2069}",
+        "\u{2028}\u{2029}",
+    );
+    const ESCAPED_BIDI_AND_LINE_SEPARATORS: &str = concat!(
+        "\\u{61C}\\u{200E}\\u{200F}",
+        "\\u{202A}\\u{202B}\\u{202C}\\u{202D}\\u{202E}",
+        "\\u{2066}\\u{2067}\\u{2068}\\u{2069}",
+        "\\u{2028}\\u{2029}",
+    );
+    let name =
+        format!("\u{540d}\u{524d}\u{1f469}\u{200d}\u{1f4bb}{BIDI_AND_LINE_SEPARATORS}\u{7d42}");
+    let path = format!(
+        "/\u{7d76}\u{5bfe}/\u{1f469}\u{200d}\u{1f4bb}{BIDI_AND_LINE_SEPARATORS}/config.toml"
+    );
+    let expected_asset = format!(
+        "skill/\u{540d}\u{524d}\u{1f469}\u{200d}\u{1f4bb}{ESCAPED_BIDI_AND_LINE_SEPARATORS}\u{7d42}"
+    );
+    let expected_path = format!(
+        "/\u{7d76}\u{5bfe}/\u{1f469}\u{200d}\u{1f4bb}{ESCAPED_BIDI_AND_LINE_SEPARATORS}/config.toml"
+    );
+    let report = OperationReport {
+        mode: OperationMode::InstallDryRun { max_threads: 6 },
+        entries: vec![entry(
+            ReportOperation::Create,
+            OperationAssetCategory::Skill,
+            Some(&name),
+            &path,
+        )],
+    };
 
     // Act
     let output = render_report_subject(&report, None);
@@ -115,12 +185,10 @@ fn plain_table_escapes_terminal_controls_in_dynamic_cells_before_layout() {
         lines[4],
         format!("•       CREATE  {expected_asset}  {expected_path}")
     );
-    assert!(!output.contains('\r'));
-    assert!(!output.contains('\t'));
-    assert!(!output.contains('\u{1b}'));
-    assert!(!output.contains('\u{7}'));
-    assert!(!output.contains('\u{85}'));
-    assert!(!lines.iter().any(|line| line.starts_with('🍺')));
+    assert!(output.contains("\u{540d}\u{524d}\u{1f469}\u{200d}\u{1f4bb}"));
+    for character in BIDI_AND_LINE_SEPARATORS.chars() {
+        assert!(!output.contains(character));
+    }
 }
 
 #[test]
@@ -415,6 +483,42 @@ fn non_clap_error_escapes_terminal_controls_without_losing_absolute_detail() {
     assert!(!output.contains('\u{85}'));
     assert!(!output.lines().any(|line| line.starts_with('🍺')));
     assert!(!output.contains("STATUS  ACTION  ASSET  PATH"));
+}
+
+#[test]
+fn non_clap_error_escapes_bidi_controls_and_line_separators_but_preserves_unicode() {
+    // Arrange
+    const BIDI_AND_LINE_SEPARATORS: &str = concat!(
+        "\u{61c}\u{200e}\u{200f}",
+        "\u{202a}\u{202b}\u{202c}\u{202d}\u{202e}",
+        "\u{2066}\u{2067}\u{2068}\u{2069}",
+        "\u{2028}\u{2029}",
+    );
+    const ESCAPED_BIDI_AND_LINE_SEPARATORS: &str = concat!(
+        "\\u{61C}\\u{200E}\\u{200F}",
+        "\\u{202A}\\u{202B}\\u{202C}\\u{202D}\\u{202E}",
+        "\\u{2066}\\u{2067}\\u{2068}\\u{2069}",
+        "\\u{2028}\\u{2029}",
+    );
+    let error = InstallerError::Filesystem {
+        message: format!(
+            "/\u{7d76}\u{5bfe}/\u{8a73}\u{7d30}\u{1f469}\u{200d}\u{1f4bb}{BIDI_AND_LINE_SEPARATORS}\u{7d42}"
+        ),
+    };
+    let expected = format!(
+        "✗  /\u{7d76}\u{5bfe}/\u{8a73}\u{7d30}\u{1f469}\u{200d}\u{1f4bb}{ESCAPED_BIDI_AND_LINE_SEPARATORS}\u{7d42}\n"
+    );
+
+    // Act
+    let output = render_error_subject(&error, Some(Path::new("/\u{7d76}\u{5bfe}")));
+
+    // Assert
+    assert_eq!(output, expected);
+    assert_eq!(output.lines().count(), 1);
+    assert!(output.contains("/\u{7d76}\u{5bfe}/\u{8a73}\u{7d30}\u{1f469}\u{200d}\u{1f4bb}"));
+    for character in BIDI_AND_LINE_SEPARATORS.chars() {
+        assert!(!output.contains(character));
+    }
 }
 
 #[test]
