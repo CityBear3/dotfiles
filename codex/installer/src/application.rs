@@ -5,6 +5,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::InstallerError;
+use crate::OperationReport;
 #[cfg(target_os = "macos")]
 use crate::backup::BackupStore;
 use crate::command::InstallerCommand;
@@ -26,7 +27,7 @@ pub(crate) struct ApplicationContext {
     pub(crate) resources: MachineResources,
 }
 
-pub(crate) fn execute(invocation: InstallerInvocation) -> Result<String, InstallerError> {
+pub(crate) fn execute(invocation: InstallerInvocation) -> Result<OperationReport, InstallerError> {
     let resources = resources_for(&invocation.command)?;
     let source_root = invocation.source_root.unwrap_or_else(default_source_root);
     execute_with_context(
@@ -48,7 +49,7 @@ fn default_source_root() -> PathBuf {
 pub(crate) fn execute_with_context(
     command: InstallerCommand,
     context: ApplicationContext,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     execute_with_context_for_platform(command, context, cfg!(target_os = "macos"))
 }
 
@@ -56,7 +57,7 @@ fn execute_with_context_for_platform(
     command: InstallerCommand,
     context: ApplicationContext,
     mutations_supported: bool,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     if !mutations_supported
         && !matches!(
             &command,
@@ -78,7 +79,7 @@ pub(super) fn execute_with_context_and_id(
     command: InstallerCommand,
     context: ApplicationContext,
     operation_id: &str,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     execute_with_context_and_optional_id(command, context, Some(operation_id))
 }
 
@@ -87,7 +88,7 @@ pub(super) fn execute_restore_with_context_and_id(
     command: crate::command::RestoreCommand,
     context: ApplicationContext,
     operation_id: &str,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     restore::execute_mutating(command, &context.source_root, operation_id)
 }
 
@@ -95,7 +96,7 @@ fn execute_with_context_and_optional_id(
     command: InstallerCommand,
     context: ApplicationContext,
     operation_id: Option<&str>,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     match command {
         InstallerCommand::Install(command) if command.dry_run => {
             install::execute_dry_run(command, context)

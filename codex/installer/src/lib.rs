@@ -14,6 +14,7 @@ mod path;
 mod plan;
 #[cfg(target_os = "macos")]
 mod platform;
+mod report;
 mod resources;
 mod source;
 #[cfg(test)]
@@ -23,9 +24,14 @@ mod transaction;
 
 pub use command::{InstallCommand, InstallerCommand, RestoreCommand};
 pub use error::InstallerError;
+pub use report::{
+    OperationAssetCategory, OperationMode, OperationReport, OperationReportEntry, ReportOperation,
+};
+
+pub mod presentation;
 
 /// Parse and run an installer command.
-pub fn run_from<I, T, F>(arguments: I, environment: F) -> Result<String, InstallerError>
+pub fn run_from<I, T, F>(arguments: I, environment: F) -> Result<OperationReport, InstallerError>
 where
     I: IntoIterator<Item = T>,
     T: Into<std::ffi::OsString>,

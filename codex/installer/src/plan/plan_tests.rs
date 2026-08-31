@@ -11,8 +11,7 @@ use crate::resources::MachineResources;
 use crate::test_support::project_tempdir;
 
 use super::{
-    AssetCategory, InstallPlan, InstallPlanRequest, PlanOperation, build_restore_plan,
-    plan_install, render_dry_run,
+    AssetCategory, InstallPlan, InstallPlanRequest, PlanOperation, build_restore_plan, plan_install,
 };
 
 const MANAGED_CONFIG: &str = concat!(
@@ -252,7 +251,7 @@ fn plan_merges_only_the_five_managed_configuration_keys() {
 }
 
 #[test]
-fn manifest_action_is_always_last_and_dry_run_output_is_deterministic() {
+fn manifest_action_is_always_last_in_deterministic_plan_order() {
     // Arrange
     let temporary = project_tempdir("plan-manifest-last");
     let fixture = Fixture::new(temporary.path());
@@ -261,20 +260,22 @@ fn manifest_action_is_always_last_and_dry_run_output_is_deterministic() {
 
     // Act
     let plan = plan_install(fixture.request(false)).expect("ordered plan");
-    let first = render_dry_run(&plan);
-    let second = render_dry_run(&plan);
-
     // Assert
     assert_eq!(
         plan.actions.last().map(|action| action.category),
         Some(AssetCategory::Manifest)
     );
-    assert_eq!(first, second);
-    assert!(
-        first
-            .lines()
-            .last()
-            .is_some_and(|line| line.contains("manifest"))
+    assert_eq!(
+        plan.actions
+            .iter()
+            .map(|action| (action.category, action.name.as_deref()))
+            .collect::<Vec<_>>(),
+        vec![
+            (AssetCategory::Config, None),
+            (AssetCategory::Skill, Some("alpha")),
+            (AssetCategory::Skill, Some("zeta")),
+            (AssetCategory::Manifest, None),
+        ]
     );
 }
 
