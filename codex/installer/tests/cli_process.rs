@@ -15,7 +15,7 @@ fn compiled_binary_dry_run_is_non_mutating() {
         !destination_root.exists(),
         "destination root must start absent"
     );
-    let home = destination_root.join("home");
+    let home = destination_root.clone();
     let codex_home = destination_root.join("codex-home");
     let skills_home = destination_root.join("skills-home");
     let state_root = destination_root.join("xdg-state");
@@ -55,12 +55,23 @@ fn compiled_binary_dry_run_is_non_mutating() {
         output.status.code()
     );
     assert!(stderr.is_empty(), "unexpected stderr: {stderr}");
-    assert!(stdout.contains("dry-run: max_threads=6"));
-    assert!(stdout.contains("CREATE config"));
-    assert!(stdout.contains("CREATE global-agents"));
-    assert!(stdout.contains("CREATE skill fixture-skill"));
-    assert!(stdout.contains("CREATE agent fixture-agent.toml"));
-    assert!(stdout.contains("CREATE manifest"));
+    assert!(stdout.starts_with("Dry run · max threads 6\n\n"));
+    assert!(stdout.contains("STATUS  ACTION"));
+    assert!(stdout.contains("ASSET"));
+    assert!(stdout.contains("PATH"));
+    assert!(stdout.contains("•"));
+    assert!(stdout.contains("CREATE"));
+    assert!(stdout.contains("config"));
+    assert!(stdout.contains("global-agents"));
+    assert!(stdout.contains("skill/fixture-skill"));
+    assert!(stdout.contains("agent/fixture-agent.toml"));
+    assert!(stdout.contains("manifest"));
+    assert!(stdout.contains("~/codex-home/config.toml"));
+    assert!(stdout.contains("~/skills-home/fixture-skill"));
+    assert!(stdout.contains("~/xdg-state/installer/manifest-v1.json"));
+    assert!(!stdout.contains('✓'));
+    assert!(!stdout.contains('🍺'));
+    assert!(!stdout.contains('\u{1b}'));
     assert_eq!(
         (
             home.exists(),
@@ -121,7 +132,10 @@ fn compiled_binary_missing_home_uses_failure_stderr() {
     // Assert
     assert_eq!(output.status.code(), Some(1));
     assert!(stdout.is_empty(), "unexpected stdout: {stdout}");
-    assert_eq!(stderr, "HOME must be set to resolve installer defaults\n");
+    assert_eq!(
+        stderr,
+        "✗  HOME must be set to resolve installer defaults\n"
+    );
 }
 
 #[test]
@@ -173,8 +187,14 @@ fn compiled_binary_dry_run_conflict_uses_exit_two_stderr_without_mutation() {
     assert!(stdout.is_empty(), "unexpected stdout: {stdout}");
     assert_eq!(
         stderr,
-        format!("unmanaged destination conflicts: {:?}\n", vec![&conflict])
+        format!(
+            "✗  unmanaged destination conflicts: {:?}\n",
+            vec![&conflict]
+        )
     );
+    assert!(!stderr.contains("STATUS"));
+    assert!(!stderr.contains('🍺'));
+    assert!(!stderr.contains('\u{1b}'));
     assert_eq!(
         (
             fs::read(&conflict).expect("read preserved unmanaged conflict"),
