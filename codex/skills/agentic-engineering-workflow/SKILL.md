@@ -244,20 +244,19 @@ Resolve planned-path entry in this order:
 2. Use `create-workspace` to establish or confirm the feature checkout, branch,
    and starting ref before writing the first recoverable planned-path artifact.
    An already suitable current checkout is sufficient.
-3. When unresolved discussion needs a recoverable living record, create the
+3. When a model or design branch is unresolved and exact current approved
+   authority does not fully cover it, require `design-discussion` to create the
    ignored
    `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-   confirmation and before presenting the provisional model. Keep provisional
-   working-model state separate from settled decisions. File existence is not
-   alignment or approval. Do not create a duplicate record when exact current
-   authority already covers the work. Use `design-discussion` first to present
-   the smallest complete provisional working model of current processing and
-   responsibilities, desired outcome, constraints and non-goals, settled
-   decisions, remaining assumptions, and applicable success, failure, recovery,
-   concurrency or conflict, and verification paths. Resolve one material
-   misunderstanding or hidden assumption at a time until the user has had a
-   chance to correct the re-synthesized model. This alignment checkpoint is not
-   design approval; do not present options or recommendations during it.
+   confirmation and before it presents the provisional model. The record must
+   preserve repository and authority identity, current conceptual phase,
+   checkpoint and alignment result, classified model claims, and separate
+   provisional from settled state. Do not omit it because the discussion is
+   expected to be short or create a duplicate when exact current approved
+   authority already covers the work. File existence is not alignment or
+   approval. Let `design-discussion` own model construction, understanding
+   questions, synthesis, and the shared-model checkpoint. Do not permit options,
+   recommendations, or downstream drafting until it reports `Model Aligned`.
 4. Only after the shared model is aligned, let the user settle one reachable
    material design decision at a time while `design-discussion` follows branches
    and dependencies.

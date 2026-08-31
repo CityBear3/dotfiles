@@ -63,13 +63,17 @@ the settled decisions whose meaning depends on it.
 
 ## Maintain the living decision record
 
-For planned discussion that needs a recoverable living record, create the
-ignored workspace artifact
+For planned discussion with an unresolved model or design branch not fully
+covered by exact current approved authority, create the ignored workspace
+artifact
 `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-confirmation and before presenting the provisional model. Keep its
-evidence-backed current state, user-stated intent, Agent inferences, and
-unresolved model questions in a provisional section separate from settled
-decisions. Update the decision section as choices settle with:
+confirmation and before presenting the provisional model. Do not omit it
+because the discussion is expected to be short. In a provisional section,
+record repository and authority identity, the current conceptual phase,
+checkpoint and alignment result, user-stated intent, and material model claims
+classified as confirmed, evidence-backed, inferred, or unresolved. Keep this
+section separate from settled decisions. Update the decision section as choices
+settle with:
 
 - selected approaches and rationale;
 - rejected alternatives and reasons;
