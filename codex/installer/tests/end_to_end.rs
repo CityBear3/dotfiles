@@ -195,16 +195,27 @@ fn install_and_restore_round_trip_with_normal_binary() {
         .expect("read transaction work after restore")
         .next()
         .is_none();
+    let install_stdout = String::from_utf8(install.stdout.clone()).expect("UTF-8 install stdout");
+    let install_stderr = String::from_utf8(install.stderr.clone()).expect("UTF-8 install stderr");
+    let restore_stdout = String::from_utf8(restore.stdout.clone()).expect("UTF-8 restore stdout");
+    let restore_stderr = String::from_utf8(restore.stderr.clone()).expect("UTF-8 restore stderr");
 
     // Assert
-    assert_eq!(
-        (
-            install.status.success(),
-            String::from_utf8(install.stdout).expect("UTF-8 install stdout"),
-            String::from_utf8(install.stderr).expect("UTF-8 install stderr"),
-        ),
-        (true, "install complete\n".to_owned(), String::new())
+    assert!(install.status.success(), "unexpected install failure");
+    assert!(
+        install_stderr.is_empty(),
+        "unexpected stderr: {install_stderr}"
     );
+    assert!(install_stdout.starts_with("STATUS  ACTION"));
+    assert!(install_stdout.contains("✓"));
+    assert!(install_stdout.contains("REPLACE"));
+    assert!(install_stdout.contains("REMOVE"));
+    assert!(install_stdout.contains("skill/fixture-skill"));
+    assert!(install_stdout.contains("agent/fixture-agent.toml"));
+    assert!(install_stdout.contains("🍺 Install complete ·"));
+    assert!(install_stdout.contains(" changed · "));
+    assert!(install_stdout.contains(" unchanged\n"));
+    assert!(!install_stdout.contains('\u{1b}'));
     assert_eq!(
         (
             installed_config_table
@@ -265,14 +276,21 @@ fn install_and_restore_round_trip_with_normal_binary() {
     assert!(!journal_after_install.is_empty());
     assert!(!wal_exists_after_install);
     assert!(work_is_empty_after_install);
-    assert_eq!(
-        (
-            restore.status.success(),
-            String::from_utf8(restore.stdout).expect("UTF-8 restore stdout"),
-            String::from_utf8(restore.stderr).expect("UTF-8 restore stderr"),
-        ),
-        (true, "restore complete\n".to_owned(), String::new())
+    assert!(restore.status.success(), "unexpected restore failure");
+    assert!(
+        restore_stderr.is_empty(),
+        "unexpected stderr: {restore_stderr}"
     );
+    assert!(restore_stdout.starts_with("STATUS  ACTION"));
+    assert!(restore_stdout.contains("✓"));
+    assert!(restore_stdout.contains("REPLACE"));
+    assert!(restore_stdout.contains("REMOVE"));
+    assert!(restore_stdout.contains("skill/fixture-skill"));
+    assert!(restore_stdout.contains("agent/fixture-agent.toml"));
+    assert!(restore_stdout.contains("🍺 Restore complete ·"));
+    assert!(restore_stdout.contains(" changed · "));
+    assert!(restore_stdout.contains(" unchanged\n"));
+    assert!(!restore_stdout.contains('\u{1b}'));
     assert_eq!(
         restored_state,
         (
