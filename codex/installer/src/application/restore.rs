@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use crate::InstallerError;
+use crate::OperationReport;
 #[cfg(target_os = "macos")]
 use crate::backup::BackupStore;
 use crate::command::RestoreCommand;
@@ -23,7 +24,7 @@ pub(super) fn execute_mutating(
     command: RestoreCommand,
     source_root: &Path,
     operation_id: &str,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     let platform = MacOsPlatform::new();
     let store = BackupStore::new(&platform, &command.state_dir);
     let locked_codex_home = resolve_lock_target(&store, source_root)?;
@@ -43,7 +44,7 @@ pub(super) fn execute_mutating(
     _command: RestoreCommand,
     _source_root: &Path,
     _operation_id: &str,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     Err(InstallerError::UnsupportedPlatform)
 }
 
@@ -55,7 +56,7 @@ pub(super) fn execute_locked(
     source_root: &Path,
     operation_id: &str,
     locked_codex_home: &Path,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     let engine = TransactionEngine::new(platform);
     let post_lock = require_latest(store)?;
     validate_locked_authority(source_root, &post_lock, locked_codex_home)?;
@@ -68,13 +69,13 @@ pub(super) fn execute_locked(
         .iter()
         .all(|action| action.operation == PlanOperation::NoOp)
     {
-        return Ok("restore complete\n".to_owned());
+        return Ok(OperationReport::completed_restore(&plan));
     }
 
     engine.execute_with_finalization(&plan, operation_id, FaultPoint::None, |transaction_id| {
         store.finalize_committed_transaction(transaction_id)
     })?;
-    Ok("restore complete\n".to_owned())
+    Ok(OperationReport::completed_restore(&plan))
 }
 
 #[cfg(target_os = "macos")]

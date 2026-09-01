@@ -1,4 +1,5 @@
 use crate::InstallerError;
+use crate::OperationReport;
 #[cfg(target_os = "macos")]
 use crate::backup::{BackupRequest, BackupRoots, BackupStore, EnsureBackup};
 use crate::command::InstallCommand;
@@ -8,7 +9,7 @@ use crate::operation_lock::OperationLock;
 use crate::ownership::{ManifestState, read_manifest};
 #[cfg(target_os = "macos")]
 use crate::plan::{InstallPlan, PlanOperation};
-use crate::plan::{InstallPlanRequest, plan_install, render_dry_run};
+use crate::plan::{InstallPlanRequest, plan_install};
 #[cfg(target_os = "macos")]
 use crate::platform::macos::MacOsPlatform;
 #[cfg(target_os = "macos")]
@@ -21,7 +22,7 @@ use super::{discard_if_unselected, recover_unfinished};
 pub(super) fn execute_dry_run(
     command: InstallCommand,
     context: ApplicationContext,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     let plan = plan_install(InstallPlanRequest {
         source_root: context.source_root,
         codex_home: command.codex_home,
@@ -31,7 +32,7 @@ pub(super) fn execute_dry_run(
         requested_threads: command.agent_threads,
         resources: context.resources,
     })?;
-    Ok(render_dry_run(&plan))
+    Ok(OperationReport::install_dry_run(&plan))
 }
 
 #[cfg(target_os = "macos")]
@@ -39,7 +40,7 @@ pub(super) fn execute_mutating(
     command: InstallCommand,
     context: ApplicationContext,
     requested_operation_id: &str,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     let _lock = OperationLock::acquire(&command.codex_home)?;
     let platform = MacOsPlatform::new();
     let engine = TransactionEngine::new(platform);
@@ -56,7 +57,7 @@ pub(super) fn execute_mutating(
         resources: context.resources,
     })?;
     if !has_mutating_actions(&plan) {
-        return Ok("install complete\n".to_owned());
+        return Ok(OperationReport::completed_install(&plan));
     }
 
     engine.initialize_state(&plan.roots.state_dir)?;
@@ -102,7 +103,7 @@ pub(super) fn execute_mutating(
         return Err(error);
     }
 
-    Ok("install complete\n".to_owned())
+    Ok(OperationReport::completed_install(&plan))
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -110,7 +111,7 @@ pub(super) fn execute_mutating(
     _command: InstallCommand,
     _context: ApplicationContext,
     _requested_operation_id: &str,
-) -> Result<String, InstallerError> {
+) -> Result<OperationReport, InstallerError> {
     Err(InstallerError::UnsupportedPlatform)
 }
 

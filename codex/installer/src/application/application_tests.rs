@@ -12,6 +12,9 @@ use crate::platform::macos::MacOsPlatform;
 use crate::resources::MachineResources;
 use crate::test_support::project_tempdir;
 use crate::transaction::{FaultPoint, TransactionEngine};
+use crate::{
+    OperationAssetCategory, OperationMode, OperationReport, OperationReportEntry, ReportOperation,
+};
 
 use super::{
     ApplicationContext, execute_restore_with_context_and_id, execute_with_context,
@@ -94,11 +97,40 @@ fn dry_run_preserves_existing_destinations_and_state_without_lock() {
     let result = execute_with_context(command, context);
 
     // Assert
-    let output = result.expect("dry-run succeeds");
-    assert!(output.contains("REPLACE config"));
-    assert!(output.contains("CREATE skill review"));
-    assert!(output.contains("CREATE agent task-orchestrator.toml"));
-    assert!(output.contains("CREATE manifest"));
+    let report = result.expect("dry-run succeeds");
+    assert_eq!(
+        report,
+        OperationReport {
+            mode: OperationMode::InstallDryRun { max_threads: 6 },
+            entries: vec![
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Config,
+                    name: None,
+                    path: codex_home.join("config.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Create,
+                    category: OperationAssetCategory::Skill,
+                    name: Some("review".to_owned()),
+                    path: skills_home.join("review"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Create,
+                    category: OperationAssetCategory::Agent,
+                    name: Some("task-orchestrator.toml".to_owned()),
+                    path: codex_home.join("agents/task-orchestrator.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Create,
+                    category: OperationAssetCategory::Manifest,
+                    name: None,
+                    path: state_dir.join("manifest-v1.json"),
+                },
+            ],
+        }
+    );
+    assert!(!format!("{report:?}").contains("model_reasoning_effort"));
     assert_eq!(
         (
             capture_optional(&codex_home)
@@ -257,7 +289,52 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
     let result = execute_with_context_and_id(command, context, "install-primary");
 
     // Assert
-    result.expect("mutating install succeeds");
+    let report = result.expect("mutating install succeeds");
+    assert_eq!(
+        report,
+        OperationReport {
+            mode: OperationMode::CompletedInstall,
+            entries: vec![
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Config,
+                    name: None,
+                    path: codex_home.join("config.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Create,
+                    category: OperationAssetCategory::GlobalAgents,
+                    name: None,
+                    path: codex_home.join("AGENTS.md"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Skill,
+                    name: Some("adopted".to_owned()),
+                    path: skills_home.join("adopted"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Remove,
+                    category: OperationAssetCategory::Skill,
+                    name: Some("stale".to_owned()),
+                    path: skills_home.join("stale"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Create,
+                    category: OperationAssetCategory::Agent,
+                    name: Some("task-orchestrator.toml".to_owned()),
+                    path: codex_home.join("agents/task-orchestrator.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Manifest,
+                    name: None,
+                    path: state_dir.join("manifest-v1.json"),
+                },
+            ],
+        }
+    );
+    assert!(!format!("{report:?}").contains("desired adopted skill"));
     let desired_ownership = OwnershipManifest::new(true, ["adopted"], ["task-orchestrator.toml"]);
     assert_eq!(
         (
@@ -759,7 +836,26 @@ fn no_op_install_creates_neither_backup_nor_transaction_state() {
     let result = execute_with_context_and_id(command, context, "no-op-candidate");
 
     // Assert
-    result.expect("no-op install succeeds");
+    assert_eq!(
+        result,
+        Ok(OperationReport {
+            mode: OperationMode::CompletedInstall,
+            entries: vec![
+                OperationReportEntry {
+                    operation: ReportOperation::NoOp,
+                    category: OperationAssetCategory::Config,
+                    name: None,
+                    path: codex_home.join("config.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::NoOp,
+                    category: OperationAssetCategory::Manifest,
+                    name: None,
+                    path: state_dir.join("manifest-v1.json"),
+                },
+            ],
+        })
+    );
     assert!(!state_dir.join("backups").exists());
     assert!(!state_dir.join("transaction").exists());
     assert!(codex_home.join("codex-manifest-installer.lock").is_file());
@@ -949,7 +1045,44 @@ fn restore_keeps_backup_a_selected_and_does_not_promote_b() {
     );
 
     // Assert
-    assert_eq!(result, Ok("restore complete\n".to_owned()));
+    assert_eq!(
+        result,
+        Ok(OperationReport {
+            mode: OperationMode::CompletedRestore,
+            entries: vec![
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Config,
+                    name: None,
+                    path: codex_home.join("config.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::GlobalAgents,
+                    name: None,
+                    path: codex_home.join("AGENTS.md"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Skill,
+                    name: Some("a-skill".to_owned()),
+                    path: skills_home.join("a-skill"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Remove,
+                    category: OperationAssetCategory::Skill,
+                    name: Some("b-only".to_owned()),
+                    path: skills_home.join("b-only"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::Replace,
+                    category: OperationAssetCategory::Manifest,
+                    name: None,
+                    path: state_dir.join("manifest-v1.json"),
+                },
+            ],
+        })
+    );
     assert_eq!(
         (
             fs::read(codex_home.join("config.toml")).expect("read restored config"),
@@ -1052,7 +1185,18 @@ fn restore_cleans_stale_backup_publication_after_committing_selected_backup() {
     );
 
     // Assert
-    assert_eq!(result, Ok("restore complete\n".to_owned()));
+    assert_eq!(
+        result,
+        Ok(OperationReport {
+            mode: OperationMode::CompletedRestore,
+            entries: vec![OperationReportEntry {
+                operation: ReportOperation::Replace,
+                category: OperationAssetCategory::Config,
+                name: None,
+                path: codex_home.join("config.toml"),
+            }],
+        })
+    );
     assert_eq!(
         fs::read(&config).expect("read restored config"),
         b"config A"
@@ -1284,7 +1428,26 @@ fn install_restart_finalizes_a_committed_restore_without_promoting_live_state() 
     });
     let restarted =
         execute_with_context_and_id(install, restore_context(), "after-restore-restart");
-    assert_eq!(restarted, Ok("install complete\n".to_owned()));
+    assert_eq!(
+        restarted,
+        Ok(OperationReport {
+            mode: OperationMode::CompletedInstall,
+            entries: vec![
+                OperationReportEntry {
+                    operation: ReportOperation::NoOp,
+                    category: OperationAssetCategory::Config,
+                    name: None,
+                    path: codex_home.join("config.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::NoOp,
+                    category: OperationAssetCategory::Manifest,
+                    name: None,
+                    path: state_dir.join("manifest-v1.json"),
+                },
+            ],
+        })
+    );
     assert_eq!(
         fs::read(codex_home.join("config.toml")).expect("reread restored config"),
         MANAGED_CONFIG.as_bytes()
@@ -1357,7 +1520,26 @@ fn no_op_restore_changes_neither_backup_selection_nor_transaction_state() {
     );
 
     // Assert
-    assert_eq!(result, Ok("restore complete\n".to_owned()));
+    assert_eq!(
+        result,
+        Ok(OperationReport {
+            mode: OperationMode::CompletedRestore,
+            entries: vec![
+                OperationReportEntry {
+                    operation: ReportOperation::NoOp,
+                    category: OperationAssetCategory::Config,
+                    name: None,
+                    path: codex_home.join("config.toml"),
+                },
+                OperationReportEntry {
+                    operation: ReportOperation::NoOp,
+                    category: OperationAssetCategory::Manifest,
+                    name: None,
+                    path: state_dir.join("manifest-v1.json"),
+                },
+            ],
+        })
+    );
     assert_eq!(
         capture_optional(&state_dir.join("backups"))
             .expect("capture backups after restore")

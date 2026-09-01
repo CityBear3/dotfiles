@@ -3,7 +3,7 @@ mod model;
 #[cfg(target_os = "macos")]
 mod restore;
 
-pub(crate) use install::{plan_install, render_dry_run};
+pub(crate) use install::plan_install;
 pub(crate) use model::{AssetCategory, InstallPlan, InstallPlanRequest, PlanAction, PlanOperation};
 #[cfg(target_os = "macos")]
 pub(crate) use restore::build_restore_plan;
