@@ -114,7 +114,7 @@ The implementer may batch independent initial authority reads, repository search
 
 New planned features keep `docs/plans/YYYY-MM-DD-<feature>/search-cache.md` beside the Feature Contract and Implementation Plan. The Feature lead is its only writer. Planned roles look up source-identified current entries before repeating discovery and return candidates rather than editing the file. The cache is ignored, workspace-only, non-authoritative, and has the same lifecycle as the ignored Implementation Plan: it remains through publication, feedback re-entry, and disposition evidence and is retired only with separately authorized removal of that coordination worktree. It never replaces fresh Git, authority, verification, or review evidence, and lightweight or eligible legacy work does not acquire it solely to fit the new format.
 
-The rollout operator fingerprints the managed source and installed bundle separately, including destination-relative paths, file digests, logical inventory, and the five installer-owned configuration values. The installed baseline remains unchanged until all approved before observations and candidate repository gates complete. Installing the exact accepted candidate is a separate owner-controlled action; the candidate fingerprint and after observations then use the same quality bar. The fixed workload and run evidence stay in the approved plan and evaluation workspaces rather than reusable Skill prose.
+The rollout operator fingerprints the managed source and installed bundle separately, including destination-relative paths, file digests, logical inventory, and the six installer-owned configuration values. The installed baseline remains unchanged until all approved before observations and candidate repository gates complete. Installing the exact accepted candidate is a separate owner-controlled action; the candidate fingerprint and after observations then use the same quality bar. The fixed workload and run evidence stay in the approved plan and evaluation workspaces rather than reusable Skill prose.
 
 Installing the bundle does not change an already-running Codex session. Root-owned direct dispatch applies only after a successful install and a later Codex session reload; installation and that new-session smoke test are separate operator actions.
 
@@ -133,9 +133,9 @@ Command-line options override these environment-derived defaults. The paths show
 | `AGENTS.global.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 | `agents/<name>.toml` | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` |
 | `skills/<name>/` | `$HOME/.agents/skills/<name>/` |
-| `config.toml` | Five managed values merged into `${CODEX_HOME:-$HOME/.codex}/config.toml` |
+| `config.toml` | Six managed values merged into `${CODEX_HOME:-$HOME/.codex}/config.toml` |
 
-The five managed configuration values are `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `agents.max_threads`, and `agents.max_depth`. Other configuration bytes—including comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
+The six managed configuration values are `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `tools.update_plan.enabled`, `agents.max_threads`, and `agents.max_depth`. The tracked value keeps the `update_plan` tool enabled. Other configuration bytes—including comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
 
 The installer manages only declared or manifest-owned names. Unrelated sibling skills and agents are preserved. `.system` cannot be installer-owned or pruned; in particular, `${CODEX_HOME:-$HOME/.codex}/skills/.system` is outside the destination mapping.
 
@@ -145,7 +145,7 @@ For a default or explicit `install`, the shell launcher validates the helper sou
 
 Within that launcher boundary, a Rust install follows this sequence:
 
-1. Resolve the source and destination roots, validate the source inventory, and merge the five managed configuration values with the live `config.toml`.
+1. Resolve the source and destination roots, validate the source inventory, and merge the six managed configuration values with the live `config.toml`.
 2. Compare the desired content with the live destinations and ownership manifest to build a plan.
 3. For dry-run, print the plan and stop without changing installer-managed destinations or state.
 4. For a mutating install, acquire the operation lock and recover or finalize any transaction left by an interrupted earlier run.
@@ -162,7 +162,7 @@ The installer may create missing parent directories below the configured roots. 
 | Path | Contents and lifetime |
 |---|---|
 | `${CODEX_HOME:-$HOME/.codex}/codex-manifest-installer.lock` | Persistent empty file used only to serialize mutating commands; dry-run does not create it |
-| `${CODEX_HOME:-$HOME/.codex}/config.toml` | Live Codex configuration with only the five declared values managed by this installer |
+| `${CODEX_HOME:-$HOME/.codex}/config.toml` | Live Codex configuration with only the six declared values managed by this installer |
 | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Global guidance copied from `AGENTS.global.md` |
 | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` | Managed custom-agent definitions |
 | `$HOME/.agents/skills/<name>/` | Managed personal skill directories |
@@ -315,4 +315,4 @@ No output from `cmp` and `diff` means the managed installed assets match the rep
 
 ### Configuration limitation
 
-The fallback intentionally does not copy `config.toml`, because replacing the live file would destroy unmanaged device-specific settings. When using the fallback, review the live `~/.codex/config.toml` and update only the five managed keys declared in this repository fragment. Never copy the fragment over the entire live file.
+The fallback intentionally does not copy `config.toml`, because replacing the live file would destroy unmanaged device-specific settings. When using the fallback, review the live `~/.codex/config.toml` and update only the six managed keys declared in this repository fragment. Never copy the fragment over the entire live file.

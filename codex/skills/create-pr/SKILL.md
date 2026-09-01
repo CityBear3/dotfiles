@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create an authorized GitHub Task PR against its approved planned base with a structured description grounded in exact Task Contract, range, and verification evidence.
+description: Create an authorized GitHub Task PR against its approved base with a structured description grounded in exact accepted publication evidence, without rerunning verification or review.
 ---
 
 # Create a pull request
@@ -30,8 +30,20 @@ substitute the repository default for a resolved base. Inspect:
 - for eligible legacy work, current verification, review, and triage evidence
   satisfying its unchanged approved completion criteria, without requiring a
   new internal `Accepted` state;
-- the repository PR template, preferring `.github/pull_request_template.md`, then other conventional template locations;
-- fresh verification results for the branch.
+- the repository PR template, preferring `.github/pull_request_template.md`, then other conventional template locations.
+
+Treat the accepted publication handoff as the source of verification, review,
+and triage evidence. Re-resolve the base, head, merge base, range, and status to
+confirm that the handoff still names the current target. Entering the
+publication phase or the passage of time does not by itself make unchanged
+evidence stale.
+
+Do not invoke `verify`, `review`, or `receiving-code-review`, and do not rerun
+their checks solely to create the PR. Git identity and status checks in this
+skill are publication preflight checks, not a new Acceptance gate. If the
+publication target or its controlling authority changed, or required evidence
+is missing, stop with the exact mismatch and return it to the owning workflow;
+do not recreate Acceptance evidence inside `create-pr`.
 
 Stop if the branch, base, range, ancestry, applicable accepted or legacy
 completion evidence, or status differs from the approved publication target. A
@@ -59,7 +71,9 @@ Follow the repository template. Otherwise include:
 - Verification
 - Known limitations or follow-ups
 
-Describe observed results; do not claim checks that were not run. Keep implementation narration subordinate to user-visible behavior and design rationale.
+Describe the accepted observed results; do not claim checks that were not run
+or present publication preflight checks as verification. Keep implementation
+narration subordinate to user-visible behavior and design rationale.
 
 ## Publish
 

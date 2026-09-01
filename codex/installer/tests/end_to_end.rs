@@ -94,6 +94,12 @@ fn install_and_restore_round_trip_with_normal_binary() {
         .get("agents")
         .and_then(toml::Value::as_table)
         .expect("installed config has agents table");
+    let installed_update_plan = installed_config_table
+        .get("tools")
+        .and_then(toml::Value::as_table)
+        .and_then(|tools| tools.get("update_plan"))
+        .and_then(toml::Value::as_table)
+        .expect("installed config has tools.update_plan table");
     let installed_manifest =
         fs::read(state_dir.join("manifest-v1.json")).expect("read installed manifest");
     let stale_exists_after_install = skills_home.join("stale-skill").exists();
@@ -233,6 +239,9 @@ fn install_and_restore_round_trip_with_normal_binary() {
             installed_agents
                 .get("max_depth")
                 .and_then(toml::Value::as_integer),
+            installed_update_plan
+                .get("enabled")
+                .and_then(toml::Value::as_bool),
         ),
         (
             Some("fixture-model"),
@@ -240,6 +249,7 @@ fn install_and_restore_round_trip_with_normal_binary() {
             Some("high"),
             Some(4),
             Some(2),
+            Some(true),
         )
     );
     assert!(

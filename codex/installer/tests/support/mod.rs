@@ -24,6 +24,9 @@ pub(crate) fn source_fixture(parent: &Path) -> PathBuf {
             "[agents]\n",
             "max_threads = 2\n",
             "max_depth = 2\n",
+            "\n",
+            "[tools.update_plan]\n",
+            "enabled = true\n",
         ),
     )
     .expect("write fixture config");

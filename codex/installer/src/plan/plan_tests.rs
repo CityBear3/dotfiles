@@ -22,6 +22,9 @@ const MANAGED_CONFIG: &str = concat!(
     "[agents]\n",
     "max_threads = 6\n",
     "max_depth = 2\n",
+    "\n",
+    "[tools.update_plan]\n",
+    "enabled = true\n",
 );
 
 #[test]
@@ -211,7 +214,7 @@ fn plan_adopts_an_existing_asset_only_when_requested() {
 }
 
 #[test]
-fn plan_merges_only_the_five_managed_configuration_keys() {
+fn plan_merges_only_the_six_managed_configuration_keys() {
     // Arrange
     let temporary = project_tempdir("plan-config-merge");
     let fixture = Fixture::new(temporary.path());
@@ -221,6 +224,9 @@ fn plan_merges_only_the_five_managed_configuration_keys() {
         "model_reasoning_effort = \"medium\"\n",
         "plan_mode_reasoning_effort = \"high\"\n",
         "approval_policy = \"on-request\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = false # local update-plan context\n",
         "\n",
         "[agents]\n",
         "max_threads = 2\n",
@@ -233,6 +239,9 @@ fn plan_merges_only_the_five_managed_configuration_keys() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "approval_policy = \"on-request\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true # local update-plan context\n",
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
