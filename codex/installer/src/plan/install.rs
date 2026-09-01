@@ -117,29 +117,6 @@ pub(crate) fn plan_install(request: InstallPlanRequest) -> Result<InstallPlan, I
     })
 }
 
-pub(crate) fn render_dry_run(plan: &InstallPlan) -> String {
-    let mut output = format!("dry-run: max_threads={}\n", plan.max_threads);
-    for action in &plan.actions {
-        let operation = match action.operation {
-            PlanOperation::Create => "CREATE",
-            PlanOperation::Replace => "REPLACE",
-            PlanOperation::Remove => "REMOVE",
-            PlanOperation::NoOp => "NO-OP",
-        };
-        let name = action
-            .name
-            .as_deref()
-            .map(|name| format!(" {name}"))
-            .unwrap_or_default();
-        output.push_str(&format!(
-            "{operation} {}{name} {}\n",
-            action.category.label(),
-            plan.roots.resolve(&action.locator).display()
-        ));
-    }
-    output
-}
-
 fn plan_config(
     roots: &InstallRoots,
     managed_text: &str,

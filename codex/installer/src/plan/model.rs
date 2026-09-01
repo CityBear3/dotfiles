@@ -21,18 +21,6 @@ pub(crate) enum AssetCategory {
     Manifest,
 }
 
-impl AssetCategory {
-    pub(crate) fn label(self) -> &'static str {
-        match self {
-            Self::Config => "config",
-            Self::GlobalAgents => "global-agents",
-            Self::Skill => "skill",
-            Self::Agent => "agent",
-            Self::Manifest => "manifest",
-        }
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct PlanAction {
     pub(crate) operation: PlanOperation,
