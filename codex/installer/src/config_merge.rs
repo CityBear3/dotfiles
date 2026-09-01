@@ -10,6 +10,8 @@ const MANAGED_ROOT_KEYS: [&str; 3] = [
     "plan_mode_reasoning_effort",
 ];
 const MANAGED_AGENT_KEYS: [&str; 2] = ["max_threads", "max_depth"];
+const MANAGED_UPDATE_PLAN_KEYS: [&str; 1] = ["enabled"];
+const UPDATE_PLAN_ENABLED_KEY: &str = "tools.update_plan.enabled";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum ManagedScalar {
@@ -67,7 +69,7 @@ struct Structure {
     table_headers: Vec<usize>,
 }
 
-/// Merge the five managed keys while preserving unmanaged configuration bytes.
+/// Merge the six managed keys while preserving unmanaged configuration bytes.
 pub(crate) fn merge_config(
     existing_text: &str,
     managed_text: &str,
@@ -118,6 +120,26 @@ pub(crate) fn merge_config(
             merge_existing_agents(&mut lines, existing_agents, &managed)?;
         }
         None => append_agents_table(&mut lines, &managed)?,
+    }
+
+    match existing.get("tools") {
+        Some(existing_tools) => {
+            let existing_tools = existing_tools.as_table().ok_or_else(|| {
+                invalid_config("existing configuration does not contain an ordinary tools table")
+            })?;
+            match existing_tools.get("update_plan") {
+                Some(existing_update_plan) => {
+                    let existing_update_plan = existing_update_plan.as_table().ok_or_else(|| {
+                        invalid_config(
+                            "existing configuration does not contain an ordinary tools.update_plan table",
+                        )
+                    })?;
+                    merge_existing_update_plan(&mut lines, existing_update_plan, &managed)?;
+                }
+                None => append_update_plan_table(&mut lines, &managed)?,
+            }
+        }
+        None => append_update_plan_table(&mut lines, &managed)?,
     }
 
     let mut candidate = lines.concat();
@@ -207,6 +229,76 @@ fn append_agents_table(
     Ok(())
 }
 
+fn merge_existing_update_plan(
+    lines: &mut Vec<String>,
+    existing_update_plan: &Table,
+    managed: &BTreeMap<&str, ManagedScalar>,
+) -> Result<(), InstallerError> {
+    let structure = scan_toml_structure(lines);
+    let update_plan_headers = structure
+        .table_headers
+        .iter()
+        .copied()
+        .filter(|index| is_exact_update_plan_header(line_body(&lines[*index])))
+        .collect::<Vec<_>>();
+    if update_plan_headers.len() != 1 {
+        return Err(invalid_config(
+            "existing tools.update_plan value is not one exact [tools.update_plan] table",
+        ));
+    }
+
+    let table_start = update_plan_headers[0];
+    let table_end = structure
+        .table_headers
+        .iter()
+        .copied()
+        .find(|index| *index > table_start)
+        .unwrap_or(lines.len());
+    if existing_update_plan.contains_key("enabled") {
+        let assignment = unique_assignment(
+            lines,
+            table_start + 1,
+            table_end,
+            "enabled",
+            &structure.statement_lines,
+            "inside [tools.update_plan]",
+        )?;
+        lines[assignment] = replacement_line(
+            &lines[assignment],
+            "enabled",
+            managed_value(managed, UPDATE_PLAN_ENABLED_KEY),
+        )?;
+    } else {
+        let insertion = before_trailing_blank_lines(lines, table_start + 1, table_end);
+        prepare_insertion(lines, insertion);
+        lines.insert(
+            insertion,
+            new_assignment("enabled", managed_value(managed, UPDATE_PLAN_ENABLED_KEY))?,
+        );
+    }
+    Ok(())
+}
+
+fn append_update_plan_table(
+    lines: &mut Vec<String>,
+    managed: &BTreeMap<&str, ManagedScalar>,
+) -> Result<(), InstallerError> {
+    let insertion = lines.len();
+    prepare_insertion(lines, insertion);
+    if lines
+        .last()
+        .is_some_and(|line| !line_body(line).trim().is_empty())
+    {
+        lines.push("\n".to_owned());
+    }
+    lines.push("[tools.update_plan]\n".to_owned());
+    lines.push(new_assignment(
+        "enabled",
+        managed_value(managed, UPDATE_PLAN_ENABLED_KEY),
+    )?);
+    Ok(())
+}
+
 fn parse_toml(text: &str, description: &str) -> Result<Table, InstallerError> {
     toml::from_str::<Table>(text)
         .map_err(|error| invalid_config(format!("invalid {description}: {error}")))
@@ -217,11 +309,12 @@ fn validated_managed_values(
     max_threads: u8,
 ) -> Result<BTreeMap<&'static str, ManagedScalar>, InstallerError> {
     let parsed = parse_toml(managed_text, "managed configuration")?;
-    if parsed.len() != MANAGED_ROOT_KEYS.len() + 1
+    if parsed.len() != MANAGED_ROOT_KEYS.len() + 2
         || !MANAGED_ROOT_KEYS
             .iter()
             .all(|key| parsed.contains_key(*key))
         || !parsed.contains_key("agents")
+        || !parsed.contains_key("tools")
     {
         return Err(invalid_config(
             "managed configuration has unknown or missing root keys",
@@ -244,6 +337,22 @@ fn validated_managed_values(
         ));
     }
 
+    let update_plan = parsed
+        .get("tools")
+        .and_then(Value::as_table)
+        .filter(|tools| tools.len() == 1)
+        .and_then(|tools| tools.get("update_plan"))
+        .and_then(Value::as_table)
+        .filter(|update_plan| {
+            update_plan.len() == MANAGED_UPDATE_PLAN_KEYS.len()
+                && MANAGED_UPDATE_PLAN_KEYS
+                    .iter()
+                    .all(|key| update_plan.contains_key(*key))
+        })
+        .ok_or_else(|| {
+            invalid_config("managed configuration has unknown or missing tools.update_plan keys")
+        })?;
+
     let mut values = BTreeMap::new();
     for key in MANAGED_ROOT_KEYS {
         values.insert(key, ManagedScalar::from_value(key, &parsed[key])?);
@@ -251,6 +360,13 @@ fn validated_managed_values(
     for key in MANAGED_AGENT_KEYS {
         values.insert(key, ManagedScalar::from_value(key, &agents[key])?);
     }
+    let enabled = ManagedScalar::from_value(UPDATE_PLAN_ENABLED_KEY, &update_plan["enabled"])?;
+    if !matches!(enabled, ManagedScalar::Boolean(_)) {
+        return Err(invalid_config(
+            "managed key \"tools.update_plan.enabled\" is not a boolean",
+        ));
+    }
+    values.insert(UPDATE_PLAN_ENABLED_KEY, enabled);
     values.insert(
         "max_threads",
         ManagedScalar::Integer(i64::from(max_threads)),
@@ -280,6 +396,22 @@ fn validate_managed_postcondition(
                 "merged configuration does not contain managed agents key {key:?}"
             )));
         }
+    }
+
+    let final_update_plan = final_config
+        .get("tools")
+        .and_then(Value::as_table)
+        .and_then(|tools| tools.get("update_plan"))
+        .and_then(Value::as_table)
+        .ok_or_else(|| {
+            invalid_config("merged configuration does not contain a tools.update_plan table")
+        })?;
+    if final_update_plan.get("enabled")
+        != Some(&managed_value(managed, UPDATE_PLAN_ENABLED_KEY).as_toml())
+    {
+        return Err(invalid_config(
+            "merged configuration does not contain managed tools.update_plan key \"enabled\"",
+        ));
     }
     Ok(())
 }
@@ -414,6 +546,12 @@ fn scan_toml_structure(lines: &[String]) -> Structure {
 fn is_exact_agents_header(line: &str) -> bool {
     table_header_contents(line).is_some_and(|(is_array, contents)| {
         !is_array && contents.trim_matches([' ', '\t']) == "agents"
+    })
+}
+
+fn is_exact_update_plan_header(line: &str) -> bool {
+    table_header_contents(line).is_some_and(|(is_array, contents)| {
+        !is_array && contents.trim_matches([' ', '\t']) == "tools.update_plan"
     })
 }
 

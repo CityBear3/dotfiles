@@ -28,6 +28,9 @@ fn preserves_unmanaged_configuration_bytes() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -50,10 +53,166 @@ fn preserves_unmanaged_configuration_bytes() {
         "[tui]\n",
         "status_line = [\"model\", \"context\"]\n",
         "# final unmanaged comment\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
     );
 
     // Act
     let result = merge_config(existing, managed, 8);
+
+    // Assert
+    assert_eq!(result, Ok(expected.to_owned()));
+}
+
+#[test]
+fn enables_update_plan_while_preserving_other_tool_configuration() {
+    // Arrange
+    let existing = concat!(
+        "model = \"old\"\n",
+        "model_reasoning_effort = \"medium\"\n",
+        "plan_mode_reasoning_effort = \"high\"\n",
+        "\n",
+        "[tools]\n",
+        "other_setting = \"untouched\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = false # keep update-plan context\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 2\n",
+        "max_depth = 3\n",
+    );
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+    let expected = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools]\n",
+        "other_setting = \"untouched\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true # keep update-plan context\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(result, Ok(expected.to_owned()));
+}
+
+#[test]
+fn adds_update_plan_table_beside_existing_tool_configuration() {
+    // Arrange
+    let existing = concat!(
+        "model = \"old\"\n",
+        "model_reasoning_effort = \"medium\"\n",
+        "plan_mode_reasoning_effort = \"high\"\n",
+        "\n",
+        "[tools]\n",
+        "other_setting = \"untouched\" # keep tool context\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 2\n",
+        "max_depth = 3\n",
+    );
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+    let expected = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools]\n",
+        "other_setting = \"untouched\" # keep tool context\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(result, Ok(expected.to_owned()));
+}
+
+#[test]
+fn adds_enabled_to_existing_update_plan_table() {
+    // Arrange
+    let existing = concat!(
+        "model = \"old\"\n",
+        "model_reasoning_effort = \"medium\"\n",
+        "plan_mode_reasoning_effort = \"high\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "other_setting = \"untouched\"\n",
+        "# keep update-plan context\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 2\n",
+        "max_depth = 3\n",
+    );
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+    let expected = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "other_setting = \"untouched\"\n",
+        "# keep update-plan context\n",
+        "enabled = true\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
 
     // Assert
     assert_eq!(result, Ok(expected.to_owned()));
@@ -77,6 +236,9 @@ fn missing_managed_assignments_are_inserted() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -95,6 +257,9 @@ fn missing_managed_assignments_are_inserted() {
         "\n",
         "[tui]\n",
         "status_line = [\"model\"]\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
     );
 
     // Act
@@ -121,6 +286,9 @@ fn missing_agents_table_is_appended() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -136,6 +304,9 @@ fn missing_agents_table_is_appended() {
         "[agents]\n",
         "max_threads = 4\n",
         "max_depth = 2\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
     );
 
     // Act
@@ -154,6 +325,9 @@ fn empty_configuration_receives_only_managed_values() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -166,6 +340,9 @@ fn empty_configuration_receives_only_managed_values() {
         "[agents]\n",
         "max_threads = 8\n",
         "max_depth = 2\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
     );
 
     // Act
@@ -202,6 +379,9 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -224,6 +404,9 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "max_threads = 6\n",
         "max_depth = 2\n",
         "label = \"keep # inside string\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
     );
 
     // Act
@@ -250,6 +433,9 @@ fn duplicate_managed_assignment_is_rejected() {
         "model = \"gpt-5.6\"\n",
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
@@ -284,6 +470,9 @@ fn quoted_managed_key_is_rejected_as_structurally_unsupported() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -317,6 +506,9 @@ fn inline_agents_table_is_rejected_as_structurally_unsupported() {
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
         "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
@@ -335,6 +527,157 @@ fn inline_agents_table_is_rejected_as_structurally_unsupported() {
 }
 
 #[test]
+fn managed_fragment_without_update_plan_is_rejected() {
+    // Arrange
+    let existing = "";
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::InvalidConfiguration {
+            message: String::from("managed configuration has unknown or missing root keys"),
+        })
+    );
+}
+
+#[test]
+fn managed_update_plan_enabled_must_be_boolean() {
+    // Arrange
+    let existing = "";
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = \"true\"\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::InvalidConfiguration {
+            message: String::from("managed key \"tools.update_plan.enabled\" is not a boolean"),
+        })
+    );
+}
+
+#[test]
+fn managed_update_plan_enabled_is_required() {
+    // Arrange
+    let existing = "";
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::InvalidConfiguration {
+            message: String::from(
+                "managed configuration has unknown or missing tools.update_plan keys"
+            ),
+        })
+    );
+}
+
+#[test]
+fn managed_tools_sibling_is_rejected() {
+    // Arrange
+    let existing = "";
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "\n",
+        "[tools.other]\n",
+        "enabled = true\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::InvalidConfiguration {
+            message: String::from(
+                "managed configuration has unknown or missing tools.update_plan keys"
+            ),
+        })
+    );
+}
+
+#[test]
+fn managed_update_plan_unknown_key_is_rejected() {
+    // Arrange
+    let existing = "";
+    let managed = concat!(
+        "model = \"gpt-5.6\"\n",
+        "model_reasoning_effort = \"xhigh\"\n",
+        "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
+        "unexpected = false\n",
+        "\n",
+        "[agents]\n",
+        "max_threads = 6\n",
+        "max_depth = 2\n",
+    );
+
+    // Act
+    let result = merge_config(existing, managed, 6);
+
+    // Assert
+    assert_eq!(
+        result,
+        Err(crate::InstallerError::InvalidConfiguration {
+            message: String::from(
+                "managed configuration has unknown or missing tools.update_plan keys"
+            ),
+        })
+    );
+}
+
+#[test]
 fn incomplete_managed_fragment_is_rejected() {
     // Arrange
     let existing = "";
@@ -342,6 +685,9 @@ fn incomplete_managed_fragment_is_rejected() {
         "model = \"gpt-5.6\"\n",
         "model_reasoning_effort = \"xhigh\"\n",
         "plan_mode_reasoning_effort = \"xhigh\"\n",
+        "\n",
+        "[tools.update_plan]\n",
+        "enabled = true\n",
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
