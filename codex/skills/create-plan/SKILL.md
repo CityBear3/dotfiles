@@ -183,6 +183,11 @@ structure, local algorithms, or exact commands by default. The writer may
 discover private files inside its approved responsibility and must report the
 actual changed files.
 
+Treat reusable language conventions supplied by repository guidance or an
+applicable Skill as implementation guidance. Reference that guidance without
+copying its rules into the plan. Restate or fix a language-specific choice only
+when its exact identity satisfies the contract-significance criteria below.
+
 Fix exact detail when it defines a public or shared interface, writer ownership,
 generated or manifest mapping, migration or compatibility sequence, safety
 boundary, reproducible environment, authoritative coverage, or another

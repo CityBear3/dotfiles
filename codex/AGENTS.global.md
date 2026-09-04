@@ -13,6 +13,14 @@
 ## Implementation
 
 - Follow repository-local `AGENTS.md` files and approved plans.
+- Use `rust-implementation` before editing Rust production code, module layout,
+  error types, or Cargo package settings. Treat its rules as personal defaults;
+  repository-local guidance and approved project authority take precedence.
+- Keep reusable language conventions in applicable guidance and Skills rather
+  than copying them into Feature Contracts, Task Contracts, or Implementation
+  Plans. Include exact language-specific detail there only when it defines a
+  public or shared interface, compatibility, writer ownership, a reproducible
+  environment, or another observable correctness condition.
 - Preserve existing behavior and unrelated user changes.
 - Use test-driven development for production-code behavior changes.
 - Prefer one writer per shared worktree. Keep review agents read-only unless they are explicitly assigned implementation.
