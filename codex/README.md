@@ -92,31 +92,104 @@ Automatic selection uses logical CPU count and physical memory:
 
 ### Agent hierarchy and inventory
 
-The tracked configuration keeps `agents.max_threads = 6` as the standard-tier input and `agents.max_depth = 2` unchanged for compatibility. Installation replaces only `max_threads` with the selected 4, 6, or 8 automatic tier, or with a valid explicit override. The workflow does not calculate its own leases or grants: the Codex runtime enforces session thread admission, and every dispatched role remains a direct root leaf that may not spawn descendants.
+The Feature Lead owns Feature authority, Task readiness, dependency release,
+cross-Task staleness, integration and Feature Acceptance. Each new planned Task
+uses an independent Codex root session in its approved Herdr worktree. That
+Task Lead is both sole writer and local implementation/check/correction loop
+owner; there is no separate implementer.
 
-Every safe `agents/*.toml` source is included in the managed agent inventory. The root uses the role profiles directly; `agents/review-integrator.toml` remains the read-only, xhigh-reasoning integrator used only when review findings need evidence integration before triage. The retired `task-orchestrator` profile is absent from the source inventory, so a previously installer-owned copy is eligible for removal through the normal plan. Unrelated destination agents remain unmanaged and are preserved.
+~~~text
+Feature Lead (session defaults)
+  |
+  +-- Herdr --> Task session A / worktree A
+  |               +-- native verification-runner
+  |               +-- native spec + implementation-quality review
+  |               `-- conditional native risk/integration
+  |
+  `-- Herdr --> Task session B / worktree B
+                  `-- native checks owned by Task Lead B
+~~~
 
-Planned, lightweight, integration-only, and explicitly standalone leaves run directly below the root. Standalone results are labeled `standalone-only` and cannot satisfy Task or Feature acceptance. A general review integrator is not run after an all-clean review.
+Lightweight work is written directly by the Feature Lead and uses independent
+native verification-runner and focused-reviewer gates. Feature integration and
+standalone checks are also native leaves of the Feature session. Every new
+native leaf has empty inherited history and no descendants.
 
-Planned and eligible legacy Tasks use `execute-task`; root-owned lightweight Tasks use `execute-lightweight-task`. The root is the sole orchestrator for both forms, while the separate executors preserve their different authority contracts. No shared verification, review, workspace, or completion Skill is duplicated, and the existing source-to-destination mapping installs `execute-lightweight-task` under `$HOME/.agents/skills/execute-lightweight-task/`.
+There are eight logical roles, but only seven native profiles:
 
-Every newly created leaf is spawned with explicit `fork_turns="none"` and receives one complete role-specific handoff with directly readable authority and Git sources. Parent conversation, identity, and liveness are not correctness evidence; each role resolves the current target and authority itself. If no-history creation is unavailable, the applicable loop stops as `BLOCKED` instead of silently inheriting turns.
+| Role | Model / effort | Boundary |
+| --- | --- | --- |
+| Task Lead | Sol/high or engineer-approved Astra/high | Independent Herdr session; sole Task writer |
+| verification-runner | Luna/low | Declared commands/observations only |
+| focused-reviewer | Sol/high | Lightweight spec, implementation and tests |
+| spec-reviewer | Sol/high | Planned contract compliance |
+| implementation-quality-reviewer | Sol/high | Implementation and test quality |
+| risk-reviewer | Sol/xhigh | One selected risk perspective per invocation |
+| finding-integrator | Sol/high | Conditional complex/conflicting findings |
+| design-alignment-reviewer | Sol/xhigh | Composed/shared-boundary authority |
 
-After useful independent work is exhausted, the root normally uses one five-to-ten-minute bounded wait that returns early for mailbox, completion, or user-input events. Shorter waits are limited to a nearer deadline, teardown, or interruption boundary with a recorded reason.
+The shared Task root instructions live at
+`skills/execute-task/references/task-lead.md` and install with that Skill.
+They are supplied to both Sol and Astra roots through the launch handoff, not
+through a fictitious native Task Lead profile. Herdr forwards explicit Codex
+model, normal/Plan-mode effort and worktree arguments. Startup cannot silently
+inherit the global Feature allocation. The plan records defaults and Task
+overrides with required-quality/risk/cost rationale; the engineer confirms them
+at plan approval. No extra startup approval, runtime promotion or fallback is
+introduced. Feature Lead itself uses session defaults, not a plan binding.
 
-Runtime admission determines which selected roles start. A thread-limit rejection leaves the role pending in approved ready-Task or reviewer order; the root waits for progress and retries without reducing gate breadth. Phase gates still keep implementation, verification, findings integration, triage, and correction ordered, while independent policy-selected reviewers may run concurrently after fresh verifier `PASS`. Live-agent inspection is used for duplicate, liveness, failure, interruption, recovery, and teardown decisions rather than routine capacity arithmetic.
+Every safe `agents/*.toml` source is installer-managed. The seven source
+profiles and their model/sandbox contracts install together with the Skills.
+Retired writer, duplicate quality/test, specialist-risk and duplicate-integrator
+profiles are removed only when previously installer-owned. Unrelated destination
+agents and system Skills remain untouched.
 
-The Task-loop owner builds one in-memory current-head Verification Matrix after the Task commit. Each observable obligation maps to a bounded command or check, expected observation, and `FAIL` or `BLOCKED` mismatch category. A changed head, range, controlling authority, or material verification route invalidates the matrix. The managed `implementation-verifier` remains check-only in its bounded `workspace-write` sandbox, uses `gpt-5.6-sol` with `low` reasoning effort, executes the matrix in mechanical fail-fast order, and leaves semantic judgment to policy-selected reviewers. Clean planned verification uses the minimal required target/range/source checks; dirty standalone snapshots retain a fuller staged, unstaged, untracked, and bounded-file fingerprint.
+The tracked configuration retains `agents.max_threads = 6` and
+`agents.max_depth = 2`. Installation still changes only max_threads according
+to the existing tier/override. These limits govern native session trees, not a
+shared Feature-to-independent-Task tree or unlimited aggregate service capacity.
+Runtime-rejected leaves stay pending in order and retry after progress.
+Use bounded event-responsive waits within current tool/responsiveness limits;
+do not busy-poll unchanged state or introduce leases or another scheduler.
 
-When correction changes reviewed head `H1` to `H2`, one bounded correction commit is followed by a rebuilt matrix, fresh `H2` verification, and the same complete reviewer set. `review` owns correction-review scope and escalation: targeted re-review is the default, while the full current target remains available when its recorded escalation conditions apply. Callers pass the exact prior evidence and correction delta instead of copying traversal rules.
+The local loop owner constructs an exact current-head Verification Matrix:
+stable row IDs, obligations, commands/checks, directory/environment, expected
+mechanical observations, mismatch statuses, and source-state pre/final checks.
+The runner executes supplied rows in order, fail-fast, captures attributable raw
+output and always attempts the final mutation check. It cannot choose commands,
+assess adequacy, diagnose, suggest fixes or decide Acceptance. Ignored build/test
+artifacts are the only allowed writes. Every new head requires fresh verification.
 
-The implementer may batch independent initial authority reads, repository searches, relevant file reads, and Git inspection only when each underlying result stays attributable and no result changes the next action. Before editing, the workflow identifies the material property and reliable oracle and records TDD as `applicable`, `not applicable`, or `required but blocked`. Applicable work uses one focused test or a coherent, separately attributable `RED matrix -> one causal production edit -> GREEN matrix`; result-dependent cases remain sequential. Property, model, differential, fault, integration, hardware, or benchmark evidence is used when it is the reliable oracle, while exploratory implementation is not Candidate evidence. Historical discipline remains separate from current-head defects, current evidence, contract deviation, and fresh Acceptance gates.
+Normal planned review uses independent spec and implementation-quality reviewers
+in parallel after PASS. Risk review is policy-selected and parameterized.
+Finding integration runs for overlap/conflict, authority defects, scope-sensitive
+remedies or non-trivial attribution, not merely because a risk reviewer ran.
+All-clean reports and a single clear bounded finding need no extra integrator;
+the latter still requires evidence-based triage.
 
-New planned features keep `docs/plans/YYYY-MM-DD-<feature>/search-cache.md` beside the Feature Contract and Implementation Plan. The Feature lead is its only writer. Planned roles look up source-identified current entries before repeating discovery and return candidates rather than editing the file. The cache is ignored, workspace-only, non-authoritative, and has the same lifecycle as the ignored Implementation Plan: it remains through publication, feedback re-entry, and disposition evidence and is retired only with separately authorized removal of that coordination worktree. It never replaces fresh Git, authority, verification, or review evidence, and lightweight or eligible legacy work does not acquire it solely to fit the new format.
+A correction retains the Task Lead session and creates H2 with fresh verification.
+Finding-owning and affected reviewers rerun; prior clean coverage carries only
+with exact prior reports/heads and concrete non-invalidation reasons. Uncertain
+impact reruns. Carried evidence is never represented as a new-head inspection.
 
-The rollout operator fingerprints the managed source and installed bundle separately, including destination-relative paths, file digests, logical inventory, and the six installer-owned configuration values. The installed baseline remains unchanged until all approved before observations and candidate repository gates complete. Installing the exact accepted candidate is a separate owner-controlled action; the candidate fingerprint and after observations then use the same quality bar. The fixed workload and run evidence stay in the approved plan and evaluation workspaces rather than reusable Skill prose.
+Task results carry exact Git/authority and independent gate evidence or direct
+references. Herdr readiness/lifecycle, terminal output, agent identity and
+conversation are not Acceptance. A wait timeout does not authorize another
+writer. The Feature Lead validates results before releasing dependencies and
+alone issues Feature Accepted.
 
-Installing the bundle does not change an already-running Codex session. Root-owned direct dispatch applies only after a successful install and a later Codex session reload; installation and that new-session smoke test are separate operator actions.
+The Feature Lead remains the only writer of the ignored planned search cache.
+Task sessions and reviewers use current entries only as navigation and return
+attributable candidates. Cache, authority, Git and review evidence retain their
+existing separate lifecycles. TDD and focused writer checks likewise remain
+distinct from fresh independent current-head acceptance.
+
+Install the coherent asset revision only with separate owner authorization.
+Previously approved/in-flight plans are not silently migrated: retain their exact
+prior assets/topology/models, or stop for recovery or explicit migration.
+Do not use a half-updated bundle or change an active Task's coordinator/model.
+Installing does not update an already-running Codex session; new-session smoke
+testing and live Herdr startup remain separate operator actions.
 
 ### Roots and managed destinations
 

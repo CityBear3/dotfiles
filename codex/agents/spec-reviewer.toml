@@ -6,11 +6,11 @@ sandbox_mode = "read-only"
 developer_instructions = """
 Review specification compliance only. Report in 日本語 and do not spawn descendants or edit files.
 
-Read the exact authority identity and currentness evidence, assigned Feature clauses and exact Task Contract with shared interfaces, or the exact eligible legacy task authority and referenced design sources. Keep full sources available and inspect more when evidence requires it; do not unconditionally reread unrelated unchanged prose. Also read constraints, non-goals, delegated local decisions when present, commit intent, implementer report, verification evidence, and actual diff. Verify independently; do not trust claims. Find missing obligations, contradictory behavior, unrequested scope, changed ownership or shared seams, or absent current evidence. Do not require a private file, helper, signature, edit order, or command that the approved authority delegated to the writer.
+Read the exact authority identity and currentness evidence, assigned Feature clauses and exact Task Contract with shared interfaces, or the exact eligible legacy task authority and referenced design sources. Keep full sources available and inspect more when evidence requires it; do not unconditionally reread unrelated unchanged prose. Also read constraints, non-goals, delegated local decisions when present, commit intent, Task Lead evidence, verification observations, and actual diff. Verify independently; do not trust claims. Find missing obligations, contradictory behavior, unrequested scope, changed ownership or shared seams, or absent current evidence. Do not require a private file, helper, signature, edit order, or command that the approved authority delegated to the writer.
 
 Use the supplied Review context to interpret the artifact and apply the active Review policy's Acceptance threshold. Keep only applicable findings with an approved requirement, concrete mismatch, material impact, and proportionate correction.
 
 Approval is valid. Do not report style preferences or speculative risks. Every issue must cite file and line, exact requirement, observed mismatch, and smallest compliant correction.
 
-Return APPROVED with evidence inspected, or NEEDS_FIXES with a precise issue list.
+Follow the review Skill's correction scope when supplied. Return CLEAN, FINDINGS, or BLOCKED with exact target, inspected obligations and limitations. Findings use Must Fix or Should Improve and include impact and confidence. Report authority defects separately; do not triage or authorize correction.
 """

@@ -5,21 +5,28 @@ description: Orchestrate an approved Implementation Plan across its Task depende
 
 # Execute an approved plan
 
-Own approved-plan validation, dependency and PR-topology scheduling, root-owned
-Task-loop handoffs, workspace and leaf mapping, staleness propagation, and exact
-evidence aggregation. Do not edit files, select implementer or reviewer roles,
-normalize findings, publish, merge, or run verification or review itself.
+The Feature Lead owns approved-plan validation, dependency/PR-topology readiness,
+independent Task-session handoffs, workspace/session mapping, cross-Task
+staleness and evidence aggregation. Task Leads own their local writer/check/
+correction loops. Do not implement Task source, choose their private details,
+proxy their ordinary leaf calls, publish, merge or run integration checks here.
 
 ## Validate plan entry
 
 Before execution, require one approved authority form.
+Resolve the workflow revision approved for that plan before applying the
+new-session rules below. An older approved plan, including an older
+contract-centered plan, does not inherit this topology merely because its
+artifact format matches. Use its exact prior assets or stop for recovery or
+explicit owner-selected migration.
 
 For new-format work, require:
 
 - the approved, current Feature Contract and its design sources;
 - an approved, current implementation plan;
 - explicit user authorization to start this exact approved plan, which grants
-  creation or reuse of its exact non-destructive local Task workspaces;
+  creation or reuse of its exact non-destructive local Task workspaces and
+  independent sessions at the engineer-confirmed allocations;
 - the exact planned `search-cache.md` path, current matching entries, and its
   Feature-lead-only writer boundary;
 - its complete Task Contract set, shared interface contracts, Feature Contract
@@ -72,169 +79,75 @@ obligation, schema, error model, policy, or authority decision. The coordinator
 owns the transition to the affected Design Doc, Feature Contract, or
 Implementation Plan approval gate.
 
-## Schedule Task PR work
+## Schedule independent Task sessions
 
-Resolve both graphs before executing anything. Use the Task dependency DAG to
-decide semantic readiness and the PR topology to decide the final review base.
-A task is dependency-ready only when every logical predecessor is internally
-`Accepted`. Human review and merge are not release conditions.
+Resolve the Task dependency DAG separately from PR topology. Release a Task
+only when every logical predecessor is internally Accepted; publication/human
+merge is not required. Concurrent Tasks must be plan-ready, ownership-disjoint
+and isolated in separate worktrees without conflicting shared mutable state.
+A PR stack edge alone is not a logical dependency.
 
-Permit multiple active tasks only when the approved plan marks them ready,
-ownership-disjoint, free of conflicting shared state, and assigned to separate
-branches and checkouts. Keep one writer per checkout. Use
-`dispatching-parallel-agents` only for already-selected Task roles; preserve
-approved ready-Task and reviewer order rather than weakening a gate.
+Candidate mode is permitted only when the plan allows implementation before
+its final PR base exists. A candidate cannot release dependents or satisfy
+Feature Acceptance. Final-base materialization and any history changes need
+their applicable authority and fresh exact-range gates.
 
-Runtime admission owns thread concurrency. When a selected spawn reaches the
-runtime limit, retain it as pending, wait for a mailbox or completion event, and
-retry after progress. Do not calculate leases or grants, probe live agents
-before every ordinary dispatch, or reduce selected work to fit temporary
-availability.
+For each ready Task, resolve the plan's exact/deterministic starting ref from
+current Git and accepted predecessors, then use `create-workspace` to lazily
+create/reuse that exact Herdr worktree and shell pane. Execution-start authority
+covers those named non-destructive local workspaces and Task-session launches;
+do not repeat per-Task approval. Missing identities, unavailable refs requiring
+fetch, mismatched branches or pane occupants, or destructive/history operations
+remain BLOCKED/Escalate. Never change the user's coordination checkout or
+repair a mismatched workspace implicitly.
 
-A task whose logical inputs are ready but whose final PR base is not yet
-materialized may run in candidate mode when the plan permits it. Candidate work
-never releases a dependent and cannot contribute to feature acceptance. Before
-authoritative acceptance, materialize the approved final base, perform any
-authorized restack or retarget operation, and require fresh exact-range
-verification and review.
+Resolve the engineer-confirmed model and effort for each Task and all selected
+leaves. The plan must identify the shared Task Lead role source and explicit
+Codex startup binding, including normal and Plan-mode effort. Feature Lead
+uses session defaults and is not assigned by the plan. Unavailable allocations
+are BLOCKED, not fallback or runtime promotion.
 
-For each dependency-ready new-format Task, resolve its approved exact or
-deterministic starting ref from current Git and accepted predecessor evidence,
-then invoke `create-workspace` to create or reuse its exact Task workspace. The
-user's authorization to start this plan supplies authority for that
-non-destructive local branch and worktree operation; do not request another
-per-Task approval. Materialize lazily rather than creating every workspace at
-plan entry, and directly validate the returned branch, head, status, worktree,
-and Herdr identities before dispatch.
+Use `dispatching-parallel-agents` for Herdr launch/resume of each selected Task
+root. Supply the complete handoff defined by `execute-task`: relevant exact
+authority and clauses, ownership, verification discipline, complete policy,
+effective allocations, worktree/Git/Herdr routing identities, mode, commit
+intent, cache entry/miss and attributable re-entry evidence. Keep sources
+directly readable and omit unrelated conversation or unchanged unassigned
+prose. Each new Task session starts without inherited Feature conversation.
 
-Reuse a matching existing Task workspace. On a missing or ambiguous identity,
-an unavailable ref that would require an implicit fetch, a workspace or branch
-mismatch, an operation outside the plan, or a destructive or history-rewriting
-operation, preserve observed state and return `BLOCKED` or `Escalate` as
-applicable. Do not switch the user's coordination checkout, repair, substitute,
-fetch, rebase, clean up, or reinterpret state under Task workspace creation
-authority.
+The Task Lead implements and owns native runner/reviewer/integrator dispatch,
+triage and bounded correction. Do not start a separate implementer, build
+routine Task matrices, or relay each local transition through the Feature Lead.
+Native admission is local to each session; preserve selected pending work and
+do not infer unlimited service capacity across independent sessions. Do not
+calculate leases or build another scheduler.
 
-For new-format planned work, look up a current matching cache entry before new discovery.
-The cache never replaces fresh Git, authority, verification, or review evidence.
-Consumers preserve the entry's source identity and invalidation conditions and
-return attributable cache candidates to the Feature lead; they never edit
-`search-cache.md` themselves.
+Keep each Task session through ordinary correction. Record Task-to-Herdr-agent/
+pane-to-worktree mapping and exact allocation. Herdr waits/reads are routing
+observations, not prompt-specific receipts or acceptance. Use bounded responsive
+waiting within tool limits, avoiding unchanged busy polling. A timeout does not
+mean a stopped writer. Follow the adapter's safe re-entry rules before resending
+work or replacing a session.
 
-For each ready new-format planned Task, enter its root-owned `execute-task` loop
-and use `dispatching-parallel-agents` for each already-selected direct leaf.
-Give the Task loop one concise plain-language handoff containing:
+Consume compact Candidate/Accepted/BLOCKED/Escalate reports with directly
+available attributable evidence, not every local transcript. For Accepted,
+inspect exact authority/currentness, workspace, branch, planned base, merge
+base, head/range/diff/status and required verification/review coverage.
+Carried reviewer evidence must retain its original head/report and explicit
+non-invalidation reasons; it is not a fresh review of the new head. Missing or
+mismatched evidence is BLOCKED, never permission to repair or reinterpret state.
 
-- exact Feature Contract identity, path, approval/currentness evidence, and the
-  clauses assigned to this task;
-- the exact applicable Task Contract, including purpose, expected result,
-  constraints, dependencies, non-goals, and delegated local decisions;
-- the complete Task-local authority needed for its loop, with exact authority
-  paths kept directly readable;
-- applicable shared interface contracts and adjacent-task obligations;
-- the Review context and complete Review policy;
-- the declared discipline and applicable repository guidance;
-- the coordination directory, exact Herdr workspace and initial pane identities,
-  Task worktree, branch, and planned PR identity, plus direct Git validation and
-  any non-blocking lazygit warning;
-- the exact planned `search-cache.md` path, any current matching entry, its
-  invalidation conditions, and the rule that only the Feature lead writes it;
-- the starting commit, planned PR base ref and commit, current head, and whether
-  the handoff is candidate or authoritative;
-- current merge base, exact base-to-head range, inspected diff, and starting Git
-  status including index, worktree, and relevant untracked state; attributable
-  commits, prior verification and review, concerns, gaps, and re-entry evidence
-  when applicable;
-- relevant live identities, roles already selected or pending for this Task,
-  and attributable runtime-rejection or interruption evidence;
-- for authoritative re-entry of a prior candidate, its candidate commit, head,
-  preliminary evidence, and the authorized final-base materialization or
-  restack evidence;
-- responsibility and ownership boundaries;
-- verification routes and observable obligations;
-- authority for the root to build one in-memory current-head
-  Verification Matrix after each candidate or correction head resolves, and to
-  invalidate it on a head, range, controlling-authority, or material-route
-  change;
-- the responsibility-scoped commit intent and its fixed message or the approved
-  writer authority to select that message;
-- contractually significant files, signatures, ordering, and exact commands
-  only when the approved plan fixes them.
+After validating a current Accepted result, record it and immediately recalculate
+readiness; dispatch newly ready Tasks unless the user requested a boundary stop.
+Only Feature Lead releases dependencies. Preserve other exact Task results on a
+blocked Task, and report the owning gap to `agentic-engineering-workflow`.
+A Task Design Escalation returns its authority evidence early; do not dispatch
+affected queued work or silently repair design.
 
-Do not inline or require an unconditional reread of unassigned, unchanged
-Feature Contract or Design Doc prose. Keep the exact sources directly available
-for lookup when an assigned clause, shared interface, finding, or changed
-evidence requires more context.
-
-Require the root and every direct leaf to revalidate its role-material Git and
-authority inputs before acting. Parent conversation, identity, and liveness do
-not prove either input. Every new leaf uses explicit `fork_turns="none"`; if
-no-history creation is unavailable, return `BLOCKED` instead of inheriting
-turns.
-
-The root runs `execute-task` for that Task and dispatches only its
-policy-selected implementer, verifier, reviewer, adversarial-integrator, or
-findings-only review-integrator leaves through
-`agent-teams-driven-development`. Keep one source writer, send compact
-role-specific handoffs, and prohibit leaf descendants. Runtime availability
-does not authorize reordering selected roles, invalid phase overlap, dependency
-release, or Feature acceptance.
-
-For an eligible legacy task, pass the approved legacy task specification and its
-referenced design sources as the explicit authority, plus the same workspace,
-base, discipline, verification, review, commit, and evidence fields available in
-that plan. Preserve its exact approved execution topology; do not retrofit a
-new-format execution topology or relabel it as a new Feature or Task Contract.
-Stop if a missing field creates material ambiguity; do not force migration or
-infer a decision.
-
-For a new-format planned Task, let the root-owned `execute-task` loop
-own that workspace's writer, commit, exact PR range, verification,
-policy-selected review, correction, and stop condition. Accept `Candidate` only
-for a plan-authorized early implementation whose final PR base is still
-unavailable. Re-enter the Task in authoritative mode after that base is current,
-passing the attributable candidate and restack evidence so `execute-task` can
-skip duplicate implementation and commit work.
-
-`Candidate`, `Accepted`, `BLOCKED`, and `Escalate` end the current Task-loop
-transition. Record the Task Contract, Task PR, Herdr workspace, branch, direct
-leaf identities, pending roles, and returned Git evidence. A compatible idle
-leaf may receive a fresh attributable handoff after current authority, policy,
-Git, and writer state are revalidated. Dispatch a replacement only after the
-earlier writer is inactive and all state is attributable; otherwise preserve
-state and return `BLOCKED`.
-
-After useful independent root work is exhausted, use one bounded `wait_agent`
-call of normally 300,000 to 600,000 milliseconds. It returns early on mailbox,
-completion, or steered user input; do not replace it with repeated short polls.
-Use a shorter bound only for a nearer explicit deadline, teardown, or
-interruption boundary and record the reason. Reinspect live state after early
-return and before any interruption or replacement. A terminal Task result ends
-that turn without another wait.
-
-Before releasing a dependency or aggregating Feature evidence, directly resolve
-the reported workspace, branch, planned base, merge base, head, range, diff, and
-status through Git. Agent identity, memory, liveness, progress messages, Herdr,
-lazygit, and pane state are operational observations only. A mismatch with the
-Task result is `BLOCKED`, not authority to repair or reinterpret the state.
-
-An `Accepted` Task result is progress evidence, not a new approval gate. After
-recording and directly validating it, recalculate readiness and materialize and
-dispatch every newly ready Task whose approved workspace identity resolves
-safely, unless the user explicitly requested a Task boundary stop.
-
-Do not start a logical dependent until every predecessor returns current
-`Accepted`. On `BLOCKED`, `Escalate`, plan deviation, missing evidence, a
-workspace mismatch, or a returned branch, base, or head that does not match the
-observed task workspace, preserve all task states and return the exact gap to
-`agentic-engineering-workflow`.
-
-When a Task returns `Escalate` with reason `Design Escalation`, stop dispatching
-unstarted reviewer or correction work for that Task and return its integrated
-authority-defect evidence immediately. Do not reinterpret it as an
-implementation finding or silently amend the Design Doc. Preserve completed
-read-only reports and all other exact Task results for later semantic
-currentness analysis.
+Previously approved/in-flight topologies require their exact prior coherent
+assets, models and policy. If these cannot be used safely, preserve the state
+and request recovery or owner-selected migration; never retrofit independent
+Task sessions or new review rules onto legacy authority.
 
 ## Propagate stale results
 
@@ -244,7 +157,7 @@ heads, merge bases, diffs, statuses, and decision-relevant live agent state.
 Traverse both graphs when an ancestor, topology edge, contract meaning, logical
 dependency, or consumed interface changes. Mark every affected result stale,
 remove it from dependency release and feature coverage, and re-enter its
-root-owned authoritative `execute-task` loop after the approved final base is
+Task Lead's authoritative `execute-task` loop after the approved final base is
 restored.
 
 Do not mark the complete accepted set stale merely because a Design Doc,
@@ -260,7 +173,7 @@ acceptance.
 
 ## Reconcile promoted lightweight work
 
-Before ordinary planned tasks, give the root-owned `execute-task` loop the
+Before ordinary planned tasks, give the Task Lead's `execute-task` loop the
 approved promotion-reconciliation Task Contract, original
 lightweight base, promotion head,
 execution-starting head, exact unaccepted range and commits,
@@ -286,8 +199,9 @@ After an interrupted or incomplete task, retain accepted and candidate results
 for every other workspace separately from the observed in-flight work. Before
 resuming one task:
 
-1. confirm through the scheduling result that prior leaf identities are known,
-   the prior writer is inactive, and no writer overlaps;
+1. resolve the prior Herdr session and native leaf identities, confirm the
+   prior writer is inactive before replacement, and ensure no competing writer
+   or old-head check overlaps;
 2. inspect that workspace's branch, HEAD, status, commits, planned base, and
    exact base-to-head diff;
 3. confirm the observed edits and commits are attributable to that task and
@@ -308,7 +222,7 @@ do not add it to accepted results, feature coverage, or dependency release until
 
 Treat an authorized correction as work on its owning Task PR. Preserve every
 other task's exact result and the original implementation base. For new-format
-planned work, give the root-owned `execute-task` loop the exact finding or
+planned work, give the Task Lead's `execute-task` loop the exact finding or
 failed observation and approved correction. For eligible legacy work, preserve
 its approved invoking context.
 Supply the observed attempts and results, unchanged Feature and Task Contracts
@@ -317,9 +231,12 @@ Review policy, current planned PR base and accepted head, responsibility
 boundaries, verification obligations, selected or pending roles, and a
 correction commit intent bounded to the finding with its fixed message or
 approved writer message-selection authority. Also supply prior reviewed head
-`H1`, prior reviewer reports and triage, and the unchanged complete selected
-reviewer set. Require one correction commit to `H2`, a rebuilt Verification
-Matrix, and fresh `H2` verification before review. `review` owns
+`H1`, prior reviewer reports/triage and the unchanged complete policy coverage.
+Task-local corrections stay in the existing Task Lead session; only integration,
+feedback re-entry and cross-Task effects need Feature coordination. Require a
+bounded correction commit H2, rebuilt matrix and fresh H2 verification, then
+finding-owner/affected-perspective reruns with explicit non-invalidation
+evidence for any carried coverage. `review` owns
 correction-review scope and escalation; pass its required correction evidence
 without restating traversal rules here.
 
@@ -358,7 +275,7 @@ After each accepted task, append a result keyed by Task Contract and PR identity
 containing:
 
 - task name and dependency position;
-- Herdr workspace and pane mapping, direct leaf identities, selected or pending
+- Herdr workspace/pane/session mapping, Task-local leaf evidence, selected or pending
   roles, and dispatch or replacement evidence;
 - exact authority and Task Contract content/currentness accepted;
 - Feature Contract clauses and Task Contract obligations, eligible legacy

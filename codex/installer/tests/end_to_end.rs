@@ -1,9 +1,225 @@
 mod support;
 
+use std::collections::BTreeMap;
 use std::fs;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use support::{process_tempdir, source_fixture};
+
+#[test]
+fn workflow_bundle_replaces_owned_roles_and_preserves_unmanaged_assets() {
+    // Arrange: exercise the real repository bundle and normal installer process.
+    let temporary = process_tempdir("workflow-bundle-migration");
+    let repository_bundle = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("installer is inside the Codex source bundle");
+    let source_root = temporary.path().join("source-bundle");
+    fs::create_dir(&source_root).expect("create isolated source snapshot");
+    for name in ["config.toml", "AGENTS.global.md"] {
+        fs::copy(repository_bundle.join(name), source_root.join(name))
+            .expect("snapshot repository source file");
+    }
+    for category in ["agents", "skills"] {
+        for (relative, bytes) in directory_files(&repository_bundle.join(category)) {
+            let destination = source_root.join(category).join(relative);
+            fs::create_dir_all(destination.parent().expect("snapshot file parent"))
+                .expect("create source snapshot directory");
+            fs::write(destination, bytes).expect("snapshot repository asset");
+        }
+    }
+    let codex_home = temporary.path().join("codex-home");
+    let skills_home = temporary.path().join("skills-home");
+    let state_dir = temporary.path().join("state");
+    fs::create_dir_all(codex_home.join("agents")).expect("create isolated agents root");
+    fs::create_dir_all(skills_home.join("unmanaged")).expect("create unmanaged skill");
+    fs::create_dir_all(&state_dir).expect("create isolated installer state");
+    let retired = [
+        "implementer",
+        "implementation-verifier",
+        "code-reviewer",
+        "code-quality-reviewer",
+        "test-coverage-reviewer",
+        "scope-reviewer",
+        "code-architect",
+        "adversarial-api-reviewer",
+        "adversarial-performance-reviewer",
+        "adversarial-robustness-reviewer",
+        "adversarial-tests-reviewer",
+        "adversarial-integrator",
+        "review-integrator",
+        "task-orchestrator",
+    ];
+    let owned_agents = retired.map(|name| format!("{name}.toml"));
+    for name in &owned_agents {
+        fs::write(codex_home.join("agents").join(name), b"old managed role\n")
+            .expect("write old managed role");
+    }
+    let manifest = serde_json::json!({
+        "version": 1,
+        "global_agents": false,
+        "skills": [],
+        "agents": owned_agents,
+    });
+    fs::write(
+        state_dir.join("manifest-v1.json"),
+        serde_json::to_vec(&manifest).expect("serialize prior ownership"),
+    )
+    .expect("write prior ownership");
+    let unmanaged_agent = codex_home.join("agents/unmanaged.toml");
+    let unmanaged_skill = skills_home.join("unmanaged/SKILL.md");
+    let system_sentinel = codex_home.join("skills/.system/sentinel");
+    fs::create_dir_all(system_sentinel.parent().expect("system sentinel parent"))
+        .expect("create isolated system directory");
+    fs::write(&unmanaged_agent, b"unmanaged agent\n").expect("write unrelated agent");
+    fs::write(&unmanaged_skill, b"unmanaged skill\n").expect("write unrelated skill");
+    fs::write(&system_sentinel, b"system-owned\n").expect("write system sentinel");
+    fs::write(
+        codex_home.join("config.toml"),
+        b"# operator-owned configuration\nmodel_verbosity = \"low\"\n",
+    )
+    .expect("write unmanaged configuration");
+
+    // Act
+    let output = Command::new(env!("CARGO_BIN_EXE_dotfiles-codex-installer"))
+        .env_clear()
+        .env("HOME", temporary.path().join("unused-home"))
+        .env("TMPDIR", temporary.path())
+        .env("PATH", "/usr/bin:/bin")
+        .arg("--source-root")
+        .arg(&source_root)
+        .args(["install", "--agent-threads", "4", "--codex-home"])
+        .arg(&codex_home)
+        .arg("--skills-home")
+        .arg(&skills_home)
+        .arg("--state-dir")
+        .arg(&state_dir)
+        .output()
+        .expect("run real installer on isolated destinations");
+
+    // Assert: installed consumers receive the complete new bundle, not stale roles.
+    assert!(
+        output.status.success(),
+        "install failed: {}\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let source_agents = directory_files(&source_root.join("agents"));
+    let mut installed_agents = directory_files(&codex_home.join("agents"));
+    installed_agents.remove(Path::new("unmanaged.toml"));
+    assert_eq!(installed_agents, source_agents);
+    let source_skills = directory_files(&source_root.join("skills"));
+    let mut installed_skills = directory_files(&skills_home);
+    installed_skills.remove(Path::new("unmanaged/SKILL.md"));
+    assert_eq!(installed_skills, source_skills);
+    assert!(
+        installed_skills.contains_key(Path::new("execute-task/references/task-lead.md")),
+        "independent roots need their installed shared role contract"
+    );
+    let bindings = installed_agents
+        .iter()
+        .map(|(path, bytes)| {
+            let profile: toml::Table =
+                toml::from_str(std::str::from_utf8(bytes).expect("installed profile is UTF-8"))
+                    .expect("installed profile is TOML");
+            let string = |key: &str| {
+                profile
+                    .get(key)
+                    .and_then(toml::Value::as_str)
+                    .expect("profile binding is a string")
+                    .to_owned()
+            };
+            assert_eq!(
+                path.file_stem().and_then(|stem| stem.to_str()),
+                Some(string("name").as_str()),
+                "runtime role identity must match its installed filename"
+            );
+            assert!(!string("developer_instructions").trim().is_empty());
+            (
+                string("name"),
+                (
+                    string("model"),
+                    string("model_reasoning_effort"),
+                    string("sandbox_mode"),
+                ),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let expected_bindings = [
+        (
+            "verification-runner",
+            "gpt-5.6-luna",
+            "low",
+            "workspace-write",
+        ),
+        ("focused-reviewer", "gpt-5.6-sol", "high", "read-only"),
+        ("spec-reviewer", "gpt-5.6-sol", "high", "read-only"),
+        (
+            "implementation-quality-reviewer",
+            "gpt-5.6-sol",
+            "high",
+            "read-only",
+        ),
+        ("risk-reviewer", "gpt-5.6-sol", "xhigh", "read-only"),
+        ("finding-integrator", "gpt-5.6-sol", "high", "read-only"),
+        (
+            "design-alignment-reviewer",
+            "gpt-5.6-sol",
+            "xhigh",
+            "read-only",
+        ),
+    ]
+    .into_iter()
+    .map(|(role, model, effort, sandbox)| {
+        (
+            role.to_owned(),
+            (model.to_owned(), effort.to_owned(), sandbox.to_owned()),
+        )
+    })
+    .collect::<BTreeMap<_, _>>();
+    assert_eq!(bindings, expected_bindings);
+    assert_eq!(
+        fs::read(&unmanaged_agent).expect("read unrelated agent"),
+        b"unmanaged agent\n"
+    );
+    assert_eq!(
+        fs::read(&unmanaged_skill).expect("read unrelated skill"),
+        b"unmanaged skill\n"
+    );
+    assert_eq!(
+        fs::read(&system_sentinel).expect("read system sentinel"),
+        b"system-owned\n"
+    );
+    let config =
+        fs::read_to_string(codex_home.join("config.toml")).expect("read installed configuration");
+    assert!(config.contains("# operator-owned configuration\nmodel_verbosity = \"low\"\n"));
+    let config: toml::Table = toml::from_str(&config).expect("installed configuration is TOML");
+    assert_eq!(config["agents"]["max_threads"].as_integer(), Some(4));
+}
+
+fn directory_files(root: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
+    fn visit(root: &Path, current: &Path, files: &mut BTreeMap<PathBuf, Vec<u8>>) {
+        for entry in fs::read_dir(current).expect("read bundle directory") {
+            let entry = entry.expect("read bundle entry");
+            let path = entry.path();
+            let kind = entry.file_type().expect("read bundle entry type");
+            if kind.is_dir() {
+                visit(root, &path, files);
+            } else {
+                assert!(kind.is_file(), "bundle contains a non-file entry: {path:?}");
+                files.insert(
+                    path.strip_prefix(root)
+                        .expect("entry belongs to bundle")
+                        .to_owned(),
+                    fs::read(&path).expect("read bundle file"),
+                );
+            }
+        }
+    }
+    let mut files = BTreeMap::new();
+    visit(root, root, &mut files);
+    files
+}
 
 #[test]
 fn install_and_restore_round_trip_with_normal_binary() {

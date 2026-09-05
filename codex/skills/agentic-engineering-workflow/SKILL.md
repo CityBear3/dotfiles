@@ -54,8 +54,8 @@ fileset and pass it to `verify` or `review`. Standalone is not a CLI, session,
 branch, or worktree mode and does not require Herdr, a Task Contract, DAG, or
 PR topology.
 
-The root owns the target and any verifier, reviewer, adversarial-integrator, or
-review-integrator leaves directly. Runtime admission determines which selected
+The root owns the standalone target and its native verification-runner,
+reviewer and conditional finding-integrator leaves directly. Runtime admission determines which selected
 roles start; retain a rejected spawn as pending and retry after a completion or
 mailbox event without reducing selected scope. When the user explicitly
 prohibits agents, the lead may run compatible checks and perspectives
@@ -139,15 +139,19 @@ lightweight path.
 
 Use `focused` as the lightweight default:
 
-- one combined `code-reviewer` specification-and-quality Task PR gate;
-- a Task PR `test-coverage-reviewer` when behavior or tests changed;
+- one independent `focused-reviewer` covering specification, implementation
+  and test quality, with the Feature Lead as direct sole writer;
+- a mechanical `verification-runner` before review;
+- fixed runner Luna/low, focused-reviewer Sol/high and conditional
+  finding-integrator Sol/high bindings; Feature Lead retains session defaults;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
 - direct root dispatch of phase-valid leaves with no descendants;
 - runtime-managed thread admission, preserving selected roles as pending in
   policy order when admission is temporarily unavailable;
-- findings-only general integration, with authority-defect priority and no
-  general integrator after an all-clean review;
+- conditional finding integration for overlap, conflict, authority defects,
+  scope-sensitive remedies or non-trivial attribution; no integrator for
+  all-clean reports or a simple clear finding eligible for direct triage;
 - the common Acceptance threshold.
 
 Acceptance keeps only artifact-applicable findings with an approved requirement,
@@ -157,14 +161,12 @@ to approved decisions without new evidence are not findings. A proposed new
 state machine, schema, identity system, or comparable mechanism is `Escalate`
 unless it is necessary and proportionate to a proven in-scope violation.
 
-An explicitly approved `adaptive` or `deep` mode replaces the default.
-Both require independent read-only specification and quality task reviewers.
-`Adaptive` selects task and integration perspectives for recorded risks. `Deep`
-runs every perspective applicable to an actual task or integration surface, not every configured
-reviewer. If a required independent reviewer cannot be established, report
-`BLOCKED`; do not substitute a lead pass. A no-agent instruction that conflicts
-with an approved independent gate is `Escalate` unless the user approves a
-policy change.
+When the required risk or independence makes focused lightweight review
+inappropriate, return to planned discussion before editing. Planned adaptive
+and deep policies retain separate specification and implementation-quality
+review. If any required independent reviewer cannot be established, report
+BLOCKED; do not substitute a lead pass. A no-agent instruction conflicting with
+an approved gate requires engineer policy authority.
 
 Give `execute-lightweight-task` one plain-language task handoff containing:
 
@@ -198,13 +200,13 @@ Do not dispatch roles, load reviewer prompts, implement, commit, or manage
 corrections in this coordinator.
 
 When an authorized lightweight correction re-enters `execute-lightweight-task`,
-retain prior reviewed head `H1`, prior reports and triage, and the unchanged
-complete selected reviewer set. Require one bounded correction commit to `H2`,
-a rebuilt matrix, and fresh `H2` verification before the selected reviewers
-rerun. `review` owns correction-review scope and escalation; do not restate its
-traversal rules in this coordinator.
-Planned correction mechanics remain root-owned through `execute-plan` and
-`execute-task` under the same contract.
+retain H1, reports/triage and the complete selected coverage. Require a bounded
+H2 commit and rebuilt matrix with fresh H2 verification. The loop owner supplies
+review's impact map; finding owners and affected reviewers rerun, while carried
+coverage needs explicit non-invalidation evidence. Uncertainty means rerun.
+`review` owns those rules. Ordinary planned corrections stay inside the
+independent Task Lead's `execute-task`; Feature-level/integration feedback
+routes to the owning Task through `execute-plan`.
 
 ## Maintain the planned-lifecycle search cache
 
@@ -372,7 +374,8 @@ After Implementation Plan approval, require its Task Contracts to fix each Task
 workspace mode, branch identity, exact or deterministic starting-ref resolution
 rule, and planned PR base. Treat explicit user authorization to start
 `execute-plan` as authority to create or reuse those exact non-destructive local
-Task workspaces when their Tasks become dependency-ready. Do not establish every
+Task workspaces and independent Herdr Task sessions at their approved model and
+effort when their Tasks become dependency-ready. Do not establish every
 Task workspace before execution or repeat approval for each planned branch or
 worktree creation.
 
@@ -389,14 +392,24 @@ decisions, the exact planned `search-cache.md` path and current matching entries
 the explicit execution-start authorization, and any promoted unaccepted range
 to `execute-plan`. Reference
 unchanged source prose instead of copying unrelated sections into every handoff.
-That skill owns readiness, direct dispatch of already-selected Task roles,
-candidate and authoritative Task handoffs, workspace and leaf mappings,
-staleness propagation, promotion reconciliation, and exact evidence
-aggregation. The root owns every planned `execute-task` loop and dispatches its
-leaves directly. Lightweight work remains root-owned and does not acquire
-planned-Task artifacts.
+That skill owns readiness, Herdr dispatch of independent Task sessions,
+candidate/authoritative handoffs, workspace/session mappings, cross-Task
+staleness, promotion reconciliation and exact evidence aggregation. Each Task
+Lead is sole writer and local `execute-task` loop owner, dispatching its native
+check leaves itself. Feature Lead validates returned evidence, releases
+dependencies and alone accepts the Feature. Lightweight work remains directly
+Feature-Lead-written without planned artifacts. Task and leaf allocations are
+engineer-confirmed with plan approval; Feature defaults are not copied into the
+plan, and no runtime promotion/fallback is allowed.
 
 ### Continue an eligible legacy plan
+
+Before any re-entry, resolve the workflow revision approved for the plan.
+Already-approved or in-flight plans retain their exact topology, allocations
+and gates even when their artifact format is current. Use the prior coherent
+assets, or stop for recovery/explicit migration if they are unavailable; do not
+let a bundle update silently change an active execution. The older-format
+exception below concerns artifacts, not permission to migrate execution.
 
 Do not force the new artifact sequence onto a plan that was approved and already
 executing before this contract-centered workflow. Treat it as eligible only when
@@ -463,9 +476,11 @@ Advance automatically within approved local scope:
 3. Revalidate task currentness and Feature Contract coverage. If no
    integration-only obligation remains, mark the feature accepted without a
    synthetic aggregate range or repeated review.
-4. For each integration-only obligation, pass only its exact composed tree,
-   accepted Task PR inputs, expected observations, and contract evidence to
-   `verify`. Accept only a fresh `PASS` for the unchanged composition.
+4. For each integration-only obligation, the Feature Lead builds the exact
+   current-composition matrix, including commands, mechanical expectations and
+   mutation checks. Pass only that matrix, target, environment and evidence to
+   `verify`; dispatch its native runner in the Feature session. Accept only
+   fresh `PASS` for the unchanged composition.
    Diagnose a `FAIL` before correction. Route an authorized planned correction
    through its owning Task Contract in `execute-plan`; route an authorized
    lightweight correction directly to its combined-contract Task in
@@ -475,9 +490,10 @@ Advance automatically within approved local scope:
    triggers a targeted integration perspective. Pass the same exact integration
    authority and evidence to every selected reviewer. Do not invoke ordinary
    full-feature `$review`.
-6. Require `review` to integrate concrete integration `FINDINGS`, then send the
-   exact unchanged target, reviewer reports, and integrated report to
-   `receiving-code-review`. Raw reviewer output never authorizes correction.
+6. Require `review` to supply conditional finding-integrator evidence or
+   explicit simple-finding direct-triage eligibility for integration FINDINGS.
+   Send the unchanged target and complete evidence to `receiving-code-review`.
+   Raw reviewer output never authorizes correction.
    For planned work, route an authorized `Fix` to its owning Task Contract
    through `execute-plan`, mark only semantically affected results and their
    transitive dependents stale, and rerun fresh affected task and integration

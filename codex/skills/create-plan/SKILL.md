@@ -5,7 +5,7 @@ description: Decompose an approved Feature Contract into PR-scoped Task Contract
 
 # Create an implementation plan
 
-Write a plan that a fresh implementer can execute without reconstructing design,
+Write a plan that a fresh independent Task Lead can execute without reconstructing design,
 feature success, or task responsibility from the conversation.
 
 ## Entry
@@ -144,6 +144,10 @@ Include:
 - complete Feature Contract coverage, including integration-only obligations;
 - a Review context;
 - a separate complete Review policy;
+- a default model/effort allocation table, Task-specific overrides and their
+  required-quality/risk/cost rationale for engineer confirmation at approval;
+- independent Herdr Task-session startup bindings and the shared Task Lead role
+  source, with native Task-local checks rather than a shared Feature agent tree;
 - Task Contracts ordered by dependency;
 - re-entry impact and promotion reconciliation when either applies;
 - Task PR acceptance and staleness rules, feature acceptance, review iteration,
@@ -168,6 +172,8 @@ For each Task Contract include:
   resolution rule, ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
 - local decisions delegated to the implementation agent;
+- effective Task Lead and selected-leaf allocations, inherited defaults or exact
+  overrides, and required-quality/risk/cost rationale;
 - discipline: the material property, reliable verification oracle,
   `test-driven-development` applicability decision and reason, or the explicit
   non-TDD baseline and validation discipline;
@@ -235,35 +241,35 @@ Include a separate `Review policy` section in every plan. The policy controls
 breadth, independence, and Acceptance; it references the Review context without
 repeating it.
 
-Use `adaptive` as the default for planned work. Recommend `focused` or `deep`
-only when repository evidence, approved decisions, and concrete risk surfaces
-justify it. Never select a mode from file count, changed-line count, or apparent
-diff size.
+Use `adaptive` as the default for new planned work, or `deep` when approved
+risk justifies broader applicable perspectives. `focused` belongs to eligible
+lightweight work, not a way to remove independent planned specification and
+quality gates. Never select breadth from file count or apparent diff size.
 
 Apply these mode contracts:
 
-- `focused`: one combined specification-and-quality gate for each Task PR;
-  `test-coverage-reviewer` when that Task PR changes behavior or tests; plus only
-  additional task or integration perspectives justified by recorded risk.
-- `adaptive`: independent specification and quality gates for each Task PR;
-  select targeted integration perspectives for recorded cross-task risk.
-- `deep`: independent specification and quality gates for each Task PR; run
-  every perspective applicable to an actual integration-only surface or
-  observed cross-task risk, with adversarial integration whenever an
-  adversarial perspective runs.
+- `adaptive`: independent `spec-reviewer` and
+  `implementation-quality-reviewer` for each Task PR, including test quality;
+  add only recorded required/triggered Task and integration perspectives.
+- `deep`: the same independent pair plus every perspective applicable to the
+  approved Task/integration surface and concrete risk. Each `risk-reviewer`
+  invocation gets one perspective, exact trigger, authority, failure model,
+  surface, expected evidence and stop condition. Separate perspectives remain
+  independent invocations when needed. Use `design-alignment-reviewer` mainly
+  for composed/shared-boundary authority, not routine local changes.
 
 For every mode, name explicitly skipped perspectives and why they are
 inapplicable. `Deep` means broad applicable coverage, not every configured
 reviewer.
 
-Finding integration is invariant rather than optional Review breadth. Record
-that an all-clean reviewer set runs no general integrator, while any findings
-run the read-only `review-integrator` before `receiving-code-review` and before
-correction. Ordinary findings integrate after all selected reviewers complete.
-An authority-defect claim pauses only unstarted reviewers for priority
-integration; a confirmed Design Doc defect returns to the engineer before
-queued review or correction. This does not replace required adversarial
-integration.
+Record conditional `finding-integrator` use for overlapping/conflicting
+findings, authority defects, scope-sensitive remedies or non-trivial
+reproduction/origin. All-clean reports and a single clear, bounded finding with
+no trigger need no integrator; the latter still requires evidence-based triage.
+Ordinary required integration uses complete reports after reviewer completion.
+An authority-defect claim pauses unstarted reviewers for priority integration;
+a confirmed Design Doc defect returns to the engineer before queued review or
+correction. A risk perspective alone does not trigger integration.
 
 Record:
 
@@ -287,11 +293,12 @@ fresh verifier `PASS`. Do not encode leases, grants, or thread arithmetic in the
 plan.
 
 Correction policy must retain prior head `H1`, create one bounded correction
-commit to `H2`, rebuild the Verification Matrix, rerun fresh `H2` verification,
-and rerun the same complete selected reviewer set. Record that `review` owns
-correction-review scope and escalation; plans supply the exact prior evidence,
-correction delta, current target, and fresh matrix without copying its traversal
-rules.
+commit to `H2`, rebuild the Verification Matrix and run fresh `H2` verification.
+Keep policy coverage fixed, rerun finding-owning and affected reviewers, and
+carry prior clean evidence only with explicit non-invalidation reasons.
+Uncertainty requires rerun. Record that `review` owns the impact map, evidence
+coverage and correction traversal rules; supply prior reports, exact delta,
+current target and fresh matrix without copying those rules.
 
 Use the same proportional Acceptance threshold in every mode. A finding survives
 only when it applies to the artifact and consumer model, cites an approved
@@ -305,17 +312,26 @@ state machine, schema, identity system, or other architectural mechanism is
 `Escalate` unless it is necessary and proportionate to a proven in-scope
 violation.
 
-Keep model and reasoning-effort choices in reviewer profiles, not in the plan.
+## Fix model allocations at plan approval
+
+Read [model-allocation.md](references/model-allocation.md). Record defaults once
+and only Task-specific overrides, while showing every Task's effective
+allocation and required-quality/risk/cost rationale. The engineer confirms
+these with this plan's approval; do not add a startup approval question or a
+runtime promotion/fallback mechanism. Feature Lead uses session defaults and
+is never assigned by this plan. Resolve native profile bindings and independent
+Task root launch settings separately.
 
 ## Execution concurrency
 
-When execution may use subagents, identify one writer per task workspace and
-read-only reviewers. Permit multiple active writers only for dependency-ready,
+Each Task Lead is the sole writer/root in an independent Herdr session and
+owns native read/check-only leaves. Permit multiple active writers only for dependency-ready,
 ownership-disjoint tasks in separate checkouts without conflicting shared
 state. Require every named reviewer to have a resolvable profile or complete
-fallback prompt. Record deterministic ready-Task and reviewer order. Runtime
-admission may delay a selected role but never reduces approved scope or
-independence.
+equivalent role contract with enforceable approved allocation. Record ready-Task
+and reviewer order. Native admission is local to each session; it does not
+establish aggregate service capacity. Herdr startup failure or native rejection
+retains pending work without duplicate writers, weakened gates or model changes.
 
 ## Quality
 
