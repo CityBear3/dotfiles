@@ -34,6 +34,9 @@ fn preserves_unmanaged_configuration_bytes() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "# workstation-specific configuration\n",
@@ -56,6 +59,9 @@ fn preserves_unmanaged_configuration_bytes() {
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -94,6 +100,9 @@ fn enables_update_plan_while_preserving_other_tool_configuration() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -109,6 +118,9 @@ fn enables_update_plan_while_preserving_other_tool_configuration() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -144,6 +156,9 @@ fn adds_update_plan_table_beside_existing_tool_configuration() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -159,6 +174,9 @@ fn adds_update_plan_table_beside_existing_tool_configuration() {
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -195,6 +213,9 @@ fn adds_enabled_to_existing_update_plan_table() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -209,6 +230,9 @@ fn adds_enabled_to_existing_update_plan_table() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -242,6 +266,9 @@ fn missing_managed_assignments_are_inserted() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "# local root configuration\n",
@@ -260,6 +287,9 @@ fn missing_managed_assignments_are_inserted() {
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -292,6 +322,9 @@ fn missing_agents_table_is_appended() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -307,6 +340,9 @@ fn missing_agents_table_is_appended() {
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -331,6 +367,9 @@ fn empty_configuration_receives_only_managed_values() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -343,6 +382,9 @@ fn empty_configuration_receives_only_managed_values() {
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -385,6 +427,9 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     let expected = concat!(
         "description = \"\"\"\n",
@@ -407,6 +452,9 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -440,6 +488,9 @@ fn duplicate_managed_assignment_is_rejected() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -476,6 +527,9 @@ fn quoted_managed_key_is_rejected_as_structurally_unsupported() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -512,6 +566,9 @@ fn inline_agents_table_is_rejected_as_structurally_unsupported() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -538,6 +595,9 @@ fn managed_fragment_without_update_plan_is_rejected() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -567,6 +627,9 @@ fn managed_update_plan_enabled_must_be_boolean() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -595,6 +658,9 @@ fn managed_update_plan_enabled_is_required() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -629,6 +695,9 @@ fn managed_tools_sibling_is_rejected() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -661,6 +730,9 @@ fn managed_update_plan_unknown_key_is_rejected() {
         "[agents]\n",
         "max_threads = 6\n",
         "max_depth = 2\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act
@@ -691,6 +763,9 @@ fn incomplete_managed_fragment_is_rejected() {
         "\n",
         "[agents]\n",
         "max_threads = 6\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
 
     // Act

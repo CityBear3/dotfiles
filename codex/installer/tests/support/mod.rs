@@ -27,6 +27,9 @@ pub(crate) fn source_fixture(parent: &Path) -> PathBuf {
             "\n",
             "[tools.update_plan]\n",
             "enabled = true\n",
+            "\n",
+            "[features.context_management]\n",
+            "experimental_mode = true\n",
         ),
     )
     .expect("write fixture config");

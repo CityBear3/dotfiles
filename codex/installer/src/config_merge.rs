@@ -12,6 +12,8 @@ const MANAGED_ROOT_KEYS: [&str; 3] = [
 const MANAGED_AGENT_KEYS: [&str; 2] = ["max_threads", "max_depth"];
 const MANAGED_UPDATE_PLAN_KEYS: [&str; 1] = ["enabled"];
 const UPDATE_PLAN_ENABLED_KEY: &str = "tools.update_plan.enabled";
+const CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY: &str =
+    "features.context_management.experimental_mode";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum ManagedScalar {
@@ -69,7 +71,7 @@ struct Structure {
     table_headers: Vec<usize>,
 }
 
-/// Merge the six managed keys while preserving unmanaged configuration bytes.
+/// Merge the seven managed keys while preserving unmanaged configuration bytes.
 pub(crate) fn merge_config(
     existing_text: &str,
     managed_text: &str,
@@ -134,12 +136,63 @@ pub(crate) fn merge_config(
                             "existing configuration does not contain an ordinary tools.update_plan table",
                         )
                     })?;
-                    merge_existing_update_plan(&mut lines, existing_update_plan, &managed)?;
+                    merge_existing_table_setting(
+                        &mut lines,
+                        existing_update_plan,
+                        "tools.update_plan",
+                        "enabled",
+                        managed_value(&managed, UPDATE_PLAN_ENABLED_KEY),
+                    )?;
                 }
-                None => append_update_plan_table(&mut lines, &managed)?,
+                None => append_table_setting(
+                    &mut lines,
+                    "tools.update_plan",
+                    "enabled",
+                    managed_value(&managed, UPDATE_PLAN_ENABLED_KEY),
+                )?,
             }
         }
-        None => append_update_plan_table(&mut lines, &managed)?,
+        None => append_table_setting(
+            &mut lines,
+            "tools.update_plan",
+            "enabled",
+            managed_value(&managed, UPDATE_PLAN_ENABLED_KEY),
+        )?,
+    }
+
+    let context_management = match existing.get("features") {
+        Some(features) => {
+            let features = features.as_table().ok_or_else(|| {
+                invalid_config("existing configuration does not contain an ordinary features table")
+            })?;
+            features
+                .get("context_management")
+                .map(|context| {
+                    context.as_table().ok_or_else(|| {
+                        invalid_config(
+                            "existing configuration does not contain an ordinary features.context_management table",
+                        )
+                    })
+                })
+                .transpose()?
+        }
+        None => None,
+    };
+    let experimental_mode = managed_value(&managed, CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY);
+    match context_management {
+        Some(context) => merge_existing_table_setting(
+            &mut lines,
+            context,
+            "features.context_management",
+            "experimental_mode",
+            experimental_mode,
+        )?,
+        None => append_table_setting(
+            &mut lines,
+            "features.context_management",
+            "experimental_mode",
+            experimental_mode,
+        )?,
     }
 
     let mut candidate = lines.concat();
@@ -229,59 +282,56 @@ fn append_agents_table(
     Ok(())
 }
 
-fn merge_existing_update_plan(
+fn merge_existing_table_setting(
     lines: &mut Vec<String>,
-    existing_update_plan: &Table,
-    managed: &BTreeMap<&str, ManagedScalar>,
+    existing_table: &Table,
+    table_path: &str,
+    key: &str,
+    value: &ManagedScalar,
 ) -> Result<(), InstallerError> {
     let structure = scan_toml_structure(lines);
-    let update_plan_headers = structure
+    let headers = structure
         .table_headers
         .iter()
         .copied()
-        .filter(|index| is_exact_update_plan_header(line_body(&lines[*index])))
+        .filter(|index| is_exact_table_header(line_body(&lines[*index]), table_path))
         .collect::<Vec<_>>();
-    if update_plan_headers.len() != 1 {
-        return Err(invalid_config(
-            "existing tools.update_plan value is not one exact [tools.update_plan] table",
-        ));
+    if headers.len() != 1 {
+        return Err(invalid_config(format!(
+            "existing {table_path} value is not one exact [{table_path}] table"
+        )));
     }
 
-    let table_start = update_plan_headers[0];
+    let table_start = headers[0];
     let table_end = structure
         .table_headers
         .iter()
         .copied()
         .find(|index| *index > table_start)
         .unwrap_or(lines.len());
-    if existing_update_plan.contains_key("enabled") {
+    if existing_table.contains_key(key) {
         let assignment = unique_assignment(
             lines,
             table_start + 1,
             table_end,
-            "enabled",
+            key,
             &structure.statement_lines,
-            "inside [tools.update_plan]",
+            &format!("inside [{table_path}]"),
         )?;
-        lines[assignment] = replacement_line(
-            &lines[assignment],
-            "enabled",
-            managed_value(managed, UPDATE_PLAN_ENABLED_KEY),
-        )?;
+        lines[assignment] = replacement_line(&lines[assignment], key, value)?;
     } else {
         let insertion = before_trailing_blank_lines(lines, table_start + 1, table_end);
         prepare_insertion(lines, insertion);
-        lines.insert(
-            insertion,
-            new_assignment("enabled", managed_value(managed, UPDATE_PLAN_ENABLED_KEY))?,
-        );
+        lines.insert(insertion, new_assignment(key, value)?);
     }
     Ok(())
 }
 
-fn append_update_plan_table(
+fn append_table_setting(
     lines: &mut Vec<String>,
-    managed: &BTreeMap<&str, ManagedScalar>,
+    table_path: &str,
+    key: &str,
+    value: &ManagedScalar,
 ) -> Result<(), InstallerError> {
     let insertion = lines.len();
     prepare_insertion(lines, insertion);
@@ -291,11 +341,8 @@ fn append_update_plan_table(
     {
         lines.push("\n".to_owned());
     }
-    lines.push("[tools.update_plan]\n".to_owned());
-    lines.push(new_assignment(
-        "enabled",
-        managed_value(managed, UPDATE_PLAN_ENABLED_KEY),
-    )?);
+    lines.push(format!("[{table_path}]\n"));
+    lines.push(new_assignment(key, value)?);
     Ok(())
 }
 
@@ -309,12 +356,13 @@ fn validated_managed_values(
     max_threads: u8,
 ) -> Result<BTreeMap<&'static str, ManagedScalar>, InstallerError> {
     let parsed = parse_toml(managed_text, "managed configuration")?;
-    if parsed.len() != MANAGED_ROOT_KEYS.len() + 2
+    if parsed.len() != MANAGED_ROOT_KEYS.len() + 3
         || !MANAGED_ROOT_KEYS
             .iter()
             .all(|key| parsed.contains_key(*key))
         || !parsed.contains_key("agents")
         || !parsed.contains_key("tools")
+        || !parsed.contains_key("features")
     {
         return Err(invalid_config(
             "managed configuration has unknown or missing root keys",
@@ -353,6 +401,19 @@ fn validated_managed_values(
             invalid_config("managed configuration has unknown or missing tools.update_plan keys")
         })?;
 
+    let context_management = parsed
+        .get("features")
+        .and_then(Value::as_table)
+        .filter(|features| features.len() == 1)
+        .and_then(|features| features.get("context_management"))
+        .and_then(Value::as_table)
+        .filter(|context| context.len() == 1 && context.contains_key("experimental_mode"))
+        .ok_or_else(|| {
+            invalid_config(
+                "managed configuration has unknown or missing features.context_management keys",
+            )
+        })?;
+
     let mut values = BTreeMap::new();
     for key in MANAGED_ROOT_KEYS {
         values.insert(key, ManagedScalar::from_value(key, &parsed[key])?);
@@ -367,6 +428,16 @@ fn validated_managed_values(
         ));
     }
     values.insert(UPDATE_PLAN_ENABLED_KEY, enabled);
+    let experimental_mode = ManagedScalar::from_value(
+        CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY,
+        &context_management["experimental_mode"],
+    )?;
+    if !matches!(experimental_mode, ManagedScalar::Boolean(_)) {
+        return Err(invalid_config(
+            "managed key \"features.context_management.experimental_mode\" is not a boolean",
+        ));
+    }
+    values.insert(CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY, experimental_mode);
     values.insert(
         "max_threads",
         ManagedScalar::Integer(i64::from(max_threads)),
@@ -411,6 +482,19 @@ fn validate_managed_postcondition(
     {
         return Err(invalid_config(
             "merged configuration does not contain managed tools.update_plan key \"enabled\"",
+        ));
+    }
+    let final_experimental_mode = final_config
+        .get("features")
+        .and_then(Value::as_table)
+        .and_then(|features| features.get("context_management"))
+        .and_then(Value::as_table)
+        .and_then(|context| context.get("experimental_mode"));
+    if final_experimental_mode
+        != Some(&managed_value(managed, CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY).as_toml())
+    {
+        return Err(invalid_config(
+            "merged configuration does not contain managed features.context_management key \"experimental_mode\"",
         ));
     }
     Ok(())
@@ -549,9 +633,9 @@ fn is_exact_agents_header(line: &str) -> bool {
     })
 }
 
-fn is_exact_update_plan_header(line: &str) -> bool {
+fn is_exact_table_header(line: &str, table_path: &str) -> bool {
     table_header_contents(line).is_some_and(|(is_array, contents)| {
-        !is_array && contents.trim_matches([' ', '\t']) == "tools.update_plan"
+        !is_array && contents.trim_matches([' ', '\t']) == table_path
     })
 }
 
@@ -701,3 +785,7 @@ fn invalid_config(message: impl Into<String>) -> InstallerError {
 #[cfg(test)]
 #[path = "config_merge_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "config_merge_context_management_tests.rs"]
+mod context_management_tests;
