@@ -25,6 +25,9 @@ const MANAGED_CONFIG: &str = concat!(
     "\n",
     "[tools.update_plan]\n",
     "enabled = true\n",
+    "\n",
+    "[features.context_management]\n",
+    "experimental_mode = true\n",
 );
 
 #[test]
@@ -214,7 +217,7 @@ fn plan_adopts_an_existing_asset_only_when_requested() {
 }
 
 #[test]
-fn plan_merges_only_the_six_managed_configuration_keys() {
+fn plan_merges_only_the_seven_managed_configuration_keys() {
     // Arrange
     let temporary = project_tempdir("plan-config-merge");
     let fixture = Fixture::new(temporary.path());
@@ -232,6 +235,12 @@ fn plan_merges_only_the_six_managed_configuration_keys() {
         "max_threads = 2\n",
         "max_depth = 3\n",
         "custom = true\n",
+        "\n",
+        "[features]\n",
+        "hooks  =  true # local feature context\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = false # local context-management setting\n",
     );
     fs::write(fixture.codex_home.join("config.toml"), existing).expect("write config");
     let expected = concat!(
@@ -247,6 +256,12 @@ fn plan_merges_only_the_six_managed_configuration_keys() {
         "max_threads = 6\n",
         "max_depth = 2\n",
         "custom = true\n",
+        "\n",
+        "[features]\n",
+        "hooks  =  true # local feature context\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true # local context-management setting\n",
     );
 
     // Act

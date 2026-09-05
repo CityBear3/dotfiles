@@ -8,3 +8,6 @@ max_depth = 2
 
 [tools.update_plan]
 enabled = true
+
+[features.context_management]
+experimental_mode = true

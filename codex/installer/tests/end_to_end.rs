@@ -195,6 +195,10 @@ fn workflow_bundle_replaces_owned_roles_and_preserves_unmanaged_assets() {
     assert!(config.contains("# operator-owned configuration\nmodel_verbosity = \"low\"\n"));
     let config: toml::Table = toml::from_str(&config).expect("installed configuration is TOML");
     assert_eq!(config["agents"]["max_threads"].as_integer(), Some(4));
+    assert_eq!(
+        config["features"]["context_management"]["experimental_mode"].as_bool(),
+        Some(true)
+    );
 }
 
 fn directory_files(root: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
@@ -254,6 +258,12 @@ fn install_and_restore_round_trip_with_normal_binary() {
         "[agents]\n",
         "max_threads = 2\n",
         "max_depth = 3\n",
+        "\n",
+        "[features]\n",
+        "hooks  =  true # keep unrelated features\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = false # keep context-management comment\n",
     );
     let prior_manifest = concat!(
         "{\n",
@@ -458,6 +468,11 @@ fn install_and_restore_round_trip_with_normal_binary() {
             installed_update_plan
                 .get("enabled")
                 .and_then(toml::Value::as_bool),
+            installed_config_table
+                .get("features")
+                .and_then(|features| features.get("context_management"))
+                .and_then(|context| context.get("experimental_mode"))
+                .and_then(toml::Value::as_bool),
         ),
         (
             Some("fixture-model"),
@@ -466,11 +481,17 @@ fn install_and_restore_round_trip_with_normal_binary() {
             Some(4),
             Some(2),
             Some(true),
+            Some(true),
         )
     );
     assert!(
         installed_config_text.contains(unmanaged_config),
         "unmanaged bytes were not preserved:\n{installed_config_text}"
+    );
+    assert!(installed_config_text.contains("hooks  =  true # keep unrelated features\n"));
+    assert!(
+        installed_config_text
+            .contains("experimental_mode = true # keep context-management comment\n")
     );
     assert_ne!(installed_manifest, prior_manifest.as_bytes());
     assert!(!stale_exists_after_install);

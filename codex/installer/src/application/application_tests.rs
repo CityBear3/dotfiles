@@ -32,6 +32,9 @@ const MANAGED_CONFIG: &str = concat!(
     "\n",
     "[tools.update_plan]\n",
     "enabled = true\n",
+    "\n",
+    "[features.context_management]\n",
+    "experimental_mode = true\n",
 );
 
 #[test]
@@ -255,6 +258,9 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
         "\n",
         "[tools.update_plan]\n",
         "enabled = true\n",
+        "\n",
+        "[features.context_management]\n",
+        "experimental_mode = true\n",
     );
     fs::write(codex_home.join("config.toml"), prior_config).expect("write prior config");
     fs::create_dir(skills_home.join("adopted")).expect("create adoptable skill");
