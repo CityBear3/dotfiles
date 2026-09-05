@@ -6,6 +6,8 @@
 - Revised: 2026-08-31
 - Status: Single-orchestrator revision approved by the repository owner on
   2026-08-31
+- Search-cache policy revised with owner approval on 2026-09-06: optional
+  cross-session discovery sharing; other decisions are unchanged by this revision.
 - Approved single-orchestrator revision draft SHA-256:
   `0c74bb5dccd733a3153775b35e04f2120c0c66df87730ad10831844b1ba9a389`
 - Retired single-orchestrator revision settled source:
@@ -72,10 +74,10 @@ block an otherwise correct current target without a reachable defect or a
 material evidence gap.
 
 This revision extends the original design with context-isolated dispatch,
-event-responsive waiting, decision-aware implementer batching, a feature-local
-search cache, explicit separation of historical TDD discipline from current
-Acceptance. It revises the same durable authority rather than adding a
-precedence-bearing addendum.
+event-responsive waiting, decision-aware implementer batching, an optional
+feature-local cross-session search cache, explicit separation of historical
+TDD discipline from current Acceptance. It revises the same durable authority
+rather than adding a precedence-bearing addendum.
 
 Operational use also exposed an authority-boundary problem inside the shared
 `execute-task` Skill. The earlier correction split the root-owned lightweight
@@ -150,8 +152,8 @@ retaining context-isolated dispatch.
 - Apply the common Acceptance threshold before a source reviewer emits a
   finding and avoid expensive integration probes used only to disprove an
   unsupported hypothesis.
-- Prevent repeated planned-lifecycle searches through an ignored,
-  feature-local `search-cache.md` with source-aware invalidation.
+- Avoid costly rediscovery across independent sessions through an optional,
+  feature-local `search-cache.md` with source-aware reuse and rechecking.
 - Keep historical TDD discipline evidence distinct from the evidence that
   establishes current-head Acceptance.
 
@@ -437,8 +439,9 @@ cannot preserve per-command results, commands remain separate.
 The implementer's first discovery stage may place independent authority reads,
 repository searches, relevant file reads, and Git inspection into one bounded
 programmatic tool batch. Each underlying operation remains separately
-attributable. Before starting a new search, the role checks the applicable
-`search-cache.md` entry supplied by or located through the handoff.
+attributable. A relevant `search-cache.md` entry supplied through the handoff
+may guide discovery, but neither a lookup before every search nor a cache-miss
+report is required.
 
 Batching stops whenever one result changes the choice, scope, authorization, or
 input of the next action. In particular, approval and escalation decisions,
@@ -547,42 +550,41 @@ This moves rejection earlier without lowering Acceptance, letting raw reviewer
 output authorize correction, or removing independent integration for concrete
 findings.
 
-### Feature-local search cache
+### Optional cross-session search cache
 
-Planned work stores reusable discovery at:
+For planned work, the Feature Lead may store costly discoveries likely to be
+reused by another independent Task Lead or session at:
 
 ```text
 docs/plans/YYYY-MM-DD-<feature>/search-cache.md
 ```
 
-The file is ignored, workspace-only, and non-authoritative. It prevents the root
-and leaves from repeating the same repository, Git, documentation, runtime, or
-external search, including useful searches that found no result. The root is
-the only writer. Leaves read it and return new cache candidates in their
-reports. Within one Task turn, the root may pass an attributable returned
-result directly to the next role before integrating it into the file;
-cross-loop persistence remains root-controlled.
+The file is an optional shared discovery memo, ignored, workspace-only, and
+non-authoritative. It is not a same-session memory log or a record of every
+search. Use the Task handoff directly for one-off sharing rather than also
+writing the same result into a cache without a further reuse need. A useful
+negative result can be included when it would otherwise be costly to establish
+again in another session.
 
-Before searching, a role looks for an entry whose purpose, scope, and source
-identity match the current question. Each entry records:
+The Feature Lead is the only writer. Task Leads and leaves may return useful
+cross-session findings for inclusion. Share only relevant entries or directly
+readable references with consumers. Keep each entry concise: the finding, exact
+source, and applicability or recheck conditions. Include a version, Git ref,
+path, scope, or observation date when needed to identify the source and decide
+whether the finding still applies.
 
-- search purpose and scope;
-- source identity, including an applicable URL, version, Git ref, range, or
-  path;
-- observation date or repository identity;
-- positive and useful negative results; and
-- explicit reuse and invalidation conditions.
+No cache file or policy section is required in every plan. Do not create empty
+placeholders, require a lookup before every search, or report routine cache
+misses. An absent file, absent entry, or stale entry is not a plan, handoff,
+execution, review, or completion blocker; perform needed discovery instead.
+Changed sources or assumptions and contradictory observations require
+rechecking. The cache is navigation, never a prohibition on searching again,
+and never replaces fresh Git and authority resolution, required mechanical
+verification, or a policy-required reviewer's independent assessment of the
+current target.
 
-Repository entries become stale when their relevant ref, range, paths, search
-scope, or controlling authority changes. Versioned documentation is keyed by
-its stable identity. Mutable external information is rechecked when currentness
-can materially affect a decision or obligation. An observed contradiction
-invalidates the affected entry. The cache never replaces fresh Git and
-authority resolution, required mechanical verification, or a policy-required
-reviewer's independent assessment of the current target.
-
-`search-cache.md` has the same lifecycle as `implementation-plan.md`. It stays
-in the coordination worktree while publication, feedback re-entry, or
+If created, `search-cache.md` has the same lifecycle as `implementation-plan.md`.
+It stays in the coordination worktree while publication, feedback re-entry, or
 disposition evidence may need it and is retired when removal of that exact
 worktree is authorized. It is not recoverable from Git unless the owner
 separately chooses archival.
@@ -765,8 +767,9 @@ wait path, and root re-entry per active Task. Context-isolated dispatch prevents
 the parent transcript from being copied into every new role. Decision-aware
 batching and coherent causal test matrices remove unnecessary model turns,
 source-review admission prevents speculative late integration, and
-`search-cache.md` prevents the same discovery from being repeated across the
-planned lifecycle.
+an optional `search-cache.md` can avoid costly rediscovery across independent
+sessions. Routine same-session recollection or one-off Task handoffs do not
+justify a shared cache by themselves.
 
 These are context reductions, not permission to omit exact authority. Every
 role keeps direct access to the source artifacts and expands its inspection when
@@ -806,8 +809,8 @@ workspace-only planned artifact. Both executors become root-owned. The new
 coordination topology applies after the updated bundle is installed and a new
 Codex session loads it; an in-flight Task is not hot-swapped between owners.
 
-`search-cache.md` is a per-feature workspace artifact, not an installed managed
-asset. The installed Task-orchestrator agent profile is retired, while
+`search-cache.md` is an optional per-feature workspace artifact, not an installed
+managed asset. The installed Task-orchestrator agent profile is retired, while
 `execute-task` and `execute-lightweight-task` remain at their existing
 destinations. The implementation must keep both executor contracts, their
 root-owned callers and references, fallback prompts, README guidance, and
@@ -982,13 +985,15 @@ discloses the discipline gap and blocks or escalates only for a reachable defect
 material evidence gap, or material contract deviation. It never fabricates a
 replacement RED or claims unobserved TDD.
 
-### Use general research notes or a design-only cache
+### Require a cache for every plan or use it as a general research log
 
-`research-notes.md` was rejected because it suggests free-form prose rather than
-lookup-before-search behavior. `discovery-cache.md` was rejected because it
-communicates the primary purpose less directly than `search-cache.md`. Limiting
-the cache to design and planning was rejected because Task and correction loops
-would still repeat discovery.
+Rejected because recording and checking routine searches can cost more than
+rediscovering them. The owner-approved cross-session policy retains the
+`search-cache.md` name but removes mandatory creation, lookup-before-search,
+and miss reporting. Creation depends on likely reuse of costly findings by
+another independent session, not the workflow phase. One-off sharing remains
+in the Task handoff, and optional cache entries may support Task or correction
+work as well as design and planning.
 
 ### Give every cached source one TTL
 

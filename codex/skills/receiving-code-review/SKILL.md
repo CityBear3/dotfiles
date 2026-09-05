@@ -9,10 +9,11 @@ Treat review as technical evidence, not an instruction to agree. Remain
 check-only and read-only. Do not mutate source or Git state, implement or stage a
 fix, dispatch a writer, or advance another workflow phase.
 
-For new-format planned work, look up a current matching cache entry before new discovery.
-Use a current hit only as navigation and return attributable cache candidates
-to the Feature lead; it never replaces current Git, authority, verification,
-review, or triage evidence, and this role never edits `search-cache.md`.
+Use a supplied applicable search-cache entry only as navigation. Do not require
+a cache, a lookup before every search, or a miss report. Return costly findings
+worth reusing across independent sessions to the Feature Lead when useful;
+they never replace current Git, authority, verification, review, or triage
+evidence, and this role never edits `search-cache.md`.
 
 ## Coordinator-managed entry
 
@@ -38,9 +39,11 @@ Require:
   Implementation Plan, and applicable Task Contracts; the complete lightweight
   combined Feature/Task Contract with original request authority and exact task
   evidence; or the exact eligible legacy plan authority;
-- for new-format planned work, the exact `search-cache.md` path and any current matching
-  navigation entry with its source identity and invalidation conditions;
 - observed correction attempts and prior triage decisions.
+
+An optional search-cache reference may accompany this evidence with its source
+and applicability conditions. Its absence or staleness is not a missing input;
+inspect the required sources directly instead.
 
 Resolve the workspace, branch, base, merge base, head, range or composition,
 diff, status, and changed files directly from Git.

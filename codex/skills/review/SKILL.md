@@ -43,8 +43,10 @@ Resolve Git and authority directly before dispatch and before reporting.
 Missing, contradictory or stale inputs are BLOCKED. Keep complete exact sources
 readable. Pass relevant clauses instead of unrelated transcripts; perspectives
 owning whole-contract coverage inspect that complete applicable source.
-Current search-cache entries are navigation only; return attributable
-candidates through the Task Lead to the Feature Lead, the only cache writer.
+Supplied applicable search-cache entries are optional navigation, never a
+review prerequisite. Return costly findings worth reusing across independent
+sessions through the Task Lead to the Feature Lead, the only cache writer,
+when useful. Do not require routine cache lookups or miss reports.
 
 Review context describes artifact/purpose, consumers and interpretation model,
 material quality and realistic failures, approved non-problems and inapplicable
@@ -219,8 +221,8 @@ inspected; context/policy and standalone limitations; fresh verification
 evidence; selected perspectives/allocations, reports, pending order and
 interruption evidence; coverage map including original heads and reasons for
 carried evidence; integration trigger/result or direct-triage eligibility;
-findings, separate authority/policy gaps, concerns, cache candidates and exact
-re-entry conditions.
+findings, separate authority/policy gaps, concerns, any useful cross-session
+discovery candidates and exact re-entry conditions.
 
 - CLEAN: all required applicable coverage is fresh or explicitly non-invalidated,
   sources are clean, verification is fresh, target unchanged, and no policy,

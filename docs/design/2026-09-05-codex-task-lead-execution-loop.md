@@ -4,6 +4,8 @@
 - Drafted by: Codex from owner-settled design decisions
 - Date: 2026-09-05
 - Status: Approved by the repository owner on 2026-09-05
+- Search-cache policy revised with owner approval on 2026-09-06: optional
+  cross-session discovery sharing; other decisions are unchanged by this revision.
 - Delivery: Feature Lead direct local revision on
   `codex/task-lead-execution-loop`; installation and publication are separate
 - Extends:
@@ -380,7 +382,8 @@ It:
 - propagates predecessor changes and other cross-Task invalidation;
 - owns integration-only verification, composed-tree review, Feature Acceptance,
   and return to the user;
-- owns the Feature-local search cache as its only writer;
+- may create the optional Feature-local search cache for costly discoveries
+  worth reusing across independent sessions, remaining its only writer;
 - retains all publication, merge, cleanup, and disposition gates.
 
 The Feature Lead does not choose Task-local private implementation details,
@@ -446,9 +449,13 @@ The Feature Lead supplies one complete handoff containing:
   commands;
 - preselected logical roles, risk perspectives, correction invalidation rules,
   and effective model/effort allocation;
-- the applicable current search-cache entry or miss and its invalidation
-  conditions;
 - existing attributable commits, reports, concerns, and re-entry state.
+
+When useful, include reusable findings directly or relevant entries from an
+existing optional search cache, with their sources and applicability conditions.
+Use the handoff directly for one-off sharing. An absent or stale cache is not
+a handoff gap and requires no miss report. The Feature Lead creates a cache
+only when further cross-session reuse justifies it, not as a routine artifact.
 
 The handoff omits unrelated conversation history, completed work from other
 Tasks, and unassigned unchanged Design prose. Exact sources remain directly
@@ -472,8 +479,9 @@ The envelope includes Task and workspace identity, base/head/range/status,
 commits and changed files, discipline evidence, completed Verification Matrix,
 runner report, every applicable reviewer report, integration and triage when
 present, correction history, carried-forward reviewer evidence with reasons,
-concerns, cache candidates, and gaps. The Feature Lead consumes the envelope
-directly and does not replace it with an unverifiable prose summary.
+concerns, any useful cross-session discovery candidates, and gaps. The Feature
+Lead consumes the envelope directly and does not replace it with an
+unverifiable prose summary.
 
 Reporting Task `Accepted` belongs to the Task-loop owner, who is also its
 writer: the Task Lead for planned work and the Feature Lead for lightweight
@@ -738,13 +746,18 @@ The following controls are mandatory:
   handoff;
 - batch independent reads and searches while preserving judgment-dependent
   ordering;
-- reuse current Feature-local search-cache entries only as navigation;
+- treat any supplied applicable search-cache entries only as navigation;
 - retain one Task Lead across bounded correction when safe;
 - run normal reviewers concurrently after fresh verification;
 - avoid `finding-integrator` for all-clean or simple single-finding review;
 - rerun only correction-invalidated reviewers;
 - report exact evidence once and reference it rather than paraphrasing it into
   competing formats.
+
+An optional search cache does not require routine lookups, empty files, or miss
+reports. Changed sources or assumptions require rechecking; its absence or
+staleness never blocks progress. If created, retain it under the existing
+ignored plan-artifact lifecycle without using it as acceptance evidence.
 
 No fixed token limit may cause material authority or evidence to be omitted.
 When the Task Lead context becomes unsafe or incomplete, re-entry uses the

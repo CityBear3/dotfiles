@@ -27,8 +27,6 @@ For new-format work, require:
 - explicit user authorization to start this exact approved plan, which grants
   creation or reuse of its exact non-destructive local Task workspaces and
   independent sessions at the engineer-confirmed allocations;
-- the exact planned `search-cache.md` path, current matching entries, and its
-  Feature-lead-only writer boundary;
 - its complete Task Contract set, shared interface contracts, Feature Contract
   coverage, and integration-only obligations;
 - its separate Review context and complete approved Review policy;
@@ -44,6 +42,10 @@ For new-format work, require:
   starting-ref resolution rules, concurrency eligibility, staleness rules, and
   exact integration-only starting identities, accepted inputs, order,
   mechanism, workspace strategy, identity checks, and cleanup eligibility.
+
+Use an optional search-cache path and relevant reusable findings when supplied.
+Their absence or staleness is not a missing-authority condition; no cache-miss
+report is required. The Feature Lead remains its only writer.
 
 For compatibility, accept an approved plan already executing before the
 contract-centered format only when the coordinator supplies its exact approval
@@ -111,9 +113,10 @@ Use `dispatching-parallel-agents` for Herdr launch/resume of each selected Task
 root. Supply the complete handoff defined by `execute-task`: relevant exact
 authority and clauses, ownership, verification discipline, complete policy,
 effective allocations, worktree/Git/Herdr routing identities, mode, commit
-intent, cache entry/miss and attributable re-entry evidence. Keep sources
-directly readable and omit unrelated conversation or unchanged unassigned
-prose. Each new Task session starts without inherited Feature conversation.
+intent and attributable re-entry evidence. Add relevant reusable findings or
+optional cache references only when useful. Keep sources directly readable and
+omit unrelated conversation or unchanged unassigned prose. Each new Task
+session starts without inherited Feature conversation.
 
 The Task Lead implements and owns native runner/reviewer/integrator dispatch,
 triage and bounded correction. Do not start a separate implementer, build
@@ -289,7 +292,7 @@ containing:
   results as the completed current-head Verification Matrix;
 - per-task gate result;
 - reviewer and findings-integration outcomes, triage, non-blocking concerns,
-  changed files, cache candidates, and gaps.
+  changed files, any useful cross-session discovery candidates, and gaps.
 
 After every planned task is accepted and current:
 
