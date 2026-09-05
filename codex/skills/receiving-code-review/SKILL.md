@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: Verify review findings against current code and classify each as Fix, Push back, or Escalate. Use from the workflow coordinator for authorized review loops or standalone for read-only feedback evaluation.
+description: Verify findings and classify Fix, Push back, or Escalate for the owning Task/Feature loop, or evaluate standalone feedback read-only.
 ---
 
 # Triage current-target review findings
@@ -23,11 +23,11 @@ Require:
   changed files;
 - fresh verification `PASS` and either workflow review `FINDINGS` or complete
   human review feedback anchored to that same unchanged head and range;
-- for workflow `FINDINGS`, every source report plus the general
-  `review-integrator` report for the exact unchanged target, or an explicitly
-  authorized focused no-agent lead integration statement that says no
-  independent integrator ran; direct human feedback does not fabricate this
-  workflow evidence;
+- for workflow `FINDINGS`, complete source reports plus either the required
+  `finding-integrator` report for the unchanged target or review's explicit
+  simple-finding direct-triage eligibility record; direct human feedback does
+  not fabricate workflow evidence, but still requires problem/remedy and
+  authority checks before classification;
 - each ordinary finding's severity, file and line, concrete behavior,
   requirement, evidence, impact, proposed correction, and confidence; or each
   separately reported authority-gap claim with its exact authority and defect
@@ -132,13 +132,16 @@ For `Fix`, return one bounded plain-language correction handoff:
   or explicit writer authority to select the correction message;
 - current planned Task PR base or integration target, verification obligations,
   and contractually required exact commands;
-- prior reviewed head `H1`, prior reviewer reports and triage, and the same
-  complete policy-selected reviewer set that must rerun after correction;
+- prior reviewed head `H1`, reports and triage, the complete policy-selected
+  coverage set, finding-owning perspectives and known impact for correction
+  invalidation; do not require every selected reviewer to rerun automatically;
 - observed prior attempts, concerns, and gaps.
 
-Do not choose the lightweight or planned builder here. The coordinator routes
-the handoff directly to `execute-lightweight-task` for lightweight work or
-through `execute-plan` for planned work.
+Do not choose the builder here. The Task Lead applies an authorized Task-local
+Fix in its existing `execute-task` loop. The Feature Lead applies lightweight
+Fixes in `execute-lightweight-task`, and routes integration/cross-Task feedback
+through `execute-plan` to the owning Task. Do not relay routine Task-local
+triage through the Feature Lead.
 
 For `Push back`, cite controlling code, test, Design, plan, or approved decision
 evidence. The same finding may be reconsidered only with materially new evidence
@@ -183,8 +186,10 @@ the exact safe re-entry condition. Do not report provisional classifications.
 An authorized coordinator-managed `Fix` does not need another approval when it
 remains within scope. A Task PR fix still requires bounded implementation, a
 single correction commit and new head `H2`, a rebuilt current-head Verification
-Matrix, fresh `H2` verification, and the same complete policy-selected reviewer
-set. Each reviewer receives prior evidence, the `H1..H2` delta, and full
+Matrix and fresh `H2` verification. The owner supplies review's impact map;
+finding owners and affected perspectives rerun, while other prior clean
+evidence needs concrete non-invalidation reasons. Uncertainty means rerun.
+Rerun reviewers receive prior evidence, the `H1..H2` delta, and full
 `base..H2` access. `review` owns correction-review scope and escalation; this
 skill authorizes the bounded fix but does not redefine traversal. An integration
 finding routes to its owning Task Contract, invalidates affected descendants

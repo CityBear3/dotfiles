@@ -34,8 +34,9 @@ For task mode inspect:
   exact commit, merge base, current head, exact range, status, diff, changed
   files, and commits;
 - fresh task verification `PASS` and a policy-complete gate closed by review
-  `CLEAN` or by integrated review `FINDINGS` whose every item has current `Push
-  back` triage for that same unchanged range;
+  `CLEAN` or by review `FINDINGS` with required integration or explicit direct-
+  triage eligibility and current `Push back` triage for every item on that
+  same unchanged range;
 - current logical dependencies, shared interfaces, and ancestor evidence;
 - publication state, human-feedback state, concerns, and every gap.
 
@@ -57,8 +58,8 @@ For lightweight mode inspect:
 - its exact workspace, branch, planned base ref and commit, merge base, current
   head, range, status, diff, changed files, and commits;
 - fresh verification `PASS` and a policy-complete gate closed by `CLEAN` or by
-  same-target integrated `FINDINGS` with every item currently classified `Push
-  back`;
+  same-target `FINDINGS` with required integration or explicit direct-triage
+  eligibility and every item currently classified `Push back`;
 - the coordinator's Feature Accepted result for that unchanged exact Task PR;
 - publication state, human-feedback state, concerns, and every gap.
 

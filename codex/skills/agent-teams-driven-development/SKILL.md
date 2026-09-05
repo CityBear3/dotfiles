@@ -1,93 +1,68 @@
 ---
 name: agent-teams-driven-development
-description: Schedule one already-selected Task writer or read-only check leaf directly from the root while preserving role boundaries, runtime backpressure, and interruption safety.
+description: Dispatch an already-selected native check-only or read-only leaf inside its owning Task or Feature session.
 ---
 
-# Agent-teams driven development
+# Dispatch one native check leaf
 
-Act only as the scheduling adapter for a role already selected by
-`execute-task`, `execute-lightweight-task`, `verify`, or `review`. The root is
-the sole workflow orchestrator for planned, lightweight, integration-only, and
-standalone targets. Do not select paths, roles, Review breadth, findings,
-corrections, or acceptance here.
+Act only as the local scheduling adapter for `verify` or `review`. A planned
+Task Lead dispatches its own leaves. The Feature Lead dispatches lightweight,
+integration-only, and standalone leaves. Do not start Task roots here, choose
+policy, write source, or decide acceptance.
 
-## Require one bounded request
+## Input and binding
 
-Accept:
+Require the exact target/workspace, selected logical role, complete bounded
+role message, approved effective model/effort, deterministic pending order,
+fresh/follow-up/replacement intent, prior identity when relevant, and output
+contract. A leaf is a runner, reviewer, or conditional finding integrator, never
+a second writer. Missing or conflicting input is `BLOCKED`.
 
-- one named role or complete fallback contract;
-- one complete role-specific message prepared by the owning phase;
-- the exact Task PR, integration, or standalone target and workspace;
-- whether the request is fresh, follow-up, or replacement;
-- prior identity and interruption evidence when applicable; and
-- the selected-role order and required output contract.
+Resolve the selected installed profile and effective instructions before
+dispatch. Use its exact approved model/effort; do not assume inheritance from
+the Task Lead. If a named profile is unavailable, a complete equivalent role
+contract may be supplied only when the runtime can enforce the same allocation
+and read/check-only boundary. Otherwise report `BLOCKED`. Never promote,
+substitute, or retry with another model. An explicit runtime binding must not
+conflict with a profile's enforced settings.
 
-Reject an ambiguous role or a request that requires policy interpretation. Pass
-the selected role and message without adding another workflow wrapper.
+Every fresh leaf uses `fork_turns="none"` or an equivalent empty history.
+Supply only role-owned evidence and directly readable authority sources.
+Leaves never spawn descendants. A compatible safely idle leaf may receive a
+fresh complete handoff; do not reuse a prior report as a new-head inspection.
 
-## Dispatch under runtime admission
+## Scheduling and evidence
 
-Every new implementer, verifier, reviewer, adversarial integrator, or review
-integrator uses explicit `fork_turns="none"` and may not spawn descendants. A
-compatible idle identity uses `followup_task` with a fresh complete handoff and
-fresh validation. Parent conversation, identity, and liveness are never
-correctness evidence.
+Attempt selected native dispatch in the owning session. Runtime admission owns
+local concurrency, not Feature readiness or total capacity across independent
+Task sessions. A rejected spawn stays pending in the supplied order. Retry
+after relevant progress or availability evidence without dropping gates,
+changing allocations, or calculating leases. Use bounded event-responsive waits
+within the active tool and responsiveness limits; do not busy-poll unchanged
+state or use a wait that prevents required user updates.
 
-Keep one active writer for a Task workspace. Other writers may run only in
-approved separate checkouts with ownership-disjoint responsibilities. Reviewers
-and integrators remain read-only; the verifier remains check-only and may create
-only normal ignored test or build artifacts.
+Normal reviewers may run concurrently after fresh runner `PASS`. Do not
+overlap source edits with verification or review of that source, run duplicate
+checks, integrate incomplete ordinary reports, or correct before triage.
+Inspect live identities only when duplicate prevention, liveness, interruption,
+replacement, or teardown makes them relevant.
 
-Attempt the selected spawn without workflow-level lease, grant, or capacity
-arithmetic. When the runtime reports its thread limit, retain the role as
-pending in the supplied order. After useful independent work is exhausted, wait
-once for normally 300,000 to 600,000 milliseconds and retry after a mailbox or
-completion event. Do not reduce Review breadth, substitute a role, or convert
-temporary resource pressure into policy `Escalate`. Return operational
-`BLOCKED` only after repeated non-progress prevents required work from
-advancing.
+The runner receives declared rows, exact target, environment and mutation
+checks, not a request to choose tests or interpret failures. Reviewers receive
+the verified target, selected perspective, relevant authority, Review context
+and policy, raw observations and relevant prior evidence. The integrator gets
+complete relevant source findings and the evidence needed to resolve its
+specific trigger. Do not relay ordinary Task-local transitions to the Feature
+Lead.
 
-Use `list_agents` only when duplicate prevention, liveness, failure,
-interruption, replacement, or teardown is decision-relevant. Runtime admission
-owns concurrency; the workflow still owns which roles and phase transitions are
-valid.
+## Interruption and return
 
-## Preserve role boundaries
+A timeout does not prove a leaf stopped. Before replacement or new source
+edits, resolve the old leaf's state and preserve completed evidence. Retry only
+the same selected compatible role; uncertain overlap is `BLOCKED`.
 
-- Give an implementer its owned responsibility, applicable authority, material
-  property and discipline, exact workspace and Git target, commit intent,
-  focused writer checks, and one-writer boundary.
-- Give a verifier the exact target and current-head Verification Matrix. It is
-  check-only and returns `PASS`, `FAIL`, or `BLOCKED` without semantic review.
-- Give a reviewer the unchanged verified target, selected perspective, Review
-  context and policy, completed matrix, and relevant prior triage.
-- Give an integrator the unchanged target, complete applicable source reports,
-  authority, Review context and policy, and prior triage. It remains read-only
-  and does not invent findings or issue final workflow classifications.
-
-Keep exact sources directly readable. Do not copy unrelated topology,
-scheduling, completed-gate, or authority prose into every message.
-
-## Recover safely
-
-After an implementer interruption, timeout, lost response, partial edit, or
-partial commit:
-
-1. inspect the interruption and live identity;
-2. prove the prior writer is inactive;
-3. inspect branch, planned base, head, status, commits, and exact diff; and
-4. attribute every in-scope edit and commit to the Task.
-
-Resume or replace only when writer isolation, attribution, and the handoff still
-hold. Never clean, reset, recommit, or discard uncertain state to force
-progress. For a failed read-only role, preserve completed reports and retry only
-the already-selected compatible role.
-
-## Return scheduling evidence
-
-Return target, role, leaf identity, workspace, pending order, completion or
-interruption state, report, and inspected Git evidence after writer failure.
-Use `BLOCKED` when safe scheduling or attribution cannot be established.
-
-The invoking phase interprets results and owns corrections and acceptance. Do
-not release dependencies, publish, merge, or tear down a workspace.
+Return target, role, effective model/effort, leaf identity, workspace, pending
+order, report, interruption observations, and gaps to the local phase owner.
+Do not release dependencies, issue Feature Acceptance, publish, merge, or
+clean up. Old approved execution topologies require their exact prior assets;
+do not translate an old writer dispatch into this check-leaf adapter.

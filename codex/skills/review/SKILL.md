@@ -1,454 +1,236 @@
 ---
 name: review
-description: Run read-only evidence-based review of an exact verified Task PR, an approved integration-only target, or a standalone scope using the applicable Review policy.
+description: Run independent read-only review of an exact verified Task or integration target, or a standalone scope, with conditional finding integration and correction invalidation.
 ---
 
-# Review a verified Task PR or integration target
-
-Review the requested scope, not the entire repository by default. Remain
-check-only and read-only. Keep every reviewer and integrator read-only. Do not
-mutate source or Git state, implement or stage a fix, classify findings for
-triage, or advance another workflow phase.
-
-For new-format planned work, look up a current matching cache entry before new discovery.
-A cache hit never replaces fresh Git, authority, verification, or review evidence.
-Use it only as source-identified navigation, let each reviewer inspect the
-current target independently, and return attributable cache candidates to the Feature lead.
-Reviewers and integrators never edit `search-cache.md`.
-
-## Resolve the review target
-
-Use one target form:
-
-- a coordinator-managed Task PR with exact planned base, merge base, current
-  head, and range;
-- a coordinator-managed targeted integration review over an exact composed tree
-  and named integration-only obligation;
-- an eligible legacy coordinator-managed committed range;
-- a standalone committed range;
-- a standalone current index/worktree snapshot;
-- a standalone bounded explicit fileset.
-
-Record target form, base and head when applicable, current status, exact range or
-bounded files, diff, changed files, relevant untracked paths, primary language,
-repository guidance, and limitations before dispatch.
-
-## Coordinator-managed entry
-
-Require one exact coordinator target and its authority.
-
-For a Task PR require:
-
-- Task Contract and PR identities, task workspace and branch, planned base ref
-  and commit, merge base, current head, exact range, diff, status, and changed
-  files;
-- fresh coordinator verification `PASS` for that same unchanged head and range;
-- the completed current-head Verification Matrix returned by that verifier;
-- no unexplained in-scope source state outside the committed range;
-- approved scope, non-goals, Review context, and complete Review policy;
-- applicable Feature and Task Contract authority, current dependency and shared-
-  interface evidence, observed commands, concerns, prior triage decisions, and
-  known gaps;
-- for new-format planned work, the exact `search-cache.md` path and any current
-  matching entry with its source identity and invalidation conditions;
-- the root-owned execution context, relevant live identities, ordered selected
-  or pending reviewers, and attributable runtime-rejection evidence.
-
-For a planned targeted integration review require:
-
-- approved Design Doc when applicable, Feature Contract, Task Contract set,
-  Implementation Plan, Review context and policy, and their approval state;
-- every current accepted Task PR result, both topologies, exact composition, and
-  fresh integration verification `PASS`;
-- the named integration-only obligation or concrete policy trigger that makes
-  this review applicable.
-
-Reject an ordinary full-feature review target for new-format work. Task PR gates
-are authoritative; the integration target may examine only the approved
-cross-task surface and evidence that triggered it.
-
-For a lightweight targeted integration review require:
-
-- the complete recoverable combined in-memory Feature/Task Contract, original
-  request authority and design sources, Review context, and current policy;
-- the current exact accepted lightweight Task PR and its base, head, tree,
-  range, status, verification, review, and triage evidence;
-- fresh integration verification `PASS` for that same head and tree;
-- the named integration-only obligation or concrete current policy trigger.
-
-Do not require a Design Doc, contract file, Implementation Plan, Task DAG,
-multi-PR topology, or temporary multi-head composition for this authority form.
-Review only the named integration surface and do not replay the Task PR gate.
-
-For a lightweight Task PR target, accept the complete combined in-memory
-Feature/Task Contract, original request authority and design sources, exact Task
-PR target, and fresh verification `PASS`. Require the contract to remain
-completely recoverable and no promotion condition or material change to be
-unresolved. This Task PR review also satisfies feature review when no
-integration-only trigger exists. Do not require an Implementation Plan or
-contract file.
-
-For a plan approved and already executing before the contract-centered format,
-accept its exact approved plan and referenced design sources in place of Feature
-and Task Contract artifacts only when the coordinator supplies unchanged
-approval and in-flight evidence, no material ambiguity, and no owner migration
-choice. Use its original scope, task specifications, verification and completion
-criteria, Review context, and Review policy. Do not manufacture new artifacts.
-
-Resolve workspace, branch, base, head, merge base, range or composed tree, diff,
-and changed files directly from Git. Require target state to match supplied
-evidence. Return `BLOCKED` without dispatch when it does not resolve, evidence is
-stale, in-scope state falls outside the target, or a required input is missing.
-Standalone evidence never satisfies a coordinator target.
-
-## Standalone read-only entry
-
-Resolve the requested committed range, index/worktree, or bounded fileset through
-local read-only investigation. Record available verification, Design Doc,
-Feature Contract, Task Contracts, plan, decision, and repository-guidance
-evidence. Absent or stale verification is a limitation.
-
-Use an approved Review policy when one is available. Without one, select only
-perspectives applicable to observed risk and report the missing policy; do not
-present the result as policy-complete coordinator evidence.
-
-Derive the smallest reasonable Review context from the requested artifact,
-repository evidence, and available decisions. State:
-
-- artifact and purpose;
-- consumers and execution or interpretation model;
-- material quality criteria and realistic failures;
-- approved or inferred non-problems;
-- inapplicable assumptions;
-- every material assumption made because approved context was unavailable.
-
-A standalone worktree or fileset review may answer the direct request, but never
-substitutes for current-head coordinator review.
-Every standalone review result is labeled `standalone-only` whether the root
-dispatches leaves or the lead applies an explicit no-agent fallback.
-
-Record standalone as a root-owned execution context with relevant live
-identities and selected or pending roles. Runtime admission determines which
-roles start. Preserve rejected spawns in their original order and retry after a
-completion or mailbox event without reducing selected scope.
-
-Review context is an interpretation aid. It must not add to, weaken, or replace
-an available Design Doc, Feature Contract, Task Contract, or Implementation
-Plan.
-
-## Validate policy and actual risk
-
-When a Review policy exists, require:
-
-- mode: `focused`, `adaptive`, or `deep`, with rationale and risk surfaces;
-- the per-task gate; `adaptive` and `deep` require
-  independent specification and quality review;
-- integration required reviewers with reasons;
-- integration conditional reviewers with exact triggers;
-- explicitly skipped perspectives with reasons;
-- adversarial integration rules;
-- findings-only general integration and authority-defect priority rules; treat
-  these as current workflow invariants rather than requiring an eligible legacy
-  plan to manufacture a new stored policy field;
-- residual risk, pending-role order, and Acceptance.
-
-Compare the actual artifact, diff, behavior, tests, public seams, responsibilities,
-and failure paths with the recorded risks and skips. A material risk absent from
-an approved policy is a policy gap, not permission to add or omit a reviewer.
-For coordinator review, return `BLOCKED` so the coordinator can `Escalate` for a
-replacement policy. For standalone review, report the limitation.
-
-Record the current head before review and require it to remain unchanged. Treat
-an uncommitted in-scope change as stale coordinator verification.
-
-Load `hints/<primary-language>.md` when present. Treat hints as investigation
-prompts, not mandatory findings.
-
-## Select applicable perspectives
-
-Standard perspectives:
-
-- `code-reviewer`;
-- `test-coverage-reviewer`;
-- `design-alignment-reviewer`;
-- `scope-reviewer`;
-- `code-architect`.
-
-Adversarial perspectives:
-
-- `adversarial-api-reviewer`;
-- `adversarial-robustness-reviewer`;
-- `adversarial-performance-reviewer`;
-- `adversarial-tests-reviewer`.
-
-For a Task PR, apply the approved per-task mode:
-
-- `focused`: require the one combined `code-reviewer` gate, require
-  `test-coverage-reviewer` when that Task PR changes behavior or tests, and run
-  only additional task perspectives explicitly recorded by policy.
-- `adaptive`: require independent specification and quality task gates and any
-  triggered task perspective selected for recorded risk.
-- `deep`: require independent specification and quality task gates and every
-  perspective applicable to that Task PR's artifact and observed risks.
-
-For targeted integration review, run only the required or triggered integration
-perspectives named by the approved policy. Do not replay each Task PR reviewer
-over the combined tree. Whenever an adversarial perspective runs, require
-`adversarial-integrator` for that target.
-
-For every mode, preserve skipped perspectives and their reasons. Reject a `deep`
-policy that skips an applicable perspective. Whenever any adversarial
-perspective runs, require `adversarial-integrator`.
-
-Without an approved policy, select the same perspectives by observed
-applicability: general review always; test coverage for behavior or test changes;
-design alignment when an approved Design Doc or Feature Contract exists; scope
-review for a plan or narrow migration; architecture for material responsibility
-changes; adversarial profiles only for their corresponding concrete risk. Record
-every run and skip with reasons.
-
-## Preserve independence under runtime admission
-
-An approved `focused` policy may use a complete lead Task PR review when the
-user prohibits agents. `Adaptive` and `deep` independent perspectives cannot be
-replaced by sequential lead passes. A no-agent conflict is `Escalate` for
-coordinator review or a standalone limitation.
-
-For standalone review, when the user prohibits agents, the lead may execute each
-selected read-only perspective and any required adversarial integration
-sequentially. Report the result as `standalone-only`. When an available approved
-policy requires adaptive or deep independence, disclose that it is not
-policy-complete; standalone evidence is never coordinator completion evidence.
-
-Otherwise pass each already-selected perspective and complete reviewer message
-to `agent-teams-driven-development`. The root dispatches planned, lightweight,
-standalone, and integration reviewers directly in their explicit owning
-context. After fresh verification passes, independent policy-selected reviewers
-may run concurrently when runtime admission allows it.
-
-Keep a runtime-rejected reviewer pending in deterministic policy order. After
-useful independent work, wait for a mailbox or completion event and retry. Do
-not reduce scope, independence, or breadth because admission is temporarily
-unavailable. Return operational `BLOCKED` only when repeated non-progress means
-a required reviewer cannot run; report the role, pending order, observed runtime
-error, and exact re-entry condition. Use live-agent inspection for duplicate,
-liveness, failure, interruption, recovery, or teardown decisions rather than as
-a capacity probe before every wave.
-
-Use named profiles when selectable; otherwise provide a complete fallback role
-prompt. Reviewers and integrators do not edit files or spawn descendants.
-
-## Give every reviewer artifact-aware evidence
-
-Pass directly to every selected reviewer:
-
-- target kind; exact workspace, branch, planned base, merge base, current head,
-  range, composed tree, or bounded standalone files; diff, status, and changed
-  files;
-- exact authority identity, source path or in-memory identity, and currentness
-  evidence for the approved planned contracts, complete lightweight combined
-  contract, or exact eligible legacy plan; plus the clauses and integration
-  obligations applicable to that perspective;
-- approved scope and non-goals;
-- the same Review context and Review policy when available;
-- the completed current-head Verification Matrix with fresh commands, expected
-  observations, and observed results;
-- relevant dependency and Task PR outcomes, prior triage decisions, concerns,
-  and gaps;
-- the applicable current cache hit as navigation plus its source identity and
-  invalidation conditions, without treating it as review evidence;
-- that reviewer's selected perspective and output expectations.
-
-Do not create another wrapper identity or repeat the evidence in competing
-formats. Before dispatch, confirm the current head, range, diff, status, and
-changed files are unchanged.
-
-Keep every exact authority source directly available to every reviewer. Eagerly
-load complete sources for design-alignment, scope, or another perspective that
-owns whole-contract coverage. Other perspectives start with applicable clauses
-and inspect additional source sections when their evidence requires it; do not
-copy or require an unconditional reread of unrelated unchanged prose.
-
-## Review a bounded correction
-
-For a bounded correction from prior reviewed head `H1` to current head `H2`,
-rerun the same complete policy-selected reviewer set. Do not recalculate
-perspectives from the delta. Give every reviewer:
-
-- prior head `H1`, current head `H2`, and the full `base..H2` target;
-- the `H1..H2` correction delta and exact corrected finding;
-- its prior report, the integrated assessment, and triage decision;
-- the fresh completed Verification Matrix for `H2`; and
-- the same authority, Review context, Review policy, and selected perspective.
-
-Targeted re-review is the default. Start with the corrected finding and
-`H1..H2`, follow only affected callers, tests, interfaces, responsibilities,
-and obligations, and establish which prior clean conclusions remain unaffected.
-Return a current perspective result bound to `H2` for that bounded correction.
-The exact prior report and triage are evidence for unchanged coverage, not a
-substitute for inspecting the correction.
-
-Escalate that reviewer to full current-target traversal when:
-
-- the correction escapes its bounded authorization;
-- the base, controlling authority, Review policy, public or shared interface,
-  responsibility boundary, schema, error model, concurrency, security,
-  dependency, or test strategy materially changes;
-- its prior report or triage is missing, stale, or incomplete;
-- the affected surface or previously unaffected coverage cannot be bounded; or
-- targeted review exposes another finding or unrelated regression evidence.
-
-A changed head alone does not require a full traversal. No policy-selected
-reviewer may be skipped, and no prior verdict alone authorizes `H2`.
-
-## Apply the common Acceptance threshold
-
-Treat discipline history separately from the current artifact verdict. Review
-current test adequacy and contract evidence on their own merits. Report a
-history-only discrepancy only when it demonstrates a reachable current defect,
-material current evidence gap, material contract deviation, or controlling
-authority that makes it material.
-
-Every source reviewer applies this threshold before returning its perspective.
-An alternative implementation or mutation that passes current tests is an
-investigation technique, not sufficient finding evidence without an approved
-requirement or realistic reachable behavior and material consequence.
-
-Every finding must include severity `Must Fix` or `Should Improve`, file and
-line, concrete observed or reachable behavior, violated requirement or quality
-consequence, evidence, impact, proportionate correction, and confidence.
-
-Keep a finding only when it:
-
-- applies to the artifact and consumer model in the Review context;
-- identifies a concrete reachable behavior or approved-contract violation;
-- cites evidence and a material consequence;
-- proposes a proportionate correction.
-
-`Should Improve` requires a concrete maintainability consequence or measurable
-repeated cost. Drop preference-only, speculative, second-order,
-artifact-inapplicable, optional-polish, generic-best-practice, and unsupported
-findings.
-
-An approved non-problem may be revisited only with materially new evidence of a
-concrete reachable failure or contract violation. A rephrasing, changed line
-number, or imagined future consumer is not new evidence. Apply the same rule to
-prior `Push back` decisions.
-
-A suggestion to add a state machine, schema, identity mechanism, or another
-architectural system is not a `Fix` without a proven in-scope violation and
-proportionate need. Drop it when it is unsupported optional design. When it
-exposes a material user-owned architecture choice or possible authority defect,
-preserve it separately as an authority-gap claim for priority general
-integration; do not label the proposed mechanism `Must Fix` or `Should Improve`
-and do not authorize it as a correction.
-
-## Integrate adversarial review
-
-When required, give `adversarial-integrator` the same exact planned, lightweight,
-or eligible legacy authority identity and direct source access, plus Review
-context, target evidence, verification, policy, prior triage decisions, and
-adversarial reports.
-The integrator remains read-only, deduplicates, verifies evidence, resolves
-contradictions, and drops unsupported, second-order, and artifact-inapplicable
-findings. It does not invent findings or lower the Acceptance threshold.
-
-## Integrate every non-clean review before triage
-
-When every selected reviewer and any required adversarial integration return
-clean, do not run a general review integrator. When any source report returns a
-finding, the owning Task loop or standalone root must run
-`review-integrator` against the exact unchanged target before this skill reports
-`FINDINGS`. The root dispatches it directly in the explicit planned,
-lightweight, standalone, or integration context through
-`agent-teams-driven-development`. Findings integration begins only after the
-applicable source-review phase has stopped; runtime admission may delay it but
-does not change its authority.
-
-Give `review-integrator`:
-
-- the exact target identity, range or snapshot, starting status, diff, and
-  changed files;
-- every available source reviewer report and any adversarial integrated report;
-- directly accessible approved authority and repository guidance, Review
-  context and policy, prior triage, and relevant history needed for origin
-  attribution;
-- instructions to assess concrete problem validity separately from proposed
-  remedy validity, and to record reproduction, exact authority, origin, scope
-  owner, proportionality, design sufficiency, and confidence without inventing
-  findings or issuing final workflow classifications.
-
-Require the integrator to check approved requirement or realistic reachability,
-artifact applicability, concrete evidence, and materiality before deeper
-reproduction or remedy analysis. It drops a candidate missing those
-prerequisites without runtime probes performed solely to disprove speculation.
-
-For ordinary implementation findings, wait for every selected reviewer to
-complete and run one general integration over the complete reports. When a
-source report specifically claims that the Design Doc, Feature Contract, or
-Task Contract is defective, pause only reviewers that have not started and
-prioritize one integration turn for that authority claim. Do not interrupt
-already-running read-only reviewers; preserve their completed reports.
-
-If the integrated authority evidence establishes a missing, contradictory, or
-materially ambiguous Design Doc, do not start the paused reviewers or any
-correction. Return `FINDINGS` immediately with the integrated authority-defect
-evidence and paused queue so `receiving-code-review` can classify `Design
-Escalation`. If the claim is rejected or reduced to an implementation issue,
-resume the selected reviewer queue and run one final integration over the
-complete reports before returning.
-
-Under an explicitly authorized focused no-agent gate, the lead may apply this
-same integration contract sequentially to its own findings and must report that
-no independent integrator ran. The same rule applies to an explicit no-agent
-standalone review. It does not satisfy adaptive or deep independence and may not
-claim an independent integration result.
-
-The general review integrator is distinct from `adversarial-integrator`. It
-deduplicates and reconciles evidence but does not authorize correction or
-classify `Fix`, `Push back`, or `Escalate`. A raw reviewer finding still produces
-`FINDINGS` with its integrated assessment even when that assessment recommends
-that no current correction is justified; `receiving-code-review` owns the final
-classification. If the required integration cannot run, return `BLOCKED`, not
-raw findings.
-
-## Report
-
-Merge duplicates and report in Japanese:
-
-- target form and `standalone-only` label when applicable; workspace, branch,
-  base, merge base, starting and ending head, exact range, composed tree, or
-  bounded fileset;
-- starting and ending status, diff scope, and changed files;
-- Review context and disclosed standalone assumptions;
-- approved mode or `none`, observed risks, and policy reconciliation;
-- fresh verification commands and results inspected;
-- cache entry consulted and any attributable cache candidate returned to the
-  Feature lead;
-- assigned Feature and Task Contract observations, targeted integration
-  alignment, or eligible legacy criteria and original-authority alignment
-  inspected;
-- reviewers run, queued, and skipped with reasons;
-- owning root Task-loop context, relevant live identities, reviewer dispatch and
-  pending order, and runtime-rejection evidence;
-- source reviewer, adversarial-integrator, and general review-integrator
-  outcomes, including any priority authority assessment and paused queue;
-- accepted Must Fix and Should Improve findings;
-- separate policy or design gaps requiring coordinator `Escalate`;
-- residual risk, limitations, every gap, and exact re-entry condition;
-- verdict exactly `CLEAN`, `FINDINGS`, or `BLOCKED`.
-
-Return `CLEAN` only when all required applicable perspectives completed, every
-source report is clean, the common Acceptance threshold leaves no finding,
-verification is fresh, and the target is unchanged, with no policy or design
-gap. A clean review is a valid result and runs no general review integrator.
-
-Return `FINDINGS` only with the required general integrated report or the
-explicit no-agent lead integration statement. Keep independent non-blocking
-concerns and candidate authority defects separate from current-Task correction
-claims so triage can preserve their distinct dispositions.
-
-Read current head and status again before reporting. If either changed, return
-`BLOCKED` with preserved reviewer evidence and the stale-state gap. Do not start
-triage, edit code, commit, or advance phases. Coordinator review returns evidence
-to the coordinator; standalone review reports directly to the requester.
+# Review exact evidence
+
+Remain read-only. Do not edit source/Git/authority, triage, authorize corrections
+or advance phases. Planned Task review belongs to its independent Task Lead;
+Feature Lead owns lightweight, integration-only and standalone review. Selected
+reviewers and integrators are native leaves of that owner with no descendants.
+
+If you are already a dispatched reviewer, apply only your supplied perspective,
+current-target checks, correction scope, finding threshold and leaf report.
+Do not execute the owner's selection/dispatch/integration sections or invoke
+another reviewer. An already-dispatched finding-integrator applies only its
+supplied integration contract and report, never this owner's orchestration.
+
+## Bind target and authority
+
+For a Task PR require the exact workspace, branch, planned base/commit, merge
+base, committed head/range, diff, changed files and starting status; current
+approved authority and assigned obligations; ownership/shared interfaces and
+dependency evidence; fresh verification PASS and completed matrix for the same
+unchanged target; Review context and complete selected policy; effective
+allocations, pending order and relevant prior reports/triage. No unexplained
+in-scope state may sit outside the committed range.
+
+Planned authority is the approved Design sources, Feature Contract, Task
+Contract and applicable Implementation Plan. Lightweight authority is the
+recoverable combined contract and original request, without a manufactured
+plan, DAG or contract file. Prior approved/legacy work retains its exact
+unchanged authority, topology, profiles and gates; use its prior coherent assets
+or stop for recovery/migration rather than silently applying the new policy.
+
+Integration requires exact accepted Task inputs, approved deterministic
+composition/tree (or accepted lightweight head/tree), fresh integration PASS
+and only the named integration-only obligation and policy-selected cross-Task
+surface. Do not replay ordinary Task reviews over a synthetic full Feature
+range.
+
+Resolve Git and authority directly before dispatch and before reporting.
+Missing, contradictory or stale inputs are BLOCKED. Keep complete exact sources
+readable. Pass relevant clauses instead of unrelated transcripts; perspectives
+owning whole-contract coverage inspect that complete applicable source.
+Current search-cache entries are navigation only; return attributable
+candidates through the Task Lead to the Feature Lead, the only cache writer.
+
+Review context describes artifact/purpose, consumers and interpretation model,
+material quality and realistic failures, approved non-problems and inapplicable
+assumptions. It never adds requirements or overrides approved decisions.
+Load `hints/<primary-language>.md` when present and pass its path to relevant
+reviewers; hints guide investigation, not mandatory findings or implementation
+conventions.
+
+## Standalone scope
+
+Resolve the requested committed range, dirty staged/unstaged/untracked snapshot
+or explicit bounded fileset and relevant fingerprints. Use available authority,
+verification and policy; disclose missing/stale evidence and assumptions.
+No implementation authorization, Herdr workspace or plan is required.
+
+Without policy, choose only perspectives justified by observed risk: a focused
+general pass for the bounded target, plus appropriate named risk or design
+alignment perspectives. Record reasons and limitations. Label every result
+`standalone-only`; it never substitutes for a committed Task or Feature gate.
+An explicit no-agent standalone request permits sequential lead perspectives
+and conditional integration, with no claim of independent evidence.
+
+## Select fixed policy coverage
+
+For new planned Tasks, normal coverage is independent `spec-reviewer` and
+`implementation-quality-reviewer`. The latter owns both implementation and
+test quality. Adaptive adds only selected/triggered risks; deep includes every
+perspective applicable to the approved actual surface, not every configured
+agent. Eligible lightweight coverage is one independent `focused-reviewer`
+covering specification, implementation and tests.
+
+Use `risk-reviewer` for one selected perspective per invocation:
+
+- scope/responsibility: assigned deliverables, non-goals and ownership;
+- architecture/dependencies: structure, shared seams and lifecycle coupling;
+- API misuse/errors: concrete consumer patterns and compatibility;
+- performance: demonstrable repeated-path cost or growth;
+- robustness/recovery: reachable failure, concurrency and partial state;
+- tests/faults: concrete escaping defects, mocks, isolation and required proof.
+
+Each invocation needs its exact trigger, authority, surface, threat/failure
+model, expected evidence and stop condition. Preserve independent invocations
+when multiple perspectives need independence. A triggered risk role alone does
+not require an integrator.
+
+`design-alignment-reviewer` primarily checks integration/shared boundaries.
+Run it on a Task only when explicitly selected for that boundary, not every
+local change. Integration runs only its named required/triggered roles.
+
+Policy fixes mode/rationale, Task and integration coverage, required and
+conditional perspectives/triggers, skipped perspectives/reasons, allocations,
+pending order, integration triggers, correction invalidation, residual risk
+and Acceptance threshold before implementation. A newly discovered material
+risk outside policy returns BLOCKED for owner policy/design resolution; do not
+silently select more roles or weaken coverage. No model promotion or fallback.
+An unavailable independent role or incompatible no-agent instruction blocks a
+Task gate until the engineer resolves policy; a lead pass cannot substitute.
+
+## Dispatch relevant evidence
+
+Use `agent-teams-driven-development` with each already-selected profile and
+its exact approved allocation. Independent normal reviewers may run
+concurrently only after fresh verification on unchanged source. Runtime
+rejection retains the same role pending in policy order; bounded responsive
+waiting and retry after progress never lowers coverage.
+
+Each reviewer receives target/authority identities and accessible paths, its
+owned clauses/surface, Review context/policy, completed matrix and raw
+observations, relevant dependency evidence, language hint and prior triage.
+Keep full diff and surrounding sources directly available; do not trust the
+writer's verdict. Resolve a complete equivalent role contract only when its
+approved model/effort and read-only boundary can be enforced; otherwise BLOCKED.
+
+## Invalidate correction coverage explicitly
+
+The policy-selected coverage set stays fixed. A bounded H1-to-H2 correction
+always requires fresh H2 verification, but not a fresh invocation of every
+reviewer. Require the loop owner's impact map connecting correction files and
+behaviors to perspectives, plus H1/H2, exact correction/triage, prior reports,
+full current range and fresh completed matrix.
+
+Always rerun finding-owning reviewers and every affected perspective. Carry
+prior clean evidence only when its exact head/report exists and concrete
+non-invalidation evidence shows unchanged owned behavior, tests, interfaces,
+responsibilities, authority, verification strategy and relied-on callers or
+shared boundaries. Record the original report/head and reason as carried
+coverage, never as a new H2 inspection. Missing/incomplete evidence or uncertain
+impact requires rerun. Reviewer selection is not recalculated from diff size.
+
+Changes to base, public/shared interfaces, schema, errors, concurrency,
+security, data integrity, migration, dependencies, test strategy or authority
+invalidate all perspectives that can observe the changed surface. New meaning
+may also require Feature/engineer re-entry. Do not treat an invalidation map as
+permission to repair authority.
+
+Rerun reviewers start with corrected findings and H1..H2, following affected
+callers, tests and obligations, with full base..H2 access. Use full current
+target traversal when the correction escapes its bounded scope, authority/base
+or an owned shared/risky surface materially changes, prior evidence is missing,
+impact cannot be bounded, or targeted inspection reveals another regression.
+A changed head alone does not require full traversal.
+
+Return a coverage map identifying each selected perspective as fresh, explicitly
+carried, pending or blocked, with attributable reports and reasons. Do not
+report complete review while any required coverage is missing.
+
+## Admit only material findings
+
+Every source reviewer applies the same threshold before reporting. Require
+artifact applicability, an approved-contract violation or realistic reachable
+behavior, concrete evidence, material consequence and proportionate remedy.
+Should Improve needs a concrete maintainability consequence or measurable
+repeated cost. Findings include Must Fix/Should Improve, file/line,
+requirement, scenario/evidence, impact, correction and confidence.
+
+Drop preferences, speculative or second-order concerns, generic best practices,
+quotas, optional polish, imagined consumers and unsupported objections to
+approved decisions. Revisit approved non-problems and prior Push back only with
+materially new evidence. A faulty implementation passing a test is an
+investigation technique, not sufficient evidence without a material contract
+violation or realistic failure.
+
+Keep historical discipline separate from current defects, verification gaps
+and explicit contractual history obligations. A proposed state machine, schema
+or identity mechanism is not an authorized correction by itself. Preserve an
+evidence-backed authority-gap claim separately for priority integration;
+do not invent a code finding or quietly change the design.
+
+## Integrate conditionally
+
+Run the single read-only `finding-integrator` only when source findings need
+reconciliation: potential overlap across reports; factual/authority/severity/
+origin/remedy conflict; alleged Design/Feature/Task authority defect;
+scope-sensitive/shared-interface remedy; or non-trivial reproduction/origin
+attribution. Any finding not safely eligible for direct triage requires its
+concrete integration reason, not automatic invocation because review ran.
+
+All-clean reports run no integrator. A single clear finding with exact
+authority, concrete evidence, known origin and bounded remedy, and none of
+these triggers, may go directly to `receiving-code-review`. Record eligibility
+and preserve the original finding; direct eligibility is not triage or permission
+to correct. Do not bypass integration when any trigger exists.
+
+For ordinary findings, wait for all selected reviewers to finish, then integrate
+complete relevant reports once if needed. For an authority-defect claim, pause
+only unstarted reviewers and prioritize integration of that claim; preserve
+already-running read-only reports. A confirmed missing, contradictory or
+materially ambiguous Design Doc returns FINDINGS immediately with authority
+evidence and paused queue for Design Escalation. Do not start correction or the
+paused queue. If the claim is rejected or becomes a local issue, resume the
+queue and reevaluate integration triggers on the complete reports; do not
+unconditionally add another integrator turn.
+
+Supply exact unchanged target, full relevant reports, directly readable
+authority, Review context/policy, raw observations, prior triage and relevant
+origin history. The integrator first checks evidence/materiality, deduplicates
+and resolves contradictions without inventing issues. It assesses problem
+validity, remedy necessity/proportionality, origin, scope owner and design
+sufficiency separately. Independent out-of-scope problems remain separate
+non-blocking concerns, not a backlog.
+
+Integration never issues Fix/Push back/Escalate or authorizes corrections.
+Even when it rejects every source claim, return FINDINGS plus its assessment
+for final triage, not a fabricated clean source review. A required integration
+that cannot run is BLOCKED. An explicitly no-agent standalone pass may apply the
+same contract sequentially but must disclose absent independence.
+
+## Report to the owning loop
+
+Return exact target and starting/ending source state; authority/obligations
+inspected; context/policy and standalone limitations; fresh verification
+evidence; selected perspectives/allocations, reports, pending order and
+interruption evidence; coverage map including original heads and reasons for
+carried evidence; integration trigger/result or direct-triage eligibility;
+findings, separate authority/policy gaps, concerns, cache candidates and exact
+re-entry conditions.
+
+- CLEAN: all required applicable coverage is fresh or explicitly non-invalidated,
+  sources are clean, verification is fresh, target unchanged, and no policy,
+  design or evidence gap remains.
+- FINDINGS: complete source findings plus required integration evidence or
+  explicit direct-triage eligibility; priority authority escalation includes
+  the paused queue. Triage remains with receiving-code-review.
+- BLOCKED: stale target, missing coverage/input, policy conflict, unavailable
+  allocation/role or incomplete required integration.
+
+Do not translate carried evidence into a newly inspected verdict. Recheck
+current Git state before reporting and preserve any evidence made stale by
+concurrent mutation. Never edit, commit, start triage or advance phases here.

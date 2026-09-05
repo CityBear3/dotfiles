@@ -10,5 +10,5 @@ For a Task PR, map durable architecture to the Design Doc, assigned feature beha
 
 Do not critique wording or reopen settled alternatives without new evidence. Every finding cites the owning contract section and implementation file and line, explains the mismatch, and states whether correction belongs to implementation, Implementation Plan approval, Feature Contract approval, or a user-owned design decision.
 
-Return ALIGNED when no material mismatch exists.
+Apply the review Skill's common finding threshold and supplied correction scope. Return CLEAN, FINDINGS, or BLOCKED with exact target, inspected obligations, evidence and limitations. Findings use Must Fix or Should Improve; report authority defects separately and do not authorize correction.
 """

@@ -194,28 +194,22 @@ workspace and return `BLOCKED` with the Task PR, attempted command, returned
 path/workspace/pane identities when any, observed Git identity, error, and exact
 re-entry condition.
 
-After a new planned Task workspace passes direct Git validation, attempt
-interactive Git observation in its initial pane:
-
-```sh
-herdr pane run <initial-pane-id> lazygit
-```
-
-The pane is for engineer observation only. It is not an agent process, carries
-no Task handoff, and provides no scheduling, verification, or Acceptance
-evidence. If lazygit does not start, do not retry or block Task
-execution. Keep or return the pane to a shell and emit one non-blocking warning
-that names the Task PR, worktree path, Herdr workspace and pane, attempted
-`herdr pane run <initial-pane-id> lazygit` launch, observed error, and that Task
-execution continues.
+For new planned Task sessions, leave the validated initial pane at an
+interactive shell so `dispatching-parallel-agents` can start its independent
+Codex Task Lead there. Do not launch lazygit in that Task pane or overwrite an
+existing foreground process. Resolve and report the explicit pane occupant;
+an unknown or conflicting occupant is BLOCKED rather than authority to kill it.
+Read the installed Herdr Skill before controlling Herdr. Optional engineer
+observation must not take over the Task's agent pane.
 
 For a coordination workspace, ask the user to continue the session in the
 returned path when the active writer must move there. For a planned Task PR,
-return the validated Git and Herdr mapping to `execute-plan`; the root and
-source writer receive the exact path in their role handoffs and are not launched
-in the pane. For an integration workspace, return the path
-and identity directly to `execute-plan`; do not move the user session or run
-`herdr agent start`.
+return the validated Git/Herdr mapping and shell readiness to `execute-plan`.
+Its dispatch adapter starts the independent Task session with the approved
+model, both effort settings, exact working directory and shared Task Lead
+contract; this skill does not submit a Task handoff or start the agent itself.
+For an integration workspace, return its path and identity without assigning
+an implementation writer or moving the user's session.
 
 ## Guardrails
 

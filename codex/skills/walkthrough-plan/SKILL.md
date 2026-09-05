@@ -34,6 +34,9 @@ Task dependency DAG and the PR base topology. Identify sibling PRs, stacked
 chains, any fan-in linearization, tasks allowed to produce a candidate before
 their final base exists, concurrency exclusions, and integration-only
 compositions. Do not describe a Git stack edge as a logical dependency.
+Also distinguish independent Herdr Task sessions from their native check leaves;
+Feature Lead remains on session defaults. Explain that Task/leaf model and
+effort allocations are fixed by plan approval, not promoted during execution.
 
 When the plan was approved and already executing before the contract-centered
 format, its exact-content approval, in-flight and unchanged state is established,
@@ -56,6 +59,8 @@ For a current new-format Task Contract, present:
 7. local decisions delegated to the implementation agent;
 8. contractually significant files, signatures, ordering, or commands when
    present.
+9. its effective Task Lead/leaf model and effort allocation, required quality
+   and recorded risk/cost rationale, including engineer confirmation status.
 
 For a current eligible legacy task specification, instead present only the
 fields its approved authority actually contains: its outcome and requirements,

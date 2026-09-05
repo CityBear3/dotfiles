@@ -24,18 +24,27 @@
 - Preserve existing behavior and unrelated user changes.
 - Use test-driven development for production-code behavior changes.
 - Prefer one writer per shared worktree. Keep review agents read-only unless they are explicitly assigned implementation.
-- Use bounded subagents only for concrete independent work. The Feature lead
-  is the sole orchestrator and owns Task readiness, dependency release, direct
-  dispatch of policy-selected leaves, synthesis, and completion for planned,
-  lightweight, and standalone work. Keep one writer per Task responsibility,
-  prohibit leaf descendants, and let the Codex runtime manage thread admission.
-  A rejected spawn stays pending and is retried after progress without weakening
-  selected gates. Eligible legacy work retains its exact approved execution
-  authority.
-- Integrate non-clean reviewer output before triage or correction. Keep problem
-  validity separate from remedy validity, return a confirmed Design authority
-  defect to the engineer early, and retain independent out-of-scope problems as
-  non-blocking concerns rather than silently expanding the current Task.
+- The Feature Lead owns Feature authority, Task readiness, dependency release,
+  cross-Task effects, integration, and Feature Acceptance. Each new planned
+  Task uses one independent Codex session in its Herdr worktree. Its Task Lead
+  is the sole writer and local loop owner, and dispatches only bounded native
+  check-only/read-only leaves. Lightweight work is written directly by the
+  Feature Lead. Leaves never spawn descendants. Runtime-rejected checks stay
+  pending and retry after progress without weakening selected gates.
+- Fix Task-session and leaf model/effort allocations before execution; the
+  engineer confirms planned allocations at Implementation Plan approval.
+  Feature Lead uses its session defaults. No runtime promotion or fallback.
+- Keep verification mechanical and independent review mandatory for Task
+  Acceptance. Integrate findings only for overlap, conflict, authority defects,
+  scope-sensitive remedies, or non-trivial attribution; simple clear findings
+  may proceed directly to evidence-based triage. Every new head requires fresh
+  verification; rerun finding-owning and affected reviewers, carrying forward
+  other evidence only with explicit non-invalidation reasons.
+- Keep problem validity separate from remedy validity, return confirmed Design
+  authority defects to the engineer early, and retain independent out-of-scope
+  problems as non-blocking concerns rather than expanding the Task. Previously
+  approved or in-flight work retains its exact topology and model authority;
+  never silently migrate it onto changed workflow assets.
 
 ## Engineering workflow
 

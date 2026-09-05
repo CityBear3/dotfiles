@@ -33,8 +33,9 @@ exact non-destructive local state.
 - Keep parser, renderer, and CLI responsibilities separate.
 - Do not change persistence, permissions, or error ownership.
 - Allow parser and renderer work to begin independently.
-- Keep the root as the sole orchestrator for every ready planned Task, direct
-  role dispatch, dependency release, and Feature acceptance.
+- Feature Lead owns readiness, dependency release and Feature Acceptance.
+  Each Task Lead is sole writer and local loop owner in an independent Herdr
+  session; it dispatches native checks, not another implementer.
 
 ## Shared interface contracts
 
@@ -50,7 +51,7 @@ exact non-destructive local state.
 
 - Path: `docs/plans/YYYY-MM-DD-<feature>/search-cache.md`.
 - Owner: The Feature lead is the only writer.
-- Consumers: the root coordinator and planned leaves.
+- Consumers: Feature Lead, independent Task Leads and relevant read-only leaves.
 - Entry: Record purpose and scope, source identity, observation date or
   repository identity, positive and useful negative results, reuse conditions
   and source-aware invalidation conditions.
@@ -113,16 +114,19 @@ results and this stack are current.
 - **Risk surfaces:** Parser compatibility, exact output, stacked-range
   currentness, and library-to-CLI composition.
 - **Per-task gate:** Independent `spec-reviewer` and
-  `code-quality-reviewer` against each exact Task PR range.
-- **Integration required reviewers:** `test-coverage-reviewer` for the
-  integration-only compatibility journey.
-- **Integration conditional reviewers:** `adversarial-api-reviewer` only if an
-  implementation changes or exposes a public parser seam, followed by
-  `adversarial-integrator`.
-- **Findings-only integration:** Run no general integrator for an all-clean
-  target. Before triage or correction, pass any findings through the read-only
-  `review-integrator`; prioritize an authority-defect claim ahead of unstarted
-  reviewers and return a confirmed Design Doc defect to the engineer.
+  `implementation-quality-reviewer` after mechanical verification against each
+  exact Task PR range.
+- **Integration required reviewers:** `design-alignment-reviewer` for the
+  composed compatibility journey against the named Feature obligation.
+- **Integration conditional reviewers:** `risk-reviewer`, API perspective,
+  only if a changed public parser seam admits ambiguous caller usage. Its
+  authority is the approved parser contract; surface is that seam, failure
+  model is realistic caller misuse, evidence is a concrete failing call, and
+  stop condition is a verified issue or bounded inspection with no finding.
+- **Conditional integration:** Use `finding-integrator` for overlap/conflict,
+  authority defects, scope-sensitive remedies or non-trivial attribution. No
+  integrator for all-clean or a single clear bounded finding eligible for
+  direct triage. Prioritize authority-defect evidence before unstarted review.
 - **Skipped perspectives:** Skip architecture and performance because approved
   ownership and measured hot paths do not change; skip adversarial robustness
   unless recovery behavior changes; skip scope because each Task gate receives
@@ -138,6 +142,35 @@ results and this stack are current.
   requirement, reachable evidence, material consequence, and proportionate
   correction. Drop preference, speculation, optional polish, and objections to
   approved decisions without materially new evidence.
+
+## Model and session allocations
+
+These are proposals until the engineer approves this plan, including the quality
+and cost rationale. Feature Lead is not assigned; it uses its session defaults.
+
+| Default role | Model | Effort |
+| --- | --- | --- |
+| Task Lead | gpt-5.6-sol | high |
+| verification-runner | gpt-5.6-luna | low |
+| spec-reviewer | gpt-5.6-sol | high |
+| implementation-quality-reviewer | gpt-5.6-sol | high |
+| risk-reviewer | gpt-5.6-sol | xhigh |
+| finding-integrator | gpt-5.6-sol | high |
+| design-alignment-reviewer | gpt-5.6-sol | xhigh |
+
+| Task | Task Lead override / effective allocation | Quality and cost rationale |
+| --- | --- | --- |
+| 1 | Astra/high | Propose extra reasoning capacity for senior/staff-level public compatibility judgment across parsing and errors; engineer confirms whether the benefit justifies cost |
+| 2 | None: Sol/high | Same high correctness/maintainability bar; exact rendering oracle and settled public contract bound the reasoning surface |
+| 3 | None: Sol/high | High integration quality remains required; settled composition and real-process evidence provide a direct oracle |
+
+Native checks use the fixed profiles above. Each independent Task root receives
+the installed `execute-task/references/task-lead.md` contract and explicit model,
+normal effort, Plan-mode effort and exact worktree through Herdr startup.
+Both effort settings match its approved effort. No separate native Task Lead
+profile, implicit global default, runtime promotion/fallback or startup approval.
+Unavailable allocations are BLOCKED. Each Task keeps its session through
+bounded correction and reports Task-level results with attributable evidence.
 
 ## Task Contract 1: Parse the approved form
 
@@ -229,10 +262,11 @@ affected descendant range stale. Re-materialize the approved topology and rerun
 fresh verification and the complete task gate for changed ranges. Route a
 concrete in-scope finding through its owning Task Contract; return semantic or
 topology changes to approval. For a bounded correction from `H1` to `H2`, create
-one correction commit, rebuild the matrix, run fresh `H2` verification, and
-rerun the same complete reviewer set. `review` owns correction-review scope and
-escalation; supply its exact prior evidence, correction delta, current target,
-and fresh matrix without duplicating traversal rules in the plan.
+one correction commit, rebuild the matrix and run fresh `H2` verification.
+Rerun finding-owning and affected reviewers; supply explicit non-invalidation
+evidence for other carried coverage, with uncertainty requiring rerun. `review`
+owns coverage and traversal; supply its impact map, prior reports/triage, exact
+delta, current target and fresh matrix without duplicating the rules here.
 
 ## Publication
 
