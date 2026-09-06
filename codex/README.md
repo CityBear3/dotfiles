@@ -178,11 +178,17 @@ conversation are not Acceptance. A wait timeout does not authorize another
 writer. The Feature Lead validates results before releasing dependencies and
 alone issues Feature Accepted.
 
-The Feature Lead remains the only writer of the ignored planned search cache.
-Task sessions and reviewers use current entries only as navigation and return
-attributable candidates. Cache, authority, Git and review evidence retain their
-existing separate lifecycles. TDD and focused writer checks likewise remain
-distinct from fresh independent current-head acceptance.
+The optional `search-cache.md` shares costly discoveries worth reusing across
+independent Task Lead sessions. Create it only when that reuse is likely; use a
+Task handoff directly for one-off sharing. It is not a same-session memory log
+or a record of every search. The Feature Lead is its only writer. Consumers use
+applicable findings and their sources only as navigation, rechecking changed
+sources or assumptions. No empty cache, routine lookup, or miss report is
+required, and cache absence or staleness never blocks progress. If created,
+the ignored file stays with the plan through authorized worktree removal.
+It never replaces current authority, Git, verification, or review evidence.
+TDD and focused writer checks likewise remain distinct from fresh independent
+current-head acceptance.
 
 Install the coherent asset revision only with separate owner authorization.
 Previously approved/in-flight plans are not silently migrated: retain their exact

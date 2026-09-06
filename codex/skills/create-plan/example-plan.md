@@ -47,18 +47,6 @@ exact non-destructive local state.
 - **Contract:** The Feature Contract fixes the public representation and error
   meaning; private parser helpers remain delegated.
 
-### Planned discovery cache
-
-- Path: `docs/plans/YYYY-MM-DD-<feature>/search-cache.md`.
-- Owner: The Feature lead is the only writer.
-- Consumers: Feature Lead, independent Task Leads and relevant read-only leaves.
-- Entry: Record purpose and scope, source identity, observation date or
-  repository identity, positive and useful negative results, reuse conditions
-  and source-aware invalidation conditions.
-- Boundary: The cache never replaces current Git, authority, verification, or
-  review evidence.
-- Lifecycle: It has the same lifecycle as the ignored Implementation Plan.
-
 ## Task dependency DAG
 
 ```text
@@ -271,9 +259,9 @@ delta, current target and fresh matrix without duplicating the rules here.
 ## Publication
 
 An internally accepted Task PR may be published with explicit user authority
-before feature acceptance. Keep Feature Contract, Implementation Plan, and
-`search-cache.md` files ignored in the coordination worktree until that worktree
-is explicitly removed; do not delete them as a separate Feature Accepted
-action. The Feature lead is the cache's only writer, and consumers use it only
-as source-aware discovery navigation. Do not infer push, merge, retarget,
-force, or cleanup authority.
+before feature acceptance. Keep Feature Contract and Implementation Plan files
+ignored in the coordination worktree until that worktree is explicitly removed;
+do not delete them as a separate Feature Accepted action. If a search cache was
+created for reusable cross-session discoveries, retain it with the plan; its
+absence does not block publication or completion. Do not infer push, merge,
+retarget, force, or cleanup authority.

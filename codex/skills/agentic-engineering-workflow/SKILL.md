@@ -208,27 +208,37 @@ coverage needs explicit non-invalidation evidence. Uncertainty means rerun.
 independent Task Lead's `execute-task`; Feature-level/integration feedback
 routes to the owning Task through `execute-plan`.
 
-## Maintain the planned-lifecycle search cache
+## Share costly discovery across independent sessions when useful
 
-For new-format planned work, maintain
-`docs/plans/YYYY-MM-DD-<feature>/search-cache.md` beside the Feature Contract and
-Implementation Plan. The Feature lead is the only writer. The file is ignored, workspace-only, and non-authoritative.
-Lightweight and eligible legacy work do not acquire this artifact solely to fit
-the new format.
+For new-format planned work, the Feature Lead may create
+`docs/plans/YYYY-MM-DD-<feature>/search-cache.md` when another independent Task
+Lead or session is likely to reuse a finding that would be costly to rediscover.
+It is an optional shared discovery memo, not a same-session memory log or a
+record of every search. Use the Task handoff directly for one-off sharing;
+do not duplicate it in a cache without a further reuse need.
 
-Before repeating discovery, look up an entry matching the current purpose,
-scope, and source identity. Each entry records its observation date or repository
-identity, positive and useful negative results, reuse conditions, and explicit
-source-aware invalidation conditions. A stale or contradictory entry is a miss,
-not a failure. Leaves return attributable cache candidates to the Feature lead
-instead of editing the file.
+Keep entries concise: the finding, its exact source, and applicability or
+recheck conditions. Include useful negative results only when the same reuse
+benefit exists. Use version, ref, path, scope, or observation date when needed
+to identify the source and decide whether the finding still applies. Changed
+sources or assumptions and contradictory observations require rechecking;
+reuse is navigation, not a prohibition on searching again.
 
-The cache never substitutes for direct current Git and authority resolution,
-mechanical verification, or policy-selected review. Keep it with the approved
-Implementation Plan through publication, feedback re-entry, and disposition
-evidence. Retire it only when removal of that exact coordination worktree is
-separately authorized; warn that ignored artifacts are not recoverable from Git
-unless the owner chooses archival.
+The Feature Lead is the only writer. Task Leads and leaves may return useful
+cross-session findings for inclusion instead of editing the file. Pass only
+relevant entries or directly readable references to consumers. Do not require
+cache creation, an empty file, a lookup before every search, or a cache-miss
+report. An absent file, absent entry, or stale entry never blocks progress;
+perform the needed discovery instead.
+
+If created, the file is ignored, workspace-only, and non-authoritative. It never
+substitutes for direct current Git and authority resolution, mechanical
+verification, or policy-selected review. Keep it with the Implementation Plan
+through publication, feedback re-entry, and disposition evidence. Retire it
+only when removal of that exact coordination worktree is separately authorized;
+warn that ignored artifacts are not recoverable from Git unless the owner
+chooses archival. Lightweight and eligible legacy work do not acquire this
+artifact solely to fit the new format.
 
 ## Use approval gates on the planned path
 
@@ -388,10 +398,11 @@ observed state and stop at the applicable authority or correction boundary.
 Pass exact authority paths and approval/currentness evidence, applicable Feature
 Contract clauses and Task Contracts, Review context, complete policy,
 coordination workspace, Task DAG, PR topology, task workspace rules, retained
-decisions, the exact planned `search-cache.md` path and current matching entries,
-the explicit execution-start authorization, and any promoted unaccepted range
-to `execute-plan`. Reference
-unchanged source prose instead of copying unrelated sections into every handoff.
+decisions, the explicit execution-start authorization, and any promoted
+unaccepted range to `execute-plan`. Include an existing optional search-cache
+path and relevant reusable entries only when useful to the receiving session.
+Reference unchanged source prose instead of copying unrelated sections into
+every handoff.
 That skill owns readiness, Herdr dispatch of independent Task sessions,
 candidate/authoritative handoffs, workspace/session mappings, cross-Task
 staleness, promotion reconciliation and exact evidence aggregation. Each Task
@@ -444,8 +455,8 @@ For planned work retain:
 - approved Design Doc when applicable, Feature Contract, complete Task Contract
   set, coverage, shared interfaces, integration-only obligations, Review
   context, and policy;
-- exact `search-cache.md` path, source identities, current hits, invalidations,
-  and attributable candidates while keeping the Feature lead as sole writer;
+- an optional search-cache path and reusable cross-session findings when
+  present, with the Feature Lead as sole writer;
 - exact temporary integration compositions and their evidence;
 - concerns, unresolved findings, and every gap.
 
@@ -548,10 +559,11 @@ topologies. Return `Escalate` to the owning approval gate. Any resulting push,
 restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to
-`finish-branch` feature mode. Keep ignored plan artifacts and `search-cache.md` in the coordination
-worktree; let an explicitly authorized later removal of that worktree clean them
-up with the workspace. Preserve durable Design Docs and present remaining
-publication or branch-disposition choices. Archive plan artifacts only when the
+`finish-branch` feature mode. Keep ignored plan artifacts and any existing
+`search-cache.md` in the coordination worktree; let an explicitly authorized
+later removal of that worktree clean them up with the workspace. Preserve
+durable Design Docs and present remaining publication or branch-disposition
+choices. Archive plan artifacts only when the
 user explicitly requests preservation beyond the worktree lifecycle.
 
 Never treat an edit, candidate, successful command, commit, agent self-review,

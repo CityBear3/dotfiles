@@ -32,10 +32,14 @@ Require a compact, complete handoff from the Feature Lead:
   merge base, range/diff, starting index/worktree/relevant untracked state;
 - candidate or authoritative mode, dependency evidence and commit intent with
   fixed message or writer authority to select it;
-- current search-cache entry or miss, exact path, source identity and
-  invalidation rules; only the Feature Lead writes that cache;
 - attributable existing commits, reports, correction attempts, carried-forward
   evidence, pending roles, interruptions, concerns and re-entry conditions.
+
+When useful, the handoff may include reusable cross-session findings or a
+relevant optional search-cache reference with its source and applicability
+conditions. Cache absence or staleness never makes the handoff incomplete;
+perform needed discovery without a cache-miss report. Only the Feature Lead
+writes that cache.
 
 Keep exact sources directly readable; do not copy unrelated Feature history or
 unchanged unassigned prose. Reject lightweight authority: that loop belongs to
@@ -79,8 +83,10 @@ is not a deviation by itself. Astra provides no extra design authority.
 
 Keep this Task Lead through ordinary implementation and correction turns.
 Batch independent initial reads/searches/Git observations when every result is
-attributable; stop before a result-dependent decision. Use current search-cache
-entries only as navigation and return candidates without editing the cache.
+attributable; stop before a result-dependent decision. Use supplied applicable
+search-cache entries only as navigation. Return costly findings worth reusing
+across sessions to the Feature Lead without editing the cache; routine searches
+need no cache lookup or report.
 
 Apply `test-driven-development` when applicable, preserving causal RED,
 production edit and GREEN. For not-applicable work use the supplied baseline
@@ -184,8 +190,9 @@ workspace/Herdr routing identity, allocation, branch/base/merge base/head/range,
 starting/final source state, commits, changes, discipline and command evidence,
 completed matrix/raw observations, every selected perspective's report or
 explicit non-invalidation evidence, integration/triage, pending roles, attempts,
-concerns, cache candidates, and gaps. Keep evidence directly accessible; send
-compact result plus references, not repeated local transcripts.
+concerns, any useful cross-session discovery candidates, and gaps. Keep
+evidence directly accessible; send compact result plus references, not repeated
+local transcripts.
 
 Accepted requires the exact authoritative range, all obligations proved by
 fresh verification and independent review coverage, and every finding closed

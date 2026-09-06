@@ -108,16 +108,19 @@ does not require `search-cache.md`, and does not manufacture new-format
 artifacts.
 
 Do not remove the planned feature's ignored `feature-contract.md`,
-`implementation-plan.md`, or `search-cache.md` as a separate Feature Accepted
-action. Confirm that all three remain ignored, untracked, unstaged, and inside
-the current feature plan directory. Retain `search-cache.md` with `implementation-plan.md` through publication, feedback re-entry, and disposition evidence.
-Keep them in the coordination worktree while they may still be
-needed for publication, human-feedback re-entry, or disposition evidence.
+`implementation-plan.md`, or any existing optional `search-cache.md` as a
+separate Feature Accepted action. Confirm that the contract, plan, and any
+created cache remain ignored, untracked, unstaged, and inside the current feature
+plan directory. A search cache is not required; do not create one or block
+completion because it is absent. Keep the existing artifacts in the
+coordination worktree through publication, human-feedback re-entry, and
+disposition evidence.
 
 When the user later authorizes removal of that exact coordination worktree and
 its retained evidence is no longer required, let removal of the worktree clean
-up these ignored files with the workspace and retire all three only with authorized removal of that coordination worktree. Warn that they are not recoverable
-from Git. If any artifact is tracked, staged, outside the expected directory,
+up these ignored files with the workspace. Retire existing artifacts only with
+authorized removal of that coordination worktree. Warn that they are not
+recoverable from Git. If any artifact is tracked, staged, outside the expected directory,
 or the user requests preservation beyond the worktree lifecycle, return
 `Escalate` for an explicit retention or archival decision. Preserve every
 Design Doc.
