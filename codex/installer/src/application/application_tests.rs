@@ -35,6 +35,12 @@ const MANAGED_CONFIG: &str = concat!(
     "\n",
     "[features.context_management]\n",
     "experimental_mode = true\n",
+    "\n",
+    "[features.multi_agent_v2]\n",
+    "enabled = true\n",
+    "min_wait_timeout_ms = 60000\n",
+    "default_wait_timeout_ms = 120000\n",
+    "max_wait_timeout_ms = 3600000\n",
 );
 
 #[test]
@@ -261,6 +267,12 @@ fn mutating_install_publishes_pre_state_and_commits_owned_live_state_under_one_o
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     fs::write(codex_home.join("config.toml"), prior_config).expect("write prior config");
     fs::create_dir(skills_home.join("adopted")).expect("create adoptable skill");

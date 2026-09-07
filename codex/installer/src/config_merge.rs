@@ -14,6 +14,21 @@ const MANAGED_UPDATE_PLAN_KEYS: [&str; 1] = ["enabled"];
 const UPDATE_PLAN_ENABLED_KEY: &str = "tools.update_plan.enabled";
 const CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY: &str =
     "features.context_management.experimental_mode";
+const MANAGED_MULTI_AGENT_V2_KEYS: [(&str, &str); 4] = [
+    ("enabled", "features.multi_agent_v2.enabled"),
+    (
+        "min_wait_timeout_ms",
+        "features.multi_agent_v2.min_wait_timeout_ms",
+    ),
+    (
+        "default_wait_timeout_ms",
+        "features.multi_agent_v2.default_wait_timeout_ms",
+    ),
+    (
+        "max_wait_timeout_ms",
+        "features.multi_agent_v2.max_wait_timeout_ms",
+    ),
+];
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum ManagedScalar {
@@ -71,7 +86,7 @@ struct Structure {
     table_headers: Vec<usize>,
 }
 
-/// Merge the seven managed keys while preserving unmanaged configuration bytes.
+/// Merge the declared managed keys while preserving unmanaged configuration bytes.
 pub(crate) fn merge_config(
     existing_text: &str,
     managed_text: &str,
@@ -193,6 +208,37 @@ pub(crate) fn merge_config(
             "experimental_mode",
             experimental_mode,
         )?,
+    }
+
+    let multi_agent_v2 = existing
+        .get("features")
+        .and_then(Value::as_table)
+        .and_then(|features| features.get("multi_agent_v2"))
+        .map(|multi_agent| {
+            multi_agent.as_table().ok_or_else(|| {
+                invalid_config(
+                    "existing configuration does not contain an ordinary features.multi_agent_v2 table",
+                )
+            })
+        })
+        .transpose()?;
+    let wait_settings = MANAGED_MULTI_AGENT_V2_KEYS
+        .iter()
+        .map(|(key, path)| (*key, managed_value(&managed, path)))
+        .collect::<Vec<_>>();
+    match multi_agent_v2 {
+        Some(multi_agent) => {
+            for (key, value) in wait_settings {
+                merge_existing_table_setting(
+                    &mut lines,
+                    multi_agent,
+                    "features.multi_agent_v2",
+                    key,
+                    value,
+                )?;
+            }
+        }
+        None => append_table_settings(&mut lines, "features.multi_agent_v2", &wait_settings)?,
     }
 
     let mut candidate = lines.concat();
@@ -333,6 +379,14 @@ fn append_table_setting(
     key: &str,
     value: &ManagedScalar,
 ) -> Result<(), InstallerError> {
+    append_table_settings(lines, table_path, &[(key, value)])
+}
+
+fn append_table_settings(
+    lines: &mut Vec<String>,
+    table_path: &str,
+    settings: &[(&str, &ManagedScalar)],
+) -> Result<(), InstallerError> {
     let insertion = lines.len();
     prepare_insertion(lines, insertion);
     if lines
@@ -342,7 +396,9 @@ fn append_table_setting(
         lines.push("\n".to_owned());
     }
     lines.push(format!("[{table_path}]\n"));
-    lines.push(new_assignment(key, value)?);
+    for (key, value) in settings {
+        lines.push(new_assignment(key, value)?);
+    }
     Ok(())
 }
 
@@ -404,13 +460,34 @@ fn validated_managed_values(
     let context_management = parsed
         .get("features")
         .and_then(Value::as_table)
-        .filter(|features| features.len() == 1)
+        .filter(|features| {
+            features
+                .keys()
+                .all(|key| matches!(key.as_str(), "context_management" | "multi_agent_v2"))
+        })
         .and_then(|features| features.get("context_management"))
         .and_then(Value::as_table)
         .filter(|context| context.len() == 1 && context.contains_key("experimental_mode"))
         .ok_or_else(|| {
             invalid_config(
                 "managed configuration has unknown or missing features.context_management keys",
+            )
+        })?;
+
+    let multi_agent_v2 = parsed
+        .get("features")
+        .and_then(Value::as_table)
+        .and_then(|features| features.get("multi_agent_v2"))
+        .and_then(Value::as_table)
+        .filter(|multi_agent| {
+            multi_agent.len() == MANAGED_MULTI_AGENT_V2_KEYS.len()
+                && MANAGED_MULTI_AGENT_V2_KEYS
+                    .iter()
+                    .all(|(key, _)| multi_agent.contains_key(*key))
+        })
+        .ok_or_else(|| {
+            invalid_config(
+                "managed configuration has unknown or missing features.multi_agent_v2 keys",
             )
         })?;
 
@@ -438,6 +515,39 @@ fn validated_managed_values(
         ));
     }
     values.insert(CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY, experimental_mode);
+    for (key, path) in MANAGED_MULTI_AGENT_V2_KEYS {
+        let value = if key == "enabled" {
+            ManagedScalar::Boolean(
+                multi_agent_v2[key].as_bool().ok_or_else(|| {
+                    invalid_config(format!("managed key {path:?} is not a boolean"))
+                })?,
+            )
+        } else {
+            ManagedScalar::Integer(
+                multi_agent_v2[key]
+                    .as_integer()
+                    .filter(|value| *value > 0)
+                    .ok_or_else(|| {
+                        invalid_config(format!("managed key {path:?} is not a positive integer"))
+                    })?,
+            )
+        };
+        values.insert(path, value);
+    }
+    let minimum = multi_agent_v2["min_wait_timeout_ms"]
+        .as_integer()
+        .expect("validated minimum is an integer");
+    let default = multi_agent_v2["default_wait_timeout_ms"]
+        .as_integer()
+        .expect("validated default is an integer");
+    let maximum = multi_agent_v2["max_wait_timeout_ms"]
+        .as_integer()
+        .expect("validated maximum is an integer");
+    if !(minimum <= default && default <= maximum) {
+        return Err(invalid_config(
+            "managed wait timeouts must satisfy min <= default <= max",
+        ));
+    }
     values.insert(
         "max_threads",
         ManagedScalar::Integer(i64::from(max_threads)),
@@ -496,6 +606,21 @@ fn validate_managed_postcondition(
         return Err(invalid_config(
             "merged configuration does not contain managed features.context_management key \"experimental_mode\"",
         ));
+    }
+    let final_multi_agent_v2 = final_config
+        .get("features")
+        .and_then(Value::as_table)
+        .and_then(|features| features.get("multi_agent_v2"))
+        .and_then(Value::as_table)
+        .ok_or_else(|| {
+            invalid_config("merged configuration does not contain a features.multi_agent_v2 table")
+        })?;
+    for (key, path) in MANAGED_MULTI_AGENT_V2_KEYS {
+        if final_multi_agent_v2.get(key) != Some(&managed_value(managed, path).as_toml()) {
+            return Err(invalid_config(format!(
+                "merged configuration does not contain managed key {path:?}"
+            )));
+        }
     }
     Ok(())
 }
@@ -789,3 +914,7 @@ mod tests;
 #[cfg(test)]
 #[path = "config_merge_context_management_tests.rs"]
 mod context_management_tests;
+
+#[cfg(test)]
+#[path = "config_merge_wait_timeout_tests.rs"]
+mod wait_timeout_tests;

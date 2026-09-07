@@ -30,6 +30,12 @@ pub(crate) fn source_fixture(parent: &Path) -> PathBuf {
             "\n",
             "[features.context_management]\n",
             "experimental_mode = true\n",
+            "\n",
+            "[features.multi_agent_v2]\n",
+            "enabled = true\n",
+            "min_wait_timeout_ms = 60000\n",
+            "default_wait_timeout_ms = 120000\n",
+            "max_wait_timeout_ms = 3600000\n",
         ),
     )
     .expect("write fixture config");
