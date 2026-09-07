@@ -68,6 +68,9 @@ For authoritative review, the exact reviewed base commit must be an ancestor
 of the current head and the merge-base-derived range must match the assigned
 PR. Keep that commit separate from the current planned base-branch tip; apply
 the coordinator's reviewed-base/advancing-tip rule on re-entry.
+Reopening a completed loop also requires the coordinator's shared problem
+understanding and engineer-agreed response and execution authority. A concern
+found during completion/publication alone does not authorize this loop.
 
 Do not edit while old-head verification/review is running. Runtime admission
 controls native leaves inside this session; selected rejected leaves remain

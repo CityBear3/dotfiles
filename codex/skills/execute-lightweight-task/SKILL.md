@@ -36,6 +36,11 @@ contract, scope, ownership, failure/compatibility guarantee, invariant or
 policy choice returns Escalate. Preserve promotion evidence and return to
 `agentic-engineering-workflow`; do not silently grow lightweight work.
 
+Reopening a completed loop requires shared problem understanding with the
+engineer and an agreed response and execution authority. A concern found during
+completion/publication first follows the coordinator's discussion boundary;
+it does not automatically enter verification or correction review here.
+
 ## Write, inspect and commit
 
 The Feature Lead implements directly and retains all Task state. Batch

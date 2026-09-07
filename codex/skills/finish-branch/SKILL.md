@@ -163,6 +163,10 @@ refs and operations it names.
 
 ## Revalidate before a state change
 
+The Feature Lead performs this bounded read-only check directly under the
+coordinator's completion discussion boundary. Reuse the accepted evidence;
+do not dispatch a reviewer or reconstruct an Acceptance gate for publication.
+
 Before any selected operation, re-resolve:
 
 - mode, Task and Feature authority;
@@ -176,8 +180,12 @@ tip update as changed acceptance evidence. A confirmed compatible fast-forward
 preserves the original Task evidence and permits authorized publication without
 re-review. It does not authorize a changed merge destination object or other
 operation outside the user's approved values. If the actual target, authority,
-or dependencies changed, preserve state and return the mismatch to the
-coordinator; only affected descendant evidence becomes stale.
+or dependencies changed, or required evidence is missing, preserve state and
+hold the affected operation. Share the facts, possible impact and unknowns with
+the engineer through the Feature Lead. Reach shared problem understanding before
+discussing a response; do not autonomously dispatch checks, triage or correction.
+Resume only within the engineer-agreed response and execution authority. Keep
+the original acceptance evidence bound to its original target.
 
 ## Execute a safe local merge
 

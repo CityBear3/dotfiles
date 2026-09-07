@@ -122,6 +122,11 @@ approved model/effort and read-only boundary can be enforced; otherwise BLOCKED.
 
 ## Invalidate correction coverage explicitly
 
+These rules apply within active approved correction or engineer-authorized
+re-entry. Completion/publication currentness checks belong directly to the
+Feature Lead. A concern found there first follows the coordinator's shared
+problem discussion boundary; do not start a correction review automatically.
+
 Apply the coordinator's reviewed-base/advancing-tip rule before entering a
 correction review. A confirmed fast-forward of the same base branch with
 unchanged reviewed target, authority and relied-on dependencies preserves prior

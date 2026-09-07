@@ -65,6 +65,11 @@ base-tip advance leaves Task verification current on its original target; do
 not rebuild or execute its matrix for that alone. A latest-base integration
 matrix still requires fresh execution when its actual composition inputs change.
 
+Required freshness does not authorize reopening a completed loop. Missing or
+stale evidence found at completion/publication first returns to the Feature Lead
+for the coordinator's engineer discussion boundary. Dispatch new checks only
+within active approved work or the engineer-authorized response.
+
 ## Owner: dispatch once
 
 Select `verification-runner` at the preapproved Luna/low allocation through
