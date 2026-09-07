@@ -37,6 +37,12 @@ fn preserves_unmanaged_configuration_bytes() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "# workstation-specific configuration\n",
@@ -62,6 +68,12 @@ fn preserves_unmanaged_configuration_bytes() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -103,6 +115,12 @@ fn enables_update_plan_while_preserving_other_tool_configuration() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -121,6 +139,12 @@ fn enables_update_plan_while_preserving_other_tool_configuration() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -159,6 +183,12 @@ fn adds_update_plan_table_beside_existing_tool_configuration() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -177,6 +207,12 @@ fn adds_update_plan_table_beside_existing_tool_configuration() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -216,6 +252,12 @@ fn adds_enabled_to_existing_update_plan_table() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -233,6 +275,12 @@ fn adds_enabled_to_existing_update_plan_table() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -269,6 +317,12 @@ fn missing_managed_assignments_are_inserted() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "# local root configuration\n",
@@ -290,6 +344,12 @@ fn missing_managed_assignments_are_inserted() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -325,6 +385,12 @@ fn missing_agents_table_is_appended() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -343,6 +409,12 @@ fn missing_agents_table_is_appended() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -370,6 +442,12 @@ fn empty_configuration_receives_only_managed_values() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "model = \"gpt-5.6\"\n",
@@ -385,6 +463,12 @@ fn empty_configuration_receives_only_managed_values() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -430,6 +514,12 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
     let expected = concat!(
         "description = \"\"\"\n",
@@ -455,6 +545,12 @@ fn multiline_and_quoted_toml_boundaries_are_respected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -491,6 +587,12 @@ fn duplicate_managed_assignment_is_rejected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -530,6 +632,12 @@ fn quoted_managed_key_is_rejected_as_structurally_unsupported() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -569,6 +677,12 @@ fn inline_agents_table_is_rejected_as_structurally_unsupported() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -598,6 +712,12 @@ fn managed_fragment_without_update_plan_is_rejected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -630,6 +750,12 @@ fn managed_update_plan_enabled_must_be_boolean() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -661,6 +787,12 @@ fn managed_update_plan_enabled_is_required() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -698,6 +830,12 @@ fn managed_tools_sibling_is_rejected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -733,6 +871,12 @@ fn managed_update_plan_unknown_key_is_rejected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act
@@ -766,6 +910,12 @@ fn incomplete_managed_fragment_is_rejected() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act

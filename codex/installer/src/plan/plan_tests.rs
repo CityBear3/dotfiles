@@ -28,6 +28,12 @@ const MANAGED_CONFIG: &str = concat!(
     "\n",
     "[features.context_management]\n",
     "experimental_mode = true\n",
+    "\n",
+    "[features.multi_agent_v2]\n",
+    "enabled = true\n",
+    "min_wait_timeout_ms = 60000\n",
+    "default_wait_timeout_ms = 120000\n",
+    "max_wait_timeout_ms = 3600000\n",
 );
 
 #[test]
@@ -217,7 +223,7 @@ fn plan_adopts_an_existing_asset_only_when_requested() {
 }
 
 #[test]
-fn plan_merges_only_the_seven_managed_configuration_keys() {
+fn plan_merges_only_the_declared_configuration_keys() {
     // Arrange
     let temporary = project_tempdir("plan-config-merge");
     let fixture = Fixture::new(temporary.path());
@@ -262,6 +268,12 @@ fn plan_merges_only_the_seven_managed_configuration_keys() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = true # local context-management setting\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = true\n",
+        "min_wait_timeout_ms = 60000\n",
+        "default_wait_timeout_ms = 120000\n",
+        "max_wait_timeout_ms = 3600000\n",
     );
 
     // Act

@@ -37,9 +37,10 @@ Attempt selected native dispatch in the owning session. Runtime admission owns
 local concurrency, not Feature readiness or total capacity across independent
 Task sessions. A rejected spawn stays pending in the supplied order. Retry
 after relevant progress or availability evidence without dropping gates,
-changing allocations, or calculating leases. Use bounded event-responsive waits
-within the active tool and responsiveness limits; do not busy-poll unchanged
-state or use a wait that prevents required user updates.
+changing allocations, or calculating leases. Prefer the configured default wait
+timeout. When work is known to take longer, use a longer timeout within the
+active tool and responsiveness limits. Keep waits bounded and event-responsive;
+do not busy-poll unchanged state or prevent required user updates.
 
 Normal reviewers may run concurrently after fresh runner `PASS`. Do not
 overlap source edits with verification or review of that source, run duplicate

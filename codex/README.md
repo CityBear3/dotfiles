@@ -212,13 +212,26 @@ Command-line options override these environment-derived defaults. The paths show
 | `AGENTS.global.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 | `agents/<name>.toml` | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` |
 | `skills/<name>/` | `$HOME/.agents/skills/<name>/` |
-| `config.toml` | Seven managed values merged into `${CODEX_HOME:-$HOME/.codex}/config.toml` |
+| `config.toml` | Declared managed values merged into `${CODEX_HOME:-$HOME/.codex}/config.toml` |
 
-The seven managed configuration values are `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `tools.update_plan.enabled`, `features.context_management.experimental_mode`, `agents.max_threads`, and `agents.max_depth`. The tracked values keep the `update_plan` tool and experimental context management enabled. Other configuration bytes—including other feature settings, comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
+The installer manages eleven configuration values: `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `tools.update_plan.enabled`, `features.context_management.experimental_mode`, `agents.max_threads`, `agents.max_depth`, and the four `features.multi_agent_v2` settings below. The tracked values keep the `update_plan` tool and experimental context management enabled. Other configuration bytes—including other feature settings, comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
 
 An install adds `features.context_management.experimental_mode` when absent and replaces an existing value with the repository's value, currently `true`. As with other managed tables, use an ordinary `[features.context_management]` table with an unquoted, single-line `experimental_mode` assignment. Unsupported scalar, inline-table, or dotted-key representations are rejected instead of being rewritten. Sibling feature settings remain unmanaged. The existing backup/restore flow preserves the pre-install configuration, including whether this setting was absent or disabled.
 
 This opt-in applies only to eligible Codex sessions; it does not override account, model, or client availability. Start a new task to use it. See [experimental context management](https://learn.chatgpt.com/docs/models#experimental-context-management) for current eligibility and behavior.
+
+The managed `[features.multi_agent_v2]` settings are:
+
+| Key | Repository value | Meaning |
+|---|---|---|
+| `enabled` | `true` | Enable the v2 multi-agent tools |
+| `min_wait_timeout_ms` | `60000` | Lower bound for a requested wait timeout |
+| `default_wait_timeout_ms` | `120000` | Wait timeout when the caller omits it |
+| `max_wait_timeout_ms` | `3600000` | Upper bound for a requested wait timeout |
+
+These are timeout bounds, not mandatory delays: `wait_agent` returns early when an agent notification arrives. Numeric defaults live in `config.toml`; skills retain the guidance to use bounded, event-responsive waits without busy-polling. The settings were checked with Codex 0.153.4.
+
+An install adds missing multi-agent settings and replaces existing values with the repository's values. Use an ordinary `[features.multi_agent_v2]` table with unquoted, single-line assignments; scalar feature flags, inline tables, and dotted-key representations are rejected instead of being rewritten. Unmanaged siblings and comments are preserved. The managed fragment requires a boolean `enabled`, positive integer timeouts, and `min <= default <= max`. Backup and restore retain the entire pre-install configuration, including prior timeout values or the absence of this table.
 
 The installer manages only declared or manifest-owned names. Unrelated sibling skills and agents are preserved. `.system` cannot be installer-owned or pruned; in particular, `${CODEX_HOME:-$HOME/.codex}/skills/.system` is outside the destination mapping.
 
@@ -228,7 +241,7 @@ For a default or explicit `install`, the shell launcher validates the helper sou
 
 Within that launcher boundary, a Rust install follows this sequence:
 
-1. Resolve the source and destination roots, validate the source inventory, and merge the seven managed configuration values with the live `config.toml`.
+1. Resolve the source and destination roots, validate the source inventory, and merge the declared configuration values with the live `config.toml`.
 2. Compare the desired content with the live destinations and ownership manifest to build a plan.
 3. For dry-run, print the plan and stop without changing installer-managed destinations or state.
 4. For a mutating install, acquire the operation lock and recover or finalize any transaction left by an interrupted earlier run.
@@ -245,7 +258,7 @@ The installer may create missing parent directories below the configured roots. 
 | Path | Contents and lifetime |
 |---|---|
 | `${CODEX_HOME:-$HOME/.codex}/codex-manifest-installer.lock` | Persistent empty file used only to serialize mutating commands; dry-run does not create it |
-| `${CODEX_HOME:-$HOME/.codex}/config.toml` | Live Codex configuration with only the seven declared values managed by this installer |
+| `${CODEX_HOME:-$HOME/.codex}/config.toml` | Live Codex configuration with only the declared values managed by this installer |
 | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` | Global guidance copied from `AGENTS.global.md` |
 | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` | Managed custom-agent definitions |
 | `$HOME/.agents/skills/<name>/` | Managed personal skill directories |
@@ -398,4 +411,4 @@ No output from `cmp` and `diff` means the managed installed assets match the rep
 
 ### Configuration limitation
 
-The fallback intentionally does not copy `config.toml`, because replacing the live file would destroy unmanaged device-specific settings. When using the fallback, review the live `~/.codex/config.toml` and update only the seven managed keys declared in this repository fragment. Never copy the fragment over the entire live file.
+The fallback intentionally does not copy `config.toml`, because replacing the live file would destroy unmanaged device-specific settings. When using the fallback, review the live `~/.codex/config.toml` and update only the managed keys declared in this repository fragment. Never copy the fragment over the entire live file.

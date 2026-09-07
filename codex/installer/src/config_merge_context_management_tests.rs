@@ -14,11 +14,18 @@ const BASE_CONFIG: &str = concat!(
     "enabled = true\n",
 );
 const ENABLED_CONTEXT: &str = "\n[features.context_management]\nexperimental_mode = true\n";
+const WAIT_CONFIG: &str = concat!(
+    "\n[features.multi_agent_v2]\n",
+    "enabled = true\n",
+    "min_wait_timeout_ms = 60000\n",
+    "default_wait_timeout_ms = 120000\n",
+    "max_wait_timeout_ms = 3600000\n",
+);
 
 #[test]
 fn adds_context_management_when_features_are_absent() {
     // Arrange
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
 
     // Act
     let result = merge_config(BASE_CONFIG, &managed, 6);
@@ -31,14 +38,14 @@ fn adds_context_management_when_features_are_absent() {
 fn adds_context_management_beside_unmanaged_features() {
     // Arrange
     let existing = format!("{BASE_CONFIG}\n[features]\nhooks  =  true # keep hooks\n");
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
     let expected = format!("{existing}{ENABLED_CONTEXT}");
 
     // Act
     let result = merge_config(&existing, &managed, 6);
 
     // Assert
-    assert_eq!(result, Ok(expected));
+    assert_eq!(result, Ok(format!("{expected}{WAIT_CONFIG}")));
 }
 
 #[test]
@@ -51,7 +58,7 @@ fn replaces_context_management_without_changing_unmanaged_bytes() {
          experimental_mode   = false # keep context-management comment\n\n\
          [features.other]\nexperimental_mode = false\n"
     );
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
     let expected = existing.replace(
         "experimental_mode   = false # keep context-management comment",
         "experimental_mode = true # keep context-management comment",
@@ -61,7 +68,7 @@ fn replaces_context_management_without_changing_unmanaged_bytes() {
     let result = merge_config(&existing, &managed, 6);
 
     // Assert
-    assert_eq!(result, Ok(expected));
+    assert_eq!(result, Ok(format!("{expected}{WAIT_CONFIG}")));
 }
 
 #[test]
@@ -71,7 +78,7 @@ fn adds_experimental_mode_inside_existing_context_management_table() {
         "{BASE_CONFIG}\n[features.context_management]\n\
          other_setting = \"untouched\"\n# keep comment\n\n[tui]\nanimations = false\n"
     );
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
     let expected = existing.replace(
         "# keep comment\n",
         "# keep comment\nexperimental_mode = true\n",
@@ -81,13 +88,13 @@ fn adds_experimental_mode_inside_existing_context_management_table() {
     let result = merge_config(&existing, &managed, 6);
 
     // Assert
-    assert_eq!(result, Ok(expected));
+    assert_eq!(result, Ok(format!("{expected}{WAIT_CONFIG}")));
 }
 
 #[test]
 fn configured_context_management_value_is_not_hard_coded_to_true() {
     // Arrange
-    let existing = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let existing = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
     let managed = existing.replace("experimental_mode = true", "experimental_mode = false");
 
     // Act
@@ -100,7 +107,7 @@ fn configured_context_management_value_is_not_hard_coded_to_true() {
 #[test]
 fn context_management_merge_is_idempotent() {
     // Arrange
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
     let existing = format!("{managed}\n[features.other]\nkeep = true\n");
 
     // Act
@@ -130,8 +137,9 @@ fn managed_context_management_is_required() {
 #[test]
 fn managed_experimental_mode_must_be_boolean() {
     // Arrange
-    let managed =
-        format!("{BASE_CONFIG}\n[features.context_management]\nexperimental_mode = \"true\"\n");
+    let managed = format!(
+        "{BASE_CONFIG}\n[features.context_management]\nexperimental_mode = \"true\"\n{WAIT_CONFIG}"
+    );
 
     // Act
     let result = merge_config("", &managed, 6);
@@ -148,7 +156,7 @@ fn managed_experimental_mode_must_be_boolean() {
 }
 
 #[test]
-fn managed_features_must_contain_only_the_declared_key() {
+fn managed_feature_schema_rejects_missing_or_unknown_settings() {
     // Arrange
     let feature_fragments = [
         "[features]\n",
@@ -158,7 +166,7 @@ fn managed_features_must_contain_only_the_declared_key() {
     ];
 
     for fragment in feature_fragments {
-        let managed = format!("{BASE_CONFIG}\n{fragment}");
+        let managed = format!("{BASE_CONFIG}\n{fragment}{WAIT_CONFIG}");
 
         // Act
         let result = merge_config("", &managed, 6);
@@ -180,7 +188,7 @@ fn managed_features_must_contain_only_the_declared_key() {
 fn non_table_context_management_is_rejected_without_replacing_it() {
     // Arrange
     let existing = format!("{BASE_CONFIG}\n[features]\ncontext_management = false\n");
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
 
     // Act
     let result = merge_config(&existing, &managed, 6);
@@ -202,7 +210,7 @@ fn inline_or_dotted_context_management_is_rejected_as_structurally_unsupported()
         "[features]\ncontext_management = { experimental_mode = false }\n",
         "[features]\ncontext_management.experimental_mode = false\n",
     ];
-    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}");
+    let managed = format!("{BASE_CONFIG}{ENABLED_CONTEXT}{WAIT_CONFIG}");
 
     for fragment in feature_fragments {
         let existing = format!("{BASE_CONFIG}\n{fragment}");

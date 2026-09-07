@@ -199,6 +199,24 @@ fn workflow_bundle_replaces_owned_roles_and_preserves_unmanaged_assets() {
         config["features"]["context_management"]["experimental_mode"].as_bool(),
         Some(true)
     );
+    assert_eq!(
+        config["features"]["multi_agent_v2"],
+        toml::Value::Table(toml::Table::from_iter([
+            ("enabled".to_owned(), toml::Value::Boolean(true)),
+            (
+                "min_wait_timeout_ms".to_owned(),
+                toml::Value::Integer(60000)
+            ),
+            (
+                "default_wait_timeout_ms".to_owned(),
+                toml::Value::Integer(120000)
+            ),
+            (
+                "max_wait_timeout_ms".to_owned(),
+                toml::Value::Integer(3600000)
+            ),
+        ]))
+    );
 }
 
 fn directory_files(root: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
@@ -264,6 +282,12 @@ fn install_and_restore_round_trip_with_normal_binary() {
         "\n",
         "[features.context_management]\n",
         "experimental_mode = false # keep context-management comment\n",
+        "\n",
+        "[features.multi_agent_v2]\n",
+        "enabled = false # keep multi-agent comment\n",
+        "min_wait_timeout_ms = 10000\n",
+        "default_wait_timeout_ms = 30000\n",
+        "max_wait_timeout_ms = 600000\n",
     );
     let prior_manifest = concat!(
         "{\n",
@@ -493,6 +517,25 @@ fn install_and_restore_round_trip_with_normal_binary() {
         installed_config_text
             .contains("experimental_mode = true # keep context-management comment\n")
     );
+    assert_eq!(
+        installed_config_table["features"]["multi_agent_v2"],
+        toml::Value::Table(toml::Table::from_iter([
+            ("enabled".to_owned(), toml::Value::Boolean(true)),
+            (
+                "min_wait_timeout_ms".to_owned(),
+                toml::Value::Integer(60000)
+            ),
+            (
+                "default_wait_timeout_ms".to_owned(),
+                toml::Value::Integer(120000)
+            ),
+            (
+                "max_wait_timeout_ms".to_owned(),
+                toml::Value::Integer(3600000)
+            ),
+        ]))
+    );
+    assert!(installed_config_text.contains("enabled = true # keep multi-agent comment\n"));
     assert_ne!(installed_manifest, prior_manifest.as_bytes());
     assert!(!stale_exists_after_install);
     assert_eq!(
