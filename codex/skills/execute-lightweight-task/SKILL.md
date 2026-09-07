@@ -27,11 +27,19 @@ finding-integrator Sol/high. Resolve effective bindings before the first edit.
 Feature Lead remains on its session defaults. No runtime promotion or fallback.
 
 Reject planned-only authority, unexplained state, missing or unrecoverable
-contract, or a starting HEAD mismatch. For Acceptance require the exact base
-to be an ancestor of the current reviewed head. A new architecture, public
+contract, or a starting HEAD mismatch. For Acceptance require the exact reviewed
+base commit to be an ancestor of the current reviewed head, not the latest tip
+of its base branch. Apply the coordinator's reviewed-base/advancing-tip rule:
+a confirmed compatible tip advance preserves acceptance without re-entering
+verification or correction review. A new architecture, public
 contract, scope, ownership, failure/compatibility guarantee, invariant or
 policy choice returns Escalate. Preserve promotion evidence and return to
 `agentic-engineering-workflow`; do not silently grow lightweight work.
+
+Reopening a completed loop requires shared problem understanding with the
+engineer and an agreed response and execution authority. A concern found during
+completion/publication first follows the coordinator's discussion boundary;
+it does not automatically enter verification or correction review here.
 
 ## Write, inspect and commit
 

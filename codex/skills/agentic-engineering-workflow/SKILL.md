@@ -468,6 +468,34 @@ Require no unexplained in-scope state in any task checkout. Re-read affected
 branches, bases, heads, ranges, worktrees, and status before every transition.
 Standalone verification or review never substitutes for coordinator evidence.
 
+### Distinguish a reviewed base from an advancing branch tip
+
+Keep the exact base commit used for accepted evidence separate from the latest
+observed tip of the planned PR base branch. The reviewed base remains an
+ancestor of the reviewed head; the branch tip may advance independently and
+need not be an ancestor of that head. Do not replace the reviewed base or widen
+the accepted range merely to match that tip.
+
+When the same base branch advances by fast-forward, use a bounded Git and
+dependency check to confirm that the head/tree, merge base, PR commit set and
+diff, source status, controlling authority, and relied-on dependencies and
+shared-interface assumptions remain unchanged. If they do, retain Accepted,
+verification, review and triage evidence with its original target and record
+the new observed tip and comparison result. A tip-only update requires neither
+fresh verification/review nor a return to the Task loop, including at PR
+creation. Do not dispatch reviewers merely to establish that equivalence.
+
+During active execution, a changed head, merge base, PR range/diff, authority or
+relied-on dependency follows the owning loop's impact and invalidation rules.
+A retarget, rewritten base history, or missing evidence does not qualify for the
+tip-only exception. At completion/publication, use the engineer discussion
+boundary below instead of automatically reopening that loop.
+Keep latest-base compatibility separate from Task evidence. During active work,
+refresh only an applicable named integration obligation whose inputs changed.
+At completion, missing or stale required integration evidence is a concern for
+that same discussion boundary, not permission to rerun checks. Publication and
+history-change permissions are unchanged.
+
 ## Advance only on current evidence
 
 Advance automatically within approved local scope:
@@ -544,6 +572,31 @@ default.
 
 ## Handle publication and completion boundaries
 
+Once the relevant execution loop is complete, the Feature Lead directly makes
+a bounded read-only check of changes since the accepted target, using retained
+context and evidence. Inspect only the delta and the assumptions or behavior it
+may affect. Do not dispatch a reviewer or rebuild a verification/review handoff
+for this check. It is a currentness check, not a new Acceptance gate or a
+substitute for the completed independent review.
+
+If no concern remains, continue the already-authorized completion/publication
+operation. A compatible base-tip advance alone does not require discussion.
+If a material mismatch, missing required evidence, or possible behavior problem
+appears, preserve the original evidence and hold the affected operation. Share
+the observed facts, expected behavior, possible impact and remaining unknowns
+with the engineer, distinguishing confirmed facts from hypotheses. Establish a
+shared understanding of the problem before proposing remedies or deciding how
+to proceed. Do not automatically invoke verification, review, triage, correction
+or a model escalation merely because a concern was found.
+
+After the problem is understood together, discuss the response and resume work
+only within the engineer-agreed response and execution authority. Shared problem
+understanding alone is not implementation approval; prior implementation or
+publication approval alone does not authorize reopening completed work. Reuse
+exact understanding and applicable authorization already supplied by the
+engineer without asking again. Active approved Task corrections, dependency
+scheduling and integration work retain their existing autonomous loop rules.
+
 An internally accepted Task PR is eligible for publication before Feature
 Accepted. If the user requests publication, pass only that task's exact current
 evidence to `finish-branch` task mode. Publication is optional for dependency
@@ -551,12 +604,14 @@ release, remains an external-write gate, and never retires Feature Contract or
 Implementation Plan artifacts.
 
 When human feedback arrives for a published Task PR, re-resolve that exact
-branch, planned base, head, range, and contract authority and pass the anchored
-feedback to `receiving-code-review`. Preserve an accepted result for a verified
-`Push back`. Route an authorized `Fix` through the same owning Task Contract and
-task correction loop; a new head makes affected descendants stale through both
-topologies. Return `Escalate` to the owning approval gate. Any resulting push,
-restack, retarget, or PR update remains separately authorized.
+branch, planned base, head, range, and contract authority. Apply the completion
+discussion boundary above before routing the anchored feedback to triage or a
+correction loop. Once the response and execution are authorized, use
+`receiving-code-review` where applicable, preserve an accepted result for a
+verified `Push back`, and route an authorized `Fix` through the owning Task
+Contract and correction loop. A new head makes affected descendants stale
+through both topologies. Return `Escalate` to the owning approval gate. Any
+resulting push, restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to
 `finish-branch` feature mode. Keep ignored plan artifacts and any existing

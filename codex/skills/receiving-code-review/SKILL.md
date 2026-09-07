@@ -17,6 +17,13 @@ evidence, and this role never edits `search-cache.md`.
 
 ## Coordinator-managed entry
 
+For completed-work feedback, first require the coordinator's shared problem
+understanding with the engineer and an agreed response and execution authority.
+Do not use triage to bypass that discussion or treat prior implementation or
+publication approval alone as permission to reopen the completed loop. Active
+approved correction and explicitly requested standalone evaluation retain their
+existing entry rules.
+
 Require:
 
 - target kind; exact task workspace and branch, planned PR base, merge base,

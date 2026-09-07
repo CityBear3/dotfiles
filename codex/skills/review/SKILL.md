@@ -122,6 +122,19 @@ approved model/effort and read-only boundary can be enforced; otherwise BLOCKED.
 
 ## Invalidate correction coverage explicitly
 
+These rules apply within active approved correction or engineer-authorized
+re-entry. Completion/publication currentness checks belong directly to the
+Feature Lead. A concern found there first follows the coordinator's shared
+problem discussion boundary; do not start a correction review automatically.
+
+Apply the coordinator's reviewed-base/advancing-tip rule before entering a
+correction review. A confirmed fast-forward of the same base branch with
+unchanged reviewed target, authority and relied-on dependencies preserves prior
+coverage; it does not require a reviewer invocation or an H1-to-H2 impact map.
+Keep the original report/head and the tip comparison as evidence. Here, a base
+change means a change to the reviewed base, merge base, range or relied-on
+context, not the compatible branch-tip advance alone.
+
 The policy-selected coverage set stays fixed. A bounded H1-to-H2 correction
 always requires fresh H2 verification, but not a fresh invocation of every
 reviewer. Require the loop owner's impact map connecting correction files and
@@ -136,8 +149,8 @@ shared boundaries. Record the original report/head and reason as carried
 coverage, never as a new H2 inspection. Missing/incomplete evidence or uncertain
 impact requires rerun. Reviewer selection is not recalculated from diff size.
 
-Changes to base, public/shared interfaces, schema, errors, concurrency,
-security, data integrity, migration, dependencies, test strategy or authority
+Changes to the reviewed base/context, public/shared interfaces, schema, errors,
+concurrency, security, data integrity, migration, dependencies, test strategy or authority
 invalidate all perspectives that can observe the changed surface. New meaning
 may also require Feature/engineer re-entry. Do not treat an invalidation map as
 permission to repair authority.

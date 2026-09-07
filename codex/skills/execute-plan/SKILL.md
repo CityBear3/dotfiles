@@ -154,9 +154,18 @@ Task sessions or new review rules onto legacy authority.
 
 ## Propagate stale results
 
+These rules govern active approved execution. For a concern found after the
+loop has completed and control has moved to completion/publication, return to
+the coordinator's engineer discussion boundary before reopening Task work.
+
 Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
 PR topology, contract authorities, shared interfaces, task branches, bases,
 heads, merge bases, diffs, statuses, and decision-relevant live agent state.
+Distinguish the fixed reviewed base from the latest observed base-branch tip
+using the coordinator's reviewed-base/advancing-tip rule. A confirmed compatible
+fast-forward alone preserves Accepted and does not stale descendants, block
+dependency release, or re-enter Task loops. Refresh a named latest-base
+integration obligation only when its composition inputs changed.
 Traverse both graphs when an ancestor, topology edge, contract meaning, logical
 dependency, or consumed interface changes. Mark every affected result stale,
 remove it from dependency release and feature coverage, and re-enter its
@@ -222,6 +231,10 @@ do not add it to accepted results, feature coverage, or dependency release until
 `execute-task` returns current authoritative acceptance evidence.
 
 ## Re-enter for a planned correction
+
+For completed-work feedback, require the coordinator's established shared
+problem understanding and engineer-agreed response and execution authority.
+An old implementation or publication approval alone does not reopen the loop.
 
 Treat an authorized correction as work on its owning Task PR. Preserve every
 other task's exact result and the original implementation base. For new-format
