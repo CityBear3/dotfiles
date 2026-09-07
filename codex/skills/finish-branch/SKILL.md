@@ -171,9 +171,13 @@ Before any selected operation, re-resolve:
 - status, changed files, worktrees, and active Git operation state;
 - prior publication and merge state.
 
-If the evidence changed, preserve state and stop. A parent update may make
-descendant evidence stale; return the topology to the coordinator instead of
-publishing or merging it as current.
+Apply the coordinator's reviewed-base/advancing-tip rule before treating a base
+tip update as changed acceptance evidence. A confirmed compatible fast-forward
+preserves the original Task evidence and permits authorized publication without
+re-review. It does not authorize a changed merge destination object or other
+operation outside the user's approved values. If the actual target, authority,
+or dependencies changed, preserve state and return the mismatch to the
+coordinator; only affected descendant evidence becomes stale.
 
 ## Execute a safe local merge
 

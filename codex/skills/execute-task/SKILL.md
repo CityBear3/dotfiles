@@ -64,8 +64,10 @@ Before edits confirm effective model and both normal/Plan-mode effort against
 the approved allocation. Never promote, fall back, or change effort mid-loop.
 Confirm the exact workspace, branch, base, starting head and sole-writer
 ownership directly. A fresh implementation starts at the supplied HEAD.
-For authoritative review, the planned base must be an ancestor of the current
-head and the merge-base-derived range must match the assigned PR.
+For authoritative review, the exact reviewed base commit must be an ancestor
+of the current head and the merge-base-derived range must match the assigned
+PR. Keep that commit separate from the current planned base-branch tip; apply
+the coordinator's reviewed-base/advancing-tip rule on re-entry.
 
 Do not edit while old-head verification/review is running. Runtime admission
 controls native leaves inside this session; selected rejected leaves remain
@@ -167,8 +169,10 @@ Give rerun reviewers H1/H2, correction delta, full current range, prior
 report/triage, exact authority and fresh matrix. `review` owns targeted/full
 traversal and carry-forward validation; do not duplicate its rules here.
 Reintegrate only when its triggers hold, then triage the current target.
-A changed base, authority or shared surface invalidates all affected evidence
-and may require Feature-level re-entry. Never carry old verification forward.
+A changed reviewed base/context, authority or shared surface invalidates all
+affected evidence and may require Feature-level re-entry. A confirmed compatible
+base-tip advance preserves existing acceptance without entering this correction
+loop. Never carry old verification forward onto a changed verification target.
 
 Stop repeated correction without progress with attempts and the exact gap.
 Do not invent another tracking schema, broaden the Task or raise the model.

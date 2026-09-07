@@ -38,6 +38,17 @@ confirm that the handoff still names the current target. Entering the
 publication phase or the passage of time does not by itself make unchanged
 evidence stale.
 
+Apply the coordinator's reviewed-base/advancing-tip rule before declaring a
+base mismatch. A fast-forward of the same base branch is compatible with the
+accepted handoff when the reviewed head/tree, merge base, PR commit set/diff,
+status, authority and relied-on dependencies remain unchanged. Record the old
+and current observed tips and comparison, retain the original evidence, and
+continue publication without a Task-loop or reviewer dispatch. Keep the reviewed
+base commit fixed; do not require the current branch tip to be an ancestor of
+the reviewed head or rebase merely to satisfy preflight. Any named latest-base
+integration obligation remains separate and must have current evidence when
+required for publication.
+
 Do not invoke `verify`, `review`, or `receiving-code-review`, and do not rerun
 their checks solely to create the PR. Git identity and status checks in this
 skill are publication preflight checks, not a new Acceptance gate. If the
@@ -45,8 +56,9 @@ publication target or its controlling authority changed, or required evidence
 is missing, stop with the exact mismatch and return it to the owning workflow;
 do not recreate Acceptance evidence inside `create-pr`.
 
-Stop if the branch, base, range, ancestry, applicable accepted or legacy
-completion evidence, or status differs from the approved publication target. A
+Stop if the branch, reviewed base, range, ancestry, applicable accepted or legacy
+completion evidence, or status differs from the approved publication target,
+except for a confirmed compatible base-tip advance as described above. A
 candidate or stale task is not publishable. Do not push a missing branch,
 retarget a PR, or restack history from this skill.
 

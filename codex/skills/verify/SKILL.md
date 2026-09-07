@@ -60,6 +60,11 @@ verification route invalidates the matrix. Fresh verification is required on
 every corrected head. Writer-side focused checks and TDD history are not this
 independent gate.
 
+Under the coordinator's reviewed-base/advancing-tip rule, a confirmed compatible
+base-tip advance leaves Task verification current on its original target; do
+not rebuild or execute its matrix for that alone. A latest-base integration
+matrix still requires fresh execution when its actual composition inputs change.
+
 ## Owner: dispatch once
 
 Select `verification-runner` at the preapproved Luna/low allocation through

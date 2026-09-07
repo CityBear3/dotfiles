@@ -468,6 +468,32 @@ Require no unexplained in-scope state in any task checkout. Re-read affected
 branches, bases, heads, ranges, worktrees, and status before every transition.
 Standalone verification or review never substitutes for coordinator evidence.
 
+### Distinguish a reviewed base from an advancing branch tip
+
+Keep the exact base commit used for accepted evidence separate from the latest
+observed tip of the planned PR base branch. The reviewed base remains an
+ancestor of the reviewed head; the branch tip may advance independently and
+need not be an ancestor of that head. Do not replace the reviewed base or widen
+the accepted range merely to match that tip.
+
+When the same base branch advances by fast-forward, use a bounded Git and
+dependency check to confirm that the head/tree, merge base, PR commit set and
+diff, source status, controlling authority, and relied-on dependencies and
+shared-interface assumptions remain unchanged. If they do, retain Accepted,
+verification, review and triage evidence with its original target and record
+the new observed tip and comparison result. A tip-only update requires neither
+fresh verification/review nor a return to the Task loop, including at PR
+creation. Do not dispatch reviewers merely to establish that equivalence.
+
+A changed head, merge base, PR range/diff, authority or relied-on dependency
+requires the owning loop's existing impact and invalidation rules. A retarget,
+rewritten base history, or missing evidence does not qualify for the tip-only
+exception. Resolve the actual mismatch without automatic full re-review;
+rerun affected coverage, retaining other coverage only with concrete evidence.
+Compatibility with the latest base is separate integration evidence: refresh
+only an applicable named obligation whose inputs changed, without replaying
+unchanged Task checks. Publication and history-change permissions are unchanged.
+
 ## Advance only on current evidence
 
 Advance automatically within approved local scope:

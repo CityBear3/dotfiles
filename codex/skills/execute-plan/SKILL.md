@@ -157,6 +157,11 @@ Task sessions or new review rules onto legacy authority.
 Before every scheduling wave and feature aggregation, re-resolve the Task DAG,
 PR topology, contract authorities, shared interfaces, task branches, bases,
 heads, merge bases, diffs, statuses, and decision-relevant live agent state.
+Distinguish the fixed reviewed base from the latest observed base-branch tip
+using the coordinator's reviewed-base/advancing-tip rule. A confirmed compatible
+fast-forward alone preserves Accepted and does not stale descendants, block
+dependency release, or re-enter Task loops. Refresh a named latest-base
+integration obligation only when its composition inputs changed.
 Traverse both graphs when an ancestor, topology edge, contract meaning, logical
 dependency, or consumed interface changes. Mark every affected result stale,
 remove it from dependency release and feature coverage, and re-enter its
