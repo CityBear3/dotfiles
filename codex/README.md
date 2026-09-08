@@ -2,6 +2,21 @@
 
 This directory is the source of truth for the personal Codex bundle.
 
+## Understand a PR through dialogue
+
+Use [`walkthrough-pr`](skills/walkthrough-pr/SKILL.md) to build an understanding
+of a change's purpose, responsibilities, contracts, invariants, failure behavior,
+and test evidence. For example: `$walkthrough-pr PR #123 の目的と境界から説明して`.
+The skill proceeds one topic at a time and brings in concrete code whenever it
+helps answer a question. It accounts for the whole change while varying code
+inspection depth by importance and uncertainty; reading every line is not a
+completion requirement. It first confirms a choice of conversation excerpts,
+Hunk, nvim in a Herdr pane, or editor links, retaining an earlier preference.
+For Hunk or nvim it prepares or reuses a review pane when needed, diagnoses local
+sandbox access failures, and checks that the displayed code matches the reviewed
+revision. Herdr pane control requires running inside Herdr. The repository stays
+read-only, and PR acceptance remains with the engineer.
+
 ## Standalone Codex update helper
 
 `bin/codex-upgrade` updates a standalone Codex installation and refreshes an app-server daemon that was already running. It targets the current standalone installation, where `codex update` performs the self-update; it does not add Homebrew-specific behavior.
