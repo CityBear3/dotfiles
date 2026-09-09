@@ -167,13 +167,19 @@ Runtime-rejected leaves stay pending in order and retry after progress.
 Use bounded event-responsive waits within current tool/responsiveness limits;
 do not busy-poll unchanged state or introduce leases or another scheduler.
 
-The local loop owner constructs an exact current-head Verification Matrix:
+The local loop owner constructs an exact current-target Verification Matrix:
 stable row IDs, obligations, commands/checks, directory/environment, expected
 mechanical observations, mismatch statuses, and source-state pre/final checks.
 The runner executes supplied rows in order, fail-fast, captures attributable raw
 output and always attempts the final mutation check. It cannot choose commands,
 assess adequacy, diagnose, suggest fixes or decide Acceptance. Ignored build/test
-artifacts are the only allowed writes. Every new head requires fresh verification.
+artifacts are the only allowed writes. HEAD, branch or history changes alone
+do not trigger verification or review. The owner compares content, relevant
+dependencies, requirements and execution conditions, retaining original reports
+and explicit applicability reasons. Current coverage may combine fresh checks
+with carried evidence. Independent pre-commit or standalone reports can cover
+Task obligations after explicit content, authority, coverage and independence
+mapping; a label change or writer self-check does not supply a Task gate.
 
 Normal planned review uses independent spec and implementation-quality reviewers
 in parallel after PASS. Risk review is policy-selected and parameterized.
@@ -182,7 +188,8 @@ remedies or non-trivial attribution, not merely because a risk reviewer ran.
 All-clean reports and a single clear bounded finding need no extra integrator;
 the latter still requires evidence-based triage.
 
-A correction retains the Task Lead session and creates H2 with fresh verification.
+A correction retains the Task Lead session and creates H2 with fresh affected
+verification and explicitly carried unaffected rows.
 Finding-owning and affected reviewers rerun; prior clean coverage carries only
 with exact prior reports/heads and concrete non-invalidation reasons. Uncertain
 impact reruns. Carried evidence is never represented as a new-head inspection.
@@ -202,8 +209,8 @@ sources or assumptions. No empty cache, routine lookup, or miss report is
 required, and cache absence or staleness never blocks progress. If created,
 the ignored file stays with the plan through authorized worktree removal.
 It never replaces current authority, Git, verification, or review evidence.
-TDD and focused writer checks likewise remain distinct from fresh independent
-current-head acceptance.
+TDD and focused writer checks likewise remain distinct from current independent
+Task Acceptance evidence.
 
 Install the coherent asset revision only with separate owner authorization.
 Previously approved/in-flight plans are not silently migrated: retain their exact

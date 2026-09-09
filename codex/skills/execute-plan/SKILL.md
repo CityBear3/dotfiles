@@ -92,7 +92,8 @@ A PR stack edge alone is not a logical dependency.
 Candidate mode is permitted only when the plan allows implementation before
 its final PR base exists. A candidate cannot release dependents or satisfy
 Feature Acceptance. Final-base materialization and any history changes need
-their applicable authority and fresh exact-range gates.
+their applicable authority and complete current exact-range gate coverage under
+the coordinator's evidence-applicability rule.
 
 For each ready Task, resolve the plan's exact/deterministic starting ref from
 current Git and accepted predecessors, then use `create-workspace` to lazily
@@ -136,7 +137,7 @@ Consume compact Candidate/Accepted/BLOCKED/Escalate reports with directly
 available attributable evidence, not every local transcript. For Accepted,
 inspect exact authority/currentness, workspace, branch, planned base, merge
 base, head/range/diff/status and required verification/review coverage.
-Carried reviewer evidence must retain its original head/report and explicit
+Carried verification and reviewer evidence must retain its original target/report and explicit
 non-invalidation reasons; it is not a fresh review of the new head. Missing or
 mismatched evidence is BLOCKED, never permission to repair or reinterpret state.
 
@@ -167,7 +168,9 @@ fast-forward alone preserves Accepted and does not stale descendants, block
 dependency release, or re-enter Task loops. Refresh a named latest-base
 integration obligation only when its composition inputs changed.
 Traverse both graphs when an ancestor, topology edge, contract meaning, logical
-dependency, or consumed interface changes. Mark every affected result stale,
+dependency, or consumed interface changes. Compare actual inputs and obligations
+under the coordinator's evidence-applicability rule; identity-only changes do
+not stale evidence. Mark every result with invalidated required coverage stale,
 remove it from dependency release and feature coverage, and re-enter its
 Task Lead's authoritative `execute-task` loop after the approved final base is
 restored.
@@ -180,8 +183,9 @@ affected Tasks and their transitive dependents stale.
 
 Rebase, restack, retarget, force operations, or other history changes require
 their applicable explicit authority. Reapproval of prose does not revive stale
-Git evidence, and preliminary common-base checks do not survive restacking as
-acceptance.
+Git evidence. Preliminary common-base checks are not acceptance; map their
+actual coverage and final-base applicability, supplement gaps, and establish
+the complete approved gate before accepting a restacked Task.
 
 ## Reconcile promoted lightweight work
 
@@ -194,8 +198,9 @@ and prior writer and gate evidence. This special handoff authorizes acceptance
 work on the attributable envelope; it does not authorize history rewriting or
 new feature semantics.
 
-Require fresh verification and the complete policy-selected task gate against
-the current approved contracts. The preserved commits satisfy the reconciliation
+Require current verification and the complete policy-selected task gate against
+the current approved contracts, mapping prior applicable independent evidence
+and supplementing uncovered obligations. The preserved commits satisfy the reconciliation
 commit intent when no correction is needed. If approved design or plan artifacts
 remain uncommitted, the reconciliation Task Contract must declare their bounded
 commit and one writer creates it before the gate. If correction is authorized,
@@ -250,7 +255,9 @@ approved writer message-selection authority. Also supply prior reviewed head
 `H1`, prior reviewer reports/triage and the unchanged complete policy coverage.
 Task-local corrections stay in the existing Task Lead session; only integration,
 feedback re-entry and cross-Task effects need Feature coordination. Require a
-bounded correction commit H2, rebuilt matrix and fresh H2 verification, then
+bounded correction commit H2, current matrix and fresh affected verification
+with explicitly carried unaffected rows under the coordinator's applicability
+rule, then
 finding-owner/affected-perspective reruns with explicit non-invalidation
 evidence for any carried coverage. `review` owns
 correction-review scope and escalation; pass its required correction evidence
@@ -261,7 +268,7 @@ repeat an observed failed correction, stop and return the attempt evidence. Do
 not invent another tracking protocol or silently expand the correction.
 
 After `Accepted`, append the correction once with its commit, exact PR base,
-current head, range, fresh verification, gate result, and gaps. Traverse both
+current head, range, current verification, gate result, and gaps. Traverse both
 graphs, mark affected descendants stale, and recalculate feature coverage
 without widening any unchanged task range.
 
@@ -301,8 +308,8 @@ containing:
 - verified starting Git status and verified final Git status, including index,
   worktree, and relevant untracked state, matched to direct root re-observation;
 - task and correction commits;
-- fresh verification obligations, commands selected or required, and observed
-  results as the completed current-head Verification Matrix;
+- verification obligations, commands selected or required, observed results and
+  explicit carry-forward as the completed current-target Verification Matrix;
 - per-task gate result;
 - reviewer and findings-integration outcomes, triage, non-blocking concerns,
   changed files, any useful cross-session discovery candidates, and gaps.

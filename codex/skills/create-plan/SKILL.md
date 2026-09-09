@@ -85,8 +85,10 @@ delegated implementation work.
 
 Record which tasks may implement before their final PR base exists. Such work
 may produce a non-accepted candidate, but the task must be restacked onto its
-planned final base and obtain fresh authoritative verification and review before
-it can release a dependent.
+planned final base and obtain complete current authoritative verification and
+review coverage before it can release a dependent. Preliminary evidence may
+cover only obligations with established applicability to the final target;
+candidate status itself never becomes Accepted merely through restacking.
 
 For replanning, add a `Re-entry impact` section. Retain a prior accepted result
 only when its exact Feature Contract authority, assigned Feature clauses, Task
@@ -156,10 +158,11 @@ For each Task Contract include:
 - applicable shared interfaces and adjacent-task obligations;
 - protected constraints and invariants;
 - observable task-level verification obligations;
-- the Task-loop owner's in-memory current-head Verification Matrix obligation,
+- the Task-loop owner's in-memory current-target Verification Matrix obligation,
   including one bounded command/check, expected observation, and `FAIL` or
-  `BLOCKED` non-match category per observable obligation, plus invalidation on
-  head, range, controlling-authority, or material-route change;
+  `BLOCKED` non-match category per observable obligation, with affected-row
+  invalidation and explicit carry-forward under the coordinator's
+  evidence-applicability rule, including pre-commit evidence mapping;
 - dependencies;
 - PR unit, planned parent or sibling relationship, and final-base readiness;
 - whether implementation may produce a candidate before that base exists;
@@ -284,16 +287,18 @@ Runtime admission does not change Review selection. Record the deterministic
 reviewer order used when a selected spawn is temporarily rejected. Keep phase
 gates explicit so implementation, verification, findings integration, triage,
 and correction remain ordered while independent source reviewers may run after
-fresh verifier `PASS`. Do not encode leases, grants, or thread arithmetic in the
+current independent verifier `PASS` coverage. Do not encode leases, grants, or thread arithmetic in the
 plan.
 
 Correction policy must retain prior head `H1`, create one bounded correction
-commit to `H2`, rebuild the Verification Matrix and run fresh `H2` verification.
+commit to `H2`, update the Verification Matrix, run fresh affected checks and
+explicitly carry unaffected verification under the coordinator's applicability
+rule. HEAD or history changes alone do not trigger verification or review.
 Keep policy coverage fixed, rerun finding-owning and affected reviewers, and
 carry prior clean evidence only with explicit non-invalidation reasons.
 Uncertainty requires rerun. Record that `review` owns the impact map, evidence
 coverage and correction traversal rules; supply prior reports, exact delta,
-current target and fresh matrix without copying those rules.
+current target and current coverage matrix without copying those rules.
 
 Use the same proportional Acceptance threshold in every mode. A finding survives
 only when it applies to the artifact and consumer model, cites an approved

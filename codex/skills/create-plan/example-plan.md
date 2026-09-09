@@ -170,9 +170,10 @@ bounded correction and reports Task-level results with attributable evidence.
 - **Constraints:** Preserve public errors and accepted forms.
 - **Verification:** Observe the complete value and representative compatibility
   behavior.
-- **Verification Matrix:** After the commit, map every obligation to one bounded
-  check, expected observation, and `FAIL` or `BLOCKED` non-match category;
-  rebuild after a head, range, authority, or material route change.
+- **Verification Matrix:** Bind the range or exact pre-commit snapshot; map
+  every obligation to a bounded check, expected observation, and `FAIL` or
+  `BLOCKED` mismatch. Apply the coordinator's evidence-applicability rule:
+  refresh affected rows and explicitly carry unchanged coverage after commit.
 - **Dependencies:** None.
 - **PR relationship:** PR 1 against `main`; final base exists immediately.
 - **Workspace:** Herdr-managed branch `feature/input-form-parser`, starting from
@@ -195,12 +196,14 @@ bounded correction and reports Task-level results with attributable evidence.
   its ownership.
 - **Constraints:** No field loss or new formatting contract.
 - **Verification:** Observe exact new and representative existing output.
-- **Verification Matrix:** After the commit, map every obligation to one bounded
-  check, expected observation, and `FAIL` or `BLOCKED` non-match category;
-  rebuild after a head, range, authority, or material route change.
+- **Verification Matrix:** Bind the range or exact pre-commit snapshot; map
+  every obligation to a bounded check, expected observation, and `FAIL` or
+  `BLOCKED` mismatch. Apply the coordinator's evidence-applicability rule:
+  refresh affected rows and explicitly carry unchanged coverage after commit.
 - **Dependencies:** None logically.
 - **PR relationship:** PR 2 stacked on PR 1. A common-base candidate is allowed;
-  final acceptance requires restacking and fresh verification and review.
+  final acceptance requires restacking and complete current verification and
+  review coverage, mapping applicable preliminary evidence and checking gaps.
 - **Workspace:** Herdr-managed branch `feature/input-form-renderer`, starting
   from the observed implementation-base commit for candidate execution.
 - **Concurrency:** May implement with Task 1 in a separate checkout.
@@ -220,9 +223,10 @@ bounded correction and reports Task-level results with attributable evidence.
 - **Constraints:** Keep parsing and rendering in the library.
 - **Verification:** Exercise new, existing, and malformed forms through the real
   process.
-- **Verification Matrix:** After the commit, map every obligation to one bounded
-  check, expected observation, and `FAIL` or `BLOCKED` non-match category;
-  rebuild after a head, range, authority, or material route change.
+- **Verification Matrix:** Bind the range or exact pre-commit snapshot; map
+  every obligation to a bounded check, expected observation, and `FAIL` or
+  `BLOCKED` mismatch. Apply the coordinator's evidence-applicability rule:
+  refresh affected rows and explicitly carry unchanged coverage after commit.
 - **Dependencies:** Current internal acceptance of Tasks 1 and 2.
 - **PR relationship:** PR 3 stacked on PR 2.
 - **Workspace:** Herdr-managed branch `feature/input-form-cli`, starting from
@@ -245,16 +249,19 @@ have no gap.
 
 ## Staleness and correction
 
-A changed parent, restack, retarget, contract, or consumed interface makes every
-affected descendant range stale. Re-materialize the approved topology and rerun
-fresh verification and the complete task gate for changed ranges. Route a
+A changed parent, restack, retarget, contract, or consumed interface requires
+the coordinator's evidence-applicability comparison. Git identity changes alone
+retain evidence; changed consumed inputs or requirements make affected coverage
+stale. Re-materialize the approved topology and refresh only affected checks
+and reviews, retaining complete gate coverage with explicit carry-forward. Route a
 concrete in-scope finding through its owning Task Contract; return semantic or
 topology changes to approval. For a bounded correction from `H1` to `H2`, create
-one correction commit, rebuild the matrix and run fresh `H2` verification.
+one correction commit, update the matrix and run fresh affected verification,
+carrying unaffected rows with their original results and applicability reasons.
 Rerun finding-owning and affected reviewers; supply explicit non-invalidation
 evidence for other carried coverage, with uncertainty requiring rerun. `review`
 owns coverage and traversal; supply its impact map, prior reports/triage, exact
-delta, current target and fresh matrix without duplicating the rules here.
+delta, current target and current coverage matrix without duplicating the rules here.
 
 ## Publication
 

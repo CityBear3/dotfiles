@@ -37,7 +37,10 @@ and triage evidence. The Feature Lead directly re-resolves the base, head, merge
 base, range, and status to confirm that the handoff still names the current
 target, using the coordinator's completion discussion boundary. Entering the
 publication phase or the passage of time does not by itself make unchanged
-evidence stale.
+evidence stale. Apply the coordinator's evidence-applicability rule to a
+content-preserving commit or other Git identity change. Retain original reports
+and the accepted mapping to the current PR; pre-commit observations need no
+rerun solely because they are now committed.
 
 Apply the coordinator's reviewed-base/advancing-tip rule before declaring a
 base mismatch. A fast-forward of the same base branch is compatible with the
@@ -53,7 +56,8 @@ required for publication.
 Do not invoke `verify`, `review`, or `receiving-code-review`, and do not rerun
 their checks solely to create the PR. Git identity and status checks in this
 skill are publication preflight checks, not a new Acceptance gate. If the
-publication target or its controlling authority changed, or required evidence
+publication evidence is no longer applicable to the target or its controlling
+authority, or required evidence
 is missing, hold publication and return the facts, possible impact and unknowns
 to the Feature Lead for shared problem understanding with the engineer. Do not
 automatically reopen verification, review, triage or correction. Discuss the
@@ -63,7 +67,9 @@ engineer's applicable authority. Do not recreate Acceptance evidence inside
 
 Stop if the branch, reviewed base, range, ancestry, applicable accepted or legacy
 completion evidence, or status differs from the approved publication target,
-except for a confirmed compatible base-tip advance as described above. A
+unless the identity change is authorized and evidence applicability is
+established as above. An evidence comparison never authorizes retargeting,
+rewriting history or publishing different refs. A
 candidate or stale task is not publishable. Do not push a missing branch,
 retarget a PR, or restack history from this skill.
 

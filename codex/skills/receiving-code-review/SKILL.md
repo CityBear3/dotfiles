@@ -29,8 +29,9 @@ Require:
 - target kind; exact task workspace and branch, planned PR base, merge base,
   current head and range, or exact integration composition; diff, status, and
   changed files;
-- fresh verification `PASS` and either workflow review `FINDINGS` or complete
-  human review feedback anchored to that same unchanged head and range;
+- current verification `PASS` and either workflow review `FINDINGS` or complete
+  human review feedback attributable to the target, retaining its original
+  anchor and any explicit applicability comparison;
 - for workflow `FINDINGS`, complete source reports plus either the required
   `finding-integrator` report for the unchanged target or review's explicit
   simple-finding direct-triage eligibility record; direct human feedback does
@@ -195,8 +196,9 @@ the exact safe re-entry condition. Do not report provisional classifications.
 
 An authorized coordinator-managed `Fix` does not need another approval when it
 remains within scope. A Task PR fix still requires bounded implementation, a
-single correction commit and new head `H2`, a rebuilt current-head Verification
-Matrix and fresh `H2` verification. The owner supplies review's impact map;
+single correction commit and new head `H2`, a current-target Verification Matrix
+and fresh affected verification with explicit carry-forward for unaffected rows
+under the coordinator's applicability rule. The owner supplies review's impact map;
 finding owners and affected perspectives rerun, while other prior clean
 evidence needs concrete non-invalidation reasons. Uncertainty means rerun.
 Rerun reviewers receive prior evidence, the `H1..H2` delta, and full

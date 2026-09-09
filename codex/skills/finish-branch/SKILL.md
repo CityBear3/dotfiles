@@ -33,7 +33,7 @@ For task mode inspect:
 - Task DAG and PR topology position, workspace, branch, planned base ref and
   exact commit, merge base, current head, exact range, status, diff, changed
   files, and commits;
-- fresh task verification `PASS` and a policy-complete gate closed by review
+- current task verification `PASS` and a policy-complete gate closed by review
   `CLEAN` or by review `FINDINGS` with required integration or explicit direct-
   triage eligibility and current `Push back` triage for every item on that
   same unchanged range;
@@ -57,7 +57,7 @@ For lightweight mode inspect:
   request authority and design sources, Review context, and Review policy;
 - its exact workspace, branch, planned base ref and commit, merge base, current
   head, range, status, diff, changed files, and commits;
-- fresh verification `PASS` and a policy-complete gate closed by `CLEAN` or by
+- current verification `PASS` and a policy-complete gate closed by `CLEAN` or by
   same-target `FINDINGS` with required integration or explicit direct-triage
   eligibility and every item currently classified `Push back`;
 - the coordinator's Feature Accepted result for that unchanged exact Task PR;
@@ -164,7 +164,8 @@ refs and operations it names.
 ## Revalidate before a state change
 
 The Feature Lead performs this bounded read-only check directly under the
-coordinator's completion discussion boundary. Reuse the accepted evidence;
+coordinator's completion discussion boundary and evidence-applicability rule.
+Reuse accepted evidence, including explicitly mapped pre-commit observations;
 do not dispatch a reviewer or reconstruct an Acceptance gate for publication.
 
 Before any selected operation, re-resolve:
@@ -180,7 +181,8 @@ tip update as changed acceptance evidence. A confirmed compatible fast-forward
 preserves the original Task evidence and permits authorized publication without
 re-review. It does not authorize a changed merge destination object or other
 operation outside the user's approved values. If the actual target, authority,
-or dependencies changed, or required evidence is missing, preserve state and
+or dependencies changed in a way that invalidates required evidence, or required
+evidence is missing, preserve state and
 hold the affected operation. Share the facts, possible impact and unknowns with
 the engineer through the Feature Lead. Reach shared problem understanding before
 discussing a response; do not autonomously dispatch checks, triage or correction.
@@ -199,8 +201,13 @@ this skill started the same attributable merge from the recorded clean prestate
 and abort is safe for unrelated data. Otherwise preserve partial state; never
 reset, clean, retry, or discard to recover.
 
-After success, run the required post-merge verification for the destination
-head. If it fails, preserve and report the result; do not reset, publish, or
+After success, compare the destination content and relevant inputs with the
+accepted source under the coordinator's applicability rule. Reuse applicable
+evidence; a merge commit alone does not trigger verification or review. Execute
+only an explicitly required post-merge obligation whose evidence is uncovered
+or invalidated and whose execution is authorized. Missing or uncertain evidence
+follows the completion discussion boundary. If a check fails, preserve and
+report the result; do not reset, publish, or
 continue landing descendants.
 
 ## Execute the selected choice

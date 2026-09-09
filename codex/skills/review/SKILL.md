@@ -19,12 +19,13 @@ supplied integration contract and report, never this owner's orchestration.
 ## Bind target and authority
 
 For a Task PR require the exact workspace, branch, planned base/commit, merge
-base, committed head/range, diff, changed files and starting status; current
+base, head/range or exact pre-commit snapshot, diff, changed files and starting
+index/worktree/relevant untracked status; current
 approved authority and assigned obligations; ownership/shared interfaces and
-dependency evidence; fresh verification PASS and completed matrix for the same
-unchanged target; Review context and complete selected policy; effective
+dependency evidence; current verification PASS and completed coverage matrix
+applicable to that target; Review context and complete selected policy; effective
 allocations, pending order and relevant prior reports/triage. No unexplained
-in-scope state may sit outside the committed range.
+in-scope state may sit outside the bound range or snapshot.
 
 Planned authority is the approved Design sources, Feature Contract, Task
 Contract and applicable Implementation Plan. Lightweight authority is the
@@ -34,7 +35,7 @@ unchanged authority, topology, profiles and gates; use its prior coherent assets
 or stop for recovery/migration rather than silently applying the new policy.
 
 Integration requires exact accepted Task inputs, approved deterministic
-composition/tree (or accepted lightweight head/tree), fresh integration PASS
+composition/tree (or accepted lightweight head/tree), current integration PASS
 and only the named integration-only obligation and policy-selected cross-Task
 surface. Do not replay ordinary Task reviews over a synthetic full Feature
 range.
@@ -65,7 +66,9 @@ No implementation authorization, Herdr workspace or plan is required.
 Without policy, choose only perspectives justified by observed risk: a focused
 general pass for the bounded target, plus appropriate named risk or design
 alignment perspectives. Record reasons and limitations. Label every result
-`standalone-only`; it never substitutes for a committed Task or Feature gate.
+`standalone-only`; it is not Task or Feature Acceptance. Later Task use requires
+the coordinator's mapping of actual authority, coverage, independence and
+allocations; preserve the original report and record applicability separately.
 An explicit no-agent standalone request permits sequential lead perspectives
 and conditional integration, with no claim of independent evidence.
 
@@ -109,7 +112,9 @@ Task gate until the engineer resolves policy; a lead pass cannot substitute.
 
 Use `agent-teams-driven-development` with each already-selected profile and
 its exact approved allocation. Independent normal reviewers may run
-concurrently only after fresh verification on unchanged source. Runtime
+concurrently only after current verification covers the target. Apply the
+coordinator's evidence-applicability rule first; with complete applicable review
+coverage, return its mapping without another reviewer invocation. Runtime
 rejection retains the same role pending in policy order; bounded responsive
 waiting and retry after progress never lowers coverage.
 
@@ -127,22 +132,21 @@ re-entry. Completion/publication currentness checks belong directly to the
 Feature Lead. A concern found there first follows the coordinator's shared
 problem discussion boundary; do not start a correction review automatically.
 
-Apply the coordinator's reviewed-base/advancing-tip rule before entering a
-correction review. A confirmed fast-forward of the same base branch with
-unchanged reviewed target, authority and relied-on dependencies preserves prior
-coverage; it does not require a reviewer invocation or an H1-to-H2 impact map.
-Keep the original report/head and the tip comparison as evidence. Here, a base
-change means a change to the reviewed base, merge base, range or relied-on
-context, not the compatible branch-tip advance alone.
+Apply the coordinator's evidence-applicability and reviewed-base/advancing-tip
+rules before entering correction review. A content-preserving commit or other
+Git identity change with unchanged relevant inputs retains prior coverage;
+record the comparison without dispatching a reviewer. Keep original reports
+and targets. A changed relied-on base/context needs impact assessment even
+when the patch text is identical.
 
 The policy-selected coverage set stays fixed. A bounded H1-to-H2 correction
-always requires fresh H2 verification, but not a fresh invocation of every
-reviewer. Require the loop owner's impact map connecting correction files and
+requires fresh affected verification and current complete coverage, not a fresh
+invocation of every check or reviewer. Require the loop owner's impact map connecting correction files and
 behaviors to perspectives, plus H1/H2, exact correction/triage, prior reports,
-full current range and fresh completed matrix.
+full current range or snapshot and completed current coverage matrix.
 
 Always rerun finding-owning reviewers and every affected perspective. Carry
-prior clean evidence only when its exact head/report exists and concrete
+prior clean evidence only when its exact original target/report exists and concrete
 non-invalidation evidence shows unchanged owned behavior, tests, interfaces,
 responsibilities, authority, verification strategy and relied-on callers or
 shared boundaries. Record the original report/head and reason as carried
@@ -160,7 +164,7 @@ callers, tests and obligations, with full base..H2 access. Use full current
 target traversal when the correction escapes its bounded scope, authority/base
 or an owned shared/risky surface materially changes, prior evidence is missing,
 impact cannot be bounded, or targeted inspection reveals another regression.
-A changed head alone does not require full traversal.
+A changed head alone does not require any reviewer invocation.
 
 Return a coverage map identifying each selected perspective as fresh, explicitly
 carried, pending or blocked, with attributable reports and reasons. Do not
@@ -230,7 +234,7 @@ same contract sequentially but must disclose absent independence.
 ## Report to the owning loop
 
 Return exact target and starting/ending source state; authority/obligations
-inspected; context/policy and standalone limitations; fresh verification
+inspected; context/policy and standalone limitations; current verification
 evidence; selected perspectives/allocations, reports, pending order and
 interruption evidence; coverage map including original heads and reasons for
 carried evidence; integration trigger/result or direct-triage eligibility;
@@ -238,7 +242,7 @@ findings, separate authority/policy gaps, concerns, any useful cross-session
 discovery candidates and exact re-entry conditions.
 
 - CLEAN: all required applicable coverage is fresh or explicitly non-invalidated,
-  sources are clean, verification is fresh, target unchanged, and no policy,
+  no unexplained source state exists, verification is current, and no policy,
   design or evidence gap remains.
 - FINDINGS: complete source findings plus required integration evidence or
   explicit direct-triage eligibility; priority authority escalation includes
