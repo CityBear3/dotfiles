@@ -41,7 +41,7 @@ engineer and an agreed response and execution authority. A concern found during
 completion/publication first follows the coordinator's discussion boundary;
 it does not automatically enter verification or correction review here.
 
-## Write, inspect and commit
+## Write and inspect the exact target
 
 The Feature Lead implements directly and retains all Task state. Batch
 independent discovery only until the next result-dependent decision. Apply
@@ -51,24 +51,29 @@ and oracle; required-but-blocked discipline prevents implementation.
 Implement only the owned responsibility, preserve unrelated changes and run
 focused writer checks plus contractually required pre-commit commands. Do not
 repeat the full authoritative suite unless required. Inspect changed files,
-diff and contract coverage, then use `commit` for the authorized bounded
-commit. Record discipline, expected/observed command results, commit and exact
-new Git target. No separate writer message, writer status protocol or writer
+diff and contract coverage. Use `commit` for the authorized bounded commit
+before or after the independent gates. When checking before commit, bind the
+complete staged/unstaged/relevant untracked snapshot under the approved Task
+authority; commit it unchanged and record the coordinator's applicability
+comparison before Acceptance. Record discipline, observed results, commit and
+exact target. No separate writer message, writer status protocol or writer
 subagent is needed.
 
 A commit and writer checks are candidate evidence, not independent acceptance.
 
 ## Independently verify and review
 
-Build the complete current-head matrix specified by `verify`, including
+Build the complete current-target matrix specified by `verify`, including
 exact rows/directories/environment, expected observations and mismatch
 classifications, source-state pre/final checks and allowed ignored artifacts.
-Head/range/authority/material-route changes invalidate it.
+Apply the coordinator's evidence-applicability rule and preserve covered rows;
+Git identity changes alone do not invalidate evidence.
 
-Dispatch verification-runner through `agent-teams-driven-development`.
+Dispatch verification-runner through `agent-teams-driven-development` for fresh
+required rows only, with current pre/final state checks.
 The runner executes only supplied rows. This Feature Lead interprets failures
-and diagnoses before in-scope correction. Only fresh PASS on the unchanged
-target permits `review`.
+and diagnoses before in-scope correction. Only complete current PASS coverage
+applicable to the target permits `review`.
 
 Dispatch the independent focused-reviewer with the combined contract, exact
 verified target, raw matrix observations, Review context/policy and relevant
@@ -77,8 +82,8 @@ Do not add a separate test reviewer merely because behavior changed.
 Additional perspectives require existing explicit policy authority; a risk that
 invalidates lightweight eligibility returns to planned discussion.
 
-Require independent gates; writer self-checks, lead prose or standalone results
-cannot replace them. Rejected native spawns stay pending in order, and leaves
+Require independent gates; writer self-checks, lead prose or unmapped standalone
+results cannot replace them. Rejected native spawns stay pending in order, and leaves
 never spawn descendants. Keep source edits separate from active checks.
 
 For FINDINGS, `review` supplies either required finding-integrator evidence or
@@ -94,7 +99,8 @@ Retain H1, reports, triage, observed attempts and the complete selected coverage
 The same Feature Lead implements the bounded correction and commits H2. Do not
 route it through execute-plan or create planned cache artifacts.
 
-Rebuild the matrix and run fresh H2 verification. Supply `review` the H1..H2
+Update the matrix, run fresh affected rows and explicitly carry unaffected
+verification under the coordinator's applicability rule. Supply `review` the H1..H2
 delta, full current target, prior reports/triage and explicit impact map.
 Rerun finding owners and affected perspectives; carry other coverage only with
 concrete non-invalidation evidence. Uncertainty requires rerun. The selected
@@ -113,7 +119,7 @@ uncertain state.
 Return to `agentic-engineering-workflow`:
 
 - Accepted only for the exact current authoritative range with every obligation
-  covered, fresh verification, required independent review evidence and no
+  covered, current verification, required independent review evidence and no
   unresolved Fix/Escalate;
 - BLOCKED for missing safe state, command, permission, allocation, evidence or
   required independent role;

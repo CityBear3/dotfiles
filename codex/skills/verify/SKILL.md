@@ -17,7 +17,8 @@ boundary.
 Resolve directly through Git one target:
 
 - Task PR: authority identity/currentness, workspace, branch, exact planned
-  base, merge base, committed head/range, changed files and status;
+  base, merge base, head/range or exact pre-commit snapshot, changed files and
+  index/worktree/relevant untracked status;
 - integration: exact composed tree, ordered accepted input heads/trees and
   named integration-only obligations, or the accepted lightweight head/tree;
 - standalone: committed range, current staged/unstaged/untracked snapshot, or
@@ -25,10 +26,11 @@ Resolve directly through Git one target:
 
 Keep full applicable authority directly readable. Task verification needs no
 prior Task Accepted result or review. Require no unexplained in-scope state
-outside a committed Task range. Integration verifies only its named remaining
+outside the bound range or snapshot. Integration verifies only its named remaining
 obligations, not a replay of accepted Task checks. Lightweight authority is the
 recoverable combined contract; do not add a plan, DAG, or contract file.
-Standalone results are labeled `standalone-only` and cannot satisfy Task gates.
+Standalone results retain the label `standalone-only`; later Task use requires
+the coordinator's explicit applicability, obligation and independence mapping.
 Eligible legacy inputs require their exact unchanged approved execution
 authority; no silent migration or new contract artifacts.
 
@@ -43,7 +45,7 @@ The loop owner, not the runner, maps each required observable obligation to:
 Define the precondition and final mutation checks, including their commands,
 expected values and mechanically comparable fingerprints. Include source/index
 and relevant untracked state, not just HEAD. For clean Task ranges, use bounded
-target/clean-state and source observations; for dirty standalone snapshots,
+target/clean-state and source observations; for pre-commit or standalone snapshots,
 include staged, unstaged, untracked and bounded-file content. This is an
 in-memory current-target matrix, not a new persistent schema.
 
@@ -55,15 +57,22 @@ A formatter must have a documented non-mutating mode. Command choice,
 sufficiency, ordering, environmental safety and diagnosis remain owner decisions.
 A missing or ambiguous row prevents dispatch; never ask the runner to invent it.
 
-Any change to head, range, source snapshot, controlling authority or material
-verification route invalidates the matrix. Fresh verification is required on
-every corrected head. Writer-side focused checks and TDD history are not this
-independent gate.
+Apply the coordinator's evidence-applicability rule before dispatch. Bind the
+matrix to the current target and identify each required row as supported by
+original PASS evidence and an explicit applicability comparison, or requiring
+fresh execution. Content, dependencies, requirements or execution-condition
+changes invalidate affected rows; missing or uncertain coverage requires fresh
+checks during authorized work. HEAD/range identity changes alone do not.
+Retain original commands, observations, pre/final state checks and provenance;
+do not rewrite old observations to match a new target. Prepare current pre/final
+checks for any fresh runner invocation. With complete applicable PASS coverage,
+return the evidence mapping without dispatch. Writer checks and TDD history
+cannot supply this independent gate.
 
 Under the coordinator's reviewed-base/advancing-tip rule, a confirmed compatible
 base-tip advance leaves Task verification current on its original target; do
 not rebuild or execute its matrix for that alone. A latest-base integration
-matrix still requires fresh execution when its actual composition inputs change.
+matrix requires fresh affected rows when their actual composition inputs change.
 
 Required freshness does not authorize reopening a completed loop. Missing or
 stale evidence found at completion/publication first returns to the Feature Lead
@@ -75,7 +84,9 @@ within active approved work or the engineer-authorized response.
 Select `verification-runner` at the preapproved Luna/low allocation through
 `agent-teams-driven-development` in the owning session. Resolve its effective
 check-only contract before dispatch. Send only the exact target, matrix,
-environment, source-state comparisons and result contract; omit unrelated
+environment, source-state comparisons and result contract. Send the ordered
+fresh rows plus their pre/final checks; keep carried rows and their provenance
+in the owner's complete coverage map. Omit unrelated
 Review policy, topology, previous transcripts and discovery-cache duties.
 
 No runner may dispatch another runner. A rejected spawn remains pending until

@@ -59,8 +59,9 @@ reviewer and conditional finding-integrator leaves directly. Runtime admission d
 roles start; retain a rejected spawn as pending and retry after a completion or
 mailbox event without reducing selected scope. When the user explicitly
 prohibits agents, the lead may run compatible checks and perspectives
-sequentially. Label the result `standalone-only`; never use it as Task,
-coordinator, or Acceptance evidence.
+sequentially. Label the original result `standalone-only`. It is not Task or
+Feature Acceptance; any later use must pass the evidence-applicability and
+coverage mapping below. Lead-only checks cannot supply an independent gate.
 
 ## Use the lightweight path only when fully eligible
 
@@ -183,9 +184,9 @@ Give `execute-lightweight-task` one plain-language task handoff containing:
 - the responsibility-scoped commit intent and writer authority to select its
   message unless the request contractually fixes that message;
 - the applicable verification route and expected observations, including the
-  root-owned Task-loop owner's obligation to build one in-memory current-head
-  Verification Matrix after the commit and invalidate it on a head, range,
-  controlling-authority, or material-route change;
+  root-owned Task-loop owner's obligation to bind an in-memory current-target
+  Verification Matrix before dispatch, including a pre-commit snapshot when
+  appropriate, and apply the evidence-applicability rule below;
 - attributable commits, prior verification and review, concerns, gaps, and
   re-entry evidence when applicable;
 - the root-owned lightweight loop identity, selected or pending roles, and
@@ -201,7 +202,8 @@ corrections in this coordinator.
 
 When an authorized lightweight correction re-enters `execute-lightweight-task`,
 retain H1, reports/triage and the complete selected coverage. Require a bounded
-H2 commit and rebuilt matrix with fresh H2 verification. The loop owner supplies
+H2 commit and a current matrix with fresh affected checks and explicitly carried
+unaffected verification. The loop owner supplies
 review's impact map; finding owners and affected reviewers rerun, while carried
 coverage needs explicit non-invalidation evidence. Uncertainty means rerun.
 `review` owns those rules. Ordinary planned corrections stay inside the
@@ -466,7 +468,40 @@ evidence required by its unchanged plan.
 
 Require no unexplained in-scope state in any task checkout. Re-read affected
 branches, bases, heads, ranges, worktrees, and status before every transition.
-Standalone verification or review never substitutes for coordinator evidence.
+Standalone reports alone never constitute coordinator Acceptance.
+
+### Reuse evidence by applicability
+
+HEAD, branch, commit message or history changes alone do not invalidate
+verification or review. The owning lead compares the actual target content and
+relied-on context: relevant files (including modes, symlinks and untracked or
+generated inputs), base/dependencies/shared interfaces, approved requirements,
+and commands, environment and verification conditions. Git metadata matters
+when it is itself an input to the behavior or check. A matching diff alone
+does not prove unchanged base context; unchanged HEAD does not prove unchanged
+worktree content.
+
+Retain each original report, observed target/snapshot, commands, results and
+independence. Record the current target and a bounded, concrete comparison
+showing which obligations and reviewer perspectives that evidence still covers.
+Do not relabel carried results as newly executed or newly reviewed. Current
+evidence means fresh observations or explicitly supported carry-forward, not
+necessarily a new invocation. No new evidence store or schema is required.
+
+Independent pre-commit evidence may cover the resulting committed Task when
+its snapshot and relevant inputs match. For earlier standalone reports, also
+map the actual inspected authority, obligations, reviewer coverage and fixed
+allocations to the approved Task policy. Keep the standalone report's original
+label; the owner records its applicability separately. Neither a label change,
+writer self-check nor missing independence satisfies a Task gate. Verify or
+review only uncovered or invalidated obligations; unresolved findings stay open.
+
+During active approved work, actual input or requirement changes require an
+impact map and fresh affected checks/review under the phase skills. Uncertain
+applicability or missing evidence is a gap to resolve, not proof of equivalence.
+Preserve unaffected evidence with explicit reasons and the full required
+coverage. Evidence applicability does not authorize execution: at completion
+or publication, follow the discussion boundary below before reopening work.
 
 ### Distinguish a reviewed base from an advancing branch tip
 
@@ -485,8 +520,9 @@ the new observed tip and comparison result. A tip-only update requires neither
 fresh verification/review nor a return to the Task loop, including at PR
 creation. Do not dispatch reviewers merely to establish that equivalence.
 
-During active execution, a changed head, merge base, PR range/diff, authority or
-relied-on dependency follows the owning loop's impact and invalidation rules.
+During active execution, changed Git identities prompt the applicability
+comparison above; actual changed inputs or requirements follow the owning
+loop's impact and invalidation rules.
 A retarget, rewritten base history, or missing evidence does not qualify for the
 tip-only exception. At completion/publication, use the engineer discussion
 boundary below instead of automatically reopening that loop.
@@ -519,12 +555,13 @@ Advance automatically within approved local scope:
    current-composition matrix, including commands, mechanical expectations and
    mutation checks. Pass only that matrix, target, environment and evidence to
    `verify`; dispatch its native runner in the Feature session. Accept only
-   fresh `PASS` for the unchanged composition.
+   current `PASS` covering the exact composition under the applicability rule.
    Diagnose a `FAIL` before correction. Route an authorized planned correction
    through its owning Task Contract in `execute-plan`; route an authorized
    lightweight correction directly to its combined-contract Task in
-   `execute-lightweight-task`. After the new Task head passes its complete fresh
-   task gate, rerun the same named integration evidence.
+   `execute-lightweight-task`. After the corrected Task has complete current
+   gate coverage, refresh affected named integration evidence and explicitly
+   carry unaffected evidence.
 5. Invoke `review` only when the approved policy requires or conditionally
    triggers a targeted integration perspective. Pass the same exact integration
    authority and evidence to every selected reviewer. Do not invoke ordinary
@@ -537,9 +574,9 @@ Advance automatically within approved local scope:
    through `execute-plan`, mark only semantically affected results and their
    transitive dependents stale, and rerun fresh affected task and integration
    evidence. For lightweight work, route the `Fix` directly to its
-   combined-contract Task through `execute-lightweight-task`, then rerun its
-   complete fresh task gate and the same named integration evidence on the new
-   head. Preserve
+   combined-contract Task through `execute-lightweight-task`, then establish
+   complete current task coverage and refresh affected named integration
+   evidence. Preserve
    `Push back` while its target and controlling evidence remain unchanged.
    Retain an independent out-of-scope valid problem as a non-blocking concern
    without expanding the current Task or creating a backlog. Return a
@@ -580,7 +617,8 @@ for this check. It is a currentness check, not a new Acceptance gate or a
 substitute for the completed independent review.
 
 If no concern remains, continue the already-authorized completion/publication
-operation. A compatible base-tip advance alone does not require discussion.
+operation. A Git identity change with established evidence applicability,
+including a compatible base-tip advance, does not require discussion by itself.
 If a material mismatch, missing required evidence, or possible behavior problem
 appears, preserve the original evidence and hold the affected operation. Share
 the observed facts, expected behavior, possible impact and remaining unknowns
@@ -609,8 +647,9 @@ discussion boundary above before routing the anchored feedback to triage or a
 correction loop. Once the response and execution are authorized, use
 `receiving-code-review` where applicable, preserve an accepted result for a
 verified `Push back`, and route an authorized `Fix` through the owning Task
-Contract and correction loop. A new head makes affected descendants stale
-through both topologies. Return `Escalate` to the owning approval gate. Any
+Contract and correction loop. Changed consumed inputs or requirements make
+affected descendants stale through both topologies; a new head alone does not.
+Return `Escalate` to the owning approval gate. Any
 resulting push, restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to

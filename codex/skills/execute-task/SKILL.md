@@ -118,28 +118,32 @@ A promotion reconciliation likewise inspects the original-base envelope and
 uses existing commits; create only an explicitly declared artifact/correction
 commit when necessary.
 
-## Run independent current-head gates
+## Run independent current-target gates
 
-After the committed head and exact range resolve, construct the complete
-in-memory Verification Matrix defined by `verify`. Map every observable
+Resolve the committed range or an exact pre-commit Task snapshot, then construct
+the complete in-memory Verification Matrix defined by `verify`. For a snapshot,
+commit it unchanged and record applicability to the resulting range before
+Acceptance. Map every observable
 obligation to stable row ID, authority, exact non-mutating command/check,
 directory/environment, expected observation and mechanical mismatch status.
 Include source-state pre/final checks and allowed ignored artifacts.
-Head/range/authority/material-route changes invalidate the matrix.
+Apply the coordinator's evidence-applicability rule to affected rows; a Git
+identity change alone does not invalidate the matrix's existing observations.
 
 Invoke `verify` with only its exact target, matrix, environment and mutation
-boundary. Dispatch the preapproved native verification-runner once through
+boundary for required fresh rows. Retain carried rows with original evidence and
+applicability reasons. Dispatch the preapproved native verification-runner through
 `agent-teams-driven-development`. Never ask it to choose checks, diagnose,
 judge adequacy, or make Acceptance decisions. A FAIL is interpreted by this
 Task Lead against authority; diagnose before correction. BLOCKED is not clean.
 
-Only after fresh PASS on the unchanged target invoke `review`. Normally
+Only after complete current PASS coverage for the target invoke `review`. Normally
 dispatch independent spec-reviewer and implementation-quality-reviewer
 concurrently, plus only plan-selected required or triggered perspectives.
 Send each its own authority/target evidence, raw matrix observations and
 relevant prior reports; do not proxy this through the Feature Lead.
-Gate independence cannot be replaced with writer self-checks or standalone
-results. No-agent conflicts require owner policy authority, not a silent lead
+Gate independence cannot be replaced with writer self-checks or unmapped
+standalone results. No-agent conflicts require owner policy authority, not a silent lead
 substitute.
 
 `review` returns CLEAN, FINDINGS or BLOCKED and owns perspective coverage and
@@ -161,21 +165,22 @@ complete policy-selected coverage set. This same Task Lead applies only the
 authorized bounded correction and creates a separate correction commit H2.
 No new implementer session or repeated writer handoff is needed.
 
-Revalidate base/head/range/status, rebuild the matrix and run fresh verification
-on H2. Prepare the `review` impact map: correction files/behaviors, finding
+Revalidate base/head/range/status, update the matrix and run fresh affected
+verification on H2, explicitly carrying unaffected rows. Prepare the `review`
+impact map: correction files/behaviors, finding
 owners, affected perspectives and concrete evidence for each proposed
 carry-forward. Always rerun finding-owning and semantically affected reviewers;
 uncertainty means rerun. The selected policy coverage is unchanged even when
 only a subset needs a fresh invocation. Missing prior evidence cannot carry.
 
 Give rerun reviewers H1/H2, correction delta, full current range, prior
-report/triage, exact authority and fresh matrix. `review` owns targeted/full
+report/triage, exact authority and current coverage matrix. `review` owns targeted/full
 traversal and carry-forward validation; do not duplicate its rules here.
 Reintegrate only when its triggers hold, then triage the current target.
 A changed reviewed base/context, authority or shared surface invalidates all
 affected evidence and may require Feature-level re-entry. A confirmed compatible
 base-tip advance preserves existing acceptance without entering this correction
-loop. Never carry old verification forward onto a changed verification target.
+loop. Carry verification only with the coordinator's applicability evidence.
 
 Stop repeated correction without progress with attempts and the exact gap.
 Do not invent another tracking schema, broaden the Task or raise the model.
@@ -202,7 +207,7 @@ evidence directly accessible; send compact result plus references, not repeated
 local transcripts.
 
 Accepted requires the exact authoritative range, all obligations proved by
-fresh verification and independent review coverage, and every finding closed
+current verification and independent review coverage, and every finding closed
 by verified correction or current justified Push back. Task Lead reports this
 evidence-backed result despite being its writer; it is not self-approval.
 Only the Feature Lead validates cross-Task currentness, releases dependents and

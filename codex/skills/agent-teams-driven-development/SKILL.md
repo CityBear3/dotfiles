@@ -42,7 +42,8 @@ timeout. When work is known to take longer, use a longer timeout within the
 active tool and responsiveness limits. Keep waits bounded and event-responsive;
 do not busy-poll unchanged state or prevent required user updates.
 
-Normal reviewers may run concurrently after fresh runner `PASS`. Do not
+Normal reviewers may run concurrently after current independent `PASS` coverage,
+including explicitly carried evidence under the coordinator's applicability rule. Do not
 overlap source edits with verification or review of that source, run duplicate
 checks, integrate incomplete ordinary reports, or correct before triage.
 Inspect live identities only when duplicate prevention, liveness, interruption,

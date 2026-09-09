@@ -37,9 +37,11 @@
 - Keep verification mechanical and independent review mandatory for Task
   Acceptance. Integrate findings only for overlap, conflict, authority defects,
   scope-sensitive remedies, or non-trivial attribution; simple clear findings
-  may proceed directly to evidence-based triage. Every new head requires fresh
-  verification; rerun finding-owning and affected reviewers, carrying forward
-  other evidence only with explicit non-invalidation reasons.
+  may proceed directly to evidence-based triage. Reuse verification and review
+  when their content, dependencies, requirements and execution conditions remain
+  applicable; HEAD or history changes alone do not trigger reruns. Preserve
+  original evidence and explicit applicability reasons. For actual corrections,
+  rerun affected checks and finding-owning/affected reviewers.
 - Keep problem validity separate from remedy validity, return confirmed Design
   authority defects to the engineer early, and retain independent out-of-scope
   problems as non-blocking concerns rather than expanding the Task. Previously

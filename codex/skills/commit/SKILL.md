@@ -27,7 +27,10 @@ Stop when there is nothing to commit. Preserve unrelated changes and never stage
 
 ## Verify
 
-Run the validation required by the repository or approved plan before committing. Inspect the staged diff and run `git diff --cached --check`.
+Establish the validation required by the repository or approved plan before
+committing. Reuse applicable observed results under the coordinator's
+evidence-applicability rule; do not rerun checks solely to make a commit.
+Inspect the staged diff and run `git diff --cached --check`.
 
 ## Commit
 
@@ -35,4 +38,5 @@ Use the repository's established message style. Prefer an imperative subject tha
 
 Do not amend, force, push, or publish unless the user explicitly requests that action.
 
-Report the commit hash, subject, included scope, and fresh verification evidence.
+Report the commit hash, subject, included scope, and observed verification
+evidence with its original target and any applicability comparison.

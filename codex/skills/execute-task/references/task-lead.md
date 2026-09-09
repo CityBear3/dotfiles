@@ -12,7 +12,8 @@ contract whether assigned Sol or Astra. Missing, unavailable, conflicting or
 unobservable allocation is BLOCKED; do not change models or effort mid-loop.
 
 Implement, run focused writer checks, inspect and commit within the assigned
-authority. Construct the current-head matrix and invoke independent native
+authority. Construct the current-target matrix, apply the coordinator's evidence
+applicability rule, and invoke only needed independent native
 runner and policy-selected reviewer leaves. Keep triage and bounded corrections
 local. There is no separate implementer. Leaves have no descendants and no
 source-write authority. Never use your own checks as independent gate evidence.
