@@ -26,9 +26,12 @@ The runner is Luna/low, focused-reviewer Sol/high, and conditional
 finding-integrator Sol/high. Resolve effective bindings before the first edit.
 Feature Lead remains on its session defaults. No runtime promotion or fallback.
 
-Reject planned-only authority, unexplained state, missing or unrecoverable
-contract, or a starting HEAD mismatch. For Acceptance require the exact reviewed
-base commit to be an ancestor of the current reviewed head, not the latest tip
+Hold phase entry for planned-only authority, unexplained state, missing or
+unrecoverable contract, or a starting HEAD mismatch. Apply the coordinator's
+continuation rules to recover directly discoverable inputs and evidence, then
+revalidate; never invent authority or discard uncertain state. For Acceptance
+require the exact reviewed base commit to be an ancestor of the current reviewed
+head, not the latest tip
 of its base branch. Apply the coordinator's reviewed-base/advancing-tip rule:
 a confirmed compatible tip advance preserves acceptance without re-entering
 verification or correction review. A new architecture, public
@@ -72,8 +75,10 @@ Git identity changes alone do not invalidate evidence.
 Dispatch verification-runner through `agent-teams-driven-development` for fresh
 required rows only, with current pre/final state checks.
 The runner executes only supplied rows. This Feature Lead interprets failures
-and diagnoses before in-scope correction. Only complete current PASS coverage
-applicable to the target permits `review`.
+and diagnoses before in-scope correction. A BLOCKED report returns its gap to
+this loop for authorized recovery and resumption of the pending gate; it is not
+an automatic engineer escalation or end of work. Only complete current PASS
+coverage applicable to the target permits `review`.
 
 Dispatch the independent focused-reviewer with the combined contract, exact
 verified target, raw matrix observations, Review context/policy and relevant
@@ -92,6 +97,11 @@ an explicit simple-finding direct-triage eligibility record. Apply
 authorized Fix items, preserve justified Push back and non-blocking independent
 out-of-scope concerns, and immediately return user-owned authority defects.
 Do not start corrections from raw, untriaged findings.
+
+Apply the TDD history/current-evidence boundary before treating a procedural
+finding as a deviation. Disclose a history-only gap and continue current gates
+after justified Push back; ordinary procedure instructions do not make history
+an independent Acceptance condition or require an exception approval.
 
 ## Correct locally and recover safely
 
@@ -122,7 +132,8 @@ Return to `agentic-engineering-workflow`:
   covered, current verification, required independent review evidence and no
   unresolved Fix/Escalate;
 - BLOCKED for missing safe state, command, permission, allocation, evidence or
-  required independent role;
+  required independent role after available authorized recovery cannot resolve
+  the gap;
 - Escalate for a user-owned decision, policy conflict, material deviation,
   promotion or repeated non-progress.
 
@@ -132,3 +143,9 @@ any carry-forward, integration/triage, concerns, pending identities/allocations,
 attempts and re-entry conditions. Accepted is an independent-evidence-backed
 report by the writer, not unilateral self-approval. It ends this loop; the
 coordinator owns any named integration-only obligation and Feature Acceptance.
+
+When the Feature Lead resumes its coordination or publication role, consume
+this Accepted result under the coordinator's boundary. Keep detailed gate
+evidence accessible, but do not repeat local quality judgments or checks merely
+because the same lead changed phases. Only the named integration obligations
+remain outside this Task decision.

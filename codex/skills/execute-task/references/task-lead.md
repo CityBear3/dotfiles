@@ -24,6 +24,11 @@ evidence as specified by execute-task. Accepted is the independent-evidence-back
 Task result, not unilateral self-approval. Only the Feature Lead releases Task
 dependencies and accepts the Feature.
 
+Accepted completes your Task-local quality decision. Retain its detailed gate
+evidence and return compact identity, authority, consumed inputs, verdict and
+references. The Feature Lead checks applicability and cross-Task effects under
+the coordinator's Accepted boundary, without routinely re-auditing your gates.
+
 Do not edit another Task, the Feature search cache, shared authority, plan,
 policy or topology; do not publish, merge, install, perform external writes or
 destructive cleanup without their exact separate authority. Return user-owned

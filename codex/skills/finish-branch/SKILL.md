@@ -24,6 +24,14 @@ Do not use planned task mode as feature completion or require Feature Accepted
 before an individual planned Task PR may be published. Do not force lightweight
 work into planned task or feature evidence forms.
 
+Consume current Task Accepted results under the coordinator's Accepted
+boundary. Completion consumes the established local quality verdict and its
+evidence references; it does not re-audit Task matrices, raw reports or reviewer
+judgments. The checks below resolve the result's identity and applicability to
+the selected operation, along with remaining named integration obligations.
+Inspect detailed Task evidence only for a concrete discrepancy or requested
+diagnosis. Eligible legacy work retains its unchanged completion contract.
+
 ## Require current Task PR evidence
 
 For task mode inspect:
@@ -33,10 +41,8 @@ For task mode inspect:
 - Task DAG and PR topology position, workspace, branch, planned base ref and
   exact commit, merge base, current head, exact range, status, diff, changed
   files, and commits;
-- current task verification `PASS` and a policy-complete gate closed by review
-  `CLEAN` or by review `FINDINGS` with required integration or explicit direct-
-  triage eligibility and current `Push back` triage for every item on that
-  same unchanged range;
+- the current Task Accepted result attesting to its required verification,
+  review and resolved triage, with retained evidence references;
 - current logical dependencies, shared interfaces, and ancestor evidence;
 - publication state, human-feedback state, concerns, and every gap.
 
@@ -57,9 +63,8 @@ For lightweight mode inspect:
   request authority and design sources, Review context, and Review policy;
 - its exact workspace, branch, planned base ref and commit, merge base, current
   head, range, status, diff, changed files, and commits;
-- current verification `PASS` and a policy-complete gate closed by `CLEAN` or by
-  same-target `FINDINGS` with required integration or explicit direct-triage
-  eligibility and every item currently classified `Push back`;
+- the current Task Accepted result attesting to its required independent gates
+  and resolved triage, with retained evidence references;
 - the coordinator's Feature Accepted result for that unchanged exact Task PR;
 - publication state, human-feedback state, concerns, and every gap.
 
@@ -77,8 +82,8 @@ For feature mode inspect:
   set, Implementation Plan, Review context and policy;
 - both exact topologies and one current authoritative `Accepted` result for
   every Task PR;
-- complete Feature Contract coverage and every integration-only verification
-  and targeted review result;
+- the approved Feature-clause mapping to Accepted Tasks and every named
+  integration-only verification and targeted review result;
 - all task workspaces, branches, bases, heads, ranges, publication states,
   triage decisions, temporary integration workspaces or refs and their cleanup
   eligibility, concerns, and gaps;

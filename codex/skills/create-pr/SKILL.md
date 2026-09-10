@@ -18,15 +18,18 @@ substitute the repository default for a resolved base. Inspect:
 - the exact head branch and object, planned base branch and object, merge base,
   and current parent PR state when stacked;
 - commits in `<base>..HEAD`;
-- `git diff --stat <base>...HEAD` and the full diff;
+- `git diff --stat <base>...HEAD` and the accepted change summary; keep the full
+  diff available for describing the change or investigating a concrete delta,
+  without repeating Task quality review;
 - relevant planned Design Doc, Feature Contract, Implementation Plan, and Task
   Contract content and original paths, including an exact captured publication
   handoff after an authorized prior workspace-lifecycle action removed their
   source paths; the complete
   lightweight combined contract and original request authority; or the exact
   eligible legacy sources;
-- for planned or lightweight work, current internal `Accepted` verification,
-  review, and triage evidence for that exact PR range;
+- for planned or lightweight work, the current Task Accepted result for that
+  exact PR range, its original evidence references and any named integration
+  result required for publication;
 - for eligible legacy work, current verification, review, and triage evidence
   satisfying its unchanged approved completion criteria, without requiring a
   new internal `Accepted` state;
@@ -41,6 +44,13 @@ evidence stale. Apply the coordinator's evidence-applicability rule to a
 content-preserving commit or other Git identity change. Retain original reports
 and the accepted mapping to the current PR; pre-commit observations need no
 rerun solely because they are now committed.
+
+Apply the coordinator's Accepted consumption boundary. The result attests to
+Task-local verification, review and triage; PR preparation does not reopen their
+adequacy or require rereading all raw reports. Recover an omitted reference from
+the owning Task's retained evidence. Investigate detail only for a concrete
+contradiction, relevant target/input change or requested diagnosis, preserving
+the completed-work discussion boundary for an actual problem.
 
 Apply the coordinator's reviewed-base/advancing-tip rule before declaring a
 base mismatch. A fast-forward of the same base branch is compatible with the

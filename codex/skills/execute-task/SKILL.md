@@ -44,7 +44,11 @@ writes that cache.
 Keep exact sources directly readable; do not copy unrelated Feature history or
 unchanged unassigned prose. Reject lightweight authority: that loop belongs to
 `execute-lightweight-task`. Reject a missing, contradictory, stale or
-unrecoverable field rather than inventing a wrapper or decision.
+unrecoverable field for phase entry rather than inventing a wrapper or decision.
+Apply the coordinator's continuation rules: recover factual omissions from
+direct sources, or return the precise missing input to the Feature Lead for
+recovery, then revalidate entry. A rejected handoff alone does not require an
+engineer decision.
 
 This topology applies to plans approved for it. A previously approved or
 in-flight plan retains its original topology, models and gates and must use
@@ -78,7 +82,9 @@ pending in order and retry after progress without losing a gate. Herdr connects
 this session to the Feature Lead; native leaves do not get their own Herdr
 sessions and never spawn descendants.
 
-A missing model, input, safe writer state or target is BLOCKED. A new or changed
+A missing model, input, safe writer state or target holds the affected phase.
+Resolve recoverable gaps under the coordinator's continuation rules before
+returning operational BLOCKED. A new or changed
 scope, responsibility, public/shared interface, contract meaning, invariant,
 failure/compatibility guarantee, verification obligation or Review policy is
 Escalate to the Feature Lead. A private file/helper inside delegated ownership
@@ -135,7 +141,9 @@ boundary for required fresh rows. Retain carried rows with original evidence and
 applicability reasons. Dispatch the preapproved native verification-runner through
 `agent-teams-driven-development`. Never ask it to choose checks, diagnose,
 judge adequacy, or make Acceptance decisions. A FAIL is interpreted by this
-Task Lead against authority; diagnose before correction. BLOCKED is not clean.
+Task Lead against authority; diagnose before correction. For BLOCKED, recover
+the reported input/evidence gap and resume the pending gate under the existing
+policy. BLOCKED is not clean and does not by itself end this Task loop.
 
 Only after complete current PASS coverage for the target invoke `review`. Normally
 dispatch independent spec-reviewer and implementation-quality-reviewer
@@ -151,6 +159,12 @@ conditional finding integration. For FINDINGS require complete source reports
 and either the required finding-integrator result or an explicit simple-finding
 direct-triage eligibility record. Use `receiving-code-review` to verify and
 classify Fix, Push back or Escalate; raw findings alone do not authorize edits.
+
+Apply the TDD history/current-evidence boundary before treating a procedural
+finding as a plan deviation. Ordinary instructions to perform RED then GREEN
+do not establish an independent historical Acceptance obligation. Disclose a
+history-only gap, retain justified Push back, and continue current gates without
+requesting an exception or recreating past work.
 
 Keep problem and remedy validity separate. A confirmed authority defect returns
 immediately as Design Escalation to the Feature Lead; do not start queued review
@@ -213,3 +227,10 @@ evidence-backed result despite being its writer; it is not self-approval.
 Only the Feature Lead validates cross-Task currentness, releases dependents and
 issues Feature Acceptance. A terminal Task result ends this turn without
 another polling loop; new work requires a current handoff.
+
+Accepted completes this Task's local quality decision. Send its exact identity,
+authority, consumed inputs, verdict, concerns and directly accessible evidence
+references to the Feature Lead. Retain the detailed matrix, raw reports, triage
+and impact assessments here; the Feature Lead need not read them all again.
+Respond to concrete result discrepancies or relevant input changes through the
+owning loop, not a routine second audit of an unchanged Accepted target.

@@ -187,8 +187,17 @@ investigation technique, not sufficient evidence without a material contract
 violation or realistic failure.
 
 Keep historical discipline separate from current defects, verification gaps
-and explicit contractual history obligations. A proposed state machine, schema
-or identity mechanism is not an authorized correction by itself. Preserve an
+and explicit contractual history obligations. Apply `test-driven-development`'s
+history/current-evidence boundary: ordinary procedure instructions, including
+named RED/GREEN plan steps, do not by themselves make past execution an
+Acceptance gate. Report a history-only discrepancy as a disclosed limitation,
+not a blocking finding, unless exact authority explicitly makes the original
+history an Acceptance obligation. A claimed current defect or material evidence
+gap needs concrete evidence independent of the missed procedure. Apply this
+boundary to source review and finding integration alike.
+
+A proposed state machine, schema or identity mechanism is not an authorized
+correction by itself. Preserve an
 evidence-backed authority-gap claim separately for priority integration;
 do not invent a code finding or quietly change the design.
 

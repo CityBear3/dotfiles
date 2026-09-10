@@ -197,8 +197,14 @@ impact reruns. Carried evidence is never represented as a new-head inspection.
 Task results carry exact Git/authority and independent gate evidence or direct
 references. Herdr readiness/lifecycle, terminal output, agent identity and
 conversation are not Acceptance. A wait timeout does not authorize another
-writer. The Feature Lead validates results before releasing dependencies and
-alone issues Feature Accepted.
+writer. Task Accepted completes the local quality decision. The Feature Lead
+matches that result to its assigned Task, authority, actual target and relied-on
+inputs before releasing dependencies; it does not re-audit local test adequacy,
+raw reports or reviewer judgments. Task-owned gate details remain accessible by
+reference for concrete discrepancies or requested diagnosis. Feature coverage
+maps approved clauses to Accepted Tasks and named integration obligations;
+it does not reassess each Task's test coverage. Only the Feature Lead issues
+Feature Accepted.
 
 The optional `search-cache.md` shares costly discoveries worth reusing across
 independent Task Lead sessions. Create it only when that reuse is likely; use a
@@ -211,6 +217,18 @@ the ignored file stays with the plan through authorized worktree removal.
 It never replaces current authority, Git, verification, or review evidence.
 TDD and focused writer checks likewise remain distinct from current independent
 Task Acceptance evidence.
+
+During active approved work, a procedural discrepancy or a phase's `BLOCKED`
+report returns to its owning loop for recovery. The owner resolves discoverable
+inputs, completes handoffs or current evidence, and resumes pending gates under
+the same authority and policy. Independent ready Tasks continue while an
+affected Task is held. Historical procedure gaps are disclosed, but ordinary
+TDD instructions or named RED/GREEN plan steps do not make past execution an
+independent Acceptance gate. A current material problem or an explicit original
+history deliverable needs its own evidence. The loop requests engineer input
+when a decision/new authority is needed or safe authorized recovery cannot
+resolve the prerequisite, preserving attempts and re-entry conditions. Required
+checks, independent review, allocations and publication boundaries still hold.
 
 Install the coherent asset revision only with separate owner authorization.
 Previously approved/in-flight plans are not silently migrated: retain their exact
