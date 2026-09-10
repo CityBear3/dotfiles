@@ -91,6 +91,16 @@ gap, material contract deviation, or controlling authority that makes the
 history material. Current Acceptance still requires adequate tests, fresh
 verification, and selected review for the exact current target.
 
+An ordinary instruction to use TDD, including named RED/GREEN steps in an
+approved plan, is a development obligation, not by itself an independent
+historical Acceptance gate. For the exception above, cite the exact authority
+that explicitly requires original historical evidence as an Acceptance
+deliverable, or prove a current material defect/evidence gap independently of
+the missed step. Do not infer that exception from mandatory wording or treat
+acknowledging a past omission as a plan change requiring approval. Continue the
+authorized loop with current evidence and justified triage; prospective work
+still follows the required discipline.
+
 ## Test contract
 
 - One test covers one behavioral viewpoint, not necessarily one function call.

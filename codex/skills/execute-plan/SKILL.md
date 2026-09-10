@@ -74,7 +74,12 @@ and gate evidence, and gaps. The plan's first ready step must be its approved
 promotion reconciliation; never treat either later head as a clean
 implementation base.
 
-Stop and return a plan deviation when implementation would require a new
+Apply the coordinator's continuation rules before declaring a plan deviation.
+An ordinary planned procedure, including named RED/GREEN steps, does not by
+itself make its execution history an independent Acceptance obligation. Recover
+missing factual handoff/report evidence with its owning Task and preserve
+history-only discrepancies without requesting an exception. Stop and return a
+plan deviation when implementation would require a new
 architecture, goal, scope, responsibility owner, public or shared interface
 semantic, invariant, failure behavior, compatibility promise, verification
 obligation, schema, error model, policy, or authority decision. The coordinator
@@ -134,17 +139,29 @@ mean a stopped writer. Follow the adapter's safe re-entry rules before resending
 work or replacing a session.
 
 Consume compact Candidate/Accepted/BLOCKED/Escalate reports with directly
-available attributable evidence, not every local transcript. For Accepted,
-inspect exact authority/currentness, workspace, branch, planned base, merge
-base, head/range/diff/status and required verification/review coverage.
-Carried verification and reviewer evidence must retain its original target/report and explicit
-non-invalidation reasons; it is not a fresh review of the new head. Missing or
-mismatched evidence is BLOCKED, never permission to repair or reinterpret state.
+available attributable evidence references, not every local transcript. Consume
+Accepted as the completed Task-local quality decision under the coordinator's
+Accepted boundary. Match the result to its assigned Task/session and approved
+authority; directly confirm workspace, branch, reviewed base, head/range/status
+and correspondence to the intended target. Compare relevant changed inputs and
+consumed dependencies. Do not rejudge Task test adequacy, rebuild its matrix,
+re-audit raw runner/reviewer reports, or re-prove its gate completeness.
 
-After validating a current Accepted result, record it and immediately recalculate
+The Task Lead retains original verification/reviewer reports and carry-forward
+arguments. Read that detail only for a concrete mismatch, contradiction or
+requested diagnosis. Recover missing result metadata or references from the
+existing owner; an omitted pointer does not prove the check was omitted. For an
+actual contradiction, such as Accepted with a required review still pending,
+hold the affected dependency release and return the exact discrepancy to that
+Task Lead for authorized recovery. Do not repair Task source, reinterpret
+authority, assume an unperformed check passed, or reset uncertain state. Return
+BLOCKED only when no safe authorized recovery is available.
+
+After confirming that Accepted applies, record it and immediately recalculate
 readiness; dispatch newly ready Tasks unless the user requested a boundary stop.
 Only Feature Lead releases dependencies. Preserve other exact Task results on a
-blocked Task, and report the owning gap to `agentic-engineering-workflow`.
+blocked Task and continue independent dependency-ready work; report an unresolved
+owning gap and attempted recovery to `agentic-engineering-workflow`.
 A Task Design Escalation returns its authority evidence early; do not dispatch
 affected queued work or silently repair design.
 
@@ -298,8 +315,8 @@ After each accepted task, append a result keyed by Task Contract and PR identity
 containing:
 
 - task name and dependency position;
-- Herdr workspace/pane/session mapping, Task-local leaf evidence, selected or pending
-  roles, and dispatch or replacement evidence;
+- Herdr workspace/pane/session mapping and references to Task-owned dispatch,
+  leaf and recovery evidence;
 - exact authority and Task Contract content/currentness accepted;
 - Feature Contract clauses and Task Contract obligations, eligible legacy
   completion criteria, or promotion mappings proved;
@@ -308,11 +325,13 @@ containing:
 - verified starting Git status and verified final Git status, including index,
   worktree, and relevant untracked state, matched to direct root re-observation;
 - task and correction commits;
-- verification obligations, commands selected or required, observed results and
-  explicit carry-forward as the completed current-target Verification Matrix;
-- per-task gate result;
-- reviewer and findings-integration outcomes, triage, non-blocking concerns,
-  changed files, any useful cross-session discovery candidates, and gaps.
+- the Accepted result and references to its Task-owned matrix, original runner
+  and reviewer reports, triage and carry-forward evidence;
+- non-blocking concerns, changed files, any useful cross-session discovery
+  candidates, and gaps.
+
+The Task Lead retains the detailed gate record. Aggregate its verdict and
+references without reading every row or reconsidering local quality judgments.
 
 After every planned task is accepted and current:
 
@@ -320,8 +339,9 @@ After every planned task is accepted and current:
    order;
 2. re-resolve every task branch, base, head, range, Git status, dependency, and
    shared interface;
-3. prove complete Feature Contract coverage and identify only the obligations
-   that remain integration-only;
+3. map every approved Feature clause to its assigned current Accepted Task or
+   named integration-only obligation; do not reinterpret Task test coverage or
+   add a new verification requirement while aggregating;
 4. materialize and record the exact temporary tree for each integration-only
    obligation from its approved accepted heads and deterministic composition,
    without treating the composition as a PR;

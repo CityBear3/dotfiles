@@ -42,6 +42,11 @@
   applicable; HEAD or history changes alone do not trigger reruns. Preserve
   original evidence and explicit applicability reasons. For actual corrections,
   rerun affected checks and finding-owning/affected reviewers.
+- Treat Task `Accepted` as the completed Task-local quality decision. The
+  Feature Lead checks result identity, applicability to current inputs, Task
+  dependencies and assigned Feature/integration coverage; it does not routinely
+  re-audit Task tests, raw verification reports or reviewer judgments. Reopen
+  only the affected work for relevant changes or concrete contradictory evidence.
 - Keep problem validity separate from remedy validity, return confirmed Design
   authority defects to the engineer early, and retain independent out-of-scope
   problems as non-blocking concerns rather than expanding the Task. Previously
@@ -52,6 +57,13 @@
 
 - Use `agentic-engineering-workflow` for engineering requests that may cross investigation, design, planning, implementation, verification, review, and branch completion. Treat it as the source of truth for path selection, approval gates, and cross-phase transitions; phase skills retain their own mechanics.
 - Continue authorized local implementation, verification, review, and in-scope correction without repeated approval prompts. Stop when the coordinator identifies a user-owned decision, missing authority, plan deviation, material scope expansion, or publication or branch-disposition choice.
+- Treat a procedural discrepancy or a phase's `BLOCKED` result as input to the
+  owning loop, not an automatic request for engineer intervention. Resolve
+  recoverable inputs and current evidence within existing authority, then resume
+  the pending phase. Historical procedure gaps alone do not block Acceptance;
+  ordinary plan steps do not make their execution history an independent gate.
+  Preserve the discrepancy and apply the coordinator's continuation rules before
+  declaring a material deviation or requesting an exception.
 
 ## Verification
 

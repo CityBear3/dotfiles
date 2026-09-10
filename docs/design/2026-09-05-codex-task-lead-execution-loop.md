@@ -6,7 +6,10 @@
 - Status: Approved by the repository owner on 2026-09-05
 - Search-cache policy revised with owner approval on 2026-09-06: optional
   cross-session discovery sharing; other decisions are unchanged by this revision.
-- Delivery: Feature Lead direct local revision on
+- Accepted consumption revised at the owner's request on 2026-09-10: Task-local
+  quality is decided once; Feature Lead checks applicability and cross-Task
+  obligations without routine gate re-audits.
+- Original delivery: Feature Lead direct local revision on
   `codex/task-lead-execution-loop`; installation and publication are separate
 - Extends:
   - `docs/design/2026-08-28-codex-task-loop-optimization.md`
@@ -389,7 +392,9 @@ It:
 The Feature Lead does not choose Task-local private implementation details,
 construct routine Task matrices, dispatch routine Task reviewers, or retain
 every correction transcript in its active context. It receives exact evidence
-and may inspect its referenced sources when Feature-level decisions require it.
+references and consumes Task Accepted as the completed local quality decision.
+It inspects detailed Task sources for concrete discrepancies or requested
+diagnosis, not to routinely re-audit local test adequacy or reviewer judgments.
 
 The Feature Lead's model and reasoning effort are not written into the
 Implementation Plan. They are the session's effective defaults. This keeps the
@@ -475,22 +480,55 @@ The Task Lead returns one status and evidence envelope:
 - `Escalate`: progress requires a user-owned decision, new authority, material
   scope expansion, or plan deviation.
 
-The envelope includes Task and workspace identity, base/head/range/status,
-commits and changed files, discipline evidence, completed Verification Matrix,
+The Task-owned evidence record includes Task and workspace identity,
+base/head/range/status, commits and changed files, discipline evidence, completed Verification Matrix,
 runner report, every applicable reviewer report, integration and triage when
 present, correction history, carried-forward reviewer evidence with reasons,
-concerns, any useful cross-session discovery candidates, and gaps. The Feature
-Lead consumes the envelope directly and does not replace it with an
-unverifiable prose summary.
+concerns, any useful cross-session discovery candidates, and gaps. The compact
+return identifies the Task, authority, consumed inputs, exact target, verdict
+and concerns, with direct references to that retained record. This uses the
+existing handoff and result identities; no new result schema or certificate is
+needed. Keeping detailed evidence accessible does not require the Feature Lead
+to read or reconstruct the full record for each Accepted result.
 
 Reporting Task `Accepted` belongs to the Task-loop owner, who is also its
 writer: the Task Lead for planned work and the Feature Lead for lightweight
 work. This is an evidence-backed gate result, not unilateral writer
 self-approval. It requires the independent runner and applicable reviewer
 reports, including explicit non-invalidation evidence for carried-forward
-review coverage. For planned work the Feature Lead validates the returned
-evidence against the current Task and dependency state before releasing a
-dependent. Only the Feature Lead issues Feature `Accepted`.
+review coverage. For planned work the Feature Lead checks correspondence to the
+assigned Task, authority and actual target, and applicability to consumed
+dependencies before releasing a dependent. It trusts the completed Task-local
+quality decision. Only the Feature Lead issues Feature `Accepted`.
+
+### Consume Accepted without a second quality decision
+
+Task Accepted means the Task-loop owner has completed its required verification,
+independent review and triage for the stated authority, target and relied-on
+inputs. Feature-side receipt, scheduling, aggregation and publication consume
+that result without repeating the local quality decision. Runtime `done` or an
+unassigned status string is not Task Accepted.
+
+The Feature Lead owns result identity and applicability, cross-Task invalidation,
+and Feature-clause coverage. Feature coverage maps each approved requirement to
+its assigned current Accepted Task or named remaining integration obligation;
+it does not reassess Task tests or add verification requirements at aggregation.
+The Task Lead retains the raw gate evidence and row/perspective impact maps.
+
+Unchanged Accepted results need no further assurance solely because the Feature
+Lead did not observe their checks. Relevant implementation, authority or consumed
+dependency changes, a wrong target, or concrete conflicting evidence such as a
+pending required review justify holding only the affected use of Accepted.
+An omitted report reference is recovered with the owner; it does not establish
+that the original check was omitted. During active authorized work, that Task
+Lead resolves the discrepancy and any affected gates while independent ready
+Tasks continue. Actual completed-work problems retain the existing discussion
+and re-entry authority boundary. Hypothetical mistrust and historical procedure
+gaps alone do not trigger another audit.
+
+This boundary gives up routine Feature-side second audits of erroneous Task
+verdicts. Quality rests on the unchanged Task issuance conditions and independent
+checks, with focused investigation when concrete counterevidence appears.
 
 ### Lightweight loop
 
@@ -896,9 +934,10 @@ satisfy Feature Acceptance.
 ### Feature states
 
 The Feature Lead releases a dependent only from an internally `Accepted`
-predecessor. Any accepted predecessor head change marks dependent evidence
-stale according to the approved plan. After every required Task is current and
-Accepted, the Feature Lead composes integration evidence, invokes selected
+predecessor. Relevant changes to accepted predecessor content, authority or
+consumed dependencies mark affected results stale according to the approved
+plan; a Git identity change alone does not. After every required Task is current
+and Accepted, the Feature Lead composes integration evidence, invokes selected
 integration reviewers, and alone issues Feature `Accepted`.
 
 ## Cross-cutting concerns
@@ -917,8 +956,10 @@ independence:
 - reviewers inspect the exact diff, surrounding code, tests, authority, and
   raw runner evidence directly;
 - finding integration is read-only and separate from Task Lead triage;
-- the Feature Lead receives raw attributable reports and invalidation decisions,
-  not only the Task Lead's verdict;
+- the Task Lead retains attributable raw reports and invalidation decisions,
+  with direct references available to the Feature Lead for concrete discrepancies
+  or requested diagnosis; the Feature Lead consumes the Accepted verdict without
+  routinely auditing those local gates again;
 - only the Feature Lead can release dependencies and accept the Feature.
 
 ### Permissions and external effects
@@ -935,7 +976,8 @@ change filesystem or network permission.
 
 ### Observability and recoverability
 
-Each Task result exposes:
+Each Task result provides identity and verdict with direct references to its
+Task-owned evidence, including:
 
 - exact Task/workspace/branch/base/head/range/status identity;
 - writer commits and changed files;

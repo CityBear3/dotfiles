@@ -15,6 +15,88 @@ return evidence or classifications and never edit tracked state, commit a fix, o
 advance the workflow. This coordinator consumes their results and selects the
 next phase.
 
+## Recover within the authorized loop
+
+A phase gate holds its dependent transition until its obligations are met; a
+leaf or phase returning `BLOCKED` does not by itself end the owning loop or
+require engineer approval. During active approved work, the owning Task or
+Feature Lead classifies the actual obstacle before returning control:
+
+- **Historical procedure gap:** retain and disclose what happened. Apply
+  `test-driven-development`'s history/current-evidence boundary and
+  `receiving-code-review`'s history-only classification. An ordinary plan step,
+  named RED/GREEN sequence, or mandatory procedure does not by itself make its
+  past execution an independent Acceptance condition. Require concrete current
+  impact or exact authority explicitly making the original history itself an
+  Acceptance obligation before treating it as blocking. Do not reconstruct
+  historical evidence, repeat completed work to simulate compliance, or request
+  an exception solely to acknowledge the discrepancy.
+- **Recoverable input or evidence gap:** inspect directly available authority,
+  Git state and original reports, complete the missing handoff or matrix, and
+  resume the pending phase. The responsible owner obtains missing observations
+  or reruns only uncovered/invalidated checks and affected review under the
+  existing policy. If the information belongs to another Task/Feature owner,
+  return the precise gap to that owner for recovery; this is not automatically
+  an engineer escalation. Keep valid evidence, failed observations and pending
+  roles attributable. Do not change expectations, skip gates or infer approval
+  to make a result pass.
+- **No safe authorized continuation:** hold the affected operation when recovery
+  needs a user-owned decision, new authority, or an unavailable prerequisite
+  that the owners cannot resolve. Report the exact obstacle, relevant recovery
+  attempts and results, remaining decision or external action, and re-entry
+  condition. Continue independent ready work whose authority and inputs remain
+  valid. A material design defect follows the early Design Escalation rule.
+
+The phase/Task owner performs recovery within its existing responsibility;
+check-only leaves still return evidence without repairing inputs or source.
+Use the same approved allocations and preserve sole-writer and unchanged-target
+guarantees. Temporary runtime rejection stays pending and retries after relevant
+progress or availability evidence. Do not repeat an unchanged failed action,
+busy-poll, or silently restart uncertain state. Exhausted safe recovery is a
+reported blocker, not permission to weaken a gate.
+
+Select and carry out the next authorized recovery action instead of ending the
+turn merely to announce a procedural problem. These rules do not authorize
+reopening completed work, publication, destructive changes, policy changes or
+scope expansion; their existing boundaries still apply.
+
+### Consume Accepted as a completed Task decision
+
+The Task-loop owner issues `Accepted` only after its required independent
+verification, review and triage are complete for the exact Task target and
+authority. The Feature Lead consumes that Task-local quality decision rather
+than issuing a second verdict on test adequacy, reviewer judgment, discipline
+or gate completeness.
+
+At receipt, dependency release, aggregation and publication, limit Feature-side
+checks to the result's assigned Task/session and authority, correspondence to
+the actual target, changes to relied-on inputs, and the approved Task dependency
+and integration obligations. Use the existing handoff identities, Accepted
+result and retained evidence references. Do not introduce another certificate,
+result schema or approval gate. Feature Contract coverage means that each
+approved clause is assigned to a current Accepted Task or a named remaining
+integration obligation; it is not a second assessment of Task test coverage.
+
+Retain Task-local raw reports and impact assessments with their owner and keep
+them directly accessible by reference. Do not require the Feature Lead to read
+or reconstruct every matrix, reviewer report or carry-forward argument on each
+transition. Inspect the relevant source evidence only for a concrete mismatch,
+contradiction or requested diagnosis, such as an Accepted result also reporting
+a required reviewer still pending. An attributable Accepted result for unchanged
+inputs needs no new verification, review or assurance merely because the
+Feature Lead did not observe the Task's checks itself. Runtime `done`, a writer
+self-check or an unassigned status string is not that result.
+
+Recover an omitted result identity or report reference with the owning Task;
+do not treat a missing pointer as proof that its check never ran. Relevant
+content/authority/dependency changes or concrete contradictory evidence hold
+only the affected use of Accepted. During active authorized work, the Task-loop
+owner resolves the discrepancy and determines any affected checks/review;
+the Feature Lead handles cross-Task invalidation and independent ready work.
+Do not reopen acceptance for hypothetical mistrust or a history-only procedure
+gap. The completion/publication discussion boundary still governs an actual
+new problem requiring completed work to reopen.
+
 ## Classify the request
 
 Inspect the relevant repository state before selecting a route.
@@ -377,8 +459,10 @@ final gates. Retain an accepted result only when its exact Feature authority,
 assigned clauses, owning Task Contract, and every relied-on interface and
 dependency remain semantically unchanged.
 
-Stop for an unresolved design choice, approval gate, plan deviation, material
-scope expansion, external write, publication, merge, discard, destructive
+Apply the continuation classification above before treating a procedural gap
+as a plan deviation or missing authority. Stop for an unresolved design choice,
+approval gate, plan deviation, material scope expansion, external write,
+publication, merge, discard, destructive
 action, or other missing authority. Do not repeat an approval prompt while its
 exact decision and artifact remain applicable.
 
@@ -409,9 +493,9 @@ That skill owns readiness, Herdr dispatch of independent Task sessions,
 candidate/authoritative handoffs, workspace/session mappings, cross-Task
 staleness, promotion reconciliation and exact evidence aggregation. Each Task
 Lead is sole writer and local `execute-task` loop owner, dispatching its native
-check leaves itself. Feature Lead validates returned evidence, releases
-dependencies and alone accepts the Feature. Lightweight work remains directly
-Feature-Lead-written without planned artifacts. Task and leaf allocations are
+check leaves itself. Feature Lead consumes Accepted under the boundary above,
+releases dependencies and alone accepts the Feature. Lightweight work remains
+directly Feature-Lead-written without planned artifacts. Task and leaf allocations are
 engineer-confirmed with plan approval; Feature defaults are not copied into the
 plan, and no runtime promotion/fallback is allowed.
 
@@ -466,11 +550,18 @@ For lightweight work retain its one exact Task PR and complete recoverable
 combined contract. For eligible legacy work retain the original single-range
 evidence required by its unchanged plan.
 
+Task-local detail may remain in the owning Task's directly referenced reports;
+retaining Feature evidence does not require copying or re-auditing those reports.
 Require no unexplained in-scope state in any task checkout. Re-read affected
 branches, bases, heads, ranges, worktrees, and status before every transition.
 Standalone reports alone never constitute coordinator Acceptance.
 
 ### Reuse evidence by applicability
+
+For an existing Accepted result, the Feature Lead uses the consumption boundary
+above to compare its target and relied-on context. Row-level and reviewer-level
+coverage mapping belongs to the Task-loop owner; an unchanged Accepted result
+does not require the Feature Lead to reconstruct that mapping.
 
 HEAD, branch, commit message or history changes alone do not invalidate
 verification or review. The owning lead compares the actual target content and
@@ -548,7 +639,9 @@ Advance automatically within approved local scope:
 2. Accept from `execute-plan` only `TasksAccepted` with every Task Contract
    represented by a current authoritative result, both topologies resolved,
    complete coverage, and exact integration composition inputs.
-3. Revalidate task currentness and Feature Contract coverage. If no
+3. Check Accepted applicability and map the approved Feature clauses to their
+   assigned Accepted Tasks and named integration obligations, without re-auditing
+   Task-local verification or review coverage. If no
    integration-only obligation remains, mark the feature accepted without a
    synthetic aggregate range or repeated review.
 4. For each integration-only obligation, the Feature Lead builds the exact
@@ -585,7 +678,8 @@ Advance automatically within approved local scope:
    obligation is current and no finding, policy gap, design gap, or operational
    gap survives.
 
-Diagnose failed verification before correction. Never advance failed or blocked
+Diagnose failed verification before correction and recover blocked phases under
+the continuation rules above. Never advance failed or blocked
 verification to review, blocked review to triage, unresolved triage to
 correction, or incomplete evidence to completion. Stop repeated non-progress
 with its observed attempts. Never discard uncertain state to force progress.
@@ -615,6 +709,12 @@ context and evidence. Inspect only the delta and the assumptions or behavior it
 may affect. Do not dispatch a reviewer or rebuild a verification/review handoff
 for this check. It is a currentness check, not a new Acceptance gate or a
 substitute for the completed independent review.
+
+Apply the Accepted consumption boundary above. Routine receipt, PR drafting or
+merge preparation does not authorize a new search for Task-local quality
+problems. Recover a missing result reference from retained sources without
+replaying its gate; the concern path below applies when an actual unmet
+obligation, relevant mismatch or concrete behavior concern is established.
 
 If no concern remains, continue the already-authorized completion/publication
 operation. A Git identity change with established evidence applicability,

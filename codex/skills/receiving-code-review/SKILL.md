@@ -87,8 +87,16 @@ evidence and state the exact re-entry condition.
 
 Keep discipline history separate from current finding classification. A
 history-only discrepancy is `Push back` unless it demonstrates a reachable
-current defect, material current evidence gap, or material contract deviation;
-a controlling authority that makes the history material is `Escalate`.
+current defect, material current evidence gap, or material contract deviation
+independent of the missed procedure. Apply `test-driven-development`'s
+history/current-evidence boundary: an ordinary TDD instruction or named
+RED/GREEN plan step does not make its history an independent Acceptance gate.
+Only exact controlling authority explicitly requiring the original history as
+an Acceptance obligation makes an unrepairable history gap `Escalate`. Cite
+that clause and the unmet obligation; do not infer it from mandatory procedure
+wording. Otherwise disclose the discrepancy, justify `Push back` against the
+blocking claim, and return the next current gate to the owning loop without
+requesting an exception or retrospective reenactment.
 
 For each item:
 
