@@ -1,6 +1,6 @@
 ---
 name: create-workspace
-description: Verify or establish an approved coordination, Task PR, or temporary integration-evidence workspace. Resolve work branches, starting refs, PR bases, and composition identities separately.
+description: Confirm or establish the checkout and branch required for approved coordination, Task, or integration work.
 ---
 
 # Prepare a coordination, task, or integration workspace

@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create an authorized GitHub Task PR against its approved base with a structured description grounded in exact accepted publication evidence, without rerunning verification or review.
+description: Create a GitHub Task PR when publication is authorized and accepted evidence is available.
 ---
 
 # Create a pull request

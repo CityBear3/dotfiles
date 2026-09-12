@@ -1,6 +1,6 @@
 ---
 name: session-teardown
-description: Wrap up a finished Codex work session by inspecting live subagents, stopping only remaining task-scoped work, and reporting the final repository state. Use after branch completion or when the user explicitly asks to end active work.
+description: Settle remaining task-scoped agents and report repository state after branch completion or an explicit request to end work.
 ---
 
 # Session teardown

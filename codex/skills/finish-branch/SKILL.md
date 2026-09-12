@@ -1,6 +1,6 @@
 ---
 name: finish-branch
-description: Finish an internally accepted Task PR branch or a Feature Accepted topology, preserving exact evidence and user control over publication, merge, cleanup, and disposition.
+description: Handle publication, merge, retention, or cleanup choices after Task or Feature acceptance.
 ---
 
 # Finish a Task PR or accepted feature

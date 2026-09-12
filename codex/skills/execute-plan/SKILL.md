@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: Orchestrate an approved Implementation Plan across its Task dependency DAG, PR topology, isolated workspaces, and exact Task PR evidence.
+description: Coordinate Task execution and integration after the Implementation Plan is approved and execution is authorized.
 ---
 
 # Execute an approved plan

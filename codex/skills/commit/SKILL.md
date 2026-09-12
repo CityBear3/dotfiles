@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create a focused Git commit from the intended working-tree changes, following repository conventions. Use when the user or an approved plan asks Codex to commit completed work.
+description: Create a focused Git commit when the user or an approved plan requests one.
 ---
 
 # Commit

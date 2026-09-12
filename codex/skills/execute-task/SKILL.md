@@ -1,6 +1,6 @@
 ---
 name: execute-task
-description: Run one planned Task's implementation, independent checks, triage and bounded correction in its independent Task Lead session.
+description: Implement, verify, review, and correct one planned Task inside its assigned Task Lead session.
 ---
 
 # Execute one planned Task

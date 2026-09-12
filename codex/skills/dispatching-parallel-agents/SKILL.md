@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: Start or safely resume dependency-ready independent Task Lead sessions through Herdr using plan-fixed workspaces and model allocations.
+description: Start or resume dependency-ready Task Lead sessions when an approved Implementation Plan authorizes execution.
 ---
 
 # Dispatch independent Task sessions

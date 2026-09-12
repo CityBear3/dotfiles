@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Select whether test-first development applies, then preserve causal red, green, and refactor evidence for a focused behavior or coherent matrix. Use before editing when production behavior, a defect, or an approved plan may require TDD.
+description: Determine TDD applicability before a production behavior change or defect fix, then guide the applicable development discipline.
 ---
 
 # Test-driven development

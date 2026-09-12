@@ -1,6 +1,6 @@
 ---
 name: rust-implementation
-description: Apply the user's reusable Rust conventions when creating or changing Rust production code, module layout, error types, or Cargo package settings. Use before editing Rust code or configuration; do not use for read-only discussion or language-neutral planning.
+description: Apply personal Rust conventions when editing production Rust code, module structure, error types, or Cargo settings.
 ---
 
 # Rust implementation guidance

@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Execute a predeclared Verification Matrix mechanically against an exact Task, integration, or standalone target and return raw PASS, FAIL, or BLOCKED evidence.
+description: Run a prepared Verification Matrix for Task acceptance, integration, or a requested standalone check.
 ---
 
 # Mechanical verification
