@@ -1,6 +1,6 @@
 ---
 name: review
-description: Run independent read-only review of an exact verified Task or integration target, or a standalone scope, with conditional finding integration and correction invalidation.
+description: Independently review a verified Task or integration target, or a user-requested standalone scope.
 ---
 
 # Review exact evidence

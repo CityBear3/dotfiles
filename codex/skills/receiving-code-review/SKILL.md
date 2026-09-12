@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: Verify findings and classify Fix, Push back, or Escalate for the owning Task/Feature loop, or evaluate standalone feedback read-only.
+description: Evaluate review feedback and classify findings for the owning workflow, or assess standalone feedback read-only.
 ---
 
 # Triage current-target review findings

@@ -1,6 +1,6 @@
 ---
 name: agent-teams-driven-development
-description: Dispatch an already-selected native check-only or read-only leaf inside its owning Task or Feature session.
+description: Dispatch a verification or review leaf after its owning workflow has selected the role and allocation.
 ---
 
 # Dispatch one native check leaf

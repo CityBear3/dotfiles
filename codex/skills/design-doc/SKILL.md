@@ -1,6 +1,6 @@
 ---
 name: design-doc
-description: Draft or support a formal Design Doc from user-owned decisions through research, ambiguity detection, structured writing, and critique. Use when settled engineering work has cross-cutting architecture, durable contracts, or significant decisions worth preserving.
+description: Draft a formal Design Doc when settled engineering decisions need durable architectural or contract documentation.
 ---
 
 # Design Doc support

@@ -1,6 +1,6 @@
 ---
 name: create-plan
-description: Decompose an approved Feature Contract into PR-scoped Task Contracts, a dependency DAG, a PR topology, and an Implementation Plan. Use after the contract is separately approved and current.
+description: Turn an approved, current Feature Contract into Task Contracts and an Implementation Plan.
 ---
 
 # Create an implementation plan

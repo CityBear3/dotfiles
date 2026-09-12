@@ -1,6 +1,6 @@
 ---
 name: walkthrough-pr
-description: Help an engineer understand a PR through dialogue about purpose, responsibilities, contracts, invariants, failure behavior, and test evidence, with selective code inspection. Use for human review comprehension, not an autonomous AI review or branch-management workflow.
+description: Explain a PR through dialogue for human understanding and review; use review for an autonomous assessment.
 ---
 
 # Walk through a PR

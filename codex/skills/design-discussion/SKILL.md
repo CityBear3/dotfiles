@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Build an evidence-backed shared working model before resolving material design choices and assessing Design Readiness or Design Doc applicability. Use on planned-path entry or when downstream work re-enters an affected design branch.
+description: Investigate and align the problem, then explore user-owned design decisions on planned-path entry or design re-entry.
 ---
 
 # Design discussion

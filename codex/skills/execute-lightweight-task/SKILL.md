@@ -1,6 +1,6 @@
 ---
 name: execute-lightweight-task
-description: Implement and accept one eligible lightweight Task directly as Feature Lead, with independent mechanical verification and focused review.
+description: Implement and accept an eligible lightweight change after the coordinator supplies its combined contract and review policy.
 ---
 
 # Execute one lightweight Task directly

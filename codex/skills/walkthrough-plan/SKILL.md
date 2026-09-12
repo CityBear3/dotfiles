@@ -1,6 +1,6 @@
 ---
 name: walkthrough-plan
-description: Explain an implementation plan to the user one task at a time and advance only when the user says 「次へ」. Use for read-only plan comprehension before or during execution.
+description: Explain an Implementation Plan one task at a time, advancing only when the user says 「次へ」.
 ---
 
 # Walk through a plan
