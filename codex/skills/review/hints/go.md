@@ -23,6 +23,19 @@ Language-specific idioms and pitfalls to inform reviewer hunts. Use these as sta
 - Naming: short, lowercased package names; exported names start with capital; `Get` prefix usually unnecessary
 - gRPC: field number changes break wire compatibility; reserved tags after removal
 
+## Documentation
+
+Use the [Go implementation defaults](../../go-implementation/SKILL.md) subject
+to repository guidance and the approved scope.
+
+- Check package documentation, types and interfaces regardless of export status,
+  exported declarations, and unexported functions with non-obvious contracts.
+  Allow self-evident small helpers to omit docs.
+- Check that doc comments attach to the intended declaration and explain its
+  role or supported behavior, including relevant zero-value, error, panic,
+  side-effect, and concurrency contracts. `gofmt` and `go vet` success do not
+  establish coverage or accurate prose.
+
 ## Performance
 
 - `append()` reallocation — pre-size slices with `make([]T, 0, n)` when n is known

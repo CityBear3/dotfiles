@@ -1,6 +1,6 @@
 ---
 name: go-implementation
-description: Apply official Go guidance and tools when editing Go code, packages, or module settings.
+description: Apply official Go guidance and tools when editing Go code, documentation comments, packages, or module settings.
 ---
 
 # Go implementation guidance
@@ -30,6 +30,38 @@ rather than copying them into plans or contracts.
   toolchain and the relevant [release notes](https://go.dev/doc/devel/release)
   or version-appropriate official documentation. Check the supported version
   before adopting examples from newer documentation.
+
+## Write documentation for readers of the code
+
+Apply this coverage to new or changed production declarations within the task:
+
+- Give each affected package a package comment explaining its responsibility
+  and boundary. Place it directly before one `package` clause; use
+  `Package name ...` for a library package and describe the command for a command
+  package. Use an existing suitable file or `doc.go` when useful.
+- Document types, including interfaces, by default regardless of whether they
+  are exported. Explain their role and relevant invariants, zero-value behavior,
+  or usage constraints; describe fields when their meaning needs explanation.
+- Document exported declarations, including functions and methods, with their
+  observable behavior. Document unexported functions and methods when their
+  purpose, assumptions, side effects, or constraints are not evident from the
+  name and signature. A self-evident small helper may omit a doc comment.
+- Use `//` doc comments immediately before the declaration, without an
+  intervening blank line. Start symbol documentation with a complete sentence
+  naming the symbol, such as `// Load reads ...`. Use Go doc comment paragraphs,
+  headings, and links where useful.
+- Explain what callers need to know, including relevant error and panic
+  conditions, side effects, cancellation, ownership, or concurrency guarantees.
+  Keep claims supported by the implementation and approved contract, and update
+  docs with behavior changes. Avoid name/type restatements and invented
+  guarantees. Keep local implementation reasoning in body comments.
+- Inspect affected documentation with `go doc`; use `go doc -u` when inspecting
+  unexported declarations. Run scoped `go test` for executable examples when
+  added or changed. `gofmt` and `go vet` do not establish documentation coverage
+  or the accuracy of its prose.
+
+Follow the official [Go Doc Comments](https://go.dev/doc/comment) guide for
+syntax, attachment, and examples.
 
 ## Select tools by purpose
 
