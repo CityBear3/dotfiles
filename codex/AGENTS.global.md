@@ -16,6 +16,9 @@
 - Use `rust-implementation` before editing Rust production code, module layout,
   error types, or Cargo package settings. Treat its rules as personal defaults;
   repository-local guidance and approved project authority take precedence.
+- Use `go-implementation` before editing Go code, packages, or module settings.
+  Treat its rules as personal defaults; repository-local guidance and approved
+  project authority take precedence.
 - Preserve existing behavior and unrelated user changes.
 - Use test-driven development for production-code behavior changes.
 - Prefer one writer per shared worktree. Keep review agents read-only unless they are explicitly assigned implementation.

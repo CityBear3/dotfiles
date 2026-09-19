@@ -31,7 +31,12 @@ Use these prompts selectively. Repository guidance and the approved design take 
 
 - Confirm a bug fix has a regression test that would fail before the fix.
 - Select test placement by boundary, not by filesystem use: component behavior belongs in unit tests; Cargo `tests/` is for public-crate, multi-component, or real process journeys.
-- For a new unit-test module, prefer a descriptive sibling such as `<module>_tests.rs` connected with `#[cfg(test)]` and explicit `#[path]`; do not require a generic `test.rs`.
+- Accept unit tests in an inline `#[cfg(test)] mod tests` within the implementation
+  file or in a descriptive sibling such as `<module>_tests.rs` connected with
+  `#[cfg(test)]` and explicit `#[path]`. Judge the layout by how easily the
+  implementation and tests can be read together, respecting repository guidance
+  and the existing layout. Do not require a separate file, a generic `test.rs`,
+  or a fixed line-count threshold.
 - Review tests through meaningful public or `pub(crate)` component APIs; production internals should not be exposed solely for tests.
 - Require visible Arrange, Act, Assert and one behavioral viewpoint per test.
 - Prefer DAMP case-local setup when a shared fixture would hide why values matter.
