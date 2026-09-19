@@ -5,7 +5,12 @@ Use this reference when writing or restructuring Rust tests.
 ## Choose the test boundary
 
 - Keep module or component behavior in unit tests, including behavior that creates files or inspects filesystem side effects.
-- Put a new unit-test module in a descriptive sibling file such as `parser_tests.rs`:
+- Place unit tests in an inline `#[cfg(test)] mod tests` within the implementation
+  file or in a descriptive sibling file such as `parser_tests.rs`. Choose the
+  layout that makes the implementation and tests easiest to read together,
+  respecting repository guidance and the existing layout. Do not require
+  extraction into a separate file or use a fixed line-count threshold.
+- When using a separate test file, connect it explicitly:
 
 ```rust
 #[cfg(test)]
