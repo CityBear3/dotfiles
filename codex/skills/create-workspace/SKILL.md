@@ -194,17 +194,20 @@ workspace and return `BLOCKED` with the Task PR, attempted command, returned
 path/workspace/pane identities when any, observed Git identity, error, and exact
 re-entry condition.
 
-For new planned Task sessions, leave the validated initial pane at an
-interactive shell so `dispatching-parallel-agents` can start its independent
-Codex Task Lead there. Do not launch lazygit in that Task pane or overwrite an
-existing foreground process. Resolve and report the explicit pane occupant;
-an unknown or conflicting occupant is BLOCKED rather than authority to kill it.
-Read the installed Herdr Skill before controlling Herdr. Optional engineer
-observation must not take over the Task's agent pane.
+For new planned Task sessions, follow
+[Task pane layout](references/task-pane-layout.md) after Git validation to
+prepare normal Neovim on the left and a separate Task Lead shell on the right,
+both in the Task worktree. Read the installed Herdr Skill before controlling
+Herdr. Return the editor pane ID and startup outcome separately from the Task
+Lead pane ID and shell readiness. An editor startup failure does not block an
+available Task Lead shell; an unknown or conflicting Task Lead pane occupant
+is BLOCKED rather than authority to kill it. Reuse verified pane mappings on
+re-entry without taking over an existing foreground process.
 
 For a coordination workspace, ask the user to continue the session in the
 returned path when the active writer must move there. For a planned Task PR,
-return the validated Git/Herdr mapping and shell readiness to `execute-plan`.
+return the validated Git/Herdr mapping, both pane roles and Task Lead shell
+readiness to `execute-plan`.
 Its dispatch adapter starts the independent Task session with the approved
 model, both effort settings, exact working directory and shared Task Lead
 contract; this skill does not submit a Task handoff or start the agent itself.
