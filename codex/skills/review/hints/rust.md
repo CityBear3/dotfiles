@@ -20,6 +20,22 @@ Use these prompts selectively. Repository guidance and the approved design take 
 - Check public error types, enums, serialized shapes, and function signatures for downstream compatibility.
 - Treat traits as capabilities and avoid using them only to mimic class inheritance.
 
+## Structure and documentation
+
+Use the [Rust implementation defaults](../../rust-implementation/SKILL.md)
+subject to repository guidance and the approved scope.
+
+- Inspect spacing between definitions and methods even when `rustfmt` passes;
+  doc comments and attributes must remain attached to their declaration.
+- Check that related internals use a cohesive parent module and child directory,
+  with thin entry points. Allow independent top-level modules and small
+  single-file modules; do not demand unrelated layout migrations.
+- Check documentation coverage for modules, types and traits regardless of
+  visibility, public items, and non-public functions with non-obvious contracts.
+  Allow self-evident small helpers to omit docs. Check meaningful rustdoc
+  attachment and supported behavioral claims, including applicable error,
+  panic, and safety obligations; formatter success does not establish these.
+
 ## Performance
 
 - Investigate cloning, allocation, collection, formatting, and repeated lookup only on a demonstrated repeated or hot path.
