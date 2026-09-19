@@ -314,8 +314,9 @@ violation.
 
 ## Fix model allocations at plan approval
 
-Read [model-allocation.md](references/model-allocation.md). Record defaults once
-and only Task-specific overrides, while showing every Task's effective
+Read [model-allocation.md](references/model-allocation.md) for the Astra/high
+Task Lead baseline and the evidence for selecting Sol/high. Record defaults
+once and only Task-specific overrides, while showing every Task's effective
 allocation and required-quality/risk/cost rationale. The engineer confirms
 these with this plan's approval; do not add a startup approval question or a
 runtime promotion/fallback mechanism. Feature Lead uses session defaults and

@@ -134,7 +134,7 @@ There are eight logical roles, but only seven native profiles:
 
 | Role | Model / effort | Boundary |
 | --- | --- | --- |
-| Task Lead | Sol/high or engineer-approved Astra/high | Independent Herdr session; sole Task writer |
+| Task Lead | Astra/high; Sol/high when justified in the approved plan | Independent Herdr session; sole Task writer |
 | verification-runner | Luna/low | Declared commands/observations only |
 | focused-reviewer | Sol/high | Lightweight spec, implementation and tests |
 | spec-reviewer | Sol/high | Planned contract compliance |
@@ -142,6 +142,11 @@ There are eight logical roles, but only seven native profiles:
 | risk-reviewer | Sol/xhigh | One selected risk perspective per invocation |
 | finding-integrator | Sol/high | Conditional complex/conflicting findings |
 | design-alignment-reviewer | Sol/xhigh | Composed/shared-boundary authority |
+
+For new Task Leads, use Astra/high when implementation difficulty is uncertain.
+Select Sol/high when concrete Task evidence supports the required quality at
+lower expected total completion cost; follow the
+[plan-time allocation guidance](skills/create-plan/references/model-allocation.md).
 
 The shared Task root instructions live at
 `skills/execute-task/references/task-lead.md` and install with that Skill.

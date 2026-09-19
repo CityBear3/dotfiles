@@ -138,7 +138,7 @@ and cost rationale. Feature Lead is not assigned; it uses its session defaults.
 
 | Default role | Model | Effort |
 | --- | --- | --- |
-| Task Lead | gpt-5.6-sol | high |
+| Task Lead | gpt-6-astra | high |
 | verification-runner | gpt-5.6-luna | low |
 | spec-reviewer | gpt-5.6-sol | high |
 | implementation-quality-reviewer | gpt-5.6-sol | high |
@@ -148,9 +148,13 @@ and cost rationale. Feature Lead is not assigned; it uses its session defaults.
 
 | Task | Task Lead override / effective allocation | Quality and cost rationale |
 | --- | --- | --- |
-| 1 | Astra/high | Propose extra reasoning capacity for senior/staff-level public compatibility judgment across parsing and errors; engineer confirms whether the benefit justifies cost |
-| 2 | None: Sol/high | Same high correctness/maintainability bar; exact rendering oracle and settled public contract bound the reasoning surface |
-| 3 | None: Sol/high | High integration quality remains required; settled composition and real-process evidence provide a direct oracle |
+| 1 | None: Astra/high | Preserving accepted forms and public errors requires compatibility judgment; the implementation and correction difficulty is not fully known |
+| 2 | Sol/high | Investigation found an existing field-rendering pattern that can be extended locally without changing dispatch or escaping; exact new and compatibility outputs exercise that path, supporting an expectation of lower completion cost at the same quality |
+| 3 | None: Astra/high | End-to-end failure behavior and correction require judgment across the parser, renderer and process boundary; real-process tests supply evidence but do not remove that implementation uncertainty |
+
+These are illustrative Task findings, not model choices to copy by Task type.
+Use the actual repository evidence in a real plan; the cost expectations above
+are estimates, not measured savings.
 
 Native checks use the fixed profiles above. Each independent Task root receives
 the installed `execute-task/references/task-lead.md` contract and explicit model,
