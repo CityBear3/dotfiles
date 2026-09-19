@@ -113,6 +113,12 @@ uses an independent Codex root session in its approved Herdr worktree. That
 Task Lead is both sole writer and local implementation/check/correction loop
 owner; there is no separate implementer.
 
+New Task workspaces open the engineer's normal Neovim on the left and the Task
+Lead on the right, both in the same Task worktree. Coordinate manual saves with
+the Task Lead. If Neovim fails to start, report the failure and leave its shell;
+the available right Task Lead pane can still begin work. Workspace preparation
+retains the two pane roles explicitly for dispatch and later reuse.
+
 ~~~text
 Feature Lead (session defaults)
   |

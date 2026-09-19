@@ -102,7 +102,10 @@ the coordinator's evidence-applicability rule.
 
 For each ready Task, resolve the plan's exact/deterministic starting ref from
 current Git and accepted predecessors, then use `create-workspace` to lazily
-create/reuse that exact Herdr worktree and shell pane. Execution-start authority
+create/reuse that exact Herdr worktree and its pane mapping. For a new Task,
+retain the left editor pane and startup outcome separately from the verified
+right Task Lead shell. Pass the Task Lead pane ID to dispatch even when editor
+startup failed; the editor is not a dispatch target. Execution-start authority
 covers those named non-destructive local workspaces and Task-session launches;
 do not repeat per-Task approval. Missing identities, unavailable refs requiring
 fetch, mismatched branches or pane occupants, or destructive/history operations
@@ -131,8 +134,10 @@ Native admission is local to each session; preserve selected pending work and
 do not infer unlimited service capacity across independent sessions. Do not
 calculate leases or build another scheduler.
 
-Keep each Task session through ordinary correction. Record Task-to-Herdr-agent/
-pane-to-worktree mapping and exact allocation. Herdr waits/reads are routing
+Keep each Task session through ordinary correction. Record each Task's Herdr
+agent, Task Lead pane, editor pane, worktree and exact allocation. Reuse those
+identities on re-entry instead of assuming the initial pane hosts the Task Lead.
+Herdr waits/reads are routing
 observations, not prompt-specific receipts or acceptance. Use bounded responsive
 waiting within tool limits, avoiding unchanged busy polling. A timeout does not
 mean a stopped writer. Follow the adapter's safe re-entry rules before resending
