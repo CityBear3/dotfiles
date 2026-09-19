@@ -33,18 +33,18 @@ Git-validated Task worktree and shell pane. Do not start Codex over lazygit,
 another agent, an approval dialog, or an unidentified pane occupant. Resolve the
 explicit pane and agent mapping; do not use focus or names as guessed identity.
 
-Pass native Codex arguments after Herdr's `--`. For an approved Sol/high Task
+Pass native Codex arguments after Herdr's `--`. For an approved Astra/high Task
 the argument shape is:
 
 ~~~sh
 herdr agent start <task-agent-name> --kind codex --pane <validated-shell-pane> -- \
-  --cd <absolute-task-worktree> --model gpt-5.6-sol \
+  --cd <absolute-task-worktree> --model gpt-6-astra \
   -c 'model_reasoning_effort="high"' \
   -c 'plan_mode_reasoning_effort="high"'
 ~~~
 
 Substitute the exact approved allocation, including both effort settings; an
-Astra/high Task uses `gpt-6-astra`. Do not edit global defaults, inherit the
+approved Sol/high Task uses `gpt-5.6-sol`. Do not edit global defaults, inherit the
 Feature model implicitly, lower sandbox/approval settings, or use a native
 subagent profile as if it configured this root. Supply the complete Task
 handoff through `herdr agent prompt` only after startup readiness, instructing
