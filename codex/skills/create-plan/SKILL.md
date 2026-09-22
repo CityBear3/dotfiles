@@ -169,7 +169,7 @@ For each Task Contract include:
 - workspace mode, branch identity, exact or deterministic starting-ref
   resolution rule, ownership, concurrency eligibility, and staleness triggers;
 - explicit non-goals;
-- local decisions delegated to the implementation agent;
+- local implementation decisions delegated to the Task Lead;
 - effective Task Lead and selected-leaf allocations, inherited defaults or exact
   overrides, and required-quality/risk/cost rationale;
 - discipline: the material property, reliable verification oracle,
@@ -314,8 +314,8 @@ violation.
 
 ## Fix model allocations at plan approval
 
-Read [model-allocation.md](references/model-allocation.md) for the Astra/high
-Task Lead baseline and the evidence for selecting Sol/high. Record defaults
+Read [model-allocation.md](references/model-allocation.md) for the Sol/xhigh
+Task Lead baseline and the conditions for selecting Astra/high. Record defaults
 once and only Task-specific overrides, while showing every Task's effective
 allocation and required-quality/risk/cost rationale. The engineer confirms
 these with this plan's approval; do not add a startup approval question or a

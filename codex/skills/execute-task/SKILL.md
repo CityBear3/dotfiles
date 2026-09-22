@@ -139,7 +139,7 @@ identity change alone does not invalidate the matrix's existing observations.
 Invoke `verify` with only its exact target, matrix, environment and mutation
 boundary for required fresh rows. Retain carried rows with original evidence and
 applicability reasons. Dispatch the preapproved native verification-runner through
-`agent-teams-driven-development`. Never ask it to choose checks, diagnose,
+`dispatch-check-agents`. Never ask it to choose checks, diagnose,
 judge adequacy, or make Acceptance decisions. A FAIL is interpreted by this
 Task Lead against authority; diagnose before correction. For BLOCKED, recover
 the reported input/evidence gap and resume the pending gate under the existing

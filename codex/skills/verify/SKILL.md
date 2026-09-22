@@ -82,7 +82,7 @@ within active approved work or the engineer-authorized response.
 ## Owner: dispatch once
 
 Select `verification-runner` at the preapproved Luna/low allocation through
-`agent-teams-driven-development` in the owning session. Resolve its effective
+`dispatch-check-agents` in the owning session. Resolve its effective
 check-only contract before dispatch. Send only the exact target, matrix,
 environment, source-state comparisons and result contract. Send the ordered
 fresh rows plus their pre/final checks; keep carried rows and their provenance

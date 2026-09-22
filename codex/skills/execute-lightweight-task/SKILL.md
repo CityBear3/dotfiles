@@ -72,7 +72,7 @@ classifications, source-state pre/final checks and allowed ignored artifacts.
 Apply the coordinator's evidence-applicability rule and preserve covered rows;
 Git identity changes alone do not invalidate evidence.
 
-Dispatch verification-runner through `agent-teams-driven-development` for fresh
+Dispatch verification-runner through `dispatch-check-agents` for fresh
 required rows only, with current pre/final state checks.
 The runner executes only supplied rows. This Feature Lead interprets failures
 and diagnoses before in-scope correction. A BLOCKED report returns its gap to

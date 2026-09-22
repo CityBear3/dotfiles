@@ -15,6 +15,22 @@ return evidence or classifications and never edit tracked state, commit a fix, o
 advance the workflow. This coordinator consumes their results and selects the
 next phase.
 
+## Know the execution roles
+
+| Role | Responsibility |
+| --- | --- |
+| Feature Lead | Own Feature authority, planning, Task coordination and integration; implement lightweight changes directly. |
+| Task Lead | Implement and correct one planned Task as its sole writer in an independent Codex session; own its verification and review loop. |
+| Check agents (native leaves) | Execute declared verification, review, or conditional finding integration; return evidence without editing source. |
+
+The Feature Lead uses [dispatch-task-leads](../dispatch-task-leads/SKILL.md)
+through `execute-plan` to start or resume independent Herdr Task sessions.
+Within each session, `verify` and `review` use
+[dispatch-check-agents](../dispatch-check-agents/SKILL.md) for their native
+agents. Task Leads start their own check agents; the Feature Lead starts them
+for lightweight, integration-only, and standalone checks. These are separate
+dispatch responsibilities; check agents never become another Task implementer.
+
 ## Classify the request
 
 Inspect the relevant repository state before selecting a route.
