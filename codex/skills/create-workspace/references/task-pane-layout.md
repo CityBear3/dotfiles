@@ -20,7 +20,7 @@ Shell-quote the actual dynamic arguments. Read the new Task Lead pane ID from
 `.result.pane.pane_id`; retain it separately from the editor pane ID. Check the
 returned workspace, both panes' cwd and left/right layout using live Herdr
 state. The right pane must be at an interactive shell prompt with the shell in
-the foreground, ready for `dispatching-parallel-agents`.
+the foreground, ready for `dispatch-task-leads`.
 
 If splitting fails or the Task Lead pane identity, cwd or occupant is uncertain,
 preserve the returned state and report BLOCKED with the attempted operation and

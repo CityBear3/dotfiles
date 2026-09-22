@@ -118,7 +118,7 @@ Codex startup binding, including normal and Plan-mode effort. Feature Lead
 uses session defaults and is not assigned by the plan. Unavailable allocations
 are BLOCKED, not fallback or runtime promotion.
 
-Use `dispatching-parallel-agents` for Herdr launch/resume of each selected Task
+Use `dispatch-task-leads` for Herdr launch/resume of each selected Task
 root. Supply the complete handoff defined by `execute-task`: relevant exact
 authority and clauses, ownership, verification discipline, complete policy,
 effective allocations, worktree/Git/Herdr routing identities, mode, commit

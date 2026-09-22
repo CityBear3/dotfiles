@@ -1,6 +1,6 @@
 name = "verification-runner"
 description = "Executes declared Verification Matrix rows and reports raw observations without semantic judgment."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 developer_instructions = """

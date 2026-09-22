@@ -113,6 +113,13 @@ uses an independent Codex root session in its approved Herdr worktree. That
 Task Lead is both sole writer and local implementation/check/correction loop
 owner; there is no separate implementer.
 
+The Feature Lead uses [dispatch-task-leads](skills/dispatch-task-leads/SKILL.md)
+to start or resume those independent Herdr sessions. Within each session,
+`verify` and `review` use
+[dispatch-check-agents](skills/dispatch-check-agents/SKILL.md) for native check
+agents. The shared check dispatcher handles role/model binding, handoffs and
+restart safety; verification and review retain their own decision criteria.
+
 New Task workspaces open the engineer's normal Neovim on the left and the Task
 Lead on the right, both in the same Task worktree. Coordinate manual saves with
 the Task Lead. If Neovim fails to start, report the failure and leave its shell;
@@ -136,11 +143,12 @@ native verification-runner and focused-reviewer gates. Feature integration and
 standalone checks are also native leaves of the Feature session. Every new
 native leaf has empty inherited history and no descendants.
 
-There are eight logical roles, but only seven native profiles:
+There are eight logical roles, but only seven native profiles. Sol and Luna
+below refer to GPT-6:
 
 | Role | Model / effort | Boundary |
 | --- | --- | --- |
-| Task Lead | Astra/high; Sol/high when justified in the approved plan | Independent Herdr session; sole Task writer |
+| Task Lead | Sol/xhigh; Astra/high when justified in the approved plan | Independent Herdr session; sole Task writer |
 | verification-runner | Luna/low | Declared commands/observations only |
 | focused-reviewer | Sol/high | Lightweight spec, implementation and tests |
 | spec-reviewer | Sol/high | Planned contract compliance |
@@ -149,9 +157,10 @@ There are eight logical roles, but only seven native profiles:
 | finding-integrator | Sol/high | Conditional complex/conflicting findings |
 | design-alignment-reviewer | Sol/xhigh | Composed/shared-boundary authority |
 
-For new Task Leads, use Astra/high when implementation difficulty is uncertain.
-Select Sol/high when concrete Task evidence supports the required quality at
-lower expected total completion cost; follow the
+For new Task Leads, assess the whole Task before confirming the Sol/xhigh
+default. Select Astra/high for difficult implementation or judgment, including
+consequential uncertainty in implementation or evidence interpretation. Record
+the concrete Task evidence and expected quality/total completion cost; follow the
 [plan-time allocation guidance](skills/create-plan/references/model-allocation.md).
 
 The shared Task root instructions live at
@@ -242,6 +251,20 @@ resolve the prerequisite, preserving attempts and re-entry conditions. Required
 checks, independent review, allocations and publication boundaries still hold.
 
 Install the coherent asset revision only with separate owner authorization.
+
+The dispatch Skills now use names that distinguish Task sessions from native
+check agents:
+
+| Previous name | Current name |
+| --- | --- |
+| `dispatching-parallel-agents` | `dispatch-task-leads` |
+| `agent-teams-driven-development` | `dispatch-check-agents` |
+
+Use the current names in explicit Skill invocations and new plans. Installation
+creates the renamed Skill directories and removes the old directories only
+when they were previously installer-owned; no old-name alias is installed.
+Unmanaged skills retain the existing preservation and conflict rules.
+
 Previously approved/in-flight plans are not silently migrated: retain their exact
 prior assets/topology/models, or stop for recovery or explicit migration.
 Do not use a half-updated bundle or change an active Task's coordinator/model.

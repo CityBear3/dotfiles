@@ -5,38 +5,46 @@ Acceptance bar for every Task Lead model.
 
 | Role | Default model | Effort | Binding |
 | --- | --- | --- | --- |
-| Task Lead | `gpt-6-astra` | `high` | Explicit independent Codex startup |
-| Task Lead, justified plan override | `gpt-5.6-sol` | `high` | Same root contract, explicit startup |
-| verification-runner | `gpt-5.6-luna` | `low` | Native profile |
-| focused-reviewer | `gpt-5.6-sol` | `high` | Native profile; lightweight |
-| spec-reviewer | `gpt-5.6-sol` | `high` | Native profile |
-| implementation-quality-reviewer | `gpt-5.6-sol` | `high` | Native profile |
-| risk-reviewer | `gpt-5.6-sol` | `xhigh` | Native profile; one perspective |
-| finding-integrator | `gpt-5.6-sol` | `high` | Native profile; conditional |
-| design-alignment-reviewer | `gpt-5.6-sol` | `xhigh` | Native profile |
+| Task Lead | `gpt-6-sol` | `xhigh` | Explicit independent Codex startup |
+| Task Lead, justified plan override | `gpt-6-astra` | `high` | Same root contract, explicit startup |
+| verification-runner | `gpt-6-luna` | `low` | Native profile |
+| focused-reviewer | `gpt-6-sol` | `high` | Native profile; lightweight |
+| spec-reviewer | `gpt-6-sol` | `high` | Native profile |
+| implementation-quality-reviewer | `gpt-6-sol` | `high` | Native profile |
+| risk-reviewer | `gpt-6-sol` | `xhigh` | Native profile; one perspective |
+| finding-integrator | `gpt-6-sol` | `high` | Native profile; conditional |
+| design-alignment-reviewer | `gpt-6-sol` | `xhigh` | Native profile |
 
 The Feature Lead is intentionally absent: it already runs on the user's session
 defaults. Do not pin it in the plan or modify global settings for Task startup.
 Do not use max effort or runtime promotion/fallback.
 
-Use Astra/high for new Task Leads, including when implementation difficulty or
-the judgment needed through verification and correction remains uncertain.
-Assess the whole Task: public/shared boundaries, non-local invariants,
-concurrency/recovery, compatibility, security, data integrity, and interpreting
-evidence can make implementation demanding even when the requested edit is small.
+Use Sol/xhigh as the default for new Task Leads. Assess the whole Task before
+confirming that allocation: implementation, interpreting verification evidence,
+and correction must all fit the model. Ground the choice in repository evidence
+about the implementation approach, affected boundaries, likely failure modes,
+and available verification. Extending an established pattern with understood
+interactions and direct regression evidence is a typical Sol/xhigh fit.
 
-Consider Sol/high when concrete repository evidence makes the implementation
-approach, affected boundaries, likely failure modes, and verification clear
-enough to expect the same required quality at lower total completion cost.
-Explain that fit briefly using the Task's actual work, such as extending an
-established implementation pattern with understood interactions and direct
-regression evidence. File counts, a settled specification, apparently simple
-code, or the existence of tests alone do not establish that fit.
+Select Astra/high at planning time when the Task requires difficult judgment,
+such as investigating unexplained behavior, reasoning across non-local
+invariants, designing concurrency or recovery details, or preserving
+compatibility, security or data integrity across shared boundaries. Long
+refactors or ambiguous verification results can also make the work demanding.
+Name the concrete difficulty or uncertainty and explain why Astra's deeper
+reasoning and judgment are expected to help through implementation and correction.
 
-Use the evidence available during planning and label cost expectations as
-estimates. When model suitability remains unclear, select Astra/high and
-continue preparing the plan. Resolve missing user-owned design decisions
-through design discussion; a model choice does not settle them.
+The default is not a substitute for this assessment. File counts, a settled
+specification, apparently simple code, or the existence of tests alone do not
+establish Sol's fit. Routine private implementation choices do not alone require
+Astra; when consequential implementation difficulty or evidence interpretation
+remains uncertain after available investigation, select Astra/high. Resolve
+missing user-owned design decisions through design discussion; a model choice
+does not settle them.
+
+Use the evidence available during planning and label quality/cost expectations
+as estimates. Do not infer that Sol/xhigh and Astra/high are equivalent from
+effort labels or aggregate benchmark scores.
 
 Record a default table once and Task-specific overrides. For each Task show
 effective allocations, required quality, relevant risks/reasoning demands and

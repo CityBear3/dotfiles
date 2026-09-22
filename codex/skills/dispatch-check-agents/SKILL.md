@@ -1,9 +1,9 @@
 ---
-name: agent-teams-driven-development
-description: Dispatch a verification or review leaf after its owning workflow has selected the role and allocation.
+name: dispatch-check-agents
+description: Start or resume native verification and review agents after the owning workflow selects their roles and allocations.
 ---
 
-# Dispatch one native check leaf
+# Dispatch native check agents
 
 Act only as the local scheduling adapter for `verify` or `review`. A planned
 Task Lead dispatches its own leaves. The Feature Lead dispatches lightweight,

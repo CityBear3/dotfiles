@@ -56,7 +56,7 @@ For a current new-format Task Contract, present:
 5. dependency on earlier and later tasks, including integration-only proof;
 6. planned PR parent or sibling relationship, workspace, final-base readiness,
    concurrency eligibility, and staleness triggers;
-7. local decisions delegated to the implementation agent;
+7. local implementation decisions delegated to the Task Lead;
 8. contractually significant files, signatures, ordering, or commands when
    present.
 9. its effective Task Lead/leaf model and effort allocation, required quality

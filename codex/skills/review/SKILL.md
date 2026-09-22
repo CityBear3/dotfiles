@@ -110,7 +110,7 @@ Task gate until the engineer resolves policy; a lead pass cannot substitute.
 
 ## Dispatch relevant evidence
 
-Use `agent-teams-driven-development` with each already-selected profile and
+Use `dispatch-check-agents` with each already-selected profile and
 its exact approved allocation. Independent normal reviewers may run
 concurrently only after current verification covers the target. Apply the
 coordinator's evidence-applicability rule first; with complete applicable review
