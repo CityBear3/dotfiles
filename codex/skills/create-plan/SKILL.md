@@ -314,7 +314,7 @@ violation.
 
 ## Fix model allocations at plan approval
 
-Read [model-allocation.md](references/model-allocation.md) for the Sol/xhigh
+Read [model-allocation.md](references/model-allocation.md) for the GPT-6.1 Sol/xhigh
 Task Lead baseline and the conditions for selecting Astra/high. Record defaults
 once and only Task-specific overrides, while showing every Task's effective
 allocation and required-quality/risk/cost rationale. The engineer confirms

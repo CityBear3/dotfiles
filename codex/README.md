@@ -143,12 +143,13 @@ native verification-runner and focused-reviewer gates. Feature integration and
 standalone checks are also native leaves of the Feature session. Every new
 native leaf has empty inherited history and no descendants.
 
-There are eight logical roles, but only seven native profiles. Sol and Luna
-below refer to GPT-6:
+The tracked session defaults are GPT-6.1 Sol/xhigh for both normal and Plan
+mode. There are eight logical roles, but only seven native profiles. Unqualified
+Sol and Luna below refer to GPT-6; Task Lead explicitly uses GPT-6.1 Sol:
 
 | Role | Model / effort | Boundary |
 | --- | --- | --- |
-| Task Lead | Sol/xhigh; Astra/high when justified in the approved plan | Independent Herdr session; sole Task writer |
+| Task Lead | GPT-6.1 Sol/xhigh; Astra/high when justified in the approved plan | Independent Herdr session; sole Task writer |
 | verification-runner | Luna/low | Declared commands/observations only |
 | focused-reviewer | Sol/high | Lightweight spec, implementation and tests |
 | spec-reviewer | Sol/high | Planned contract compliance |
@@ -157,9 +158,9 @@ below refer to GPT-6:
 | finding-integrator | Sol/high | Conditional complex/conflicting findings |
 | design-alignment-reviewer | Sol/xhigh | Composed/shared-boundary authority |
 
-For new Task Leads, assess the whole Task before confirming the Sol/xhigh
-default. Select Astra/high for difficult implementation or judgment, including
-consequential uncertainty in implementation or evidence interpretation. Record
+For new Task Leads, assess the whole Task before confirming the GPT-6.1 Sol/xhigh
+default. Select Astra/high when concrete unresolved implementation or evidence
+interpretation difficulty supports that choice, not from the Task category alone. Record
 the concrete Task evidence and expected quality/total completion cost; follow the
 [plan-time allocation guidance](skills/create-plan/references/model-allocation.md).
 

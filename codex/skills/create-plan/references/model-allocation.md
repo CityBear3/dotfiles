@@ -5,7 +5,7 @@ Acceptance bar for every Task Lead model.
 
 | Role | Default model | Effort | Binding |
 | --- | --- | --- | --- |
-| Task Lead | `gpt-6-sol` | `xhigh` | Explicit independent Codex startup |
+| Task Lead | `gpt-6.1-sol` | `xhigh` | Explicit independent Codex startup |
 | Task Lead, justified plan override | `gpt-6-astra` | `high` | Same root contract, explicit startup |
 | verification-runner | `gpt-6-luna` | `low` | Native profile |
 | focused-reviewer | `gpt-6-sol` | `high` | Native profile; lightweight |
@@ -19,31 +19,30 @@ The Feature Lead is intentionally absent: it already runs on the user's session
 defaults. Do not pin it in the plan or modify global settings for Task startup.
 Do not use max effort or runtime promotion/fallback.
 
-Use Sol/xhigh as the default for new Task Leads. Assess the whole Task before
+Use GPT-6.1 Sol/xhigh as the default for new Task Leads. Assess the whole Task before
 confirming that allocation: implementation, interpreting verification evidence,
 and correction must all fit the model. Ground the choice in repository evidence
 about the implementation approach, affected boundaries, likely failure modes,
 and available verification. Extending an established pattern with understood
-interactions and direct regression evidence is a typical Sol/xhigh fit.
+interactions and direct regression evidence is a typical GPT-6.1 Sol/xhigh fit.
 
-Select Astra/high at planning time when the Task requires difficult judgment,
-such as investigating unexplained behavior, reasoning across non-local
-invariants, designing concurrency or recovery details, or preserving
-compatibility, security or data integrity across shared boundaries. Long
-refactors or ambiguous verification results can also make the work demanding.
-Name the concrete difficulty or uncertainty and explain why Astra's deeper
-reasoning and judgment are expected to help through implementation and correction.
+Select Astra/high at planning time when repository evidence identifies a
+concrete unresolved difficulty and explains why Astra is expected to help
+through implementation and correction. Examples include unexplained behavior,
+non-local invariants or ambiguous verification results. Concurrency, recovery,
+compatibility, security, data integrity or a long refactor can motivate this
+assessment, but the Task category alone does not require Astra.
 
 The default is not a substitute for this assessment. File counts, a settled
 specification, apparently simple code, or the existence of tests alone do not
-establish Sol's fit. Routine private implementation choices do not alone require
-Astra; when consequential implementation difficulty or evidence interpretation
-remains uncertain after available investigation, select Astra/high. Resolve
+establish GPT-6.1 Sol's fit. Routine private implementation choices do not alone
+require Astra. Ground any Astra/high override in the consequential implementation
+difficulty or evidence interpretation that remains after investigation. Resolve
 missing user-owned design decisions through design discussion; a model choice
 does not settle them.
 
 Use the evidence available during planning and label quality/cost expectations
-as estimates. Do not infer that Sol/xhigh and Astra/high are equivalent from
+as estimates. Do not infer that GPT-6.1 Sol/xhigh and Astra/high are equivalent from
 effort labels or aggregate benchmark scores.
 
 Record a default table once and Task-specific overrides. For each Task show
