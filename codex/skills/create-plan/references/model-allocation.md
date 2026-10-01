@@ -8,12 +8,12 @@ Acceptance bar for every Task Lead model.
 | Task Lead | `gpt-6.1-sol` | `high` | Explicit independent Codex startup |
 | Task Lead, justified plan override | `gpt-6-astra` | `high` | Same root contract, explicit startup |
 | verification-runner | `gpt-6-luna` | `low` | Native profile |
-| focused-reviewer | `gpt-6-sol` | `high` | Native profile; lightweight |
-| spec-reviewer | `gpt-6-sol` | `high` | Native profile |
-| implementation-quality-reviewer | `gpt-6-sol` | `high` | Native profile |
-| risk-reviewer | `gpt-6-sol` | `xhigh` | Native profile; one perspective |
-| finding-integrator | `gpt-6-sol` | `high` | Native profile; conditional |
-| design-alignment-reviewer | `gpt-6-sol` | `xhigh` | Native profile |
+| focused-reviewer | `gpt-6.1-sol` | `high` | Native profile; lightweight |
+| spec-reviewer | `gpt-6.1-sol` | `high` | Native profile |
+| implementation-quality-reviewer | `gpt-6.1-sol` | `high` | Native profile |
+| risk-reviewer | `gpt-6.1-sol` | `high` | Native profile; one perspective |
+| finding-integrator | `gpt-6.1-sol` | `high` | Native profile; conditional |
+| design-alignment-reviewer | `gpt-6.1-sol` | `high` | Native profile |
 
 The Feature Lead is intentionally absent: it already runs on the user's session
 defaults. Do not pin it in the plan or modify global settings for Task startup.

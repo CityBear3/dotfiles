@@ -140,11 +140,11 @@ and cost rationale. Feature Lead is not assigned; it uses its session defaults.
 | --- | --- | --- |
 | Task Lead | gpt-6.1-sol | high |
 | verification-runner | gpt-6-luna | low |
-| spec-reviewer | gpt-6-sol | high |
-| implementation-quality-reviewer | gpt-6-sol | high |
-| risk-reviewer | gpt-6-sol | xhigh |
-| finding-integrator | gpt-6-sol | high |
-| design-alignment-reviewer | gpt-6-sol | xhigh |
+| spec-reviewer | gpt-6.1-sol | high |
+| implementation-quality-reviewer | gpt-6.1-sol | high |
+| risk-reviewer | gpt-6.1-sol | high |
+| finding-integrator | gpt-6.1-sol | high |
+| design-alignment-reviewer | gpt-6.1-sol | high |
 
 | Task | Task Lead override / effective allocation | Quality and cost rationale |
 | --- | --- | --- |

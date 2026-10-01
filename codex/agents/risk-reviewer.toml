@@ -1,7 +1,7 @@
 name = "risk-reviewer"
 description = "Read-only review of one explicitly selected scope, architecture, API, performance, robustness, or test-risk perspective."
-model = "gpt-6-sol"
-model_reasoning_effort = "xhigh"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 developer_instructions = """
 Review exactly one named risk perspective. Require its trigger, authority, target surface, threat/failure model, expected evidence, and stop condition; missing input is BLOCKED. Report in 日本語. Do not edit, spawn descendants, invent perspectives, triage, or authorize correction.
