@@ -138,7 +138,7 @@ and cost rationale. Feature Lead is not assigned; it uses its session defaults.
 
 | Default role | Model | Effort |
 | --- | --- | --- |
-| Task Lead | gpt-6.1-sol | xhigh |
+| Task Lead | gpt-6.1-sol | high |
 | verification-runner | gpt-6-luna | low |
 | spec-reviewer | gpt-6-sol | high |
 | implementation-quality-reviewer | gpt-6-sol | high |
@@ -149,7 +149,7 @@ and cost rationale. Feature Lead is not assigned; it uses its session defaults.
 | Task | Task Lead override / effective allocation | Quality and cost rationale |
 | --- | --- | --- |
 | 1 | Astra/high | Preserving accepted forms and public errors requires compatibility judgment; the implementation and correction difficulty is not fully known |
-| 2 | None: GPT-6.1 Sol/xhigh | Investigation found an existing field-rendering pattern that can be extended locally without changing dispatch or escaping; exact new and compatibility outputs exercise that path, supporting an expectation of lower completion cost at the same quality |
+| 2 | None: GPT-6.1 Sol/high | Investigation found an existing field-rendering pattern that can be extended locally without changing dispatch or escaping; exact new and compatibility outputs exercise that path, supporting an expectation of lower completion cost at the same quality |
 | 3 | Astra/high | End-to-end failure behavior and correction require judgment across the parser, renderer and process boundary; real-process tests supply evidence but do not remove that implementation uncertainty |
 
 These are illustrative Task findings, not model choices to copy by Task type.
