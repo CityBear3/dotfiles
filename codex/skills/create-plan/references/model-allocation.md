@@ -5,7 +5,7 @@ Acceptance bar for every Task Lead model.
 
 | Role | Default model | Effort | Binding |
 | --- | --- | --- | --- |
-| Task Lead | `gpt-6.1-sol` | `xhigh` | Explicit independent Codex startup |
+| Task Lead | `gpt-6.1-sol` | `high` | Explicit independent Codex startup |
 | Task Lead, justified plan override | `gpt-6-astra` | `high` | Same root contract, explicit startup |
 | verification-runner | `gpt-6-luna` | `low` | Native profile |
 | focused-reviewer | `gpt-6-sol` | `high` | Native profile; lightweight |
@@ -19,12 +19,12 @@ The Feature Lead is intentionally absent: it already runs on the user's session
 defaults. Do not pin it in the plan or modify global settings for Task startup.
 Do not use max effort or runtime promotion/fallback.
 
-Use GPT-6.1 Sol/xhigh as the default for new Task Leads. Assess the whole Task before
+Use GPT-6.1 Sol/high as the default for new Task Leads. Assess the whole Task before
 confirming that allocation: implementation, interpreting verification evidence,
 and correction must all fit the model. Ground the choice in repository evidence
 about the implementation approach, affected boundaries, likely failure modes,
 and available verification. Extending an established pattern with understood
-interactions and direct regression evidence is a typical GPT-6.1 Sol/xhigh fit.
+interactions and direct regression evidence is a typical GPT-6.1 Sol/high fit.
 
 Select Astra/high at planning time when repository evidence identifies a
 concrete unresolved difficulty and explains why Astra is expected to help
@@ -42,7 +42,7 @@ missing user-owned design decisions through design discussion; a model choice
 does not settle them.
 
 Use the evidence available during planning and label quality/cost expectations
-as estimates. Do not infer that GPT-6.1 Sol/xhigh and Astra/high are equivalent from
+as estimates. Do not infer that GPT-6.1 Sol/high and Astra/high are equivalent from
 effort labels or aggregate benchmark scores.
 
 Record a default table once and Task-specific overrides. For each Task show
