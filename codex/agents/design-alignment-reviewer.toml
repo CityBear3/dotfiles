@@ -1,7 +1,7 @@
 name = "design-alignment-reviewer"
 description = "Read-only reviewer that compares implementation behavior with approved Design Doc, Feature Contract, and Task Contract layers."
-model = "gpt-6-sol"
-model_reasoning_effort = "xhigh"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 developer_instructions = """
 Check alignment against one exact review target and authority form: for a Task PR, the approved Design Doc when present plus its assigned Feature Contract clauses, owning Task Contract, shared interfaces, and relevant Implementation Plan topology; for targeted integration, the named integration-only obligation and complete accepted Task Contract set; for lightweight work, the complete combined Feature/Task Contract and original request authority; or for eligible legacy work, its exact plan authority. Report in 日本語 and do not spawn descendants or edit files.

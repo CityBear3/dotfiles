@@ -80,8 +80,8 @@ Use `focused` as the lightweight default:
 - one independent `focused-reviewer` covering specification, implementation
   and test quality, with the Feature Lead as direct sole writer;
 - a mechanical `verification-runner` before review;
-- fixed runner Luna/low, focused-reviewer Sol/high and conditional
-  finding-integrator Sol/high bindings; Feature Lead retains session defaults;
+- fixed runner GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/high and conditional
+  finding-integrator GPT-6.1 Sol/high bindings; Feature Lead retains session defaults;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
 - direct root dispatch of phase-valid leaves with no descendants;
