@@ -11,7 +11,7 @@ Use these prompts selectively. Repository guidance and the approved design take 
 - Verify async branches are cancellation-safe and blocking work stays off executor workers.
 - Review persisted formats, rename/write protocols, and cleanup ordering for observable partial states when those behaviors changed.
 
-## API
+## Function/type API contracts
 
 - Use `as_`, `to_`, and `into_` consistently with borrow, copy, and ownership transfer.
 - Prefer borrowed inputs such as `&str`, `&[T]`, and `&Path` when ownership is not retained.
@@ -19,6 +19,11 @@ Use these prompts selectively. Repository guidance and the approved design take 
 - Keep visibility as narrow as the component contract allows.
 - Check public error types, enums, serialized shapes, and function signatures for downstream compatibility.
 - Treat traits as capabilities and avoid using them only to mimic class inheritance.
+
+## Communication API contracts
+
+- Check serialized shapes and error representations exposed over a communication
+  boundary for downstream compatibility.
 
 ## Structure and documentation
 

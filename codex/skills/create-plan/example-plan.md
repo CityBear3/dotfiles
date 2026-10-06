@@ -106,18 +106,27 @@ results and this stack are current.
   exact Task PR range.
 - **Integration required reviewers:** `design-alignment-reviewer` for the
   composed compatibility journey against the named Feature obligation.
-- **Integration conditional reviewers:** `risk-reviewer`, API perspective,
-  only if a changed public parser seam admits ambiguous caller usage. Its
-  authority is the approved parser contract; surface is that seam, failure
+- **Integration conditional reviewers:** `risk-reviewer`, function/type API
+  contracts perspective, only if a changed public parser seam admits ambiguous
+  caller usage. Its authority is the approved parser contract; surface is that
+  seam, failure
   model is realistic caller misuse, evidence is a concrete failing call, and
   stop condition is a verified issue or bounded inspection with no finding.
+  A separate `risk-reviewer` invocation covers behavioral
+  responsibilities/guarantees if CLI composition duplicates library-owned
+  parsing/rendering decisions or bypasses validation. Authority is the approved
+  library/CLI responsibility contract; surface is the composed operation;
+  failure model is leaked decisions or inconsistent guarantees across entry
+  points; evidence is a concrete path and resulting contract violation; stop
+  condition is a verified issue or bounded inspection with no finding.
 - **Conditional integration:** Use `finding-integrator` for overlap/conflict,
   authority defects, scope-sensitive remedies or non-trivial attribution. No
   integrator for all-clean or a single clear bounded finding eligible for
   direct triage. Prioritize authority-defect evidence before unstarted review.
 - **Skipped perspectives:** Skip architecture and performance because approved
-  ownership and measured hot paths do not change; skip adversarial robustness
-  unless recovery behavior changes; skip scope because each Task gate receives
+  ownership and measured hot paths do not change; skip communication API
+  contracts because no wire or messaging contract changes; skip adversarial
+  robustness unless recovery behavior changes; skip scope because each Task gate receives
   exact clauses and ownership.
 - **Residual risk:** No exhaustive grammar fuzzing.
 - **Runtime admission and order:** Schedule ready Task 1 and Task 2 candidates

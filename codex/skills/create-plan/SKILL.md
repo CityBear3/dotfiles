@@ -256,6 +256,15 @@ Apply these mode contracts:
   independent invocations when needed. Use `design-alignment-reviewer` mainly
   for composed/shared-boundary authority, not routine local changes.
 
+When selecting API risks, distinguish communication API contracts from
+function/type API contracts, including non-public module boundaries. Separately
+consider behavioral responsibilities/guarantees when operation meaning,
+invariants, state transitions or responsibility boundaries change. Use the
+[risk perspective guidance](../review/references/risk-perspectives.md) for
+selection and boundaries with specification, architecture and robustness.
+Record the applicable authority and concrete risk for each selected perspective;
+none is a mandatory extra pass solely because an API exists.
+
 For every mode, name explicitly skipped perspectives and why they are
 inapplicable. `Deep` means broad applicable coverage, not every configured
 reviewer.
