@@ -85,7 +85,12 @@ Use `risk-reviewer` for one selected perspective per invocation:
 
 - scope/responsibility: assigned deliverables, non-goals and ownership;
 - architecture/dependencies: structure, shared seams and lifecycle coupling;
-- API misuse/errors: concrete consumer patterns and compatibility;
+- communication API contracts: message/schema compatibility and consumer-visible
+  error, delivery and connection semantics;
+- function/type API contracts: module/library consumer patterns, arguments/results,
+  ownership, side effects, errors, call ordering and compatibility;
+- behavioral responsibilities/guarantees: operation meaning, invariants and state
+  transitions guaranteed at the approved component boundaries;
 - performance: demonstrable repeated-path cost or growth;
 - robustness/recovery: reachable failure, concurrency and partial state;
 - tests/faults: concrete escaping defects, mocks, isolation and required proof.
@@ -94,6 +99,17 @@ Each invocation needs its exact trigger, authority, surface, threat/failure
 model, expected evidence and stop condition. Preserve independent invocations
 when multiple perspectives need independence. A triggered risk role alone does
 not require an integrator.
+
+For the API or behavioral perspectives, read
+[risk perspective guidance](references/risk-perspectives.md) when selecting
+coverage and pass its path to the selected reviewer. Distinguish communication
+from function/type contracts rather than external/internal visibility. Select
+behavioral responsibilities/guarantees when operation meaning, invariants,
+state transitions or responsibility boundaries change. These are independently
+selected perspectives, not three mandatory passes for every change. Derive
+guarantees and responsibility placement from applicable authority; do not invent
+requirements. Consolidate overlapping findings without claiming one invocation
+covered another selected perspective.
 
 `design-alignment-reviewer` primarily checks integration/shared boundaries.
 Run it on a Task only when explicitly selected for that boundary, not every

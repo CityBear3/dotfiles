@@ -13,7 +13,7 @@ Language-specific idioms and pitfalls to inform reviewer hunts. Use these as sta
 - `dict.get(k)` returns `None` for missing keys — vs `dict[k]` raising `KeyError`; pick the right one
 - Iterator exhaustion: `list(map(f, xs))` after `for x in map(f, xs):` — the second iteration is empty
 
-## API
+## Function/type API contracts
 
 - Positional vs keyword arguments — `def f(a, b, c, d):` is fragile to reorder; `def f(*, a, b)` forces keyword-only
 - Implicit `return None` — explicitly `return None` (or `return`) at function end for readability

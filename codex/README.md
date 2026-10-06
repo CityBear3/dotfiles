@@ -157,6 +157,14 @@ mode. There are eight logical roles, but only seven native profiles:
 | finding-integrator | GPT-6.1 Sol/high | Conditional complex/conflicting findings |
 | design-alignment-reviewer | GPT-6.1 Sol/high | Composed/shared-boundary authority |
 
+Risk review distinguishes communication API contracts, function/type API
+contracts (including module boundaries), and behavioral responsibilities/guarantees.
+The last perspective traces who guarantees an operation's meaning, invariants
+and state transitions in business applications or infrastructure. Each selected
+perspective uses a separate invocation of the same `risk-reviewer`; these are
+not additional native profiles or mandatory reviews for every change. See
+[risk perspective guidance](skills/review/references/risk-perspectives.md).
+
 For new Task Leads, assess the whole Task before confirming the GPT-6.1 Sol/high
 default. Select Astra/high when concrete unresolved implementation or evidence
 interpretation difficulty supports that choice, not from the Task category alone. Record

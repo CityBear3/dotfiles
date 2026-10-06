@@ -13,7 +13,7 @@ Language-specific idioms and pitfalls to inform reviewer hunts. Use these as sta
 - Range loop variable capture — `go func() { use(i) }()` in pre-1.22 Go captures the shared `i`; check Go version
 - Slice append aliasing — `b := a[:n]; b = append(b, x)` may mutate `a` if cap allows
 
-## API
+## Function/type API contracts
 
 - Accept interfaces, return structs — narrows the API surface
 - Error wrapping: `fmt.Errorf("context: %w", err)` preserves the chain for `errors.Is` / `errors.As`
@@ -21,6 +21,9 @@ Language-specific idioms and pitfalls to inform reviewer hunts. Use these as sta
 - Zero-value usability — exported types should be useful at their zero value where possible (sync.Mutex, bytes.Buffer)
 - Avoid `interface{}` (`any`) in public APIs unless truly generic — kills type safety for callers
 - Naming: short, lowercased package names; exported names start with capital; `Get` prefix usually unnecessary
+
+## Communication API contracts
+
 - gRPC: field number changes break wire compatibility; reserved tags after removal
 
 ## Documentation

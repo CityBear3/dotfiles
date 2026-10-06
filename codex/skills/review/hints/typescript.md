@@ -13,7 +13,7 @@ Language-specific idioms and pitfalls to inform reviewer hunts. Use these as sta
 - Array methods that mutate (`sort`, `reverse`, `splice`) vs non-mutating — easy to confuse
 - Floating-point arithmetic — `0.1 + 0.2 !== 0.3`; relevant for money, time, coords
 
-## API
+## Function/type API contracts
 
 - Public function signature evolution — adding required params is breaking; default-valued params or function overloads are safer
 - Naming: `get*` for sync, `fetch*` / `load*` for async, `is*` / `has*` for boolean
