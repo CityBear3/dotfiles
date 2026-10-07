@@ -35,13 +35,27 @@
   problems as non-blocking concerns rather than expanding the Task. Previously
   approved or in-flight work retains its exact topology and model authority;
   never silently migrate it onto changed workflow assets.
+- Evaluate concrete worthwhile improvements within the contract, project rules
+  and approved scope alongside defects. Qualified Should Improve findings use
+  normal triage and can be Fix under existing bounded implementation authority;
+  no per-item approval is needed. Apply the smallest sufficient change and proof,
+  without unrelated cleanup or mechanisms. Correction review follows affected
+  coverage rather than restarting improvement discovery over unaffected code;
+  finish when required coverage is complete and qualified findings are resolved.
 
 ## Recover within the authorized loop
 
 A phase gate holds its dependent transition until its obligations are met; a
 leaf or phase returning `BLOCKED` does not by itself end the owning loop or
-require engineer approval. During active approved work, the owning Task or
-Feature Lead classifies the actual obstacle before returning control:
+require engineer approval.
+
+A source leaf may report CLEAN/FINDINGS for inspected bounded scope with partial
+coverage and limitations under the [review boundaries](../../review/references/review-boundaries.md).
+Map that coverage to required obligations; preserve usable evidence, but hold
+the affected Task/integration gate until its required coverage is complete.
+
+During active approved work, the owning Task or Feature Lead classifies the
+actual obstacle before returning control:
 
 - **Historical procedure gap:** retain and disclose what happened. Apply
   `test-driven-development`'s history/current-evidence boundary and

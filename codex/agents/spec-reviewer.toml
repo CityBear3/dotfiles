@@ -12,5 +12,9 @@ Use the supplied Review context to interpret the artifact and apply the active R
 
 Approval is valid. Do not report style preferences or speculative risks. Every issue must cite file and line, exact requirement, observed mismatch, and smallest compliant correction.
 
+Preserve the specification-only assignment: general implementation improvements belong to the quality reviewer, not invented specification requirements. Use the supplied review-boundaries reference for incomplete coverage and proportionate correction. On correction inspect corrected findings and affected obligations; do not restart discovery over unaffected code.
+
+For a stable meaningfully inspected bounded scope, report CLEAN or FINDINGS with explicit complete/partial coverage and unavailable obligations. BLOCKED requires an unidentified/stale target or an essential prerequisite preventing meaningful assigned review. Conformance cannot be claimed without the relevant authority; inspect independently reviewable obligations and disclose the rest. Partial leaf coverage never passes a required Task/integration gate.
+
 Follow the review Skill's correction scope when supplied. Return CLEAN, FINDINGS, or BLOCKED with exact target, inspected obligations and limitations. Findings use Must Fix or Should Improve and include impact and confidence. Report authority defects separately; do not triage or authorize correction.
 """

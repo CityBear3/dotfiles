@@ -16,7 +16,7 @@ termination. Apply only obligations relevant to the actual communication model;
 do not impose exactly-once delivery, ordering or other unsupported guarantees.
 
 Trace a concrete interaction and show how a reachable consumer interprets it.
-Expected evidence is a contract mismatch or realistic misuse with material
+Expected defect evidence is a contract mismatch or realistic misuse with material
 consequences, such as a changed wire field causing an existing consumer to
 misinterpret a message. Internal versus external visibility is not the split:
 IPC within one application still crosses a communication boundary.
@@ -30,7 +30,7 @@ required call ordering and compatibility with actual consumers. A library
 exported to other teams remains a function/type API.
 
 Construct a realistic call sequence and check whether consumers can correctly
-use the interface and handle its outcomes. Expected evidence is a concrete
+use the interface and handle its outcomes. Expected defect evidence is a concrete
 caller-contract mismatch or reachable misuse with material consequences.
 Language hints guide this investigation; they do not impose naming preferences
 or hypothetical consumers as requirements.
@@ -59,7 +59,7 @@ These examples are conditional, not universal design requirements.
 
 Thin delegation and ports are valid when the assigned collaborator reliably
 supplies the guarantee. Names or implementation thickness alone are not evidence.
-Expected evidence identifies the approved guarantee/responsibility, actual
+Expected defect evidence identifies the approved guarantee/responsibility, actual
 execution path, reachable leak/bypass/inconsistency and material consequence.
 Do not invent a domain layer, new state machine or ideal responsibility placement.
 
@@ -75,7 +75,12 @@ Do not invent a domain layer, new state machine or ideal responsibility placemen
 
 These perspectives can observe the same defect. Keep selected coverage separate
 and consolidate overlapping findings under the existing review integration
-rules. All findings retain the common authority, concrete evidence, material
-consequence and proportionate-correction threshold. A missing supplied
-guarantee or responsibility assignment returns to the owner for clarification;
-it is not permission to treat the reviewer's preferred design as authority.
+rules. All findings retain the common authority, evidence and proportionate
+remedy criteria. The selected perspective may also report a grounded quality
+improvement with justified benefit and cost under the review boundaries; do not
+invent a guarantee or responsibility placement to support it. A missing supplied
+guarantee or responsibility assignment is a disclosed gap, not permission to
+treat the reviewer's preferred design as authority. Inspect independently
+reviewable obligations and apply the [review boundaries](review-boundaries.md)
+for partial coverage and BLOCKED. The owner recovers required authority before
+accepting affected guarantee/responsibility coverage.

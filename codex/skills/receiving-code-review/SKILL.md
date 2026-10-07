@@ -15,6 +15,13 @@ worth reusing across independent sessions to the Feature Lead when useful;
 they never replace current Git, authority, verification, review, or triage
 evidence, and this role never edits `search-cache.md`.
 
+Use the [review boundaries](../review/references/review-boundaries.md) for
+worthwhile improvements as well as defects. A concrete, proportionate improvement
+may qualify as Should Improve without an existing bug; verify its expected
+benefit against change, complexity and verification cost. Review advice alone
+does not authorize edits, but an owned bounded improvement within existing
+implementation authority can be Fix without separate approval for every item.
+
 ## Coordinator-managed entry
 
 For completed-work feedback, first require the coordinator's shared problem
@@ -38,7 +45,8 @@ Require:
   not fabricate workflow evidence, but still requires problem/remedy and
   authority checks before classification;
 - each ordinary finding's severity, file and line, concrete behavior,
-  requirement, evidence, impact, proposed correction, and confidence; or each
+  requirement or quality rationale, evidence, impact or benefit, cost/trade-offs,
+  proposed correction, and confidence; or each
   separately reported authority-gap claim with its exact authority and defect
   evidence, which does not need a fabricated finding severity;
 - approved scope, decisions, non-goals, Review context, Review policy, and
@@ -56,7 +64,8 @@ inspect the required sources directly instead.
 Resolve the workspace, branch, base, merge base, head, range or composition,
 diff, status, and changed files directly from Git.
 Return top-level `BLOCKED` without classifying findings when the target is stale,
-evidence is missing, or in-scope source state falls outside the reviewed range.
+essential triage evidence is missing, or in-scope source state falls outside the
+reviewed range.
 
 ## Standalone read-only entry
 
@@ -67,6 +76,9 @@ standalone feedback, and the evaluation does not authorize a change.
 
 Derive or use the available Review context and disclose material assumptions.
 Return missing or stale verification as a limitation.
+Do not require Task artifacts, Git ranges or other general-template inputs that
+are irrelevant to the requested bounded evaluation. Block only when the target
+is unidentified/stale or essential evidence prevents the requested classification.
 
 ## Establish one current snapshot
 
@@ -79,9 +91,10 @@ Before classifying any item, capture:
 - available code, tests, approved decisions, Review context, Review policy,
   review evidence, and observed correction attempts.
 
-If a ref, finding, required input, dependency, permission, or runtime condition
-is missing, return top-level `BLOCKED` before classification. Preserve observed
-evidence and state the exact re-entry condition.
+If a target ref or essential finding evidence, input, dependency, permission,
+or runtime condition prevents the requested classification, return top-level
+`BLOCKED` before classification. Preserve observed evidence and state the exact
+re-entry condition.
 
 ## Process each finding
 
@@ -102,8 +115,9 @@ For each item:
 
 1. Read the complete source finding, any supplied integrated assessment, and
    cited code.
-2. Restate the concrete requirement and its exact authority.
-3. Reproduce or verify the claimed problem against the current unchanged target.
+2. Restate the concrete requirement or quality rationale and applicable authority.
+3. Reproduce or verify the claimed problem or improvement benefit against the
+   current unchanged target; a quality improvement does not require a current bug.
 4. Check repository guidance, current code and tests, approved scope,
    non-goals, Design Doc, Feature Contract, Task Contracts, eligible legacy plan
    authority, plan, Review context, and Review policy as applicable.
@@ -111,12 +125,13 @@ For each item:
    not cause the problem, and whether ownership belongs to the current Task,
    another approved responsibility, an independent pre-existing concern, or an
    authority gap.
-6. Evaluate the proposed remedy separately: whether it is necessary,
-   proportionate, in current scope, and already determined by approved authority.
+6. Evaluate the proposed remedy separately: whether it achieves the demonstrated
+   correction or benefit, justifies its costs, is in current scope, and is
+   authorized without an unresolved design choice.
 7. Classify each integrated item as exactly one:
-   - **Fix** — the current-target problem is verified, the current authority
-     owns it, and one bounded proportionate correction is already authorized
-     without an unresolved design choice.
+   - **Fix** — the current-target problem or worthwhile improvement is verified,
+     the current authority owns it, and one bounded proportionate correction is
+     already authorized without an unresolved design choice.
    - **Push back** — the problem or proposed remedy is incorrect, unsupported,
      preference-only, speculative, second-order, artifact-inapplicable, stale,
      not reproducible, already decided without materially new evidence, or
@@ -131,8 +146,8 @@ For each item:
      materially ambiguous, use reason exactly `Design Escalation`.
 8. Record current-head evidence and one concrete next action.
 
-A valid problem outside the current authority does not become a `Fix`. When it
-is independent of the current change and reveals no authority defect, classify
+A valid problem or improvement outside the current authority does not become
+a `Fix`. When it is independent of the current change and reveals no authority defect, classify
 the current correction request `Push back` and retain the verified problem
 separately as a non-blocking concern. Do not create a persistent backlog. When
 it reveals a Design authority defect, classify `Escalate` with reason `Design
@@ -156,6 +171,12 @@ For `Fix`, return one bounded plain-language correction handoff:
   invalidation; do not require every selected reviewer to rerun automatically;
 - observed prior attempts, concerns, and gaps.
 
+Bound Fix to the smallest sufficient change for the verified owned problem or
+qualified improvement and its necessary proof. Do not bundle unrelated cleanup
+or mechanisms. Once qualified findings are resolved and coverage is complete,
+do not restart improvement discovery over unaffected code merely to keep the loop
+running.
+
 Do not choose the builder here. The Task Lead applies an authorized Task-local
 Fix in its existing `execute-task` loop. The Feature Lead applies lightweight
 Fixes in `execute-lightweight-task`, and routes integration/cross-Task feedback
@@ -164,7 +185,7 @@ triage through the Feature Lead.
 
 For `Push back`, cite controlling code, test, Design, plan, or approved decision
 evidence. The same finding may be reconsidered only with materially new evidence
-of a reachable failure or approved-contract violation.
+of a reachable failure, approved-contract violation or justified quality benefit.
 
 For `Design Escalation`, identify the exact missing, contradictory, or
 materially ambiguous Design Doc authority and the engineer-owned decision
@@ -182,8 +203,8 @@ Return exactly one top-level result:
 
 - `TRIAGED` when every finding is classified as `Fix`, `Push back`, or
   `Escalate`;
-- `BLOCKED` for stale state, missing evidence or input, or an external/runtime
-  failure.
+- `BLOCKED` for stale/unidentified target state or missing essential evidence,
+  input, or external/runtime prerequisites preventing classification.
 
 For `TRIAGED`, report:
 

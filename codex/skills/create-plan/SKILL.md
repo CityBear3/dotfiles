@@ -236,8 +236,8 @@ new evidence of a concrete reachable failure or approved-contract violation.
 ## Review policy
 
 Include a separate `Review policy` section in every plan. The policy controls
-breadth, independence, and Acceptance; it references the Review context without
-repeating it.
+breadth, independence, and Acceptance; it references the Review
+context without repeating it.
 
 Use `adaptive` as the default for new planned work, or `deep` when approved
 risk justifies broader applicable perspectives. `focused` belongs to eligible
@@ -255,6 +255,13 @@ Apply these mode contracts:
   surface, expected evidence and stop condition. Separate perspectives remain
   independent invocations when needed. Use `design-alignment-reviewer` mainly
   for composed/shared-boundary authority, not routine local changes.
+
+Use the [review boundaries](../review/references/review-boundaries.md) for
+worthwhile implementation improvements and incomplete coverage. Improvement
+evaluation is common to every coverage mode, not another policy selection.
+Qualifying Should Improve findings enter normal triage; bounded improvements
+within existing implementation authority may be corrected without per-item
+approval. Broader coverage never grants new design or scope authority.
 
 When selecting API risks, distinguish communication API contracts from
 function/type API contracts, including non-public module boundaries. Separately
@@ -280,7 +287,7 @@ correction. A risk perspective alone does not trigger integration.
 
 Record:
 
-- **Mode and rationale**
+- **Coverage mode (`mode`) and rationale**
 - **Risk surfaces**
 - **Per-task gate**
 - **Integration required reviewers and reasons**, using `none` when task gates
@@ -309,17 +316,19 @@ Uncertainty requires rerun. Record that `review` owns the impact map, evidence
 coverage and correction traversal rules; supply prior reports, exact delta,
 current target and current coverage matrix without copying those rules.
 
-Use the same proportional Acceptance threshold in every mode. A finding survives
-only when it applies to the artifact and consumer model, cites an approved
-requirement, identifies concrete reachable evidence, states a material
-consequence, and proposes a proportionate correction. `Should Improve` requires
-a concrete maintainability consequence or measurable repeated cost.
+Use the same proportional finding criteria in every mode. Require artifact and
+consumer applicability, concrete evidence and a proportionate remedy. Must Fix
+retains the material-defect/required-evidence threshold. Should Improve may also
+identify a concrete quality benefit that justifies change, complexity and
+verification cost, without requiring a current bug or contract violation.
+Keep improvements within the contract, project rules and approved scope.
 
-Drop preference-only, speculative, second-order, artifact-inapplicable, optional
-polish, and objections to approved decisions without new evidence. A proposed
-state machine, schema, identity system, or other architectural mechanism is
-`Escalate` unless it is necessary and proportionate to a proven in-scope
-violation.
+Exclude from findings preference-only, speculative, second-order,
+artifact-inapplicable, trivial polish, and objections to approved decisions
+without new evidence. A proposed new architectural mechanism needs demonstrated
+proportionate benefit and applicable authority; a user-owned design decision or
+material scope change remains `Escalate`. Do not create improvement-only repeat
+passes after current required coverage and qualified findings are resolved.
 
 ## Fix model allocations at plan approval
 

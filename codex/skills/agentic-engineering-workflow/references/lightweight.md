@@ -92,12 +92,16 @@ Use `focused` as the lightweight default:
   all-clean reports or a simple clear finding eligible for direct triage;
 - the common Acceptance threshold.
 
-Acceptance keeps only artifact-applicable findings with an approved requirement,
-concrete reachable evidence, material consequence, and proportionate correction.
-Preference, speculation, generic best practice, optional polish, and objections
-to approved decisions without new evidence are not findings. A proposed new
-state machine, schema, identity system, or comparable mechanism is `Escalate`
-unless it is necessary and proportionate to a proven in-scope violation.
+Follow the [review boundaries](../../review/references/review-boundaries.md)
+for improvement evaluation and incomplete coverage; these need no extra mode.
+Acceptance keeps artifact-applicable findings with concrete evidence and a
+proportionate correction. Must Fix retains the material-defect/required-evidence
+threshold. Should Improve may also show a concrete quality benefit worth its
+change, complexity and verification cost within the contract, project rules and
+approved scope. Generic preference, speculation, trivial polish and unsupported
+objections to approved decisions are not findings. New user-owned design choices
+or material scope expansion remain `Escalate`. Correct qualified improvements
+through normal triage, without improvement-only repeat passes after completion.
 
 When the required risk or independence makes focused lightweight review
 inappropriate, return to planned discussion before editing. Planned adaptive

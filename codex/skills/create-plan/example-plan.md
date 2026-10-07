@@ -95,7 +95,7 @@ results and this stack are current.
 
 ## Review policy
 
-- **Mode:** `adaptive`.
+- **Coverage mode (`mode`):** `adaptive`.
 - **Rationale:** Public parsing behavior and a cross-component CLI journey
   require independent task gates; only the combined compatibility route needs
   integration review.
@@ -135,10 +135,13 @@ results and this stack are current.
   retry after progress without reducing reviewer breadth. Phase gates keep
   implementation, verification, findings integration, triage, and correction
   ordered; independent reviewers may run only after verifier `PASS`.
-- **Acceptance:** Keep only artifact-applicable findings with an approved
-  requirement, reachable evidence, material consequence, and proportionate
-  correction. Drop preference, speculation, optional polish, and objections to
-  approved decisions without materially new evidence.
+- **Acceptance:** Keep artifact-applicable findings with concrete evidence and
+  proportionate correction. Must Fix needs a material defect or required-evidence
+  gap; Should Improve may also show a concrete quality benefit worth its change,
+  complexity and verification cost within approved scope. Drop generic
+  preference, speculation, trivial polish and unsupported objections to approved
+  decisions. Resolve qualified findings through normal triage and correction;
+  do not add improvement-only repeat passes after required coverage is complete.
 
 ## Model and session allocations
 
