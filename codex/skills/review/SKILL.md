@@ -40,9 +40,13 @@ and only the named integration-only obligation and policy-selected cross-Task
 surface. Do not replay ordinary Task reviews over a synthetic full Feature
 range.
 
-Resolve Git and authority directly before dispatch and before reporting.
-Missing, contradictory or stale inputs are BLOCKED. Keep complete exact sources
-readable. Pass relevant clauses instead of unrelated transcripts; perspectives
+Resolve applicable Git and authority directly before dispatch and before reporting.
+Use the [review boundaries](references/review-boundaries.md) for proportionate
+improvements and essential prerequisites versus coverage limits; pass it to
+reviewers.
+Required gate gaps hold the owner's affected transition, not every meaningful
+bounded source review. Keep complete exact sources readable. Pass relevant
+clauses instead of unrelated transcripts; perspectives
 owning whole-contract coverage inspect that complete applicable source.
 Supplied applicable search-cache entries are optional navigation, never a
 review prerequisite. Return costly findings worth reusing across independent
@@ -186,21 +190,26 @@ Return a coverage map identifying each selected perspective as fresh, explicitly
 carried, pending or blocked, with attributable reports and reasons. Do not
 report complete review while any required coverage is missing.
 
-## Admit only material findings
+## Admit grounded, proportionate findings
 
-Every source reviewer applies the same threshold before reporting. Require
-artifact applicability, an approved-contract violation or realistic reachable
-behavior, concrete evidence, material consequence and proportionate remedy.
-Should Improve needs a concrete maintainability consequence or measurable
-repeated cost. Findings include Must Fix/Should Improve, file/line,
-requirement, scenario/evidence, impact, correction and confidence.
+Every source reviewer applies the same criteria within its selected perspective.
+Must Fix retains the existing threshold: applicable material defects or required
+evidence gaps grounded in approved obligations or realistically reachable
+behavior, with concrete evidence and proportionate remedy. Should Improve may
+also identify a concrete quality improvement whose
+benefit justifies its change, complexity and verification cost, without requiring
+a current defect. Follow the review boundaries for eligibility and authority.
+Findings include Must Fix/Should Improve, file/line, applicable requirement or
+quality rationale, scenario/evidence, impact or benefit, cost/trade-offs,
+proportionate correction and confidence.
 
-Drop preferences, speculative or second-order concerns, generic best practices,
-quotas, optional polish, imagined consumers and unsupported objections to
-approved decisions. Revisit approved non-problems and prior Push back only with
+Exclude from findings generic preferences, speculative or second-order concerns,
+best practices without demonstrated benefit, quotas, trivial polish,
+imagined consumers and unsupported objections to approved decisions. Revisit
+approved non-problems and prior Push back only with
 materially new evidence. A faulty implementation passing a test is an
-investigation technique, not sufficient evidence without a material contract
-violation or realistic failure.
+investigation technique, not sufficient evidence without a material violation,
+realistic failure, or concrete improvement to proof of an applicable behavior.
 
 Keep historical discipline separate from current defects, verification gaps
 and explicit contractual history obligations. Apply `test-driven-development`'s
@@ -244,8 +253,8 @@ unconditionally add another integrator turn.
 
 Supply exact unchanged target, full relevant reports, directly readable
 authority, Review context/policy, raw observations, prior triage and relevant
-origin history. The integrator first checks evidence/materiality, deduplicates
-and resolves contradictions without inventing issues. It assesses problem
+origin history. The integrator first checks evidence and finding eligibility,
+deduplicates and resolves contradictions without inventing issues. It assesses problem
 validity, remedy necessity/proportionality, origin, scope owner and design
 sufficiency separately. Independent out-of-scope problems remain separate
 non-blocking concerns, not a backlog.
@@ -266,14 +275,22 @@ carried evidence; integration trigger/result or direct-triage eligibility;
 findings, separate authority/policy gaps, concerns, any useful cross-session
 discovery candidates and exact re-entry conditions.
 
-- CLEAN: all required applicable coverage is fresh or explicitly non-invalidated,
+- CLEAN (owning Task/integration review): all required applicable coverage is
+  fresh or explicitly non-invalidated,
   no unexplained source state exists, verification is current, and no policy,
   design or evidence gap remains.
 - FINDINGS: complete source findings plus required integration evidence or
   explicit direct-triage eligibility; priority authority escalation includes
   the paused queue. Triage remains with receiving-code-review.
-- BLOCKED: stale target, missing coverage/input, policy conflict, unavailable
+- BLOCKED (owning Task/integration review): stale target, missing required
+  coverage/input, policy conflict, unavailable
   allocation/role or incomplete required integration.
+
+Source leaves and standalone reports apply the review boundaries' bounded-scope
+rules: CLEAN/FINDINGS may disclose partial coverage and never certify uninspected
+obligations. The owner cannot consume partial coverage as a complete gate. Report
+the precise unmet obligation and recovery condition instead of blocking because
+an irrelevant general-template input is absent.
 
 Do not translate carried evidence into a newly inspected verdict. Recheck
 current Git state before reporting and preserve any evidence made stale by

@@ -98,6 +98,11 @@ authorized Fix items, preserve justified Push back and non-blocking independent
 out-of-scope concerns, and immediately return user-owned authority defects.
 Do not start corrections from raw, untriaged findings.
 
+Qualifying implementation improvements use the same triage and correction route
+as other findings. A verified bounded improvement within existing authority can
+be Fix without per-item approval. Design decisions, public-contract changes and
+material scope expansion remain with the engineer; raw advice never grants authority.
+
 Apply the TDD history/current-evidence boundary before treating a procedural
 finding as a deviation. Disclose a history-only gap and continue current gates
 after justified Push back; ordinary procedure instructions do not make history
@@ -108,6 +113,12 @@ an independent Acceptance condition or require an exception approval.
 Retain H1, reports, triage, observed attempts and the complete selected coverage.
 The same Feature Lead implements the bounded correction and commits H2. Do not
 route it through execute-plan or create planned cache artifacts.
+
+Apply the smallest sufficient authorized change for the verified finding or
+qualified improvement and its necessary proof. Do not bundle unrelated cleanup
+or mechanisms. Re-review corrected findings and affected coverage; do not restart
+improvement discovery over unaffected code or add improvement-only passes after
+qualified findings are resolved and required coverage is complete.
 
 Update the matrix, run fresh affected rows and explicitly carry unaffected
 verification under the coordinator's applicability rule. Supply `review` the H1..H2

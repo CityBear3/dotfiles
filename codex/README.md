@@ -211,6 +211,14 @@ mapping; a label change or writer self-check does not supply a Task gate.
 
 Normal planned review uses independent spec and implementation-quality reviewers
 in parallel after PASS. Risk review is policy-selected and parameterized.
+Coverage modes remain `adaptive`/`deep`, or eligible lightweight `focused`.
+Every mode evaluates worthwhile implementation improvements within the contract,
+project rules and approved scope. Concrete benefits must justify change,
+complexity and verification cost; qualifying Should Improve findings enter normal
+triage and authorized correction. Correction review follows affected coverage
+without restarting improvement discovery over unaffected code. Source reviews
+can disclose partial bounded coverage; required Task/integration gates still
+need complete coverage. See the [review boundaries](skills/review/references/review-boundaries.md).
 Finding integration runs for overlap/conflict, authority defects, scope-sensitive
 remedies or non-trivial attribution, not merely because a risk reviewer ran.
 All-clean reports and a single clear bounded finding need no extra integrator;

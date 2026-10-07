@@ -160,6 +160,11 @@ and either the required finding-integrator result or an explicit simple-finding
 direct-triage eligibility record. Use `receiving-code-review` to verify and
 classify Fix, Push back or Escalate; raw findings alone do not authorize edits.
 
+Qualifying implementation improvements use the same triage and correction route
+as other findings. A verified bounded improvement within existing authority can
+be Fix without per-item approval. Design decisions, public-contract changes and
+material scope expansion remain with the engineer; raw advice never grants authority.
+
 Apply the TDD history/current-evidence boundary before treating a procedural
 finding as a plan deviation. Ordinary instructions to perform RED then GREEN
 do not establish an independent historical Acceptance obligation. Disclose a
@@ -178,6 +183,12 @@ Retain prior reviewed head H1, full reports/triage, correction attempts and the
 complete policy-selected coverage set. This same Task Lead applies only the
 authorized bounded correction and creates a separate correction commit H2.
 No new implementer session or repeated writer handoff is needed.
+
+Apply the smallest sufficient authorized change for the verified finding or
+qualified improvement and its necessary proof. Do not bundle unrelated cleanup
+or mechanisms. Re-review corrected findings and affected coverage; do not restart
+improvement discovery over unaffected code or add improvement-only passes after
+qualified findings are resolved and required coverage is complete.
 
 Revalidate base/head/range/status, update the matrix and run fresh affected
 verification on H2, explicitly carrying unaffected rows. Prepare the `review`
