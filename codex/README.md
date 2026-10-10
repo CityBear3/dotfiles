@@ -143,8 +143,12 @@ native verification-runner and focused-reviewer gates. Feature integration and
 standalone checks are also native leaves of the Feature session. Every new
 native leaf has empty inherited history and no descendants.
 
-The tracked session defaults are GPT-6.1 Sol/high for both normal and Plan
-mode. There are eight logical roles, but only seven native profiles:
+The tracked session defaults are GPT-6.1 Sol/xhigh for both normal and Plan
+mode, supporting the Feature Lead's design discussions and coordination.
+Task Leads retain explicit GPT-6.1 Sol/high startup settings, and native
+reviewers retain their GPT-6.1 Sol/high profiles; they do not inherit the
+Feature Lead's effort. There are eight logical roles, but only seven native
+profiles:
 
 | Role | Model / effort | Boundary |
 | --- | --- | --- |
