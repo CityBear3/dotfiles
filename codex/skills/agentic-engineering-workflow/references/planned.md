@@ -27,40 +27,91 @@ Resolve planned-path entry in this order:
    expected to be short or create a duplicate when exact current approved
    authority already covers the work. File existence is not alignment or
    approval. Let `design-discussion` own model construction, understanding
-   questions, synthesis, and the shared-model checkpoint. Do not permit options,
-   recommendations, or downstream drafting until it reports `Model Aligned`.
-4. Only after the shared model is aligned, let the user settle one reachable
-   material design decision at a time while `design-discussion` follows branches
-   and dependencies.
+   questions, synthesis, and the shared-model checkpoint. Require the checkpoint
+   to distinguish required outcomes, scope, completion conditions, and
+   established constraints from current-system facts and pending solution
+   choices. Those requirements must be understandable without selecting an
+   unresolved implementation mechanism. Do not require new responsibility
+   placement or processing paths to be selected for `Model Aligned`, and do not
+   permit solution options, recommendations, or downstream drafting before it.
+4. Only after the shared requirements are aligned, let the user settle how to
+   realize them, one reachable material design decision at a time, while
+   `design-discussion` follows branches and dependencies. If exploration changes
+   or reveals a gap in required behavior, scope, or constraints, return to the
+   affected model-alignment branch before another solution choice.
 5. Require `design-discussion` to report Design Readiness before advancing. Do
    not replace the gate with an assertion that the design is probably settled.
-6. When a Design Doc is warranted, reuse an exact, current, approved Design Doc
-   for unchanged coverage without repeating its completed approval. Otherwise,
-   pass the settled source and readiness result to `design-doc`. The temporary
-   decision record needs no separate holistic approval. Require user approval of
-   the exact new or revised Design Doc as the one holistic design approval, then
-   require a successful authority-transfer check before deleting the living
-   record.
-7. When no Design Doc is warranted, present the complete decision record for the
-   one holistic design approval before Feature Contract drafting. Retain that
-   approved record as design authority throughout the active workspace
-   lifecycle.
-8. Construct a complete Feature Contract. After an approved Design Doc and, for
+6. With Design Readiness, present the reasoned documentation recommendation from
+   `design-discussion` and obtain the engineer's confirmation under
+   [the documentation policy](#recommend-the-documentation-approach). Hold
+   Design Doc drafting or revision, and Feature Contract drafting from a
+   decision record, until that approach is confirmed. Reuse an explicit prior
+   confirmation while its exact scope and reasons remain applicable.
+7. For a confirmed Design Doc approach, reuse an exact, current, approved Design
+   Doc for unchanged coverage without repeating its completed approval. Otherwise,
+   pass the settled source, readiness result, and confirmed approach to
+   `design-doc`. The temporary decision record needs no separate holistic
+   approval. Require user approval of the exact new or revised Design Doc as the
+   one holistic design approval, then require a successful authority-transfer
+   check before deleting the living record.
+8. For a confirmed decision-record-only approach, present the complete decision
+   record for the one holistic design approval before Feature Contract drafting.
+   Retain that approved record as design authority throughout the active
+   workspace lifecycle.
+9. Construct a complete Feature Contract. After an approved Design Doc and, for
    a new or revised document, its transfer check, use `design-doc` to derive it
    from that source. Without a Design Doc, use `design-discussion` to derive it
    from the approved decision record and repository evidence.
-9. Write the Feature Contract at
-   `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
-   workspace-only execution artifact and require its separate user approval.
-   Do not force-add, stage, or commit it unless the user explicitly chooses
-   archival. Do not treat Design Doc approval, artifact existence, or a
-   conversation summary as Feature Contract approval.
-10. Only after the Feature Contract is approved and current, use `create-plan` to
-   create the ignored, workspace-only `implementation-plan.md` beside it.
-   Require separate approval of the complete Implementation Plan, its Task
-   Contract set, Review context, and Review policy before using `execute-plan`.
-   Do not force-add, stage, or commit the plan unless the user explicitly
-   chooses archival.
+10. Write the Feature Contract at
+    `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
+    workspace-only execution artifact and require its separate user approval.
+    Do not force-add, stage, or commit it unless the user explicitly chooses
+    archival. Do not treat Design Doc approval, artifact existence, or a
+    conversation summary as Feature Contract approval.
+11. Only after the Feature Contract is approved and current, use `create-plan` to
+    create the ignored, workspace-only `implementation-plan.md` beside it.
+    Require separate approval of the complete Implementation Plan, its Task
+    Contract set, Review context, and Review policy before using `execute-plan`.
+    Do not force-add, stage, or commit the plan unless the user explicitly
+    chooses archival.
+
+## Recommend the documentation approach
+
+On the planned path, use a Design Doc as the default durable design authority.
+With Design Readiness, present one evidence-backed recommendation and its
+concrete reasons for the engineer to confirm before drafting or revising it:
+
+- **Create or revise a Design Doc:** preserve meaningful alternatives,
+  trade-offs, non-obvious choices, responsibility or contract decisions, or a
+  useful entry point for understanding the system later. Revise an existing
+  document when the settled design changes its covered decisions.
+- **Reuse an existing Design Doc:** its exact, current, approved content covers
+  the settled design, including a concrete implementation of its existing
+  policy, without new decisions requiring a document change. Identify that
+  document and its applicable coverage; do not create a duplicate.
+- **Use only the decision record:** the change is obvious or local and adds no
+  design rationale or system explanation worth preserving in a durable doc.
+  Explain why a Design Doc adds insufficient value and that the ignored,
+  workspace-only record is retained throughout the active workspace lifecycle;
+  this does not promise long-term archival.
+
+Assess the choices considered before and during discussion, including resolved
+trade-offs. Design Readiness or a now-settled solution is not by itself a reason
+to omit the Design Doc. Scale document depth to the decisions; a short Design
+Doc may be enough. Do not invent alternatives or expand scope to justify one.
+
+Ask the engineer to confirm the reasoned recommendation, rather than asking
+only whether to write a Design Doc. An explicit applicable request or prior
+confirmation can settle this choice without another prompt; silence or an
+Agent recommendation cannot. Retain the recommendation, reasons, and confirmed
+approach in the living record or existing authority/handoff when no new record
+is needed. Revisit only an affected choice when its scope or reasons change.
+This confirmation selects the documentation approach; it does not approve the
+design content or replace the later holistic design approval, Feature Contract
+approval, or Implementation Plan approval. Do not require holistic approval of
+both a temporary record and the Design Doc that replaces it.
+
+## Assess Design Readiness
 
 Design Readiness holds only after `design-discussion` reports an aligned shared
 working model and every applicable condition is satisfied:
@@ -89,11 +140,14 @@ duplicate record solely to repeat them.
 The coordinator handoff to `design-discussion` carries the route, confirmed
 workspace, repository identity and evidence, record location, exact existing
 authority, and unresolved evidence. Receive its current conceptual phase,
-working-model alignment state, unresolved understanding questions, readiness
-result, unresolved design branches, discovery re-entry condition, Design Doc
-applicability, and current record. The handoff to `design-doc` carries the
-settled source and readiness result. Receive the exact approval state,
-transfer-check result, record lifecycle, and any re-entry gap.
+working-model alignment state, aligned required outcomes and established
+constraints, unresolved understanding questions and pending solution choices
+kept separate, readiness result, unresolved design branches, discovery re-entry
+condition, documentation recommendation and reasons, and current record. Return
+the engineer-confirmed documentation approach to the selected phase. The handoff to `design-doc`
+carries the settled source, readiness result, and confirmed approach. Receive
+the exact approval state, transfer-check result, record lifecycle, and any
+re-entry gap.
 
 When discovery evidence arrives, return through `Model Aligning` before another
 design choice. After interruption or compaction, recheck repository identity,

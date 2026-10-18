@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Investigate and align the problem, then explore user-owned design decisions on planned-path entry or design re-entry.
+description: Align required outcomes and constraints, then explore user-owned solution choices on planned-path entry or design re-entry.
 ---
 
 # Design discussion
@@ -16,37 +16,62 @@ existing authority and its currentness, and unresolved evidence. Do not persist
 a material decision until the coordinator has confirmed the checkout, branch,
 and starting ref.
 
+Use `Model Aligning` to establish what must be achieved and the conditions it
+must satisfy. Use `Decision Exploration` to choose how to achieve those aligned
+requirements. Keep this boundary explicit in questions, summaries, and records.
+
 Read relevant code, tests, documentation, and history before asking questions.
 Present the smallest complete provisional working model that gives the user
 enough context to challenge it. Cover, when applicable:
 
-- current processing, behavior, and responsibility placement;
-- desired outcome and observable completion;
-- constraints, invariants, and non-goals;
-- decisions already made and their exact authority;
-- assumptions, contradictions, and remaining ambiguity; and
-- success, failure, recovery, concurrency or conflict, and verification paths.
+- the problem, desired outcomes, and required observable behavior;
+- scope, non-goals, and observable completion conditions;
+- established constraints, invariants, and decisions with their exact authority;
+- current-system behavior, processing, and responsibility placement as facts;
+- required success, failure, recovery, concurrency, or conflict guarantees; and
+- assumptions, contradictions, understanding gaps, and pending solution choices.
 
 Distinguish repository-observed facts, user-stated intent, and Agent inference.
 The working model is a falsifiable account of the problem, not approved
 authority or a design proposal.
 
+Also distinguish requirements, established constraints or decisions,
+current-system facts, and unresolved solution choices. Existing implementation
+is context, not automatically a requirement for the new design. Preserve an
+explicit user-chosen technology or approved mechanism as an established
+constraint; do not reopen it merely to enforce this boundary. Keep tentative
+solution suggestions and Agent proposals pending rather than promoting them to
+requirements.
+
+Classify by meaning, not technical vocabulary. For example, requiring retries
+to avoid duplicate records specifies behavior; choosing idempotency keys or a
+database constraint to provide that guarantee is a solution decision unless
+already fixed by explicit authority. Investigate current mechanisms as needed,
+but leave new algorithms, storage choices, responsibility placement, and
+recovery mechanisms for Decision Exploration.
+
 Resolve repository-discoverable facts before asking the user. Then test the
 model one material misunderstanding or hidden assumption at a time, choosing
-the question whose answer could most change scope, responsibilities, paths, or
-later decisions. Do not frame an understanding question as a design choice, and
-do not attach options, a recommendation, or an approval request. Incorporate
-the answer, identify any newly exposed contradiction or dependency, and ask the
-next material understanding question. Show only the affected model slice after
+the question whose answer could most change required behavior, scope, completion
+conditions, or constraints. An understanding question clarifies what is needed;
+do not frame it as a choice of implementation mechanism or attach design
+options, a recommendation, or an approval request. Incorporate the answer,
+identify any newly exposed contradiction or dependency, and ask the next
+material understanding question. Show only the affected model slice after
 ordinary answers; re-synthesize the complete model at a branch boundary or
 before entering design decisions.
 
 Treat the shared model as aligned only when no known material error or omission
-remains, current and desired responsibilities and paths are mutually understood,
-and every remaining unknown is classified as a design decision or an explicit
-discovery need. Give the user a chance to correct the complete model at that
-checkpoint. Confirmation of understanding is not holistic design approval.
-Do not enter design choices before this checkpoint.
+remains in the problem understanding and the purpose, required behavior, scope,
+completion conditions, and established constraints are mutually understood.
+State them without selecting an unresolved solution. List remaining how-to
+choices and explicit discovery needs separately; those choices need not be
+settled to report `Model Aligned`. An unanswered requirement remains an
+understanding gap unless explicitly deferred with its intent and impact; do not
+relabel it a solution choice to pass the checkpoint. Give the user a chance to
+correct the complete model at that checkpoint. Confirmation of understanding
+is not holistic design approval. Do not enter design choices before this
+checkpoint.
 
 Report the current conceptual phase as `Investigating`, `Model Aligning`,
 `Model Aligned`, `Decision Exploration`, `Discovery Pending`, or `Design Ready`.
@@ -72,8 +97,10 @@ because the discussion is expected to be short. In a provisional section,
 record repository and authority identity, the current conceptual phase,
 checkpoint and alignment result, user-stated intent, and material model claims
 classified as confirmed, evidence-backed, inferred, or unresolved. Keep this
-section separate from settled decisions. Update the decision section as choices
-settle with:
+section separate from settled decisions. Within the model, keep requirements
+and established constraints separate from current-system facts and pending
+solution choices; retain the aligned requirement summary at the checkpoint.
+Update the decision section as choices settle with:
 
 - selected approaches and rationale;
 - rejected alternatives and reasons;
@@ -97,9 +124,15 @@ Enter this phase only after the shared-model checkpoint. Resolve understanding
 gaps first; presenting an option is not a substitute for learning what the
 system currently does or what outcome the user means.
 
+In `Decision Exploration`, compare ways to satisfy the aligned requirements and
+constraints. Select architecture, responsibility placement, algorithms,
+interfaces, storage, and recovery mechanisms only where they remain open. Use
+the required outcomes as the criteria for evaluating these choices.
+
 Resolve only one material decision at a time:
 
-1. state the decision and why it is now reachable;
+1. state the decision, the aligned requirement or constraint it serves, and why
+   it is now reachable;
 2. present the smallest set of viable options;
 3. explain concrete trade-offs in this codebase;
 4. recommend one option and why;
@@ -108,7 +141,10 @@ Resolve only one material decision at a time:
    between decisions.
 
 If an answer or new evidence invalidates the shared model, return to model
-alignment before presenting the next design decision.
+alignment before presenting the next design decision. When exploration or a
+need to decompose scope changes or exposes a gap in required behavior, scope,
+or constraints, clarify and confirm the affected requirement there. Do not
+silently change the target behavior or narrow scope to fit a preferred solution.
 
 When a decision requires a prototype, visual artifact, benchmark, or another
 discovery phase, record the explicit handoff and the evidence required to
@@ -117,9 +153,6 @@ available. Report `Discovery Pending`, then re-enter `Model Aligning` with the
 named evidence before presenting another design choice. Support user-authored
 prototypes with research, diagnostics, or review; do not take over
 implementation while the user is using code to explore the design.
-
-If the design scope is too broad to explore reliably, make scope decomposition
-the next user-owned design decision.
 
 ## Assess Design Readiness
 
@@ -154,18 +187,24 @@ decisions, without copying them into a duplicate living record.
 - For a small change, the initial model and alignment may take one exchange. For
   a broad system, start with a coarse complete map, examine one subsystem or
   path at a time, and re-synthesize the whole before design decisions.
-- Use a Design Doc for cross-cutting architecture, durable public contracts, or decisions worth preserving.
-- Skip the Design Doc when the settled scope does not need a durable architecture
-  artifact, but still construct a Feature Contract before planning.
+- On the planned path, default to preserving settled design in a Design Doc.
+  With Design Readiness, return a reasoned recommendation to create or revise
+  one, reuse an existing approved document, or use only the decision record
+  under the coordinator's
+  [documentation policy](../agentic-engineering-workflow/references/planned.md#recommend-the-documentation-approach).
+  Consider decisions and trade-offs resolved during discussion, not just any
+  remaining uncertainty. Let the coordinator obtain the engineer's confirmation
+  before Design Doc drafting or decision-record-only Feature Contract drafting.
 - Do not implement from this skill.
 
 ## Construct a Feature Contract without a Design Doc
 
-When Design Readiness holds and the coordinator confirms that no Design Doc is
-warranted, present the complete decision record for explicit user approval as
-the one holistic design approval. Retain that approved record as the design
-authority throughout the active workspace lifecycle. Only then derive a
-separate Feature Contract from that record and repository evidence. Include:
+When Design Readiness holds and the coordinator returns the engineer-confirmed
+decision-record-only approach, present the complete decision record for explicit
+user approval as the one holistic design approval. Retain that approved record
+as the design authority throughout the active workspace lifecycle. Only then
+derive a separate Feature Contract from that record and repository evidence.
+Include:
 
 - context and goal;
 - scope and non-goals;
@@ -194,10 +233,13 @@ Implementation Plan.
 
 Return the current conceptual phase, current decision record, repository and
 existing-authority identity and currentness, working-model alignment state,
-unresolved understanding questions, Design Readiness result, unresolved design
+aligned required outcomes and established constraints, unresolved understanding
+questions, pending solution choices, Design Readiness result, unresolved design
 branches and dependencies, relevant evidence and any discovery re-entry
-condition, and whether the settled decisions warrant a Design Doc to
+condition, and the documentation recommendation, concrete reasons, exact existing
+document coverage, and any applicable prior engineer confirmation to
 `agentic-engineering-workflow`.
-When no Design Doc is warranted, also return the decision-record approval state
-and draft Feature Contract. Let the coordinator own transitions and Feature
-Contract approval.
+After the engineer confirms a decision-record-only approach and approves the
+record, also return that confirmation, the decision-record approval state, and
+draft Feature Contract. Let the coordinator own transitions and Feature Contract
+approval.
