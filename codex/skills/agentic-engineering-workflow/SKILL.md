@@ -51,8 +51,12 @@ For every transition retain:
 - the applicable Design Doc or decision record and the Feature Contract's
   source, approval state, storage form, and currentness;
 - for planned work, the living decision record location, shared working-model
-  alignment state, Design Readiness result, unresolved understanding questions,
-  unresolved design branches, and any discovery re-entry evidence;
+  alignment state, aligned required outcomes and established constraints,
+  unresolved understanding questions kept separate from pending solution
+  choices, Design Readiness result, unresolved design branches, documentation
+  recommendation and reasons, the
+  engineer's confirmed documentation approach and its currentness, and any
+  discovery re-entry evidence;
 - the Review context and complete active Review policy;
 - for planned work, the Task dependency DAG, PR topology, task workspaces,
   accepted and candidate results, stale descendants, and integration-only
@@ -76,7 +80,8 @@ Do not load all routes or references at entry.
   the combined handoff. Use that route only when every condition holds.
 - **Planned work:** when lightweight eligibility fails, or the request enters
   or resumes planned work, read [planned.md](references/planned.md). It owns
-  Design Readiness, approval transitions, promotion and legacy continuation.
+  Design Readiness, documentation recommendations and engineer confirmation,
+  approval transitions, promotion and legacy continuation.
   Design discussion alone does not authorize implementation.
 - **Execution or gate recovery:** before entering an authorized implementation,
   correction, dependency-release or acceptance loop, read

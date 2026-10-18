@@ -22,6 +22,12 @@ drafting source is one of:
 - a user-authored draft supported by an equivalent settled source and readiness
   result.
 
+Before drafting or revising, require the coordinator's evidence that the
+engineer confirmed the reasoned documentation approach. An explicit applicable
+request or prior confirmation is sufficient; do not ask again while it remains
+current. This selects the documentation approach and does not replace approval
+of the completed Design Doc. Return a missing confirmation to the coordinator.
+
 An exact, current, approved Design Doc can instead remain the durable authority
 for unchanged readiness coverage without another drafting or approval pass.
 
@@ -58,6 +64,10 @@ After all material decisions are settled, Codex may draft the complete Design
 Doc. Derive its design-specific prose from the complete settled source and
 repository evidence. Do not introduce a component, responsibility, contract, or
 trade-off that those sources do not establish.
+
+Scale detail to the design decisions and future reader's needs. A short Design
+Doc is sufficient when it preserves the relevant rationale and system overview;
+do not turn it into an implementation manual or invent alternatives to fill it.
 
 If drafting reveals a material ambiguity, stop and return it to design
 discussion through the coordinator. Do not hide a new decision in polished
