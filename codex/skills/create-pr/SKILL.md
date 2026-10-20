@@ -94,15 +94,23 @@ content from memory.
 
 ## Draft
 
-Follow the repository template. Otherwise include:
+Follow the repository template. Otherwise use the full seven-section format
+below by default, with each item as a separate heading. Keep the sections for
+small changes too, shortening their content rather than merging or omitting
+them. An explicit user request for an abbreviated format takes precedence.
 
 - Summary
 - Motivation
 - Design decisions
-- Authority and planned or approved base
+- Authority and base
 - Changes
 - Verification
-- Known limitations or follow-ups
+- Known limitations
+
+State the approved scope and planned or approved base under Authority and base;
+put unverified surfaces, limitations and any justified follow-ups under Known
+limitations. When a section has no applicable content, explain that briefly
+without inventing decisions, authority, checks or follow-up work.
 
 Describe the accepted observed results; do not claim checks that were not run
 or present publication preflight checks as verification. Keep implementation
