@@ -75,10 +75,13 @@ that policy requires a material user-owned choice, or observed risk makes
 `execute-lightweight-task`. Do not silently select or strengthen policy to keep the
 lightweight path.
 
-Use `focused` as the lightweight default:
+Use `focused` coverage + `deep` source-review depth as the lightweight default:
 
 - one independent `focused-reviewer` covering specification, implementation
   and test quality, with the Feature Lead as direct sole writer;
+- the [source-review depth](../../review/references/review-depth.md) contract
+  supplied to that reviewer within its combined assignment; depth does not add
+  reviewers or change integration, triage or correction boundaries;
 - a mechanical `verification-runner` before review;
 - fixed runner GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/high and conditional
   finding-integrator GPT-6.1 Sol/high bindings; Feature Lead retains session defaults;
@@ -105,9 +108,9 @@ through normal triage, without improvement-only repeat passes after completion.
 
 When the required risk or independence makes focused lightweight review
 inappropriate, return to planned discussion before editing. Planned adaptive
-and deep policies retain separate specification and implementation-quality
-review. If any required independent reviewer cannot be established, report
-BLOCKED; do not substitute a lead pass. A no-agent instruction conflicting with
+and comprehensive coverage policies retain separate specification and
+implementation-quality review. If any required independent reviewer cannot be
+established, report BLOCKED; do not substitute a lead pass. A no-agent instruction conflicting with
 an approved gate requires engineer policy authority.
 
 Give `execute-lightweight-task` one plain-language task handoff containing:

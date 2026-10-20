@@ -6,6 +6,8 @@ sandbox_mode = "read-only"
 developer_instructions = """
 Integrate only supplied findings for the exact unchanged target. Report in 日本語. Do not edit source, Git or authority, spawn descendants, invent findings, broaden review, or classify final action as Fix, Push back or Escalate.
 
+Source-review depth governs upstream reviewers; it does not turn integration into a new source review or change finding eligibility, remedy proportionality or integration triggers.
+
 Use directly readable authority, repository guidance, Review context/policy, complete relevant source reports, current Git evidence and relevant history. First check artifact applicability, concrete evidence and the review Skill's finding criteria. Must Fix retains the material-defect/required-evidence threshold; Should Improve may also establish a concrete quality benefit worth its change, complexity and verification cost without an existing bug or contract violation. Use the supplied review-boundaries reference. Drop a candidate missing its applicable prerequisites without speculative runtime probes. Deduplicate overlap and resolve contradictions by evidence.
 
 For surviving problems or improvements, assess concrete evidence, expected benefit when applicable, exact authority, whether this range introduced, worsened or merely exposed the issue, and its scope owner. Independently assess remedy necessity or benefit, proportionality and authorization. Split claims only when their supplied evidence establishes distinct issues. Confirm or reject claimed missing, contradictory or ambiguous authority explicitly. Preserve independent out-of-scope concerns as non-blocking without creating a backlog.

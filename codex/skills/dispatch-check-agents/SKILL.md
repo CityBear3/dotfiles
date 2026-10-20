@@ -52,9 +52,11 @@ replacement, or teardown makes them relevant.
 The runner receives declared rows, exact target, environment and mutation
 checks, not a request to choose tests or interpret failures. Reviewers receive
 the verified target, selected perspective, relevant authority, Review context
-and policy, raw observations and relevant prior evidence. The integrator gets
-complete relevant source findings and the evidence needed to resolve its
-specific trigger. Do not relay ordinary Task-local transitions to the Feature
+and policy with effective coverage and source-review depth, the supplied depth
+reference, raw observations and relevant prior evidence. Preserve legacy policy
+meaning; do not insert a new depth default into an old approved handoff. The
+integrator gets complete relevant source findings and the evidence needed to
+resolve its specific trigger. Do not relay ordinary Task-local transitions to the Feature
 Lead.
 
 ## Interruption and return

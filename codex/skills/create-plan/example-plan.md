@@ -96,6 +96,12 @@ results and this stack are current.
 ## Review policy
 
 - **Coverage mode (`mode`):** `adaptive`.
+- **Source-review depth (`depth`):** `deep`, using the
+  [depth contract](../review/references/review-depth.md) within each assigned
+  perspective. Trace material parser/renderer paths and actual caller
+  assumptions; check concrete counterexamples and disconfirming evidence.
+  Depth does not add perspectives, change finding thresholds or require
+  full-range improvement discovery on correction.
 - **Rationale:** Public parsing behavior and a cross-component CLI journey
   require independent task gates; only the combined compatibility route needs
   integration review.
@@ -125,7 +131,7 @@ results and this stack are current.
   direct triage. Prioritize authority-defect evidence before unstarted review.
 - **Skipped perspectives:** Skip architecture and performance because approved
   ownership and measured hot paths do not change; skip communication API
-  contracts because no wire or messaging contract changes; skip adversarial
+  contracts because no wire or messaging contract changes; skip
   robustness unless recovery behavior changes; skip scope because each Task gate receives
   exact clauses and ownership.
 - **Residual risk:** No exhaustive grammar fuzzing.

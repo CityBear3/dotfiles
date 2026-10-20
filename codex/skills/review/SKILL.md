@@ -75,15 +75,26 @@ the coordinator's mapping of actual authority, coverage, independence and
 allocations; preserve the original report and record applicability separately.
 An explicit no-agent standalone request permits sequential lead perspectives
 and conditional integration, with no claim of independent evidence.
+For a new standalone review, use `deep` source-review depth within the requested
+bounds unless explicitly narrowed. This does not impose planned Task coverage.
 
 ## Select fixed policy coverage
 
 For new planned Tasks, normal coverage is independent `spec-reviewer` and
 `implementation-quality-reviewer`. The latter owns both implementation and
-test quality. Adaptive adds only selected/triggered risks; deep includes every
-perspective applicable to the approved actual surface, not every configured
+test quality. Adaptive adds only selected/triggered risks; comprehensive includes
+every perspective applicable to the approved actual surface, not every configured
 agent. Eligible lightweight coverage is one independent `focused-reviewer`
 covering specification, implementation and tests.
+
+Coverage mode (`mode`) selects perspectives; source-review depth (`depth`)
+selects how each source reviewer investigates its assigned perspective. New
+planned policy defaults to `adaptive` + `deep`; eligible lightweight policy uses
+`focused` + `deep`. Read [source-review depth](references/review-depth.md) and
+pass it to source reviewers. Depth does not change role ownership, allocations,
+finding thresholds, integration triggers, triage authority or correction scope.
+An old approved `mode: deep` still means its original broad coverage; do not
+reinterpret it as depth or silently add depth to an existing approved policy.
 
 Use `risk-reviewer` for one selected perspective per invocation:
 
@@ -119,8 +130,9 @@ covered another selected perspective.
 Run it on a Task only when explicitly selected for that boundary, not every
 local change. Integration runs only its named required/triggered roles.
 
-Policy fixes mode/rationale, Task and integration coverage, required and
-conditional perspectives/triggers, skipped perspectives/reasons, allocations,
+Policy fixes coverage mode, source-review depth and rationale, Task and
+integration coverage, required and conditional perspectives/triggers, skipped
+perspectives/reasons, allocations,
 pending order, integration triggers, correction invalidation, residual risk
 and Acceptance threshold before implementation. A newly discovered material
 risk outside policy returns BLOCKED for owner policy/design resolution; do not
@@ -139,8 +151,9 @@ rejection retains the same role pending in policy order; bounded responsive
 waiting and retry after progress never lowers coverage.
 
 Each reviewer receives target/authority identities and accessible paths, its
-owned clauses/surface, Review context/policy, completed matrix and raw
-observations, relevant dependency evidence, language hint and prior triage.
+owned clauses/surface, Review context/policy with effective coverage/depth and
+the depth reference, completed matrix and raw observations, relevant dependency
+evidence, language hint and prior triage.
 Keep full diff and surrounding sources directly available; do not trust the
 writer's verdict. Resolve a complete equivalent role contract only when its
 approved model/effort and read-only boundary can be enforced; otherwise BLOCKED.
@@ -159,9 +172,10 @@ record the comparison without dispatching a reviewer. Keep original reports
 and targets. A changed relied-on base/context needs impact assessment even
 when the patch text is identical.
 
-The policy-selected coverage set stays fixed. A bounded H1-to-H2 correction
-requires fresh affected verification and current complete coverage, not a fresh
-invocation of every check or reviewer. Require the loop owner's impact map connecting correction files and
+The policy-selected coverage set and source-review depth stay fixed. A bounded
+H1-to-H2 correction requires fresh affected verification and current complete
+coverage, not a fresh invocation of every check or reviewer. Require the loop
+owner's impact map connecting correction files and
 behaviors to perspectives, plus H1/H2, exact correction/triage, prior reports,
 full current range or snapshot and completed current coverage matrix.
 
@@ -268,8 +282,9 @@ same contract sequentially but must disclose absent independence.
 ## Report to the owning loop
 
 Return exact target and starting/ending source state; authority/obligations
-inspected; context/policy and standalone limitations; current verification
-evidence; selected perspectives/allocations, reports, pending order and
+inspected; context/policy, effective source-review depth and standalone
+limitations; current verification evidence; selected perspectives/allocations,
+reports, pending order and
 interruption evidence; coverage map including original heads and reasons for
 carried evidence; integration trigger/result or direct-triage eligibility;
 findings, separate authority/policy gaps, concerns, any useful cross-session

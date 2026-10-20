@@ -239,22 +239,32 @@ Include a separate `Review policy` section in every plan. The policy controls
 breadth, independence, and Acceptance; it references the Review
 context without repeating it.
 
-Use `adaptive` as the default for new planned work, or `deep` when approved
-risk justifies broader applicable perspectives. `focused` belongs to eligible
-lightweight work, not a way to remove independent planned specification and
-quality gates. Never select breadth from file count or apparent diff size.
+Use `adaptive` coverage and `deep` source-review depth as the default for new
+planned work, or `comprehensive` coverage when approved risk justifies broader
+applicable perspectives. `focused` belongs to eligible lightweight work, not a
+way to remove independent planned specification and quality gates. Never select
+breadth from file count or apparent diff size.
 
 Apply these mode contracts:
 
 - `adaptive`: independent `spec-reviewer` and
   `implementation-quality-reviewer` for each Task PR, including test quality;
   add only recorded required/triggered Task and integration perspectives.
-- `deep`: the same independent pair plus every perspective applicable to the
-  approved Task/integration surface and concrete risk. Each `risk-reviewer`
+- `comprehensive`: the same independent pair plus every perspective applicable
+  to the approved Task/integration surface and concrete risk. Each `risk-reviewer`
   invocation gets one perspective, exact trigger, authority, failure model,
   surface, expected evidence and stop condition. Separate perspectives remain
   independent invocations when needed. Use `design-alignment-reviewer` mainly
   for composed/shared-boundary authority, not routine local changes.
+
+Record source-review depth (`depth`) separately from coverage mode (`mode`).
+Use the [source-review depth](../review/references/review-depth.md) contract for
+`deep`: investigate relevant premises, concrete paths, counterexamples,
+disconfirming evidence and proof within each selected perspective. It changes
+neither finding thresholds nor integration/triage/correction responsibilities,
+allocations or reviewer count. Carry its reference into source-review handoffs.
+Preserve existing approved policies; legacy `mode: deep` means its original
+coverage, not the new depth, and missing depth does not imply a policy upgrade.
 
 Use the [review boundaries](../review/references/review-boundaries.md) for
 worthwhile implementation improvements and incomplete coverage. Improvement
@@ -273,7 +283,7 @@ Record the applicable authority and concrete risk for each selected perspective;
 none is a mandatory extra pass solely because an API exists.
 
 For every mode, name explicitly skipped perspectives and why they are
-inapplicable. `Deep` means broad applicable coverage, not every configured
+inapplicable. `Comprehensive` means broad applicable coverage, not every configured
 reviewer.
 
 Record conditional `finding-integrator` use for overlapping/conflicting
@@ -287,7 +297,7 @@ correction. A risk perspective alone does not trigger integration.
 
 Record:
 
-- **Coverage mode (`mode`) and rationale**
+- **Coverage mode (`mode`), source-review depth (`depth`) and rationale**
 - **Risk surfaces**
 - **Per-task gate**
 - **Integration required reviewers and reasons**, using `none` when task gates
@@ -310,8 +320,9 @@ Correction policy must retain prior head `H1`, create one bounded correction
 commit to `H2`, update the Verification Matrix, run fresh affected checks and
 explicitly carry unaffected verification under the coordinator's applicability
 rule. HEAD or history changes alone do not trigger verification or review.
-Keep policy coverage fixed, rerun finding-owning and affected reviewers, and
-carry prior clean evidence only with explicit non-invalidation reasons.
+Keep policy coverage and depth fixed, rerun finding-owning and affected
+reviewers, and carry prior clean evidence only with explicit non-invalidation
+reasons.
 Uncertainty requires rerun. Record that `review` owns the impact map, evidence
 coverage and correction traversal rules; supply prior reports, exact delta,
 current target and current coverage matrix without copying those rules.

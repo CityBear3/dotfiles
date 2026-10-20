@@ -30,6 +30,14 @@ label; the owner records its applicability separately. Neither a label change,
 writer self-check nor missing independence satisfies a Task gate. Verify or
 review only uncovered or invalidated obligations; unresolved findings stay open.
 
+For review reuse, compare the original effective coverage and source-review
+depth with the receiving policy as well as inspected obligations and allocation.
+Original paths, hypotheses and decisive evidence may establish applicable depth;
+a new label alone cannot. If required depth is unsupported or uncertain,
+recover the original evidence or review only the missing coverage within active
+authorized work. Do not retroactively add depth to an old approved policy or
+reopen an unchanged Accepted result merely because new defaults exist.
+
 During active approved work, actual input or requirement changes require an
 impact map and fresh affected checks/review under the phase skills. Uncertain
 applicability or missing evidence is a gap to resolve, not proof of equivalence.

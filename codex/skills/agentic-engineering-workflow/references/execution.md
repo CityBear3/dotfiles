@@ -25,6 +25,9 @@
   applicable; HEAD or history changes alone do not trigger reruns. Preserve
   original evidence and explicit applicability reasons. For actual corrections,
   rerun affected checks and finding-owning/affected reviewers.
+- Keep source-review depth within the selected perspectives. It does not
+  broaden findings integration, change Fix/Push back/Escalate criteria, or
+  restart discovery during correction or Accepted consumption.
 - Treat Task `Accepted` as the completed Task-local quality decision. The
   Feature Lead checks result identity, applicability to current inputs, Task
   dependencies and assigned Feature/integration coverage; it does not routinely

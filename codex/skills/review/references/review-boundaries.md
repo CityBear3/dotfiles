@@ -1,11 +1,12 @@
 # Improvement and incomplete-coverage boundaries
 
 Review for better implementation within the contract, project rules and approved
-scope. Coverage mode (`adaptive`, `deep`, or eligible lightweight `focused`)
-selects perspectives; there is no separate improvement or reporting mode.
+scope. Coverage mode (`adaptive`, `comprehensive`, or eligible lightweight
+`focused`) selects perspectives; [source-review depth](review-depth.md) governs
+investigation within them. There is no separate improvement or reporting mode.
 Preserve already-approved and in-flight policies rather than silently migrating
 their coverage, allocations or Acceptance. Honor an explicitly narrowed review
-request without inventing another configurable axis or weakening required gates.
+request without weakening required gates or inventing an improvement/reporting mode.
 
 ## Evaluate worthwhile improvements
 
