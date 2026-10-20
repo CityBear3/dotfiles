@@ -215,7 +215,16 @@ mapping; a label change or writer self-check does not supply a Task gate.
 
 Normal planned review uses independent spec and implementation-quality reviewers
 in parallel after PASS. Risk review is policy-selected and parameterized.
-Coverage modes remain `adaptive`/`deep`, or eligible lightweight `focused`.
+New policies separate coverage mode (`mode`) from source-review depth (`depth`).
+Planned work defaults to `adaptive` + `deep`; `comprehensive` coverage includes
+every applicable perspective, and eligible lightweight work uses `focused` +
+`deep`. The [depth contract](skills/review/references/review-depth.md) guides
+premise checks, concrete paths, counterexamples and disconfirming evidence
+within each source reviewer's assignment. Depth does not change model effort,
+reviewer count, finding thresholds, integration triggers or triage authority.
+Existing approved policies retain their meaning: old `mode: deep` still names
+broad coverage, and missing depth is not an automatic upgrade. Reused evidence
+must actually support the receiving policy's depth without relabeling old reports.
 Every mode evaluates worthwhile implementation improvements within the contract,
 project rules and approved scope. Concrete benefits must justify change,
 complexity and verification cost; qualifying Should Improve findings enter normal

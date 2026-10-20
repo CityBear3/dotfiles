@@ -22,6 +22,11 @@ benefit against change, complexity and verification cost. Review advice alone
 does not authorize edits, but an owned bounded improvement within existing
 implementation authority can be Fix without separate approval for every item.
 
+Source-review depth describes upstream investigation, not a different adoption
+threshold. Deep reports still require these same independent problem/remedy,
+cost and authority checks; depth does not authorize broader correction or a
+new source-review pass during triage.
+
 ## Coordinator-managed entry
 
 For completed-work feedback, first require the coordinator's shared problem

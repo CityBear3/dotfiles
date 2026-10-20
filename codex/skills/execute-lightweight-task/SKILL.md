@@ -15,8 +15,9 @@ branches here.
 Require the complete recoverable in-memory Feature/Task Contract and original
 request/design authority; exact current identity, purpose, owned scope,
 observable/preserved behavior, constraints, non-goals and delegated decisions;
-Review context and complete focused policy; fixed leaf allocations; material
-property, reliable oracle and discipline/TDD applicability; exact workspace,
+Review context and complete policy with focused coverage and source-review
+depth; fixed leaf allocations; material property, reliable oracle and
+discipline/TDD applicability; exact workspace,
 branch, base, starting head, merge base, range/diff and index/worktree/relevant
 untracked state; commit intent and message authority; verification obligations;
 and any attributable prior commits, reports, pending leaves, findings and
@@ -81,7 +82,8 @@ an automatic engineer escalation or end of work. Only complete current PASS
 coverage applicable to the target permits `review`.
 
 Dispatch the independent focused-reviewer with the combined contract, exact
-verified target, raw matrix observations, Review context/policy and relevant
+verified target, raw matrix observations, Review context/policy with effective
+coverage/depth and the source-review depth reference, and relevant
 prior evidence. It covers specification, implementation and tests together.
 Do not add a separate test reviewer merely because behavior changed.
 Additional perspectives require existing explicit policy authority; a risk that
@@ -125,9 +127,9 @@ verification under the coordinator's applicability rule. Supply `review` the H1.
 delta, full current target, prior reports/triage and explicit impact map.
 Rerun finding owners and affected perspectives; carry other coverage only with
 concrete non-invalidation evidence. Uncertainty requires rerun. The selected
-policy remains intact; only fresh invocation breadth may shrink. The focused
-reviewer normally reruns because it owns the corrected finding or changed
-behavior. Let review own traversal and conditional integration.
+policy, including source-review depth, remains intact; only fresh invocation
+breadth may shrink. The focused reviewer normally reruns because it owns the
+corrected finding or changed behavior. Let review own traversal and conditional integration.
 
 Stop repeated correction without progress with its attempts and gap. Re-entry
 requires direct Git/authority validation, attributable edits/commits and no

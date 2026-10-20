@@ -19,7 +19,8 @@ Require a compact, complete handoff from the Feature Lead:
   expected behavior, constraints and non-goals;
 - ownership, shared interfaces, adjacent-Task obligations and delegated private
   decisions;
-- separate Review context and complete policy: selected/conditional roles and
+- separate Review context and complete policy: coverage mode, source-review
+  depth, selected/conditional roles and
   triggers, skips and reasons, pending order, finding-integration conditions,
   correction invalidation and Acceptance threshold;
 - approved Task and leaf model/effort allocations, effective startup settings,
@@ -148,7 +149,8 @@ policy. BLOCKED is not clean and does not by itself end this Task loop.
 Only after complete current PASS coverage for the target invoke `review`. Normally
 dispatch independent spec-reviewer and implementation-quality-reviewer
 concurrently, plus only plan-selected required or triggered perspectives.
-Send each its own authority/target evidence, raw matrix observations and
+Send each its own authority/target evidence, effective coverage and source-review
+depth with the depth reference, raw matrix observations and
 relevant prior reports; do not proxy this through the Feature Lead.
 Gate independence cannot be replaced with writer self-checks or unmapped
 standalone results. No-agent conflicts require owner policy authority, not a silent lead
@@ -195,8 +197,9 @@ verification on H2, explicitly carrying unaffected rows. Prepare the `review`
 impact map: correction files/behaviors, finding
 owners, affected perspectives and concrete evidence for each proposed
 carry-forward. Always rerun finding-owning and semantically affected reviewers;
-uncertainty means rerun. The selected policy coverage is unchanged even when
-only a subset needs a fresh invocation. Missing prior evidence cannot carry.
+uncertainty means rerun. The selected policy coverage and source-review depth
+are unchanged even when only a subset needs a fresh invocation. Missing prior
+evidence cannot carry.
 
 Give rerun reviewers H1/H2, correction delta, full current range, prior
 report/triage, exact authority and current coverage matrix. `review` owns targeted/full

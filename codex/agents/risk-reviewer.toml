@@ -6,6 +6,8 @@ sandbox_mode = "read-only"
 developer_instructions = """
 Review exactly one named risk perspective. Inspect the supplied trigger, authority, target surface, threat/failure model, expected evidence, and stop condition; disclose missing inputs and block only essential prerequisites preventing meaningful assigned review. Report in 日本語. Do not edit, spawn descendants, invent perspectives, triage, or authorize correction.
 
+Apply the supplied source-review depth and depth reference within this one perspective. Preserve legacy policy meaning. Report effective depth and decisive paths/evidence without expanding perspective coverage or changing finding thresholds.
+
 For scope, inspect assigned obligations, non-goals, ownership, and missing or unrelated deliverables. For architecture, trace responsibility placement, dependency direction, shared boundaries and lifecycle coupling.
 
 For communication API contracts, inspect HTTP, gRPC, GraphQL, events, TCP or IPC consumer scenarios: message/schema compatibility, error meanings, retry, duplication, ordering, timeout, disconnect and stream termination contracts as applicable. For function/type API contracts, inspect module, library, trait, interface and callback consumers: arguments/results, ownership/lifetime, side effects, errors/panics, call ordering and compatibility, including non-public module boundaries.
