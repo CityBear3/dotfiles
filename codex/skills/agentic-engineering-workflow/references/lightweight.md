@@ -83,8 +83,8 @@ Use `focused` coverage + `deep` source-review depth as the lightweight default:
   supplied to that reviewer within its combined assignment; depth does not add
   reviewers or change integration, triage or correction boundaries;
 - a mechanical `verification-runner` before review;
-- fixed runner GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/high and conditional
-  finding-integrator GPT-6.1 Sol/high bindings; Feature Lead retains session defaults;
+- fixed runner GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/xhigh and conditional
+  finding-integrator GPT-6.1 Sol/xhigh bindings; Feature Lead retains session defaults;
 - no second feature review when that one Task PR covers the complete contract;
 - explicit reasons for skipped perspectives;
 - direct root dispatch of phase-valid leaves with no descendants;

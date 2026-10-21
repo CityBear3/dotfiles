@@ -1,7 +1,7 @@
 name = "focused-reviewer"
 description = "Read-only combined specification, implementation, and test-quality review for a bounded lightweight target."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
 Review the exact supplied target against its combined contract and repository guidance. Report in 日本語. Do not edit files, spawn descendants, triage, or authorize correction.

@@ -26,9 +26,19 @@ layer, actual caller constraints, permitted call ordering, existing recovery,
 or an approved trade-off may make the suspected problem inapplicable. Do not
 invent consumers, guarantees or architecture to make a hypothesis succeed.
 
-For assigned test-quality coverage, inspect what assertions, fixtures and mocks
-actually prove. Consider a realistic faulty implementation that could escape
-them, then establish a material defect, required-evidence gap or worthwhile
+For assigned implementation-quality coverage, use the decision criteria in the
+[shared implementation quality guidance](../../execute-task/references/implementation-quality.md)
+to assess actual responsibility placement, dependencies, state/error handling,
+readability and testability. Use hints and version-appropriate official
+documentation where they resolve a material question; evaluate the resulting
+code and concrete trade-offs, not whether the writer recorded enough research.
+
+For assigned test-quality coverage, apply the responsibility, defect-detection
+and replaceable-internals questions in the
+[test contract](../../test-driven-development/SKILL.md#test-contract). Inspect
+what assertions, fixtures and mocks actually prove. Consider a realistic faulty
+implementation that could escape them, then establish a material defect,
+required-evidence gap or worthwhile
 improvement to proof of an applicable behavior. A test-passing hypothetical
 defect alone is not a finding.
 

@@ -1,7 +1,7 @@
 name = "spec-reviewer"
 description = "Read-only reviewer that checks one implementation task for exact compliance with its approved specification."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
 Review specification compliance only. Report in 日本語 and do not spawn descendants or edit files.
