@@ -5,28 +5,34 @@ Acceptance bar for every Task Lead model.
 
 | Role | Default model | Effort | Binding |
 | --- | --- | --- | --- |
-| Task Lead | `gpt-6.1-sol` | `high` | Explicit independent Codex startup |
-| Task Lead, justified plan override | `gpt-6-astra` | `high` | Same root contract, explicit startup |
+| Task Lead | `gpt-6.1-sol` | `xhigh` | Explicit independent Codex startup |
+| Task Lead, justified plan override | `gpt-6-astra` | `xhigh` | Same root contract, explicit startup |
 | verification-runner | `gpt-6-luna` | `low` | Native profile |
-| focused-reviewer | `gpt-6.1-sol` | `high` | Native profile; lightweight |
-| spec-reviewer | `gpt-6.1-sol` | `high` | Native profile |
-| implementation-quality-reviewer | `gpt-6.1-sol` | `high` | Native profile |
-| risk-reviewer | `gpt-6.1-sol` | `high` | Native profile; one perspective |
-| finding-integrator | `gpt-6.1-sol` | `high` | Native profile; conditional |
-| design-alignment-reviewer | `gpt-6.1-sol` | `high` | Native profile |
+| focused-reviewer | `gpt-6.1-sol` | `xhigh` | Native profile; lightweight |
+| spec-reviewer | `gpt-6.1-sol` | `xhigh` | Native profile |
+| implementation-quality-reviewer | `gpt-6.1-sol` | `xhigh` | Native profile |
+| risk-reviewer | `gpt-6.1-sol` | `xhigh` | Native profile; one perspective |
+| finding-integrator | `gpt-6.1-sol` | `xhigh` | Native profile; conditional |
+| design-alignment-reviewer | `gpt-6.1-sol` | `xhigh` | Native profile |
 
 The Feature Lead is intentionally absent: it already runs on the user's session
 defaults. Do not pin it in the plan or modify global settings for Task startup.
 Do not use max effort or runtime promotion/fallback.
 
-Use GPT-6.1 Sol/high as the default for new Task Leads. Assess the whole Task before
+The xhigh default gives implementation, review and complex finding integration
+more reasoning budget. It does not establish better quality by itself or change
+role boundaries, required evidence or finding thresholds. Judge its benefit by
+concrete missed responsibilities, human corrections and total completion cost;
+no new benchmark or telemetry is required.
+
+Use GPT-6.1 Sol/xhigh as the default for new Task Leads. Assess the whole Task before
 confirming that allocation: implementation, interpreting verification evidence,
 and correction must all fit the model. Ground the choice in repository evidence
 about the implementation approach, affected boundaries, likely failure modes,
 and available verification. Extending an established pattern with understood
-interactions and direct regression evidence is a typical GPT-6.1 Sol/high fit.
+interactions and direct regression evidence is a typical GPT-6.1 Sol/xhigh fit.
 
-Select Astra/high at planning time when repository evidence identifies a
+Select Astra/xhigh at planning time when repository evidence identifies a
 concrete unresolved difficulty and explains why Astra is expected to help
 through implementation and correction. Examples include unexplained behavior,
 non-local invariants or ambiguous verification results. Concurrency, recovery,
@@ -36,13 +42,13 @@ assessment, but the Task category alone does not require Astra.
 The default is not a substitute for this assessment. File counts, a settled
 specification, apparently simple code, or the existence of tests alone do not
 establish GPT-6.1 Sol's fit. Routine private implementation choices do not alone
-require Astra. Ground any Astra/high override in the consequential implementation
+require Astra. Ground any Astra/xhigh override in the consequential implementation
 difficulty or evidence interpretation that remains after investigation. Resolve
 missing user-owned design decisions through design discussion; a model choice
 does not settle them.
 
 Use the evidence available during planning and label quality/cost expectations
-as estimates. Do not infer that GPT-6.1 Sol/high and Astra/high are equivalent from
+as estimates. Do not infer that GPT-6.1 Sol/xhigh and Astra/xhigh are equivalent from
 effort labels or aggregate benchmark scores.
 
 Record a default table once and Task-specific overrides. For each Task show

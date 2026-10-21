@@ -145,21 +145,21 @@ native leaf has empty inherited history and no descendants.
 
 The tracked session defaults are GPT-6.1 Sol/xhigh for both normal and Plan
 mode, supporting the Feature Lead's design discussions and coordination.
-Task Leads retain explicit GPT-6.1 Sol/high startup settings, and native
-reviewers retain their GPT-6.1 Sol/high profiles; they do not inherit the
-Feature Lead's effort. There are eight logical roles, but only seven native
+Task Leads use explicit GPT-6.1 Sol/xhigh startup settings, and native reviewers
+and finding integration use their GPT-6.1 Sol/xhigh profiles; they do not inherit
+the Feature Lead's effort. There are eight logical roles, but only seven native
 profiles:
 
 | Role | Model / effort | Boundary |
 | --- | --- | --- |
-| Task Lead | GPT-6.1 Sol/high; Astra/high when justified in the approved plan | Independent Herdr session; sole Task writer |
+| Task Lead | GPT-6.1 Sol/xhigh; Astra/xhigh when justified in the approved plan | Independent Herdr session; sole Task writer |
 | verification-runner | GPT-6 Luna/low | Declared commands/observations only |
-| focused-reviewer | GPT-6.1 Sol/high | Lightweight spec, implementation and tests |
-| spec-reviewer | GPT-6.1 Sol/high | Planned contract compliance |
-| implementation-quality-reviewer | GPT-6.1 Sol/high | Implementation and test quality |
-| risk-reviewer | GPT-6.1 Sol/high | One selected risk perspective per invocation |
-| finding-integrator | GPT-6.1 Sol/high | Conditional complex/conflicting findings |
-| design-alignment-reviewer | GPT-6.1 Sol/high | Composed/shared-boundary authority |
+| focused-reviewer | GPT-6.1 Sol/xhigh | Lightweight spec, implementation and tests |
+| spec-reviewer | GPT-6.1 Sol/xhigh | Planned contract compliance |
+| implementation-quality-reviewer | GPT-6.1 Sol/xhigh | Implementation and test quality |
+| risk-reviewer | GPT-6.1 Sol/xhigh | One selected risk perspective per invocation |
+| finding-integrator | GPT-6.1 Sol/xhigh | Conditional complex/conflicting findings |
+| design-alignment-reviewer | GPT-6.1 Sol/xhigh | Composed/shared-boundary authority |
 
 Risk review distinguishes communication API contracts, function/type API
 contracts (including module boundaries), and behavioral responsibilities/guarantees.
@@ -169,8 +169,8 @@ perspective uses a separate invocation of the same `risk-reviewer`; these are
 not additional native profiles or mandatory reviews for every change. See
 [risk perspective guidance](skills/review/references/risk-perspectives.md).
 
-For new Task Leads, assess the whole Task before confirming the GPT-6.1 Sol/high
-default. Select Astra/high when concrete unresolved implementation or evidence
+For new Task Leads, assess the whole Task before confirming the GPT-6.1 Sol/xhigh
+default. Select Astra/xhigh when concrete unresolved implementation or evidence
 interpretation difficulty supports that choice, not from the Task category alone. Record
 the concrete Task evidence and expected quality/total completion cost; follow the
 [plan-time allocation guidance](skills/create-plan/references/model-allocation.md).
@@ -225,6 +225,17 @@ reviewer count, finding thresholds, integration triggers or triage authority.
 Existing approved policies retain their meaning: old `mode: deep` still names
 broad coverage, and missing depth is not an automatic upgrade. Reused evidence
 must actually support the receiving policy's depth without relabeling old reports.
+
+Planned and lightweight writers use the shared
+[implementation quality guidance](skills/execute-task/references/implementation-quality.md)
+to evaluate meaningful internal choices using language Skills, relevant hints,
+existing code and version-appropriate official documentation. The
+[test contract](skills/test-driven-development/SKILL.md#test-contract) asks who
+owns each tested guarantee, whether assertions detect its violation, and whether
+tests unnecessarily depend on replaceable internals. Quality review applies the
+same criteria to the actual result. Hints do not override approved design or
+require every suggested pattern, and research does not grant broader scope.
+
 Every mode evaluates worthwhile implementation improvements within the contract,
 project rules and approved scope. Concrete benefits must justify change,
 complexity and verification cost; qualifying Should Improve findings enter normal

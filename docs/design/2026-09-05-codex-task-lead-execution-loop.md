@@ -9,6 +9,9 @@
 - Accepted consumption revised at the owner's request on 2026-09-10: Task-local
   quality is decided once; Feature Lead checks applicability and cross-Task
   obligations without routine gate re-audits.
+- Current defaults and implementation guidance revised at the owner's request
+  on 2026-10-21; see the allocation note below. Historical tables and examples
+  remain as the record of the original design.
 - Original delivery: Feature Lead direct local revision on
   `codex/task-lead-execution-loop`; installation and publication are separate
 - Extends:
@@ -688,6 +691,22 @@ it carries forward only explicitly non-invalidated perspective evidence while
 fresh runner and affected-perspective evidence bind the new head.
 
 ### Model and reasoning-effort allocation
+
+For new work, the owner-approved 2026-10-21 revision uses `xhigh` for Task Leads
+(both Sol and justified Astra allocations), all source reviewers and finding
+integration; mechanical verification remains `low`. Current model bindings and
+selection rules live in the
+[plan-time allocation guidance](../../codex/skills/create-plan/references/model-allocation.md).
+The allocation table and cost examples below retain the original dated choices.
+Previously approved or in-flight plans retain their exact prior coherent
+assets and allocations; this revision does not migrate active loops.
+
+The same revision adds shared
+[implementation quality guidance](../../codex/skills/execute-task/references/implementation-quality.md)
+for planned and lightweight writers, with responsibility-oriented test questions
+also applied by quality review. Language Skills, hints and version-appropriate
+official documentation inform internal choices within approved authority; they
+do not change role boundaries, finding criteria or design authority.
 
 The Feature Lead uses the session's default model and effort. Every independent
 Task session and native leaf allocation is resolved before implementation

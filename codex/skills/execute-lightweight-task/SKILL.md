@@ -23,8 +23,8 @@ untracked state; commit intent and message authority; verification obligations;
 and any attributable prior commits, reports, pending leaves, findings and
 re-entry state. Fix exact files/commands only when contractually significant.
 
-The runner is GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/high, and conditional
-finding-integrator GPT-6.1 Sol/high. Resolve effective bindings before the first edit.
+The runner is GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/xhigh, and conditional
+finding-integrator GPT-6.1 Sol/xhigh. Resolve effective bindings before the first edit.
 Feature Lead remains on its session defaults. No runtime promotion or fallback.
 
 Hold phase entry for planned-only authority, unexplained state, missing or
@@ -47,8 +47,11 @@ it does not automatically enter verification or correction review here.
 
 ## Write and inspect the exact target
 
-The Feature Lead implements directly and retains all Task state. Batch
-independent discovery only until the next result-dependent decision. Apply
+The Feature Lead implements directly and retains all Task state. For internal
+implementation choices, read the shared
+[implementation quality guidance](../execute-task/references/implementation-quality.md)
+and apply its evidence and authority boundaries. Batch independent discovery
+only until the next result-dependent decision. Apply
 `test-driven-development` when applicable, or the supplied non-TDD baseline
 and oracle; required-but-blocked discipline prevents implementation.
 

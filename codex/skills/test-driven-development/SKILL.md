@@ -103,6 +103,23 @@ still follows the required discipline.
 
 ## Test contract
 
+When selecting a test boundary or refactoring tests while green, ask:
+
+- Which component owns the responsibility this test proves?
+- Would its actual assertions detect an implementation that violates that
+  responsibility, rather than merely prove fixture or mock behavior?
+- Would replacing internals with another implementation of the same contract
+  break the test unnecessarily?
+
+Place detailed failure cases with the component that owns the guarantee. For
+example, when a storage component owns retry or atomicity, prove it there;
+a handler proves how collaborator outcomes become application responses. Keep
+integration tests for required guarantees across composed components, including real
+infrastructure failures reaching a response. Such a journey is valid without
+making the handler suite the only proof of every lower-level failure case.
+Choose real collaborators or fakes by the behavior being proved; these questions
+do not require one test per layer, blanket mocking, or test-count quotas.
+
 - One test covers one behavioral viewpoint, not necessarily one function call.
 - Assert returned values and errors directly.
 - Assert side effects when they are part of that test's behavior.

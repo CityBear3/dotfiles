@@ -100,6 +100,11 @@ search-cache entries only as navigation. Return costly findings worth reusing
 across sessions to the Feature Lead without editing the cache; routine searches
 need no cache lookup or report.
 
+For internal implementation choices, read
+[implementation quality](references/implementation-quality.md). Use applicable
+language guidance, relevant hints and version-appropriate official documentation
+to assess the actual choices within delegated scope.
+
 Apply `test-driven-development` when applicable, preserving causal RED,
 production edit and GREEN. For not-applicable work use the supplied baseline
 and oracle; required-but-blocked discipline is BLOCKED. Preserve unrelated
