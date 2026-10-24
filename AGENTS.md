@@ -10,6 +10,13 @@
 - Personal Codex skills install under `~/.agents/skills`; custom agents and global guidance install under `~/.codex`.
 - Never manage or prune `~/.codex/skills/.system`.
 
+## Pull requests
+
+- Write pull request titles and descriptions in English.
+- For both new pull requests and description edits, follow [.github/pull_request_template.md](.github/pull_request_template.md). Treat that template as the source of truth for section headings and order.
+- Keep every section, including for small changes. If a section does not apply, state that briefly rather than inventing decisions, checks, or follow-up work.
+- Before creating or updating a pull request, confirm that its title and description are in English and that the description follows the template.
+
 ## Engineering workflow
 
 - The engineer owns architecture, scope, and design decisions. Implement only an approved plan or an explicitly requested change.
