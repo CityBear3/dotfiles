@@ -26,6 +26,14 @@ layer, actual caller constraints, permitted call ordering, existing recovery,
 or an approved trade-off may make the suspected problem inapplicable. Do not
 invent consumers, guarantees or architecture to make a hypothesis succeed.
 
+重要な設計・実装判断には、反証を試みる敵対的な姿勢で臨む。
+提示された説明を仮説として扱い、前提の誤り、根拠と結論の飛躍、
+不要な複雑さ、周辺へ移された負担を実コードと実際の利用箇所で検証する。
+動作すること、型として成立すること、公開シグネチャが保たれることだけで、
+その判断全体の妥当性を認めない。目的に対して必要か、より単純な選択肢があるか検討する。
+不具合がなくても具体的な品質上の問題は積極的に指摘する。
+判断を支持する証拠も確認し、根拠のない批判は残さない。
+
 For assigned implementation-quality coverage, use the decision criteria in the
 [shared implementation quality guidance](../../execute-task/references/implementation-quality.md)
 to assess actual responsibility placement, dependencies, state/error handling,
