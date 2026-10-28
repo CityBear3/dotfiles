@@ -129,6 +129,21 @@ constraints. Select architecture, responsibility placement, algorithms,
 interfaces, storage, and recovery mechanisms only where they remain open. Use
 the required outcomes as the criteria for evaluating these choices.
 
+Keep exploration at the architectural and contract level appropriate for a
+Design Doc: responsibility boundaries, dependency direction, key domain
+concepts, invariants, consumer-visible guarantees, and material trade-offs.
+Public visibility alone, including an API exposed by a core or domain module,
+does not make every type, method, or signature a user-owned design decision.
+
+Use exact types, signatures, or representations only when a concrete
+compatibility obligation, consumer guarantee, or coordination between
+independent implementation tasks depends on that exact choice. Leave method
+decomposition, helper types, and representations that preserve settled
+guarantees to implementation. These choices are not unresolved material
+questions or approved deferrals and require no separate user approval. Return
+to design discussion if they would change a settled responsibility, contract,
+invariant, or material trade-off.
+
 Resolve only one material decision at a time:
 
 1. state the decision, the aligned requirement or constraint it serves, and why
@@ -162,8 +177,8 @@ applicable condition holds:
 1. repository-discoverable facts have been investigated;
 2. purpose and observable completion conditions are settled;
 3. scope, non-goals, constraints, and invariants are settled;
-4. applicable responsibility boundaries, dependency direction, and interfaces
-   are settled;
+4. applicable responsibility boundaries, dependency direction, and interface
+   semantics are settled;
 5. expected behavior and its verification method are settled;
 6. failure and recovery, migration, concurrency, authorization, performance,
    and comparable concerns are settled when applicable;
@@ -173,6 +188,10 @@ applicable condition holds:
 9. no material question remains unresolved except an explicitly accepted
    deferral with recorded intent and impact; and
 10. settled decisions are consolidated into the complete living record.
+
+Apply the [exploration granularity](#explore) to readiness: implementation
+details that preserve settled design decisions do not block readiness or need
+an explicitly approved deferral.
 
 Treat these as applicability dimensions, not ten mandatory user questions. Do
 not expand scope or ask about irrelevant dimensions to make the process appear

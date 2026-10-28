@@ -119,8 +119,8 @@ working model and every applicable condition is satisfied:
 1. repository-discoverable facts have been investigated;
 2. purpose and observable completion conditions are settled;
 3. scope, non-goals, constraints, and invariants are settled;
-4. applicable responsibility boundaries, dependency direction, and interfaces
-   are settled;
+4. applicable responsibility boundaries, dependency direction, and interface
+   semantics are settled;
 5. expected behavior and its verification method are settled;
 6. failure and recovery, migration, concurrency, authorization, performance,
    and comparable concerns are settled when applicable;
@@ -130,6 +130,10 @@ working model and every applicable condition is satisfied:
 9. no material question remains unresolved except an explicitly accepted
    deferral with recorded intent and impact; and
 10. settled decisions are consolidated into the complete living record.
+
+Apply the [exploration granularity](../../design-discussion/SKILL.md#explore)
+when assessing readiness. Implementation details that preserve settled design
+decisions do not block readiness or need an explicitly approved deferral.
 
 These are applicability dimensions, not ten mandatory user questions. Do not
 promote trivial work or manufacture speculative requirements to fill irrelevant
