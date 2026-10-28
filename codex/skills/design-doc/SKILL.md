@@ -69,6 +69,12 @@ Scale detail to the design decisions and future reader's needs. A short Design
 Doc is sufficient when it preserves the relevant rationale and system overview;
 do not turn it into an implementation manual or invent alternatives to fill it.
 
+For core or domain module APIs as well as external APIs, describe
+consumer-visible semantics and guarantees. Include exact types, signatures, or
+representations only when a material design decision or compatibility
+obligation depends on them. Leave choices that preserve settled contracts to
+implementation; their absence is not a missing material decision.
+
 If drafting reveals a material ambiguity, stop and return it to design
 discussion through the coordinator. Do not hide a new decision in polished
 prose.
