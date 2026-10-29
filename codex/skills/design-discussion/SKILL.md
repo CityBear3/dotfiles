@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Align required outcomes and constraints, then explore user-owned solution choices on planned-path entry or design re-entry.
+description: Build shared understanding of requirements and specifications, then develop and challenge design proposals toward a Design Doc.
 ---
 
 # Design discussion
@@ -16,9 +16,11 @@ existing authority and its currentness, and unresolved evidence. Do not persist
 a material decision until the coordinator has confirmed the checkout, branch,
 and starting ref.
 
-Use `Model Aligning` to establish what must be achieved and the conditions it
-must satisfy. Use `Decision Exploration` to choose how to achieve those aligned
-requirements. Keep this boundary explicit in questions, summaries, and records.
+Use `Model Aligning` to build shared understanding of what to create: required
+outcomes, observable specifications, scope, and established constraints. Use
+`Design Exploration` to develop and scrutinize how to satisfy those aligned
+inputs. Keep this boundary explicit in questions, summaries, and records. The
+durable design output is a Design Doc; the living record is intermediate work.
 
 Read relevant code, tests, documentation, and history before asking questions.
 Present the smallest complete provisional working model that gives the user
@@ -35,20 +37,22 @@ Distinguish repository-observed facts, user-stated intent, and Agent inference.
 The working model is a falsifiable account of the problem, not approved
 authority or a design proposal.
 
-Also distinguish requirements, established constraints or decisions,
-current-system facts, and unresolved solution choices. Existing implementation
-is context, not automatically a requirement for the new design. Preserve an
-explicit user-chosen technology or approved mechanism as an established
-constraint; do not reopen it merely to enforce this boundary. Keep tentative
-solution suggestions and Agent proposals pending rather than promoting them to
-requirements.
+Within the model, distinguish requirements (the outcomes and needs to satisfy)
+from specifications (observable behavior under stated conditions at the
+relevant system or component boundary). Keep both separate from established
+constraints or decisions, current-system facts, and unresolved design choices.
+Existing implementation is context, not automatically a requirement for the
+new design. Preserve an explicit user-chosen technology or approved mechanism
+as an established constraint; do not reopen it merely to enforce this boundary.
+Keep tentative solution suggestions and Agent proposals pending rather than
+promoting them to requirements.
 
 Classify by meaning, not technical vocabulary. For example, requiring retries
 to avoid duplicate records specifies behavior; choosing idempotency keys or a
 database constraint to provide that guarantee is a solution decision unless
 already fixed by explicit authority. Investigate current mechanisms as needed,
 but leave new algorithms, storage choices, responsibility placement, and
-recovery mechanisms for Decision Exploration.
+recovery mechanisms for Design Exploration.
 
 Resolve repository-discoverable facts before asking the user. Then test the
 model one material misunderstanding or hidden assumption at a time, choosing
@@ -74,17 +78,18 @@ is not holistic design approval. Do not enter design choices before this
 checkpoint.
 
 Report the current conceptual phase as `Investigating`, `Model Aligning`,
-`Model Aligned`, `Decision Exploration`, `Discovery Pending`, or `Design Ready`.
+`Model Aligned`, `Design Exploration`, `Discovery Pending`, or `Design Ready`.
 These names coordinate handoffs; do not add a state engine or infer that a later
 phase holds because a record exists. Stop with the exact unresolved claim and
 evidence already tried when repeated questions do not reduce the same material
 uncertainty.
 
-An exact, current, explicitly approved Design Doc or no-Design-Doc decision
-record can satisfy the readiness dimensions it covers. Do not repeat those
-decisions. Past conversation, an unapproved artifact, or an Agent-authored
-summary is not approved authority. Reopen only a missing or changed branch and
-the settled decisions whose meaning depends on it.
+An exact, current, explicitly approved Design Doc can satisfy the readiness
+dimensions it covers. Do not repeat those decisions. Past conversation, an
+unapproved artifact, or an Agent-authored summary is not approved authority.
+Reopen only a missing or changed branch and the settled decisions whose meaning
+depends on it. For already-approved work governed by an earlier workflow,
+retain its exact design authority under the coordinator's continuation rules.
 
 ## Maintain the living decision record
 
@@ -97,10 +102,12 @@ because the discussion is expected to be short. In a provisional section,
 record repository and authority identity, the current conceptual phase,
 checkpoint and alignment result, user-stated intent, and material model claims
 classified as confirmed, evidence-backed, inferred, or unresolved. Keep this
-section separate from settled decisions. Within the model, keep requirements
-and established constraints separate from current-system facts and pending
-solution choices; retain the aligned requirement summary at the checkpoint.
-Update the decision section as choices settle with:
+section separate from settled design decisions. Within the model, keep
+requirements, observable specifications, established constraints, current-system
+facts, and pending design choices distinct; retain the aligned inputs at the
+checkpoint. Record requirement or specification changes in their model slice,
+with their authority, rather than as design choices. Update the design decision
+section as choices settle with:
 
 - selected approaches and rationale;
 - rejected alternatives and reasons;
@@ -124,16 +131,19 @@ Enter this phase only after the shared-model checkpoint. Resolve understanding
 gaps first; presenting an option is not a substitute for learning what the
 system currently does or what outcome the user means.
 
-In `Decision Exploration`, compare ways to satisfy the aligned requirements and
-constraints. Select architecture, responsibility placement, algorithms,
-interfaces, storage, and recovery mechanisms only where they remain open. Use
-the required outcomes as the criteria for evaluating these choices.
+In `Design Exploration`, develop a design proposal and challenge its premises,
+responsibility placement, structure, dependencies, major processing flows, and
+chosen mechanisms against the aligned requirements, specifications, and
+constraints. Explore architecture, algorithms, interfaces, storage, and
+recovery where they remain open. Use agreed outcomes and boundary behavior as
+evaluation criteria; do not silently redefine them while selecting a design.
 
 Keep exploration at the architectural and contract level appropriate for a
 Design Doc: responsibility boundaries, dependency direction, key domain
-concepts, invariants, consumer-visible guarantees, and material trade-offs.
-Public visibility alone, including an API exposed by a core or domain module,
-does not make every type, method, or signature a user-owned design decision.
+concepts, mechanisms that preserve agreed invariants and consumer guarantees,
+and material trade-offs. Public visibility alone, including an API exposed by
+a core or domain module, does not make every type, method, or signature a
+user-owned design decision.
 
 Use exact types, signatures, or representations only when a concrete
 compatibility obligation, consumer guarantee, or coordination between
@@ -144,22 +154,26 @@ questions or approved deferrals and require no separate user approval. Return
 to design discussion if they would change a settled responsibility, contract,
 invariant, or material trade-off.
 
-Resolve only one material decision at a time:
+Work through one material design question at a time. State the current proposal
+or assumption and the aligned input it serves, then ask the question most
+likely to expose a weak premise, unclear responsibility, or unproved guarantee.
+Use repository evidence and concrete counterexamples to test the answer. Follow
+newly reachable design questions and dependencies rather than a fixed checklist.
 
-1. state the decision, the aligned requirement or constraint it serves, and why
-   it is now reachable;
-2. present the smallest set of viable options;
-3. explain concrete trade-offs in this codebase;
-4. recommend one option and why;
-5. ask only that question and let the user decide;
-6. record the answer and identify newly reachable branches and dependencies
-   between decisions.
+When an unresolved user-owned choice needs a decision, compare the smallest set
+of viable alternatives, explain concrete trade-offs, recommend one with its
+reason, and let the user decide. Record only settled choices and their rationale.
+Do not manufacture alternatives or repeat settled choices solely to make the
+discussion look rigorous. Grilling should deepen the design proposal and its
+justification at Design Doc granularity.
 
-If an answer or new evidence invalidates the shared model, return to model
-alignment before presenting the next design decision. When exploration or a
-need to decompose scope changes or exposes a gap in required behavior, scope,
-or constraints, clarify and confirm the affected requirement there. Do not
-silently change the target behavior or narrow scope to fit a preferred solution.
+If an answer or new evidence invalidates the shared model, explicitly return to
+`Model Aligning` before the next design question. A question about what outcome
+is needed or what observable behavior to guarantee belongs to requirements or
+specifications, even when discovered through design. Clarify and align that
+affected slice, record it separately from design choices, then resume
+`Design Exploration`. Do not silently change target behavior or narrow scope
+to fit a preferred solution.
 
 When a decision requires a prototype, visual artifact, benchmark, or another
 discovery phase, record the explicit handoff and the evidence required to
@@ -193,6 +207,9 @@ Apply the [exploration granularity](#explore) to readiness: implementation
 details that preserve settled design decisions do not block readiness or need
 an explicitly approved deferral.
 
+`Design Ready` means the settled design is ready for Design Doc drafting and
+approval. It does not substitute the working record for the final design output.
+
 Treat these as applicability dimensions, not ten mandatory user questions. Do
 not expand scope or ask about irrelevant dimensions to make the process appear
 more rigorous. Report the exact missing branch or dimension when readiness does
@@ -206,59 +223,36 @@ decisions, without copying them into a duplicate living record.
 - For a small change, the initial model and alignment may take one exchange. For
   a broad system, start with a coarse complete map, examine one subsystem or
   path at a time, and re-synthesize the whole before design decisions.
-- On the planned path, default to preserving settled design in a Design Doc.
-  With Design Readiness, return a reasoned recommendation to create or revise
-  one, reuse an existing approved document, or use only the decision record
-  under the coordinator's
-  [documentation policy](../agentic-engineering-workflow/references/planned.md#recommend-the-documentation-approach).
-  Consider decisions and trade-offs resolved during discussion, not just any
-  remaining uncertainty. Let the coordinator obtain the engineer's confirmation
-  before Design Doc drafting or decision-record-only Feature Contract drafting.
+- On the planned path, deliver the settled design through a Design Doc under
+  the coordinator's
+  [output policy](../agentic-engineering-workflow/references/planned.md#deliver-the-design-doc).
+  Identify the existing document to revise or reuse, or the need for a new one.
+  A short Design Doc is sufficient when it preserves the important decisions,
+  rationale, and system explanation; do not expand scope to fill it.
 - Do not implement from this skill.
 
-## Construct a Feature Contract without a Design Doc
+## Deliver the design through a Design Doc
 
-When Design Readiness holds and the coordinator returns the engineer-confirmed
-decision-record-only approach, present the complete decision record for explicit
-user approval as the one holistic design approval. Retain that approved record
-as the design authority throughout the active workspace lifecycle. Only then
-derive a separate Feature Contract from that record and repository evidence.
-Include:
+With Design Readiness, return the complete settled source to the coordinator
+for `design-doc` to draft or revise the durable output. Reuse an exact, current,
+approved Design Doc when it already covers the unchanged design. The living
+record is working evidence, not an alternative final design authority for new
+planned work.
 
-- context and goal;
-- scope and non-goals;
-- design sources, decisions, and precedence;
-- observable behavior, preserved behavior, and material failure behavior;
-- responsibilities, interfaces, and important unchanged boundaries;
-- protected constraints and invariants;
-- verification obligations;
-- evidence-backed assumptions and explicitly approved deferrals.
-
-Add conditional concerns such as state transitions, schema lifecycle, error and
-recovery semantics, concurrency, authorization, performance, migration, or
-rollback only when they apply. If completing the contract would decide
-architecture, responsibility, a public or shared interface, schema, error
-behavior, scope, or another material trade-off, return that exact ambiguity to
-design discussion. Do not fill it in while drafting.
-
-Return the complete Feature Contract to the coordinator for separate user
-approval and workspace-only storage at
-`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
-force-add, stage, or commit it unless the user explicitly chooses archival. This
-skill does not approve the contract, enter planning, or combine it with an
-Implementation Plan.
+The coordinator obtains approval of the exact Design Doc and, for a new or
+revised document, a successful authority-transfer check before retiring the
+living record. `design-doc` then derives the separate Feature Contract. This
+skill does not approve either artifact, derive a contract directly from the
+working record, or enter planning.
 
 ## Handoff
 
 Return the current conceptual phase, current decision record, repository and
 existing-authority identity and currentness, working-model alignment state,
-aligned required outcomes and established constraints, unresolved understanding
-questions, pending solution choices, Design Readiness result, unresolved design
-branches and dependencies, relevant evidence and any discovery re-entry
-condition, and the documentation recommendation, concrete reasons, exact existing
-document coverage, and any applicable prior engineer confirmation to
-`agentic-engineering-workflow`.
-After the engineer confirms a decision-record-only approach and approves the
-record, also return that confirmation, the decision-record approval state, and
-draft Feature Contract. Let the coordinator own transitions and Feature Contract
-approval.
+aligned requirements, observable specifications and established constraints,
+unresolved understanding questions, pending design choices, Design Readiness
+result, unresolved design branches and dependencies, relevant evidence and any
+discovery re-entry condition, and the target Design Doc or need to create one,
+with exact existing document coverage, to `agentic-engineering-workflow`.
+Let the coordinator own
+transitions, Design Doc approval and transfer, and Feature Contract approval.

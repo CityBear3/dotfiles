@@ -13,7 +13,8 @@ feature success, or task responsibility from the conversation.
 Require the coordinator to supply:
 
 - the exact approved, current Feature Contract and its workspace path;
-- its approved Design Doc or decision record sources;
+- its approved Design Doc (or unchanged design sources when an earlier approved
+  workflow governs existing work);
 - approval evidence for the exact contract content;
 - working directory, feature workspace, and current repository state.
 - when replanning, every prior accepted task with its exact contract content,
