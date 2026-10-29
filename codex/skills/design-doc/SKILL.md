@@ -1,6 +1,6 @@
 ---
 name: design-doc
-description: Draft a formal Design Doc when settled engineering decisions need durable architectural or contract documentation.
+description: Draft or revise the Design Doc that preserves the settled outcome of Design Exploration, then derive its Feature Contract after approval.
 ---
 
 # Design Doc support
@@ -22,11 +22,10 @@ drafting source is one of:
 - a user-authored draft supported by an equivalent settled source and readiness
   result.
 
-Before drafting or revising, require the coordinator's evidence that the
-engineer confirmed the reasoned documentation approach. An explicit applicable
-request or prior confirmation is sufficient; do not ask again while it remains
-current. This selects the documentation approach and does not replace approval
-of the completed Design Doc. Return a missing confirmation to the coordinator.
+The Design Doc is the durable output of planned Design Exploration. Receive
+the document to create or revise and its existing coverage from the coordinator;
+do not add a separate whether-to-document approval. Approval of the exact
+completed Design Doc remains required.
 
 An exact, current, approved Design Doc can instead remain the durable authority
 for unchanged readiness coverage without another drafting or approval pass.
@@ -40,6 +39,8 @@ require its delta record to duplicate unchanged decisions from the approved
 Design Doc. Require the complete settled source to identify:
 
 - the selected approach and rationale;
+- the aligned requirements and observable specifications, with their authority
+  kept distinct from design decisions;
 - rejected alternatives and reasons;
 - scope and non-goals;
 - explicitly accepted deferrals with their intent and impact;
@@ -68,6 +69,13 @@ trade-off that those sources do not establish.
 Scale detail to the design decisions and future reader's needs. A short Design
 Doc is sufficient when it preserves the relevant rationale and system overview;
 do not turn it into an implementation manual or invent alternatives to fill it.
+
+Identify the aligned requirements, observable specifications, and established
+constraints as inputs in Context and scope, with their exact authority or
+surviving references. Keep design choices and rationale distinguishable from
+those inputs. Discovering a new or changed requirement or specification returns
+through the coordinator to `Model Aligning`; a missing design choice returns
+to `Design Exploration`. Do not settle either while drafting prose.
 
 For core or domain module APIs as well as external APIs, describe
 consumer-visible semantics and guarantees. Include exact types, signatures, or
@@ -135,6 +143,8 @@ unchanged durable decisions from the prior approved Design Doc and every changed
 or added decision from the living record. Check:
 
 - selected approaches and rationale;
+- aligned requirements and observable specifications, or exact surviving
+  authority references, kept distinct from design decisions;
 - rejected alternatives and reasons;
 - scope and non-goals;
 - explicitly accepted deferrals with their intent and impact.
