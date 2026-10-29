@@ -1,6 +1,6 @@
 ---
 name: design-doc
-description: Draft or revise the Design Doc that preserves the settled outcome of Design Exploration, then derive its Feature Contract after approval.
+description: Draft or revise the Design Doc that preserves the settled outcome of Architecture Exploration, then derive its Feature Contract after approval.
 ---
 
 # Design Doc support
@@ -11,8 +11,8 @@ separate from decision ownership.
 ## Validate decisions before drafting
 
 Accept from `agentic-engineering-workflow` the exact settled source, Design
-Readiness result, unresolved list, approval state, and currentness. A valid
-drafting source is one of:
+Readiness result, requirements-source references and currentness, unresolved
+list, approval state, and currentness. A valid drafting source is one of:
 
 - a complete living decision record whose material choices are individually
   settled and whose readiness result is satisfied;
@@ -22,8 +22,8 @@ drafting source is one of:
 - a user-authored draft supported by an equivalent settled source and readiness
   result.
 
-The Design Doc is the durable output of planned Design Exploration. Receive
-the document to create or revise and its existing coverage from the coordinator;
+The Design Doc is the durable output of planned Architecture Exploration.
+Receive the document to create or revise and its existing coverage from the coordinator;
 do not add a separate whether-to-document approval. Approval of the exact
 completed Design Doc remains required.
 
@@ -72,16 +72,26 @@ do not turn it into an implementation manual or invent alternatives to fill it.
 
 Identify the aligned requirements, observable specifications, and established
 constraints as inputs in Context and scope, with their exact authority or
-surviving references. Keep design choices and rationale distinguishable from
-those inputs. Discovering a new or changed requirement or specification returns
-through the coordinator to `Model Aligning`; a missing design choice returns
-to `Design Exploration`. Do not settle either while drafting prose.
+surviving references. Reuse readable PBI items, specifications, and requirements
+documents as originals, with agreed supplements when needed. Keep design choices
+and rationale distinguishable from those inputs. Through the coordinator,
+return interpretation gaps to `Model Aligning`, new or changed requirement or
+specification choices to `Requirements Exploration` followed by alignment, and
+missing realization choices to `Architecture Exploration`. Preserve unaffected
+settled work; do not settle new choices while drafting prose.
 
 For core or domain module APIs as well as external APIs, describe
 consumer-visible semantics and guarantees. Include exact types, signatures, or
 representations only when a material design decision or compatibility
 obligation depends on them. Leave choices that preserve settled contracts to
 implementation; their absence is not a missing material decision.
+
+Cover both communication APIs and module/library function or type APIs, and
+both persistent data models and domain/type models, where architecturally
+significant. Explain ownership, responsibility, dependencies, invariants, and
+trade-offs at the relevant system or component scope. The concrete definition
+may live in code, an API specification, or a schema; cite it rather than copying
+an exhaustive declaration inventory into the Design Doc.
 
 If drafting reveals a material ambiguity, stop and return it to design
 discussion through the coordinator. Do not hide a new decision in polished
@@ -113,7 +123,12 @@ edits. Preserve the user's prose unless an edit is requested.
 
 The detailed design should explain architecture, state transitions, invariants, public interfaces, schemas, error models, and trade-offs when those are part of the contract. Leave private helper structure and step-by-step implementation to code and the implementation plan.
 
-For API-heavy documents, read [references/api-section-format.md](references/api-section-format.md). For detailed-design structure and review criteria, read [references/detailed-design-guide.md](references/detailed-design-guide.md).
+For gRPC API sections meeting its applicability conditions, read
+[references/api-section-format.md](references/api-section-format.md). Describe
+module/library APIs and other surfaces in prose appropriate to their contracts;
+do not impose the gRPC reference format on them. For detailed-design structure
+and review criteria, read
+[references/detailed-design-guide.md](references/detailed-design-guide.md).
 
 ## Review and approval
 
@@ -155,6 +170,10 @@ do not treat the Design Doc as a complete replacement. If the gap is material,
 return it through the coordinator to the affected design branch. An unchanged,
 exact, current approved Design Doc remains reusable without repeating approval
 or manufacturing a living record solely for another transfer check.
+
+Requirements originals and agreed supplements remain input authority after this
+transfer; they are not disposable working records. Verify their references and
+meaning survive before deleting the temporary record.
 
 Return the exact Design Doc approval state, transfer-check result, living-record
 lifecycle, and any re-entry gap to `agentic-engineering-workflow`; do not begin

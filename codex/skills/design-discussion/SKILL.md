@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Build shared understanding of requirements and specifications, then develop and challenge design proposals toward a Design Doc.
+description: Explore unsettled requirements when needed, confirm shared understanding, then scrutinize architectural decisions toward a Design Doc.
 ---
 
 # Design discussion
@@ -8,7 +8,7 @@ description: Build shared understanding of requirements and specifications, then
 Keep architecture, scope, algorithms, public contracts, and material trade-offs
 under user control. Act as an investigator and sounding board.
 
-## Build and align the working model
+## Establish inputs and select the phase
 
 Accept from `agentic-engineering-workflow` the planned route, confirmed
 workspace, repository identity and evidence, living-record location, exact
@@ -16,11 +16,62 @@ existing authority and its currentness, and unresolved evidence. Do not persist
 a material decision until the coordinator has confirmed the checkout, branch,
 and starting ref.
 
-Use `Model Aligning` to build shared understanding of what to create: required
-outcomes, observable specifications, scope, and established constraints. Use
-`Design Exploration` to develop and scrutinize how to satisfy those aligned
-inputs. Keep this boundary explicit in questions, summaries, and records. The
-durable design output is a Design Doc; the living record is intermediate work.
+In `Investigating`, resolve repository facts and inspect existing PBI items,
+requirements, specifications, and prior decisions before asking the user.
+Identify each source's exact reference, revision or observation point, applicable
+scope, authority, and currentness. Do not infer agreement from file existence.
+
+Use `Requirements Exploration` when what to build still needs choices. Skip it
+when existing sources already establish the needed outcomes and behavior;
+partial sources require exploration only of the missing or conflicting slice.
+Use `Model Aligning` to confirm shared understanding of those inputs, then
+`Architecture Exploration` to develop and scrutinize how to satisfy them.
+Keep these activities explicit in questions, summaries, and records.
+
+Report the current conceptual phase as `Investigating`,
+`Requirements Exploration`, `Model Aligning`, `Model Aligned`,
+`Architecture Exploration`, `Discovery Pending`, or `Design Ready`. These names
+coordinate handoffs; do not add a state engine or infer a later phase from an
+artifact's existence. Stop with the exact unresolved claim and evidence already
+tried when repeated questions do not reduce the same material uncertainty.
+
+## Explore requirements when needed
+
+Work from the user's intent and available evidence to identify the problem,
+people or callers affected, desired outcomes, scope and non-goals, priorities,
+and observable behavior and completion conditions. The user may not yet know
+the answers. Ask one material product question at a time; propose plausible
+alternatives when useful, explain their effects on value, behavior, and scope,
+and let the user choose. Test tentative requirements against concrete usage
+scenarios. Do not invent needs, audiences, constraints, or agreed decisions.
+
+Distinguish a proposed behavior from a chosen one and an assumption from an
+established constraint. Preserve source-backed requirements and explicit
+user-chosen technical policies. Leave new architecture and implementation
+mechanisms for `Architecture Exploration`; a technical proposal is not a new
+requirement merely because the Agent recommends it.
+
+Consolidate newly defined requirements and observable specifications in
+`requirements.md` or a source-linked supplement at the project's established
+requirements location. When creating one, read
+[requirements-format.md](references/requirements-format.md). Use a durable,
+feature-scoped source when no project convention exists; do not make the ignored
+decision record the only surviving requirements source. Drafting does not
+authorize staging, publication, or updates to an external PBI or specification.
+
+Reuse readable existing PBI items and specifications as originals. Do not
+duplicate or reformat them to match a template. Record their references,
+applicable scope, and any agreed supplements; keep newly selected behavior
+traceable to its source and rationale. A faithful capture of already settled
+conversation inputs is consolidation, not a reason to force exploration.
+
+When the candidate describes what to build well enough to check its meaning,
+return it and its sources for `Model Aligning`. Keep unresolved material product
+choices in exploration unless the user explicitly accepts a deferral and its
+impact. This adds no separate holistic requirements-approval gate: individual
+choices remain user-owned, and the shared-model checkpoint confirms the inputs.
+
+## Build and align the working model
 
 Read relevant code, tests, documentation, and history before asking questions.
 Present the smallest complete provisional working model that gives the user
@@ -52,37 +103,37 @@ to avoid duplicate records specifies behavior; choosing idempotency keys or a
 database constraint to provide that guarantee is a solution decision unless
 already fixed by explicit authority. Investigate current mechanisms as needed,
 but leave new algorithms, storage choices, responsibility placement, and
-recovery mechanisms for Design Exploration.
+recovery mechanisms for Architecture Exploration.
 
-Resolve repository-discoverable facts before asking the user. Then test the
-model one material misunderstanding or hidden assumption at a time, choosing
-the question whose answer could most change required behavior, scope, completion
-conditions, or constraints. An understanding question clarifies what is needed;
-do not frame it as a choice of implementation mechanism or attach design
+Resolve repository-discoverable facts before asking the user. Confirm the
+meaning of established requirements and specifications against their sources,
+one material misunderstanding or hidden assumption at a time. Choose the
+clarification most likely to change the shared understanding of required
+behavior, scope, completion conditions, or constraints. An understanding question
+clarifies what is needed; do not frame it as a choice of implementation mechanism or attach design
 options, a recommendation, or an approval request. Incorporate the answer,
 identify any newly exposed contradiction or dependency, and ask the next
 material understanding question. Show only the affected model slice after
 ordinary answers; re-synthesize the complete model at a branch boundary or
 before entering design decisions.
 
+If answering requires a new outcome, priority, scope, or behavioral choice,
+explicitly return that slice to `Requirements Exploration`. Do not disguise a
+new product decision as clarification or pass it forward as a design choice.
+Preserve unaffected settled inputs when resuming alignment.
+
 Treat the shared model as aligned only when no known material error or omission
 remains in the problem understanding and the purpose, required behavior, scope,
 completion conditions, and established constraints are mutually understood.
 State them without selecting an unresolved solution. List remaining how-to
 choices and explicit discovery needs separately; those choices need not be
-settled to report `Model Aligned`. An unanswered requirement remains an
-understanding gap unless explicitly deferred with its intent and impact; do not
-relabel it a solution choice to pass the checkpoint. Give the user a chance to
+settled to report `Model Aligned`. Unresolved meaning remains an understanding
+gap; an unmade product choice returns to `Requirements Exploration`. Neither
+may be relabeled as a realization choice to pass the checkpoint. An explicitly
+accepted deferral retains its classification, intent, and impact. Give the user a chance to
 correct the complete model at that checkpoint. Confirmation of understanding
 is not holistic design approval. Do not enter design choices before this
 checkpoint.
-
-Report the current conceptual phase as `Investigating`, `Model Aligning`,
-`Model Aligned`, `Design Exploration`, `Discovery Pending`, or `Design Ready`.
-These names coordinate handoffs; do not add a state engine or infer that a later
-phase holds because a record exists. Stop with the exact unresolved claim and
-evidence already tried when repeated questions do not reduce the same material
-uncertainty.
 
 An exact, current, explicitly approved Design Doc can satisfy the readiness
 dimensions it covers. Do not repeat those decisions. Past conversation, an
@@ -93,20 +144,20 @@ retain its exact design authority under the coordinator's continuation rules.
 
 ## Maintain the living decision record
 
-For planned discussion with an unresolved model or design branch not fully
-covered by exact current approved authority, create the ignored workspace
-artifact
+For planned discussion with an unresolved requirement, model, or design branch
+not fully covered by exact current approved authority, create the ignored
+workspace artifact
 `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-confirmation and before presenting the provisional model. Do not omit it
-because the discussion is expected to be short. In a provisional section,
-record repository and authority identity, the current conceptual phase,
+confirmation and before presenting a requirements proposal or provisional model.
+Do not omit it because the discussion is expected to be short. In a provisional
+section, record repository and authority identity, the current conceptual phase,
 checkpoint and alignment result, user-stated intent, and material model claims
 classified as confirmed, evidence-backed, inferred, or unresolved. Keep this
 section separate from settled design decisions. Within the model, keep
 requirements, observable specifications, established constraints, current-system
-facts, and pending design choices distinct; retain the aligned inputs at the
-checkpoint. Record requirement or specification changes in their model slice,
-with their authority, rather than as design choices. Update the design decision
+facts, pending product choices, and pending design choices distinct; retain the
+aligned inputs at the checkpoint. Record requirement or specification changes
+in their model slice, with their authority, rather than as design choices. Update the design decision
 section as choices settle with:
 
 - selected approaches and rationale;
@@ -114,6 +165,12 @@ section as choices settle with:
 - scope and non-goals;
 - explicitly accepted deferrals with their intent and impact;
 - unresolved material questions in a separate section.
+
+Retain requirements-source references, their applicable scope and currentness,
+and the draft/aligned status of the working inputs. For existing read-only
+sources, keep this metadata here without editing the originals. Newly defined
+requirements and specifications must have a surviving source or supplement;
+the working record is not their long-term original.
 
 Only explicitly settled choices enter the record as decisions. An Agent
 recommendation is not a decision, and file existence is not approval. Do not
@@ -131,12 +188,20 @@ Enter this phase only after the shared-model checkpoint. Resolve understanding
 gaps first; presenting an option is not a substitute for learning what the
 system currently does or what outcome the user means.
 
-In `Design Exploration`, develop a design proposal and challenge its premises,
-responsibility placement, structure, dependencies, major processing flows, and
-chosen mechanisms against the aligned requirements, specifications, and
+In `Architecture Exploration`, develop a design proposal and challenge its
+premises, responsibility placement, structure, dependencies, major processing
+flows, and chosen mechanisms against the aligned requirements, specifications, and
 constraints. Explore architecture, algorithms, interfaces, storage, and
 recovery where they remain open. Use agreed outcomes and boundary behavior as
 evaluation criteria; do not silently redefine them while selecting a design.
+
+Architecture includes significant design decisions at the relevant system or
+component scope: communication APIs and module/library function or type APIs
+(interfaces, traits, callbacks), database models, and domain/type models.
+Examine responsibility and data ownership, dependency direction, invariants,
+compatibility, and change impact. Assigning a component boundary or mechanism
+to realize an agreed guarantee is architectural work; changing the required
+outcome itself is a requirements or specification decision.
 
 Keep exploration at the architectural and contract level appropriate for a
 Design Doc: responsibility boundaries, dependency direction, key domain
@@ -167,19 +232,20 @@ Do not manufacture alternatives or repeat settled choices solely to make the
 discussion look rigorous. Grilling should deepen the design proposal and its
 justification at Design Doc granularity.
 
-If an answer or new evidence invalidates the shared model, explicitly return to
-`Model Aligning` before the next design question. A question about what outcome
-is needed or what observable behavior to guarantee belongs to requirements or
-specifications, even when discovered through design. Clarify and align that
-affected slice, record it separately from design choices, then resume
-`Design Exploration`. Do not silently change target behavior or narrow scope
-to fit a preferred solution.
+Classify a newly exposed gap before the next question. Return misunderstanding
+of established inputs to `Model Aligning`; return new or changed outcomes,
+scope, priorities, or required behavior to `Requirements Exploration`, then
+confirm the affected slice in `Model Aligning`. Keep unresolved realization
+choices in `Architecture Exploration`. Record product and architectural choices
+separately and preserve unaffected alignment. Do not silently change target
+behavior or narrow scope to fit a preferred solution.
 
 When a decision requires a prototype, visual artifact, benchmark, or another
 discovery phase, record the explicit handoff and the evidence required to
 re-enter that branch. The question remains unresolved until that evidence is
-available. Report `Discovery Pending`, then re-enter `Model Aligning` with the
-named evidence before presenting another design choice. Support user-authored
+available. Report `Discovery Pending`; when evidence arrives, classify whether
+it changes requirements, understanding, or architecture and resume that affected
+branch with the evidence. Reuse unaffected alignment. Support user-authored
 prototypes with research, diagnostics, or review; do not take over
 implementation while the user is using code to explore the design.
 
@@ -249,10 +315,11 @@ working record, or enter planning.
 
 Return the current conceptual phase, current decision record, repository and
 existing-authority identity and currentness, working-model alignment state,
-aligned requirements, observable specifications and established constraints,
-unresolved understanding questions, pending design choices, Design Readiness
-result, unresolved design branches and dependencies, relevant evidence and any
-discovery re-entry condition, and the target Design Doc or need to create one,
+requirements sources and their currentness, aligned requirements, observable
+specifications and established constraints, unresolved understanding questions,
+pending product choices kept separate from pending design choices, Design
+Readiness result, unresolved design branches and dependencies, relevant evidence
+and any discovery re-entry condition, and the target Design Doc or need to create one,
 with exact existing document coverage, to `agentic-engineering-workflow`.
-Let the coordinator own
-transitions, Design Doc approval and transfer, and Feature Contract approval.
+Let the coordinator own transitions, Design Doc approval and transfer, and
+Feature Contract approval.

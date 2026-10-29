@@ -51,12 +51,12 @@ For every transition retain:
 - the applicable design authority and the Feature Contract's
   source, approval state, storage form, and currentness;
 - for planned work, the living decision record location, shared working-model
-  alignment state, aligned requirements, observable specifications and
-  established constraints,
-  unresolved understanding questions kept separate from pending solution
-  choices, Design Readiness result, unresolved design branches, the target
-  Design Doc and its create/revise/reuse coverage, and any discovery re-entry
-  evidence;
+  alignment state, requirements-source identities, applicable scope and
+  currentness, aligned requirements, observable specifications and established
+  constraints, unresolved understanding questions, pending product choices kept
+  separate from architectural choices, Design Readiness result, unresolved
+  design branches, the target Design Doc and its create/revise/reuse coverage,
+  and any discovery re-entry evidence;
 - the Review context and complete active Review policy;
 - for planned work, the Task dependency DAG, PR topology, task workspaces,
   accepted and candidate results, stale descendants, and integration-only
@@ -80,8 +80,9 @@ Do not load all routes or references at entry.
   the combined handoff. Use that route only when every condition holds.
 - **Planned work:** when lightweight eligibility fails, or the request enters
   or resumes planned work, read [planned.md](references/planned.md). It owns
-  Design Readiness, Design Doc output and authority transfer, approval
-  transitions, promotion and legacy continuation.
+  entry through Requirements Exploration or Model Aligning, Architecture
+  Exploration, Design Readiness, Design Doc output and authority transfer,
+  approval transitions, promotion and legacy continuation.
   Design discussion alone does not authorize implementation.
 - **Execution or gate recovery:** before entering an authorized implementation,
   correction, dependency-release or acceptance loop, read

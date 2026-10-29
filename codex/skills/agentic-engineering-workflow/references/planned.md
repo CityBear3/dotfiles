@@ -2,69 +2,81 @@
 
 ## Use approval gates on the planned path
 
-Track planned discussion as `Investigating`, `Model Aligning`, `Model Aligned`,
-`Design Exploration`, `Discovery Pending`, or `Design Ready`. These are
-handoff semantics, not a separately implemented state engine. Never infer a
-later phase from conversation history or artifact existence.
+Track planned discussion as `Investigating`, `Requirements Exploration`,
+`Model Aligning`, `Model Aligned`, `Architecture Exploration`,
+`Discovery Pending`, or `Design Ready`. These are handoff semantics, not a
+separately implemented state engine. Never infer a later phase from conversation
+history or artifact existence.
 
 Resolve planned-path entry in this order:
 
-1. Investigate repository facts until the purpose and initial feature boundary
-   are identifiable. Resolve any existing design source's exact content,
-   approval state, currentness, covered dimensions, and missing or changed
-   branches.
+1. Investigate repository facts and existing PBI items, requirements,
+   specifications, and design sources until the purpose and initial feature
+   boundary are identifiable. Resolve each source's exact reference, revision or
+   observation point, authority, applicable scope, currentness, and missing or
+   conflicting parts. Existing implementation is context, not automatically a
+   requirement. Distinguish missing facts from unresolved product choices.
 2. Use `create-workspace` to establish or confirm the feature checkout, branch,
    and starting ref before writing the first recoverable planned-path artifact.
    An already suitable current checkout is sufficient.
-3. When a model or design branch is unresolved and exact current approved
-   authority does not fully cover it, require `design-discussion` to create the
-   ignored
+3. When a requirement, model, or design branch is unresolved and exact current
+   approved authority does not fully cover it, require `design-discussion` to
+   create the ignored
    `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-   confirmation and before it presents the provisional model. The record must
-   preserve repository and authority identity, current conceptual phase,
+   confirmation and before the first requirements proposal or provisional
+   model. The record must preserve repository and authority identity, current conceptual phase,
    checkpoint and alignment result, classified model claims, and separate
    provisional from settled state. Do not omit it because the discussion is
    expected to be short or create a duplicate when exact current approved
    authority already covers the work. File existence is not alignment or
-   approval. Let `design-discussion` own model construction, understanding
-   questions, synthesis, and the shared-model checkpoint. Require the checkpoint
-   to distinguish requirements, observable specifications, scope, completion
-   conditions, and established constraints from current-system facts and
-   pending design choices. Keep required outcomes and observable boundary
-   behavior distinct within the shared model. Those inputs must be
-   understandable without selecting an unresolved implementation mechanism.
-   Do not require new responsibility placement or processing paths to be selected
-   for `Model Aligned`, and do not permit solution options, recommendations, or
-   downstream drafting before it.
-4. Only after the shared requirements and specifications are aligned, use
-   `Design Exploration` to develop and challenge the design proposal against
-   those inputs. Let `design-discussion` follow material questions and
-   dependencies, compare alternatives when a choice remains, and keep design
-   decisions under user control. If exploration exposes a requirement or
-   specification gap, explicitly return to the affected `Model Aligning` slice
-   before resuming design questions.
-5. Require `design-discussion` to report Design Readiness before advancing. Do
+   approval. Let `design-discussion` own product exploration, model construction,
+   understanding questions, synthesis, and the shared-model checkpoint.
+4. Use `Requirements Exploration` only when what to build needs choices. Let
+   the user select outcomes, scope, priorities, and observable behavior through
+   questions, scenarios, and alternatives. Preserve established inputs and
+   explore only missing or conflicting slices. Consolidate new requirements in
+   a durable `requirements.md` or source-linked supplement using the project's
+   format; reuse sufficient PBI items and specifications without copying or
+   reformatting them. Track their sources and draft/aligned status. This adds
+   no separate holistic requirements-approval gate.
+5. Use `Model Aligning` directly for established inputs, or after requirements
+   exploration, to confirm shared meaning. Distinguish requirements, observable
+   specifications, scope, completion conditions, and established constraints
+   from current-system facts and pending product or architectural choices.
+   Return new product choices to `Requirements Exploration`; resolve factual or
+   interpretation gaps without inventing decisions. Do not require new
+   responsibility placement or implementation mechanisms for `Model Aligned`,
+   or present architectural options before its shared-model checkpoint.
+6. Only after the inputs are aligned, use `Architecture Exploration` to develop
+   and challenge significant design decisions against them. Let
+   `design-discussion` follow material questions and dependencies, compare
+   alternatives when a choice remains, and keep decisions under user control.
+   Route misunderstanding of established inputs to `Model Aligning`, new
+   required outcomes or behavior to `Requirements Exploration` followed by
+   alignment, and unresolved realization choices to `Architecture Exploration`.
+   Preserve unaffected settled branches.
+7. Require `design-discussion` to report Design Readiness before advancing. Do
    not replace the gate with an assertion that the design is probably settled.
-6. With Design Readiness, identify the Design Doc to create or revise, or the
+8. With Design Readiness, identify the Design Doc to create or revise, or the
    exact, current, approved document to reuse for unchanged coverage, under
    [the output policy](#deliver-the-design-doc). Pass the settled source,
    readiness result, target document, and existing coverage to `design-doc`.
    Do not add a separate whether-to-document confirmation.
-7. Reuse the exact approved Design Doc without repeating its completed
+9. Reuse the exact approved Design Doc without repeating its completed
    approval. For a new or revised document, the temporary record needs no
    separate holistic approval. Require user approval of the exact new or revised
    Design Doc as the one holistic design approval, then require a successful
    authority-transfer check before deleting the living record.
-8. Construct a complete Feature Contract. After an approved Design Doc and, for
-   a new or revised document, its transfer check, use `design-doc` to derive it
-   from that source and repository evidence.
-9. Write the Feature Contract at
-   `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
-   workspace-only execution artifact and require its separate user approval.
-   Do not force-add, stage, or commit it unless the user explicitly chooses
-   archival. Do not treat Design Doc approval, artifact existence, or a
-   conversation summary as Feature Contract approval.
-10. Only after the Feature Contract is approved and current, use `create-plan` to
+10. Construct a complete Feature Contract. After an approved Design Doc and, for
+    a new or revised document, its transfer check, use `design-doc` to derive it
+    from that source and repository evidence.
+11. Write the Feature Contract at
+    `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
+    workspace-only execution artifact and require its separate user approval.
+    Do not force-add, stage, or commit it unless the user explicitly chooses
+    archival. Do not treat Design Doc approval, artifact existence, or a
+    conversation summary as Feature Contract approval.
+12. Only after the Feature Contract is approved and current, use `create-plan` to
     create the ignored, workspace-only `implementation-plan.md` beside it.
     Require separate approval of the complete Implementation Plan, its Task
     Contract set, Review context, and Review policy before using `execute-plan`.
@@ -73,15 +85,16 @@ Resolve planned-path entry in this order:
 
 ## Deliver the Design Doc
 
-For new planned work, the durable output of Design Exploration is an approved
-Design Doc. Create or revise one when the settled design adds or changes its
-coverage. Reuse an exact, current, approved document when it already covers the
+For new planned work, the durable output of Architecture Exploration is an
+approved Design Doc. Create or revise one when the settled design adds or changes
+its coverage. Reuse an exact, current, approved document when it already covers the
 unchanged design; identify that coverage without manufacturing a duplicate.
 
 Keep aligned requirements, observable specifications, and their authority
-distinct from design choices and rationale. Scale the document to the decisions
-and future reader's needs; a short Design Doc may be enough. Do not invent
-alternatives or expand scope to justify it.
+distinct from design choices and rationale. Reference the requirements originals
+or agreed supplements so their content and authority survive the working record.
+Scale the document to the decisions and future reader's needs; a short Design
+Doc may be enough. Do not invent alternatives or expand scope to justify it.
 
 The living decision record is intermediate evidence, not an alternative final
 design authority or a direct source for a new Feature Contract. `Design Ready`
@@ -129,18 +142,20 @@ duplicate record solely to repeat them.
 The coordinator handoff to `design-discussion` carries the route, confirmed
 workspace, repository identity and evidence, record location, exact existing
 authority, and unresolved evidence. Receive its current conceptual phase,
-working-model alignment state, aligned requirements, observable specifications
-and established constraints, unresolved understanding questions and pending
-design choices kept separate, readiness result, unresolved design branches,
-discovery re-entry condition, target Design Doc or need to create one, exact existing coverage,
-and current record. The handoff to `design-doc` carries the settled source,
-readiness result, target document, and existing coverage. Receive the exact
+working-model alignment state, requirements-source identities and currentness,
+aligned requirements, observable specifications and established constraints,
+unresolved understanding questions, pending product and architectural choices
+kept separate, readiness result, unresolved design branches,
+discovery re-entry condition, target Design Doc or need to create one, exact
+existing coverage, and current record. The handoff to `design-doc` carries the
+settled source, readiness result, target document, and existing coverage. Receive the exact
 approval state, transfer-check result, record lifecycle, and any re-entry gap.
 
-When discovery evidence arrives, return through `Model Aligning` before another
-design choice. After interruption or compaction, recheck repository identity,
-authority currentness, and the recoverable record, then resume at the earliest
-phase whose exit conditions remain satisfied. Stop with the exact unresolved
+When discovery evidence arrives, classify whether it changes requirements,
+understanding, or architecture and resume the affected branch with the evidence.
+Reuse unaffected alignment. After interruption or compaction, recheck repository
+identity, authority currentness, and the recoverable record, then resume at the
+earliest phase whose exit conditions remain satisfied. Stop with the exact unresolved
 claim and evidence already tried when repeated questions do not reduce the same
 material uncertainty.
 

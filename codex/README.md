@@ -2,6 +2,32 @@
 
 This directory is the source of truth for the personal Codex bundle.
 
+## Requirements and architecture
+
+Planned design work uses three distinct activities through
+[`design-discussion`](skills/design-discussion/SKILL.md):
+
+- **Requirements Exploration:** when what to build is unsettled, explore the
+  problem, outcomes, scope, and observable behavior with the engineer. Reuse
+  existing PBI items and specifications, exploring only missing slices. New
+  requirements use a durable `requirements.md` or source-linked supplement;
+  concise existing formats are valid.
+- **Model Aligning:** confirm shared meaning of the established requirements,
+  specifications, constraints, and completion conditions. Sufficient existing
+  sources enter here directly; new product choices return to exploration.
+- **Architecture Exploration:** scrutinize significant responsibility,
+  dependency, API, and model decisions against aligned inputs. This includes
+  communication and function/type APIs, database and domain/type models, at
+  Design Doc granularity.
+
+The durable architecture output is an approved Design Doc. The temporary
+decision record preserves work in progress; requirements originals and agreed
+supplements remain available after it is retired. Feature Contracts and
+Implementation Plans turn the design into authorized execution, followed by
+the autonomous implementation, verification, review, and correction loops.
+See the [planned workflow](skills/agentic-engineering-workflow/references/planned.md)
+for transitions and approvals.
+
 ## Understand a PR through dialogue
 
 Use [`walkthrough-pr`](skills/walkthrough-pr/SKILL.md) to build an understanding
