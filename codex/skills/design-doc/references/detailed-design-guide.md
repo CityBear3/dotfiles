@@ -3,6 +3,11 @@
 This guide helps determine what to write in the Detailed Design section of a Design Doc.
 The Detailed Design section documents **architectural decisions and their rationale** — not implementation instructions or low-level specifications. The code itself serves as the detailed specification.
 
+Architectural significance is assessed at the relevant system or component
+scope. It includes important module and type boundaries as well as whole-system
+structure. Keep aligned requirements and observable specifications as inputs;
+explain the design decisions that realize them.
+
 The content and structure of this section depend on three axes.
 
 ## Three Axes
@@ -21,12 +26,20 @@ Identify where your design falls on each axis before writing. The combination sh
 
 ### API / Interface
 
+- Communication APIs: service, event, or process boundaries and the contracts
+  their consumers rely on.
+- Function/type APIs: module or library interfaces, traits, callbacks, ownership,
+  and caller obligations, including important internal boundaries.
 - Contract semantics: what guarantees does this interface make to its consumers?
 - Versioning and compatibility strategy: how will the contract evolve without breaking consumers?
 - Error model: what failure modes are exposed and what is the consumer's expected response?
 
 ### Data Model
 
+- Distinguish persistent models (such as database entities and schemas) from
+  domain/type models and explain their mapping where significant.
+- Type modeling: why are concepts or states separated, which combinations are
+  valid, and which type or component owns enforcement of the agreed invariants?
 - Entity relationships: why are entities structured this way and what alternatives were considered?
 - Lifecycle decisions: what governs how entities are created, change state, and become obsolete?
 - Consistency trade-offs: what consistency level is required and what is sacrificed to achieve it?
@@ -50,6 +63,11 @@ Identify where your design falls on each axis before writing. The combination sh
 - Observability: where are the critical points to monitor and what do they reveal?
 
 These categories often overlap. A single design may cover multiple targets — document each one only where an architecturally significant decision exists.
+
+Public visibility or storage representation alone does not require every
+signature, field, or schema definition to be specified here. Include exact
+detail when the design rationale, guarantee, or compatibility depends on it;
+otherwise reference the maintained definition.
 
 ---
 
