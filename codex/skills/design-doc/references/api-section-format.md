@@ -2,7 +2,10 @@
 
 This reference defines the format for the **API specification portion** of the Detailed Design section. The structure takes from Google's AIPs (https://google.aip.dev/) the prominence of a central Guidance section, but adapts the rest to Design Doc conventions: a dedicated **Design decisions** section makes the choices and reasoning prominent, and **Examples** is its own block for content not derivable from the proto (error responses, sequences). Apply this format when the design exposes one or more RPCs and consumers need a stable reference for the contract, design decisions, and error model.
 
-This format applies **only inside the API portion** of the Detailed Design section. Other parts (architecture, data flow, workflow) should follow the narrative prose style described in SKILL.md.
+This format applies **only inside the API portion** of the Detailed Design
+section. Other parts (architecture, data flow, workflow) follow the
+[writing guide](writing-guide.md), including appropriate structural, model,
+and behavioral views.
 
 ## When to Apply
 
@@ -13,7 +16,9 @@ This format applies **only inside the API portion** of the Detailed Design secti
 Skip this format for:
 - Internal-only interfaces with a single in-team consumer
 - Throwaway or experimental APIs not yet committed
-- Library/SDK surfaces (function-level APIs) — describe in prose
+- Library/SDK surfaces (function/type APIs) — explain their responsibilities and
+  contracts using prose with focused model diagrams, tables, or conceptual
+  signatures where useful; follow the writing guide rather than this gRPC format
 
 This format is currently scoped to **gRPC-based design**. REST mapping is not yet covered.
 

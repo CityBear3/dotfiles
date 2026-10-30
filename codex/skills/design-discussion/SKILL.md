@@ -210,6 +210,15 @@ and material trade-offs. Public visibility alone, including an API exposed by
 a core or domain module, does not make every type, method, or signature a
 user-owned design decision.
 
+Develop the conceptual models and major API abstractions needed to explain
+that architecture: important concepts and states, their relationships and
+owners, and the responsibilities, operations, and guarantees of module/trait
+boundaries as well as communication APIs. Use sketches to test and clarify
+these decisions when useful. Settle their material meaning here so Design Doc
+drafting can explain it without inventing a missing boundary or contract.
+An explanatory model or conceptual signature does not require fixing every
+concrete declaration.
+
 Use exact types, signatures, or representations only when a concrete
 compatibility obligation, consumer guarantee, or coordination between
 independent implementation tasks depends on that exact choice. Leave method
@@ -258,7 +267,7 @@ applicable condition holds:
 2. purpose and observable completion conditions are settled;
 3. scope, non-goals, constraints, and invariants are settled;
 4. applicable responsibility boundaries, dependency direction, and interface
-   semantics are settled;
+   semantics, including important model relationships and ownership, are settled;
 5. expected behavior and its verification method are settled;
 6. failure and recovery, migration, concurrency, authorization, performance,
    and comparable concerns are settled when applicable;
