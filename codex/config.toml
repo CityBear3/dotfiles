@@ -17,3 +17,35 @@ enabled = true
 min_wait_timeout_ms = 60000
 default_wait_timeout_ms = 120000
 max_wait_timeout_ms = 3600000
+
+[shell_environment_policy]
+inherit = "all"
+include_only = [
+    # CODEX_UNIX_CORE_BASELINE 0.165.0
+    # BEGIN_CODEX_UNIX_CORE
+    "PATH",
+    "SHELL",
+    "TMPDIR",
+    "TEMP",
+    "TMP",
+    "HOME",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "LOGNAME",
+    "USER",
+    # END_CODEX_UNIX_CORE
+
+    # Terminal routing, resources, and capabilities.
+    "HERDR_*",
+    "GHOSTTY_*",
+    "TERM",
+    "COLORTERM",
+    "TERM_PROGRAM",
+    "TERM_PROGRAM_VERSION",
+    "TERMINFO",
+    "TERMINFO_DIRS",
+
+    # Keep the existing device-specific explicit override effective.
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS",
+]

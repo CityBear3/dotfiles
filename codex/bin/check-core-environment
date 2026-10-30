@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# Read-only advisory check used by install.sh; never rewrite the reviewed allowlist.
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+config_path=${1:-"$script_dir/../config.toml"}
+
+unverified() {
+    printf 'CORE UNVERIFIED: %s; the reviewed environment policy is unchanged.\n' "$1" >&2
+}
+
+if ! reviewed_version="$(awk '$1 == "#" && $2 == "CODEX_UNIX_CORE_BASELINE" { print $3 }' "$config_path")" \
+    || [[ ! "$reviewed_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][a-zA-Z0-9.-]+)?$ ]]; then
+    unverified 'missing or invalid Codex core baseline version'
+    exit 0
+fi
+
+if ! expected_names="$(awk '
+    /# BEGIN_CODEX_UNIX_CORE/ { begins++; active = 1; next }
+    /# END_CODEX_UNIX_CORE/ { ends++; active = 0; next }
+    active {
+        line = $0
+        sub(/#.*/, "", line)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+        if (line == "") next
+        if (line !~ /^"[A-Za-z_][A-Za-z0-9_]*",$/) { bad = 1; next }
+        sub(/^"/, "", line)
+        sub(/",$/, "", line)
+        print line
+        count++
+    }
+    END { if (begins != 1 || ends != 1 || active || count == 0 || bad) exit 1 }
+' "$config_path" | LC_ALL=C sort -u)"; then
+    unverified 'cannot read the managed Unix core baseline'
+    exit 0
+fi
+
+if ! version_output="$(command codex --version 2>/dev/null)" \
+    || [[ ! "$version_output" =~ ^codex-cli[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+([.-][a-zA-Z0-9.-]+)?)$ ]]; then
+    unverified 'cannot identify the installed Codex version'
+    exit 0
+fi
+installed_version=${BASH_REMATCH[1]}
+
+# The baseline records an already-reviewed official release. New versions need
+# an actual definition comparison, rather than treating every update as drift.
+if [[ "$installed_version" == "$reviewed_version" ]]; then
+    printf 'CORE OK: Codex %s uses the reviewed Unix core baseline.\n' "$installed_version"
+    exit 0
+fi
+
+source_url="https://raw.githubusercontent.com/openai/codex/rust-v$installed_version/codex-rs/protocol/src/shell_environment.rs"
+if ! upstream_source="$(command curl --disable --fail --silent --show-error --location \
+    --connect-timeout 3 --max-time 10 "$source_url" 2>/dev/null)"; then
+    unverified "cannot retrieve the official core definition for Codex $installed_version"
+    exit 0
+fi
+
+# Accept only a literal Rust string array. A moved or computed definition is
+# explicitly unverified, never interpreted as an empty or unchanged core set.
+if ! upstream_names="$(printf '%s\n' "$upstream_source" | awk '
+    {
+        line = $0
+        sub(/\/\/.*/, "", line)
+        if (line ~ /const[[:space:]]+UNIX_CORE_ENV_VARS[[:space:]]*:/) {
+            begins++
+            active = 1
+            if (line !~ /=[[:space:]]*&\[/) { bad = 1; next }
+            sub(/^.*=[[:space:]]*&\[/, "", line)
+        } else if (!active) next
+        if (index(line, "];") > 0) {
+            sub(/\];.*$/, "", line)
+            active = 0
+            ends++
+        }
+        body = body line " "
+    }
+    END {
+        if (begins != 1 || ends != 1 || active || bad) exit 1
+        count = split(body, values, ",")
+        names = 0
+        for (i = 1; i <= count; i++) {
+            value = values[i]
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            if (value == "" && i == count) continue
+            if (value !~ /^"[A-Za-z_][A-Za-z0-9_]*"$/) exit 1
+            gsub(/"/, "", value)
+            names++
+            parsed[names] = value
+        }
+        if (names == 0) exit 1
+        for (i = 1; i <= names; i++) print parsed[i]
+    }
+' | LC_ALL=C sort -u)"; then
+    unverified "cannot parse the official Unix core definition for Codex $installed_version"
+    exit 0
+fi
+
+added="$(LC_ALL=C comm -13 <(printf '%s\n' "$expected_names") <(printf '%s\n' "$upstream_names"))"
+removed="$(LC_ALL=C comm -23 <(printf '%s\n' "$expected_names") <(printf '%s\n' "$upstream_names"))"
+if [[ -z "$added" && -z "$removed" ]]; then
+    printf 'CORE OK: Codex %s matches the Unix core baseline reviewed at %s.\n' \
+        "$installed_version" "$reviewed_version"
+else
+    printf 'CORE DRIFT: Codex %s differs from the Unix core baseline reviewed at %s.\n' \
+        "$installed_version" "$reviewed_version" >&2
+    while IFS= read -r name; do
+        if [[ -n "$name" ]]; then printf '  added: %s\n' "$name" >&2; fi
+    done <<< "$added"
+    while IFS= read -r name; do
+        if [[ -n "$name" ]]; then printf '  removed: %s\n' "$name" >&2; fi
+    done <<< "$removed"
+    printf '%s\n' 'Review codex/config.toml; installation keeps the declared allowlist.' >&2
+fi
+printf 'Codex release notes: https://github.com/openai/codex/releases/tag/rust-v%s\n' "$installed_version"

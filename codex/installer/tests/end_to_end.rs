@@ -194,6 +194,14 @@ fn workflow_bundle_replaces_owned_roles_and_preserves_unmanaged_assets() {
         fs::read_to_string(codex_home.join("config.toml")).expect("read installed configuration");
     assert!(config.contains("# operator-owned configuration\nmodel_verbosity = \"low\"\n"));
     let config: toml::Table = toml::from_str(&config).expect("installed configuration is TOML");
+    let declared_config: toml::Table = toml::from_str(
+        &fs::read_to_string(source_root.join("config.toml")).expect("read declared configuration"),
+    )
+    .expect("declared configuration is TOML");
+    assert_eq!(
+        config["shell_environment_policy"],
+        declared_config["shell_environment_policy"]
+    );
     assert_eq!(config["agents"]["max_threads"].as_integer(), Some(4));
     assert_eq!(
         config["features"]["context_management"]["experimental_mode"].as_bool(),
