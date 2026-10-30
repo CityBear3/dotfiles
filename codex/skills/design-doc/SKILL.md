@@ -70,6 +70,14 @@ Scale detail to the design decisions and future reader's needs. A short Design
 Doc is sufficient when it preserves the relevant rationale and system overview;
 do not turn it into an implementation manual or invent alternatives to fill it.
 
+Before drafting or substantively revising the document, read
+[references/writing-guide.md](references/writing-guide.md). Use its chapter
+purposes and representation criteria to explain the architecture from overview
+to detail. Organize sections around design questions; connect the chosen
+mechanism, rationale, and material consequences in prose. Use lists, tables,
+and diagrams where their relationships help the reader rather than packing
+unrelated obligations into paragraphs or table cells.
+
 Identify the aligned requirements, observable specifications, and established
 constraints as inputs in Context and scope, with their exact authority or
 surviving references. Reuse readable PBI items, specifications, and requirements
@@ -81,9 +89,13 @@ missing realization choices to `Architecture Exploration`. Preserve unaffected
 settled work; do not settle new choices while drafting prose.
 
 For core or domain module APIs as well as external APIs, describe
-consumer-visible semantics and guarantees. Include exact types, signatures, or
-representations only when a material design decision or compatibility
-obligation depends on them. Leave choices that preserve settled contracts to
+consumer-visible semantics and guarantees. Make important conceptual models
+and public abstractions visible through focused diagrams, tables, or short
+conceptual signatures. Distinguish explanatory names and sketches from exact
+definitions without weakening ownership, invariants, or caller guarantees.
+Include exact types, signatures, or representations only when a material
+design decision or compatibility obligation depends on them. Leave choices
+that preserve settled contracts to
 implementation; their absence is not a missing material decision.
 
 Cover both communication APIs and module/library function or type APIs, and
@@ -125,9 +137,9 @@ The detailed design should explain architecture, state transitions, invariants, 
 
 For gRPC API sections meeting its applicability conditions, read
 [references/api-section-format.md](references/api-section-format.md). Describe
-module/library APIs and other surfaces in prose appropriate to their contracts;
-do not impose the gRPC reference format on them. For detailed-design structure
-and review criteria, read
+module/library APIs and other surfaces with the narrative and conceptual views
+appropriate to their contracts; do not impose the gRPC reference format on
+them. For detailed-design structure and review criteria, read
 [references/detailed-design-guide.md](references/detailed-design-guide.md).
 
 ## Review and approval
@@ -139,6 +151,14 @@ Review every draft, whether Codex-authored or user-authored. Check:
 - requirements are measurable where necessary;
 - public contracts, failure behavior, and invariants are explicit;
 - alternatives include the reason they were rejected;
+- the overview establishes the system's major responsibilities, boundaries,
+  and relationships so readers can place the detailed decisions;
+- important models and module/API contracts can be reconstructed from the
+  document, with ownership, invariants, and caller obligations explicit;
+- ordering, asynchronous handoffs, and concurrency important to the design are
+  explained with a sequence diagram or another suitable behavioral view;
+- each detailed section has a coherent design question, and mechanisms,
+  rationale, and consequences are readable together;
 - diagrams or tables clarify real relationships instead of decorating prose;
 - implementation details do not obscure design decisions;
 - every material claim follows from the complete settled source and repository

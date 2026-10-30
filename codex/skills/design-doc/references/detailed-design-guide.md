@@ -1,7 +1,11 @@
 # Detailed Design Section Guide
 
 This guide helps determine what to write in the Detailed Design section of a Design Doc.
-The Detailed Design section documents **architectural decisions and their rationale** — not implementation instructions or low-level specifications. The code itself serves as the detailed specification.
+The Detailed Design section documents **architecturally significant structure,
+contracts, decisions, and their rationale**. Show enough of the models and
+interfaces for a reader to understand the design. Maintained code, API
+specifications, and schemas hold exhaustive concrete definitions; references to
+them do not replace explaining the important design guarantees here.
 
 Architectural significance is assessed at the relevant system or component
 scope. It includes important module and type boundaries as well as whole-system
@@ -34,6 +38,11 @@ Identify where your design falls on each axis before writing. The combination sh
 - Versioning and compatibility strategy: how will the contract evolve without breaking consumers?
 - Error model: what failure modes are exposed and what is the consumer's expected response?
 
+Sketch the major abstractions and operations, including important traits,
+interfaces, callbacks, or associated types. Explain input/output meaning,
+ownership, side effects, synchronization, and caller obligations where material.
+An operation inventory alone does not explain why the boundary exists.
+
 ### Data Model
 
 - Distinguish persistent models (such as database entities and schemas) from
@@ -43,6 +52,11 @@ Identify where your design falls on each axis before writing. The combination sh
 - Entity relationships: why are entities structured this way and what alternatives were considered?
 - Lifecycle decisions: what governs how entities are created, change state, and become obsolete?
 - Consistency trade-offs: what consistency level is required and what is sacrificed to achieve it?
+
+Make the relationships between important concepts, states, and their owners
+visible. Use a focused class/ER diagram, table, or conceptual declaration when
+it explains those relationships better than prose alone. Distinguish the
+conceptual model from its concrete storage or language representation.
 
 ### Architecture / Component Structure
 
@@ -147,3 +161,9 @@ Document:
 3. Only describe what is architecturally significant. Skip anything that is self-evident from the code or not relevant to your design.
 4. If an important concern is not listed here, add it.
 5. Every item in the Detailed Design section should answer "**what was decided and why**" — not "how to implement it."
+
+Use the [writing guide](writing-guide.md) for chapter responsibilities,
+structural and behavioral diagrams, and short examples. These axes select
+relevant design content; they are not mandatory output subsections. Within the
+selected content, organize sections around coherent design questions and keep
+the mechanism, rationale, and material consequences close together.
