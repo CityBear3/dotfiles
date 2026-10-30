@@ -1,3 +1,5 @@
+//! Merge declared settings while preserving configuration outside managed assignments.
+
 use std::collections::{BTreeMap, HashSet};
 
 use toml::{Table, Value};
@@ -29,20 +31,35 @@ const MANAGED_MULTI_AGENT_V2_KEYS: [(&str, &str); 4] = [
         "features.multi_agent_v2.max_wait_timeout_ms",
     ),
 ];
+const MANAGED_ENVIRONMENT_KEYS: [(&str, &str); 2] = [
+    ("inherit", "shell_environment_policy.inherit"),
+    ("include_only", "shell_environment_policy.include_only"),
+];
 
+/// Values supported by the installer's managed configuration fragment.
 #[derive(Clone, Debug, Eq, PartialEq)]
-enum ManagedScalar {
+enum ManagedValue {
     String(String),
     Integer(i64),
     Boolean(bool),
+    StringArray(Vec<String>),
 }
 
-impl ManagedScalar {
+impl ManagedValue {
     fn from_value(key: &str, value: &Value) -> Result<Self, InstallerError> {
         match value {
             Value::String(value) => Ok(Self::String(value.clone())),
             Value::Integer(value) => Ok(Self::Integer(*value)),
             Value::Boolean(value) => Ok(Self::Boolean(*value)),
+            Value::Array(values) if key == "shell_environment_policy.include_only" => values
+                .iter()
+                .map(|value| {
+                    value.as_str().map(ToOwned::to_owned).ok_or_else(|| {
+                        invalid_config(format!("managed key {key:?} is not a string array"))
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()
+                .map(Self::StringArray),
             _ => Err(invalid_config(format!(
                 "managed key {key:?} is not a renderable scalar"
             ))),
@@ -56,6 +73,9 @@ impl ManagedScalar {
             }),
             Self::Integer(value) => Ok(value.to_string()),
             Self::Boolean(value) => Ok(value.to_string()),
+            Self::StringArray(values) => serde_json::to_string(values).map_err(|error| {
+                invalid_config(format!("could not render a managed string array: {error}"))
+            }),
         }
     }
 
@@ -64,6 +84,9 @@ impl ManagedScalar {
             Self::String(value) => Value::String(value.clone()),
             Self::Integer(value) => Value::Integer(*value),
             Self::Boolean(value) => Value::Boolean(*value),
+            Self::StringArray(values) => {
+                Value::Array(values.iter().cloned().map(Value::String).collect())
+            }
         }
     }
 }
@@ -241,6 +264,8 @@ pub(crate) fn merge_config(
         None => append_table_settings(&mut lines, "features.multi_agent_v2", &wait_settings)?,
     }
 
+    merge_environment_policy(&mut lines, &existing, &managed)?;
+
     let mut candidate = lines.concat();
     let trimmed_length = candidate.trim_end_matches(['\r', '\n']).len();
     candidate.truncate(trimmed_length);
@@ -251,10 +276,72 @@ pub(crate) fn merge_config(
     Ok(candidate)
 }
 
+/// Apply a declared policy without taking ownership of explicit environment overrides.
+fn merge_environment_policy(
+    lines: &mut Vec<String>,
+    existing: &Table,
+    managed: &BTreeMap<&str, ManagedValue>,
+) -> Result<(), InstallerError> {
+    if !managed.contains_key("shell_environment_policy.inherit") {
+        return Ok(());
+    }
+    let policy = existing
+        .get("shell_environment_policy")
+        .map(|value| {
+            value.as_table().ok_or_else(|| {
+                invalid_config("existing shell_environment_policy is not an ordinary table")
+            })
+        })
+        .transpose()?;
+    if policy.is_some_and(|policy| policy.contains_key("filters")) {
+        return Err(invalid_config(
+            "shell_environment_policy.filters conflicts with the managed include_only array",
+        ));
+    }
+    let settings = MANAGED_ENVIRONMENT_KEYS
+        .iter()
+        .map(|(key, path)| (*key, managed_value(managed, path)))
+        .collect::<Vec<_>>();
+    let structure = scan_toml_structure(lines);
+    let has_policy_header = structure
+        .table_headers
+        .iter()
+        .any(|index| is_exact_table_header(line_body(&lines[*index]), "shell_environment_policy"));
+    let has_set_header = structure.table_headers.iter().any(|index| {
+        is_exact_table_header(line_body(&lines[*index]), "shell_environment_policy.set")
+    });
+    if !has_policy_header
+        && has_set_header
+        && policy.is_some_and(|policy| {
+            MANAGED_ENVIRONMENT_KEYS
+                .iter()
+                .all(|(key, _)| !policy.contains_key(*key))
+        })
+    {
+        // TOML permits declaring an implicit parent after its ordinary child table.
+        return append_table_settings(lines, "shell_environment_policy", &settings);
+    }
+    match policy {
+        Some(policy) => {
+            for (key, value) in settings {
+                merge_existing_table_setting(
+                    lines,
+                    policy,
+                    "shell_environment_policy",
+                    key,
+                    value,
+                )?;
+            }
+            Ok(())
+        }
+        None => append_table_settings(lines, "shell_environment_policy", &settings),
+    }
+}
+
 fn merge_existing_agents(
     lines: &mut Vec<String>,
     existing_agents: &Table,
-    managed: &BTreeMap<&str, ManagedScalar>,
+    managed: &BTreeMap<&str, ManagedValue>,
 ) -> Result<(), InstallerError> {
     let structure = scan_toml_structure(lines);
     let agent_headers = structure
@@ -311,7 +398,7 @@ fn merge_existing_agents(
 
 fn append_agents_table(
     lines: &mut Vec<String>,
-    managed: &BTreeMap<&str, ManagedScalar>,
+    managed: &BTreeMap<&str, ManagedValue>,
 ) -> Result<(), InstallerError> {
     let insertion = lines.len();
     prepare_insertion(lines, insertion);
@@ -333,7 +420,7 @@ fn merge_existing_table_setting(
     existing_table: &Table,
     table_path: &str,
     key: &str,
-    value: &ManagedScalar,
+    value: &ManagedValue,
 ) -> Result<(), InstallerError> {
     let structure = scan_toml_structure(lines);
     let headers = structure
@@ -356,6 +443,16 @@ fn merge_existing_table_setting(
         .find(|index| *index > table_start)
         .unwrap_or(lines.len());
     if existing_table.contains_key(key) {
+        if matches!(value, ManagedValue::StringArray(_)) {
+            return merge_array_assignment(
+                lines,
+                table_start + 1,
+                table_end,
+                key,
+                value,
+                &structure.statement_lines,
+            );
+        }
         let assignment = unique_assignment(
             lines,
             table_start + 1,
@@ -373,11 +470,56 @@ fn merge_existing_table_setting(
     Ok(())
 }
 
+/// Replace one complete ordinary array assignment; equal arrays retain their bytes.
+fn merge_array_assignment(
+    lines: &mut Vec<String>,
+    start: usize,
+    end: usize,
+    key: &str,
+    value: &ManagedValue,
+    statement_lines: &HashSet<usize>,
+) -> Result<(), InstallerError> {
+    let mut matches = Vec::new();
+    for index in start..end {
+        if !statement_lines.contains(&index) {
+            continue;
+        }
+        let trimmed = line_body(&lines[index]).trim_start_matches([' ', '\t']);
+        let Some(after_key) = trimmed.strip_prefix(key) else {
+            continue;
+        };
+        if !after_key.trim_start_matches([' ', '\t']).starts_with('=') {
+            continue;
+        }
+        let boundary = ((index + 1)..end)
+            .find(|next| statement_lines.contains(next))
+            .unwrap_or(end);
+        let assignment = lines[index..boundary].concat();
+        if parse_toml(&assignment, "array assignment")
+            .is_ok_and(|parsed| parsed.len() == 1 && parsed.contains_key(key))
+        {
+            matches.push((index, boundary, assignment));
+        }
+    }
+    let [(start, end, assignment)] = matches.as_slice() else {
+        return Err(invalid_config(format!(
+            "managed key {key:?} is not one ordinary array assignment"
+        )));
+    };
+    let parsed = parse_toml(assignment, "array assignment")?;
+    if parsed.get(key) == Some(&value.as_toml()) {
+        return Ok(());
+    }
+    let replacement = replacement_line(assignment, key, value)?;
+    lines.splice(*start..*end, [replacement]);
+    Ok(())
+}
+
 fn append_table_setting(
     lines: &mut Vec<String>,
     table_path: &str,
     key: &str,
-    value: &ManagedScalar,
+    value: &ManagedValue,
 ) -> Result<(), InstallerError> {
     append_table_settings(lines, table_path, &[(key, value)])
 }
@@ -385,7 +527,7 @@ fn append_table_setting(
 fn append_table_settings(
     lines: &mut Vec<String>,
     table_path: &str,
-    settings: &[(&str, &ManagedScalar)],
+    settings: &[(&str, &ManagedValue)],
 ) -> Result<(), InstallerError> {
     let insertion = lines.len();
     prepare_insertion(lines, insertion);
@@ -410,9 +552,11 @@ fn parse_toml(text: &str, description: &str) -> Result<Table, InstallerError> {
 fn validated_managed_values(
     managed_text: &str,
     max_threads: u8,
-) -> Result<BTreeMap<&'static str, ManagedScalar>, InstallerError> {
+) -> Result<BTreeMap<&'static str, ManagedValue>, InstallerError> {
     let parsed = parse_toml(managed_text, "managed configuration")?;
-    if parsed.len() != MANAGED_ROOT_KEYS.len() + 3
+    let expected_roots =
+        MANAGED_ROOT_KEYS.len() + 3 + usize::from(parsed.contains_key("shell_environment_policy"));
+    if parsed.len() != expected_roots
         || !MANAGED_ROOT_KEYS
             .iter()
             .all(|key| parsed.contains_key(*key))
@@ -493,23 +637,23 @@ fn validated_managed_values(
 
     let mut values = BTreeMap::new();
     for key in MANAGED_ROOT_KEYS {
-        values.insert(key, ManagedScalar::from_value(key, &parsed[key])?);
+        values.insert(key, ManagedValue::from_value(key, &parsed[key])?);
     }
     for key in MANAGED_AGENT_KEYS {
-        values.insert(key, ManagedScalar::from_value(key, &agents[key])?);
+        values.insert(key, ManagedValue::from_value(key, &agents[key])?);
     }
-    let enabled = ManagedScalar::from_value(UPDATE_PLAN_ENABLED_KEY, &update_plan["enabled"])?;
-    if !matches!(enabled, ManagedScalar::Boolean(_)) {
+    let enabled = ManagedValue::from_value(UPDATE_PLAN_ENABLED_KEY, &update_plan["enabled"])?;
+    if !matches!(enabled, ManagedValue::Boolean(_)) {
         return Err(invalid_config(
             "managed key \"tools.update_plan.enabled\" is not a boolean",
         ));
     }
     values.insert(UPDATE_PLAN_ENABLED_KEY, enabled);
-    let experimental_mode = ManagedScalar::from_value(
+    let experimental_mode = ManagedValue::from_value(
         CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY,
         &context_management["experimental_mode"],
     )?;
-    if !matches!(experimental_mode, ManagedScalar::Boolean(_)) {
+    if !matches!(experimental_mode, ManagedValue::Boolean(_)) {
         return Err(invalid_config(
             "managed key \"features.context_management.experimental_mode\" is not a boolean",
         ));
@@ -517,13 +661,13 @@ fn validated_managed_values(
     values.insert(CONTEXT_MANAGEMENT_EXPERIMENTAL_MODE_KEY, experimental_mode);
     for (key, path) in MANAGED_MULTI_AGENT_V2_KEYS {
         let value = if key == "enabled" {
-            ManagedScalar::Boolean(
+            ManagedValue::Boolean(
                 multi_agent_v2[key].as_bool().ok_or_else(|| {
                     invalid_config(format!("managed key {path:?} is not a boolean"))
                 })?,
             )
         } else {
-            ManagedScalar::Integer(
+            ManagedValue::Integer(
                 multi_agent_v2[key]
                     .as_integer()
                     .filter(|value| *value > 0)
@@ -548,16 +692,50 @@ fn validated_managed_values(
             "managed wait timeouts must satisfy min <= default <= max",
         ));
     }
-    values.insert(
-        "max_threads",
-        ManagedScalar::Integer(i64::from(max_threads)),
-    );
+    values.insert("max_threads", ManagedValue::Integer(i64::from(max_threads)));
+    if let Some(policy) = parsed.get("shell_environment_policy") {
+        let policy = policy
+            .as_table()
+            .filter(|policy| {
+                policy.len() == MANAGED_ENVIRONMENT_KEYS.len()
+                    && MANAGED_ENVIRONMENT_KEYS
+                        .iter()
+                        .all(|(key, _)| policy.contains_key(*key))
+            })
+            .ok_or_else(|| {
+                invalid_config("managed shell_environment_policy has unknown or missing keys")
+            })?;
+        if policy["inherit"].as_str() != Some("all") {
+            return Err(invalid_config(
+                "managed shell_environment_policy.inherit must be all",
+            ));
+        }
+        let allowlist = policy["include_only"]
+            .as_array()
+            .filter(|values| !values.is_empty())
+            .ok_or_else(|| {
+                invalid_config(
+                    "managed shell_environment_policy.include_only must be a nonempty string array",
+                )
+            })?;
+        if !allowlist
+            .iter()
+            .all(|value| value.as_str().is_some_and(|value| !value.trim().is_empty()))
+        {
+            return Err(invalid_config(
+                "managed shell_environment_policy.include_only must contain nonempty strings",
+            ));
+        }
+        for (key, path) in MANAGED_ENVIRONMENT_KEYS {
+            values.insert(path, ManagedValue::from_value(path, &policy[key])?);
+        }
+    }
     Ok(values)
 }
 
 fn validate_managed_postcondition(
     final_config: &Table,
-    managed: &BTreeMap<&str, ManagedScalar>,
+    managed: &BTreeMap<&str, ManagedValue>,
 ) -> Result<(), InstallerError> {
     for key in MANAGED_ROOT_KEYS {
         if final_config.get(key) != Some(&managed_value(managed, key).as_toml()) {
@@ -622,10 +800,23 @@ fn validate_managed_postcondition(
             )));
         }
     }
+    for (key, path) in MANAGED_ENVIRONMENT_KEYS {
+        if let Some(value) = managed.get(path) {
+            let actual = final_config
+                .get("shell_environment_policy")
+                .and_then(Value::as_table)
+                .and_then(|policy| policy.get(key));
+            if actual != Some(&value.as_toml()) {
+                return Err(invalid_config(format!(
+                    "merged configuration does not contain managed key {path:?}"
+                )));
+            }
+        }
+    }
     Ok(())
 }
 
-fn managed_value<'a>(managed: &'a BTreeMap<&str, ManagedScalar>, key: &str) -> &'a ManagedScalar {
+fn managed_value<'a>(managed: &'a BTreeMap<&str, ManagedValue>, key: &str) -> &'a ManagedValue {
     managed
         .get(key)
         .expect("validated managed values contain every managed key")
@@ -684,11 +875,7 @@ fn is_ordinary_assignment(line: &str, key: &str) -> bool {
     parse_toml(body, "assignment").is_ok_and(|parsed| parsed.len() == 1 && parsed.contains_key(key))
 }
 
-fn replacement_line(
-    line: &str,
-    key: &str,
-    value: &ManagedScalar,
-) -> Result<String, InstallerError> {
+fn replacement_line(line: &str, key: &str, value: &ManagedValue) -> Result<String, InstallerError> {
     let body = line_body(line);
     let comment = inline_comment(body, key);
     let ending = line_ending(line);
@@ -696,7 +883,7 @@ fn replacement_line(
     Ok(format!("{key} = {}{comment}{ending}", value.render()?))
 }
 
-fn new_assignment(key: &str, value: &ManagedScalar) -> Result<String, InstallerError> {
+fn new_assignment(key: &str, value: &ManagedValue) -> Result<String, InstallerError> {
     Ok(format!("{key} = {}\n", value.render()?))
 }
 
@@ -918,3 +1105,7 @@ mod context_management_tests;
 #[cfg(test)]
 #[path = "config_merge_wait_timeout_tests.rs"]
 mod wait_timeout_tests;
+
+#[cfg(test)]
+#[path = "config_merge_environment_tests.rs"]
+mod environment_tests;

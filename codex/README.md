@@ -354,7 +354,7 @@ Command-line options override these environment-derived defaults. The paths show
 | `skills/<name>/` | `$HOME/.agents/skills/<name>/` |
 | `config.toml` | Declared managed values merged into `${CODEX_HOME:-$HOME/.codex}/config.toml` |
 
-The installer manages eleven configuration values: `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `tools.update_plan.enabled`, `features.context_management.experimental_mode`, `agents.max_threads`, `agents.max_depth`, and the four `features.multi_agent_v2` settings below. The tracked values keep the `update_plan` tool and experimental context management enabled. Other configuration bytes—including other feature settings, comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the one exception is that the document ending is normalized to a single LF (`\n`).
+The installer manages thirteen configuration values: `model`, `model_reasoning_effort`, `plan_mode_reasoning_effort`, `tools.update_plan.enabled`, `features.context_management.experimental_mode`, `agents.max_threads`, `agents.max_depth`, the four `features.multi_agent_v2` settings below, and `shell_environment_policy.inherit` / `shell_environment_policy.include_only`. The tracked values keep the `update_plan` tool and experimental context management enabled. Configuration bytes outside rewritten managed assignments—including other feature settings, comments, statusline, context-window and auto-compact settings, MCP configuration, permissions, authentication, and providers—are preserved; the document ending is normalized to a single LF (`\n`).
 
 An install adds `features.context_management.experimental_mode` when absent and replaces an existing value with the repository's value, currently `true`. As with other managed tables, use an ordinary `[features.context_management]` table with an unquoted, single-line `experimental_mode` assignment. Unsupported scalar, inline-table, or dotted-key representations are rejected instead of being rewritten. Sibling feature settings remain unmanaged. The existing backup/restore flow preserves the pre-install configuration, including whether this setting was absent or disabled.
 
@@ -372,6 +372,27 @@ The managed `[features.multi_agent_v2]` settings are:
 These are timeout bounds, not mandatory delays: `wait_agent` returns early when an agent notification arrives. Numeric defaults live in `config.toml`; skills retain the guidance to use bounded, event-responsive waits without busy-polling. The settings were checked with Codex 0.153.4.
 
 An install adds missing multi-agent settings and replaces existing values with the repository's values. Use an ordinary `[features.multi_agent_v2]` table with unquoted, single-line assignments; scalar feature flags, inline tables, and dotted-key representations are rejected instead of being rewritten. Unmanaged siblings and comments are preserved. The managed fragment requires a boolean `enabled`, positive integer timeouts, and `min <= default <= max`. Backup and restore retain the entire pre-install configuration, including prior timeout values or the absence of this table.
+
+### Shell environment policy and core drift
+
+The repository declares `inherit = "all"` with a nonempty `include_only` allowlist in `config.toml`. This reproduces the Unix `core` set reviewed against Codex 0.165.0 and adds `HERDR_*`, `GHOSTTY_*`, terminal capability / identification variables, and the existing `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` override. Values come from the launching process; no pane IDs, socket paths, or Ghostty installation paths are hard-coded.
+
+An install adds or replaces these two managed settings. A live mismatch is reported as `REPLACE` by `--dry-run` without writing the configuration; a normal install reconciles it. Existing `shell_environment_policy.set`, `exclude`, and other unmanaged entries remain unchanged. Codex also applies `include_only` to explicit `set` values, so any additional local overrides that must remain effective need an entry in the declared allowlist. The installer does not automatically expand that list.
+
+Use an ordinary `[shell_environment_policy]` table and unquoted keys. The allowlist can use a single-line or multiline ordinary array assignment. Equal arrays retain their original bytes, including comments; replacing a changed array replaces its full owned assignment and interior comments, while retaining its trailing comment and surrounding configuration. An existing ordinary `[shell_environment_policy.set]` child is supported without an explicit parent table. Other inline or dotted representations are rejected. An existing `shell_environment_policy.filters` table is rejected before mutation because Codex cannot combine it with `include_only` in the same configuration layer.
+
+Legacy source fragments without a shell environment policy remain supported. When the source declares this table, it must contain exactly `inherit = "all"` and a nonempty array of nonempty strings named `include_only`; an empty array would disable the allowlist and is rejected. The normal backup/restore flow retains the entire pre-install configuration, including its previous policy and local overrides.
+
+Every normal `install.sh` install and dry-run also invokes the read-only `bin/check-core-environment` helper before Rust synchronization. It reads the `CODEX_UNIX_CORE_BASELINE` version and the names between `BEGIN_CODEX_UNIX_CORE` / `END_CODEX_UNIX_CORE` in `config.toml`:
+
+- The reviewed official version reports `CORE OK` without a network request.
+- For another installed version, the helper fetches that exact `rust-v<version>` tag's `codex-rs/protocol/src/shell_environment.rs` from the official OpenAI repository and compares the literal `UNIX_CORE_ENV_VARS` set. The fetch has a 3-second connection timeout and a 10-second overall timeout. Curl's default configuration files are disabled so options such as `remote-name` cannot write into the working directory; proxy or CA options supplied only through curlrc are therefore not used.
+- An actual definition change reports `CORE DRIFT` and lists added / removed variable names. A version update with the same set reports `CORE OK`.
+- Missing Codex, network failure, moved source, invalid baseline metadata, or a non-literal / unrecognized definition reports `CORE UNVERIFIED`. This is explicitly not a successful comparison.
+
+These diagnostics are advisory: install continues with the repository's reviewed allowlist, and the helper never changes source or destination files. After reviewing a definition change, update the marked core block and baseline version together. The check assumes an official release and cannot identify local binary patches that retain the same version string. The helper is invoked from this checkout, not installed as a home-directory asset or recorded in the Rust ownership manifest. Restore, help, and direct low-level Rust invocations remain offline and do not run this workstation check.
+
+For a different installed version, a successful comparison also prints its release-note link. Automatic detection of support for additive `core` inheritance is deferred; [Codex issue #22023](https://github.com/openai/codex/issues/22023) tracks that feature. Release-note wording alone is not treated as proof that a new configuration is available.
 
 The installer manages only declared or manifest-owned names. Unrelated sibling skills and agents are preserved. `.system` cannot be installer-owned or pruned; in particular, `${CODEX_HOME:-$HOME/.codex}/skills/.system` is outside the destination mapping.
 
@@ -475,6 +496,8 @@ The wrapper does not install the Rust installer executable elsewhere, but Cargo 
 Both target directories are repository-local and ignored by Git. They are build and development artifacts, not installer state and not part of backup or restore.
 
 Most Rust installer tests create their own source fixture below the test temporary directory. The actual-bundle end-to-end test additionally snapshots the tracked `config.toml`, `skills/`, and `agents/` into an isolated source root and checks their installation into isolated destinations; it never installs into the user's live environment.
+
+Run `bash codex/tests/core_environment_test.sh` for controlled core-version / source comparisons and `bash codex/tests/install_test.sh` for the normal launcher's wiring. Their external commands use fixtures rather than contacting GitHub or launching the live Codex. Rust's `environment_policy` process test covers policy drift, installation, idempotency, preservation, and restore in isolated destinations.
 
 ## Manual installer fallback
 

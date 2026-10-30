@@ -378,6 +378,37 @@ test_restore_and_help_leave_link_unchanged() {
     assert_cargo_call_count 2 "$cargo_log" 'restore/help'
 }
 
+test_install_reports_core_definition_drift() {
+    # Arrange
+    local case_root="$test_root/core-drift"
+    local fake_bin="$case_root/bin"
+    local case_home="$case_root/home"
+    local cargo_log="$case_root/cargo.log"
+    mkdir -p "$case_home" "$fake_bin"
+    ln -s "$test_script" "$fake_bin/cargo"
+    cat > "$fake_bin/codex" <<'SH'
+#!/bin/sh
+printf '%s\n' 'codex-cli 0.166.0'
+SH
+    cat > "$fake_bin/curl" <<'SH'
+#!/bin/sh
+printf '%s\n' 'const UNIX_CORE_ENV_VARS: &[&str] = &["PATH","NEW_CORE"];'
+SH
+    chmod +x "$fake_bin/codex" "$fake_bin/curl"
+
+    # Act
+    HOME="$case_home" PATH="$fake_bin:/usr/bin:/bin" \
+        CODEX_INSTALL_TEST_FAKE_CARGO=1 \
+        CODEX_INSTALL_TEST_CARGO_LOG="$cargo_log" \
+        "$launcher" --dry-run > "$case_root/stdout" 2> "$case_root/stderr"
+
+    # Assert: drift is reported during installation without changing the reviewed policy.
+    assert_contains "$case_root/stderr" 'CORE DRIFT' 'core drift warning'
+    assert_contains "$case_root/stderr" 'added: NEW_CORE' 'new core variable'
+    assert_cargo_call_count 1 "$cargo_log" 'core drift still permits the requested install'
+    assert_absent "$case_home/.local/bin/codex-upgrade" 'core check dry-run'
+}
+
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 test_script="$script_dir/install_test.sh"
 launcher="$script_dir/../install.sh"
@@ -393,5 +424,6 @@ test_existing_exact_link_is_no_op
 test_dry_run_reports_without_mutation
 test_unexpected_destination_is_preserved_as_conflict
 test_restore_and_help_leave_link_unchanged
+test_install_reports_core_definition_drift
 
 printf '%s\n' 'PASS: Codex installer launcher tests'

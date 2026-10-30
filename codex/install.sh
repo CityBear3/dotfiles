@@ -255,6 +255,7 @@ if [[ ( -e "$helper_directory" || -L "$helper_directory" ) \
 fi
 
 preflight_helper_link
+bash "$script_dir/bin/check-core-environment" "$script_dir/config.toml"
 
 if run_rust_installer "$@"; then
     :
