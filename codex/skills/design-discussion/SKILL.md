@@ -1,6 +1,6 @@
 ---
 name: design-discussion
-description: Explore unsettled requirements when needed, confirm shared understanding, then scrutinize architectural decisions toward a Design Doc.
+description: Explore unsettled requirements when needed and align shared understanding before architectural exploration through a Draft Design Doc.
 ---
 
 # Design discussion
@@ -11,7 +11,7 @@ under user control. Act as an investigator and sounding board.
 ## Establish inputs and select the phase
 
 Accept from `agentic-engineering-workflow` the planned route, confirmed
-workspace, repository identity and evidence, living-record location, exact
+workspace, repository identity and evidence, input/alignment-record location, exact
 existing authority and its currentness, and unresolved evidence. Do not persist
 a material decision until the coordinator has confirmed the checkout, branch,
 and starting ref.
@@ -24,13 +24,15 @@ scope, authority, and currentness. Do not infer agreement from file existence.
 Use `Requirements Exploration` when what to build still needs choices. Skip it
 when existing sources already establish the needed outcomes and behavior;
 partial sources require exploration only of the missing or conflicting slice.
-Use `Model Aligning` to confirm shared understanding of those inputs, then
-`Architecture Exploration` to develop and scrutinize how to satisfy them.
-Keep these activities explicit in questions, summaries, and records.
+Use `Model Aligning` to confirm shared understanding of those inputs. After
+`Model Aligned`, hand off through the coordinator to `design-doc` for architecture
+exploration and Draft coauthoring, even while realization choices remain open.
+Keep the input activities distinct from architectural choices in questions,
+summaries, and records.
 
 Report the current conceptual phase as `Investigating`,
-`Requirements Exploration`, `Model Aligning`, `Model Aligned`,
-`Architecture Exploration`, `Discovery Pending`, or `Design Ready`. These names
+`Requirements Exploration`, `Model Aligning`, `Model Aligned`, or
+`Discovery Pending` for unavailable input evidence. These names
 coordinate handoffs; do not add a state engine or infer a later phase from an
 artifact's existence. Stop with the exact unresolved claim and evidence already
 tried when repeated questions do not reduce the same material uncertainty.
@@ -135,200 +137,75 @@ correct the complete model at that checkpoint. Confirmation of understanding
 is not holistic design approval. Do not enter design choices before this
 checkpoint.
 
-An exact, current, explicitly approved Design Doc can satisfy the readiness
-dimensions it covers. Do not repeat those decisions. Past conversation, an
+An exact, current, explicitly approved Design Doc can supply the input
+authority and settled design coverage it establishes. Do not repeat those decisions. Past conversation, an
 unapproved artifact, or an Agent-authored summary is not approved authority.
 Reopen only a missing or changed branch and the settled decisions whose meaning
 depends on it. For already-approved work governed by an earlier workflow,
 retain its exact design authority under the coordinator's continuation rules.
 
-## Maintain the living decision record
+## Preserve pre-design inputs and alignment
 
-For planned discussion with an unresolved requirement, model, or design branch
-not fully covered by exact current approved authority, create the ignored
-workspace artifact
-`docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
+For planned discussion with unresolved requirements or model understanding not
+fully covered by exact current approved authority, create the ignored workspace
+artifact `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
 confirmation and before presenting a requirements proposal or provisional model.
-Do not omit it because the discussion is expected to be short. In a provisional
-section, record repository and authority identity, the current conceptual phase,
-checkpoint and alignment result, user-stated intent, and material model claims
-classified as confirmed, evidence-backed, inferred, or unresolved. Keep this
-section separate from settled design decisions. Within the model, keep
+Do not omit it because the discussion is expected to be short or duplicate exact
+approved coverage solely for ceremony.
+
+Use this record for repository and authority identity, current conceptual phase,
+checkpoint and alignment result, user-stated intent, and material input claims
+classified as confirmed, evidence-backed, inferred, or unresolved. Keep
 requirements, observable specifications, established constraints, current-system
-facts, pending product choices, and pending design choices distinct; retain the
-aligned inputs at the checkpoint. Record requirement or specification changes
-in their model slice, with their authority, rather than as design choices. Update the design decision
-section as choices settle with:
+facts, pending product choices, and pending realization choices distinct. Retain
+source references, revisions/currentness, applicable scope, rationale for
+user-selected input changes, and accepted input deferrals with intent and impact.
+An Agent proposal is not a selected input, and file existence is not approval.
 
-- selected approaches and rationale;
-- rejected alternatives and reasons;
-- scope and non-goals;
-- explicitly accepted deferrals with their intent and impact;
-- unresolved material questions in a separate section.
+Newly defined requirements/specifications need a durable original or supplement;
+the ignored record is not their only surviving source. Keep metadata for
+read-only existing sources without editing the originals.
 
-Retain requirements-source references, their applicable scope and currentness,
-and the draft/aligned status of the working inputs. For existing read-only
-sources, keep this metadata here without editing the originals. Newly defined
-requirements and specifications must have a surviving source or supplement;
-the working record is not their long-term original.
+After Model Aligned, keep evolving architecture, alternatives, design rationale,
+experiment evidence, and design questions in the Draft owned by `design-doc`, not
+in a second architecture section here. The input record remains available through
+final Design Doc approval and the preservation check. On input re-entry, update
+only affected input claims and alignment, then return them to the same Draft
+loop. Preserve unaffected alignment and settled design coverage.
 
-Only explicitly settled choices enter the record as decisions. An Agent
-recommendation is not a decision, and file existence is not approval. Do not
-treat a question as deferred unless the user explicitly accepts both the
-deferral and its impact.
+After interruption, recheck repository identity, source currentness, record, and
+any existing Draft handoff. Resume at the phase whose exit conditions remain
+satisfied; a summary or file presence cannot establish alignment or approval.
 
-After interruption or compaction, recheck repository identity, authority
-currentness, and this record. Resume at the earliest conceptual phase whose exit
-conditions remain satisfied; do not infer model alignment or approval from a
-summary or file presence.
+## Hand off to collaborative design
 
-## Explore
+After the shared-model checkpoint, return the aligned inputs and remaining
+realization questions through `agentic-engineering-workflow` to `design-doc`.
+Architecture Exploration and Draft writing are one activity owned there; do not
+require settled architecture or Design Readiness before drafting. The Draft
+will carry proposals, selected choices and reasons, alternatives, evidence and
+limits, accepted deferrals, and open questions.
 
-Enter this phase only after the shared-model checkpoint. Resolve understanding
-gaps first; presenting an option is not a substitute for learning what the
-system currently does or what outcome the user means.
+Identify an existing document to revise or reuse, or the need to create one.
+Reuse exact, current, approved coverage without repeating its decisions or
+approval. A short Design Doc can suffice; do not expand scope to fill it. The
+coordinator's [output policy](../agentic-engineering-workflow/references/planned.md#deliver-the-design-doc)
+owns final approval, preservation, and subsequent Feature Contract approval.
+This skill does not derive a contract from the input record or enter planning.
 
-In `Architecture Exploration`, develop a design proposal and challenge its
-premises, responsibility placement, structure, dependencies, major processing
-flows, and chosen mechanisms against the aligned requirements, specifications, and
-constraints. Explore architecture, algorithms, interfaces, storage, and
-recovery where they remain open. Use agreed outcomes and boundary behavior as
-evaluation criteria; do not silently redefine them while selecting a design.
-
-Architecture includes significant design decisions at the relevant system or
-component scope: communication APIs and module/library function or type APIs
-(interfaces, traits, callbacks), database models, and domain/type models.
-Examine responsibility and data ownership, dependency direction, invariants,
-compatibility, and change impact. Assigning a component boundary or mechanism
-to realize an agreed guarantee is architectural work; changing the required
-outcome itself is a requirements or specification decision.
-
-Keep exploration at the architectural and contract level appropriate for a
-Design Doc: responsibility boundaries, dependency direction, key domain
-concepts, mechanisms that preserve agreed invariants and consumer guarantees,
-and material trade-offs. Public visibility alone, including an API exposed by
-a core or domain module, does not make every type, method, or signature a
-user-owned design decision.
-
-Develop the conceptual models and major API abstractions needed to explain
-that architecture: important concepts and states, their relationships and
-owners, and the responsibilities, operations, and guarantees of module/trait
-boundaries as well as communication APIs. Use sketches to test and clarify
-these decisions when useful. Settle their material meaning here so Design Doc
-drafting can explain it without inventing a missing boundary or contract.
-An explanatory model or conceptual signature does not require fixing every
-concrete declaration.
-
-Use exact types, signatures, or representations only when a concrete
-compatibility obligation, consumer guarantee, or coordination between
-independent implementation tasks depends on that exact choice. Leave method
-decomposition, helper types, and representations that preserve settled
-guarantees to implementation. These choices are not unresolved material
-questions or approved deferrals and require no separate user approval. Return
-to design discussion if they would change a settled responsibility, contract,
-invariant, or material trade-off.
-
-Work through one material design question at a time. State the current proposal
-or assumption and the aligned input it serves, then ask the question most
-likely to expose a weak premise, unclear responsibility, or unproved guarantee.
-Use repository evidence and concrete counterexamples to test the answer. Follow
-newly reachable design questions and dependencies rather than a fixed checklist.
-
-When an unresolved user-owned choice needs a decision, compare the smallest set
-of viable alternatives, explain concrete trade-offs, recommend one with its
-reason, and let the user decide. Record only settled choices and their rationale.
-Do not manufacture alternatives or repeat settled choices solely to make the
-discussion look rigorous. Grilling should deepen the design proposal and its
-justification at Design Doc granularity.
-
-Classify a newly exposed gap before the next question. Return misunderstanding
-of established inputs to `Model Aligning`; return new or changed outcomes,
-scope, priorities, or required behavior to `Requirements Exploration`, then
-confirm the affected slice in `Model Aligning`. Keep unresolved realization
-choices in `Architecture Exploration`. Record product and architectural choices
-separately and preserve unaffected alignment. Do not silently change target
-behavior or narrow scope to fit a preferred solution.
-
-When a decision requires a prototype, visual artifact, benchmark, or another
-discovery phase, record the explicit handoff and the evidence required to
-re-enter that branch. The question remains unresolved until that evidence is
-available. Report `Discovery Pending`; when evidence arrives, classify whether
-it changes requirements, understanding, or architecture and resume that affected
-branch with the evidence. Reuse unaffected alignment. Support user-authored
-prototypes with research, diagnostics, or review; do not take over
-implementation while the user is using code to explore the design.
-
-## Assess Design Readiness
-
-Report planned design as ready only after the shared model is aligned and every
-applicable condition holds:
-
-1. repository-discoverable facts have been investigated;
-2. purpose and observable completion conditions are settled;
-3. scope, non-goals, constraints, and invariants are settled;
-4. applicable responsibility boundaries, dependency direction, and interface
-   semantics, including important model relationships and ownership, are settled;
-5. expected behavior and its verification method are settled;
-6. failure and recovery, migration, concurrency, authorization, performance,
-   and comparable concerns are settled when applicable;
-7. material design branches and dependencies between decisions are resolved;
-8. questions requiring another discovery phase have explicit handoffs and
-   evidence-based re-entry conditions;
-9. no material question remains unresolved except an explicitly accepted
-   deferral with recorded intent and impact; and
-10. settled decisions are consolidated into the complete living record.
-
-Apply the [exploration granularity](#explore) to readiness: implementation
-details that preserve settled design decisions do not block readiness or need
-an explicitly approved deferral.
-
-`Design Ready` means the settled design is ready for Design Doc drafting and
-approval. It does not substitute the working record for the final design output.
-
-Treat these as applicability dimensions, not ten mandatory user questions. Do
-not expand scope or ask about irrelevant dimensions to make the process appear
-more rigorous. Report the exact missing branch or dimension when readiness does
-not hold; do not fill it by inference. Exact current approved authority may
-satisfy the dimensions it covers, including consolidation of unchanged
-decisions, without copying them into a duplicate living record.
-
-## Scale the process
-
-- Route bugs through systematic debugging before planning a fix.
-- For a small change, the initial model and alignment may take one exchange. For
-  a broad system, start with a coarse complete map, examine one subsystem or
-  path at a time, and re-synthesize the whole before design decisions.
-- On the planned path, deliver the settled design through a Design Doc under
-  the coordinator's
-  [output policy](../agentic-engineering-workflow/references/planned.md#deliver-the-design-doc).
-  Identify the existing document to revise or reuse, or the need for a new one.
-  A short Design Doc is sufficient when it preserves the important decisions,
-  rationale, and system explanation; do not expand scope to fill it.
-- Do not implement from this skill.
-
-## Deliver the design through a Design Doc
-
-With Design Readiness, return the complete settled source to the coordinator
-for `design-doc` to draft or revise the durable output. Reuse an exact, current,
-approved Design Doc when it already covers the unchanged design. The living
-record is working evidence, not an alternative final design authority for new
-planned work.
-
-The coordinator obtains approval of the exact Design Doc and, for a new or
-revised document, a successful authority-transfer check before retiring the
-living record. `design-doc` then derives the separate Feature Contract. This
-skill does not approve either artifact, derive a contract directly from the
-working record, or enter planning.
+Scale alignment to the problem: a small change may take one exchange; a broad
+system needs a coarse complete input map, focused questions, and a checkpoint
+synthesis. Route bugs through systematic debugging before planning a fix. Do not
+implement from this skill.
 
 ## Handoff
 
-Return the current conceptual phase, current decision record, repository and
-existing-authority identity and currentness, working-model alignment state,
-requirements sources and their currentness, aligned requirements, observable
-specifications and established constraints, unresolved understanding questions,
-pending product choices kept separate from pending design choices, Design
-Readiness result, unresolved design branches and dependencies, relevant evidence
-and any discovery re-entry condition, and the target Design Doc or need to create one,
-with exact existing document coverage, to `agentic-engineering-workflow`.
-Let the coordinator own transitions, Design Doc approval and transfer, and
-Feature Contract approval.
+Return the current conceptual phase, confirmed repository/workspace and exact
+source identities/currentness, input-record location, working-model alignment
+state, aligned requirements/specifications/constraints and their sources,
+unresolved understanding questions, pending product choices separate from
+realization choices, accepted input deferrals and impacts, relevant discovery
+evidence/re-entry condition, and target Design Doc create/revise/reuse coverage.
+Do not label remaining realization choices as input gaps or readiness failures.
+Let the coordinator own transitions to the integrated `design-doc` loop and its
+final approval, preservation, and separate Feature Contract approval.

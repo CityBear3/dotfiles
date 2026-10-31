@@ -4,8 +4,10 @@ This directory is the source of truth for the personal Codex bundle.
 
 ## Requirements and architecture
 
-Planned design work uses three distinct activities through
-[`design-discussion`](skills/design-discussion/SKILL.md):
+Planned work separates requirements and shared understanding from architectural
+choices. [`design-discussion`](skills/design-discussion/SKILL.md) owns the first
+two activities; [`design-doc`](skills/design-doc/SKILL.md) owns the integrated
+architecture exploration and writing loop:
 
 - **Requirements Exploration:** when what to build is unsettled, explore the
   problem, outcomes, scope, and observable behavior with the engineer. Reuse
@@ -15,14 +17,20 @@ Planned design work uses three distinct activities through
 - **Model Aligning:** confirm shared meaning of the established requirements,
   specifications, constraints, and completion conditions. Sufficient existing
   sources enter here directly; new product choices return to exploration.
-- **Architecture Exploration:** scrutinize significant responsibility,
-  dependency, API, and model decisions against aligned inputs. This includes
-  communication and function/type APIs, database and domain/type models, at
-  Design Doc granularity.
+- **Architecture Exploration through a Draft Design Doc:** after Model Aligning,
+  start a coarse map and develop significant responsibility, dependency, API,
+  and model choices in the evolving Draft. Human and AI both propose and test
+  ideas. Validate uncertainties frequently with concrete scenarios, source/API
+  checks, small PoCs, or measurements as appropriate, then update the design.
+  This includes communication and function/type APIs, database and domain/type
+  models, at Design Doc granularity.
 
-The durable architecture output is an approved Design Doc. The temporary
-decision record preserves work in progress; requirements originals and agreed
-supplements remain available after it is retired. Feature Contracts and
+The Draft is the single architecture work product, distinguishing proposals,
+settled choices, evidence and limits, and open questions. `Design Ready` means
+ready for final whole-document approval, not permission to start drafting.
+The temporary decision record retains pre-design inputs and model alignment;
+requirements originals, supplements, and relied-on evidence survive its
+retirement after approval and a preservation check. Feature Contracts and
 Implementation Plans turn the design into authorized execution, followed by
 the autonomous implementation, verification, review, and correction loops.
 See the [planned workflow](skills/agentic-engineering-workflow/references/planned.md)

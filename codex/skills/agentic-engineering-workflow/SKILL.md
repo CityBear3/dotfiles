@@ -50,13 +50,14 @@ For every transition retain:
   state and currentness;
 - the applicable design authority and the Feature Contract's
   source, approval state, storage form, and currentness;
-- for planned work, the living decision record location, shared working-model
+- for planned work, the pre-design input/alignment record location, shared working-model
   alignment state, requirements-source identities, applicable scope and
   currentness, aligned requirements, observable specifications and established
   constraints, unresolved understanding questions, pending product choices kept
   separate from architectural choices, Design Readiness result, unresolved
-  design branches, the target Design Doc and its create/revise/reuse coverage,
-  and any discovery re-entry evidence;
+  design branches, the evolving Design Doc's identity, revision and status,
+  create/revise/reuse coverage, relied-on evidence and limits, any finalization
+  checkpoint, and discovery re-entry evidence;
 - the Review context and complete active Review policy;
 - for planned work, the Task dependency DAG, PR topology, task workspaces,
   accepted and candidate results, stale descendants, and integration-only
@@ -81,8 +82,9 @@ Do not load all routes or references at entry.
 - **Planned work:** when lightweight eligibility fails, or the request enters
   or resumes planned work, read [planned.md](references/planned.md). It owns
   entry through Requirements Exploration or Model Aligning, Architecture
-  Exploration, Design Readiness, Design Doc output and authority transfer,
-  approval transitions, promotion and legacy continuation.
+  Exploration through an evolving Design Doc with frequent validation, readiness
+  for final approval, authority transfer, approval transitions, promotion and
+  legacy continuation.
   Design discussion alone does not authorize implementation.
 - **Execution or gate recovery:** before entering an authorized implementation,
   correction, dependency-release or acceptance loop, read

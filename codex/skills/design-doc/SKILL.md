@@ -1,132 +1,105 @@
 ---
 name: design-doc
-description: Draft or revise the Design Doc that preserves the settled outcome of Architecture Exploration, then derive its Feature Contract after approval.
+description: Explore architecture and coauthor an evolving Design Doc after model alignment, finalize its approval, then derive the Feature Contract.
 ---
 
 # Design Doc support
 
-Keep every material design decision under user control. Treat prose authorship as
-separate from decision ownership.
+Keep material architecture, scope, algorithms, public contracts, and trade-offs
+under user control. Human and AI both contribute proposals and critique.
+Authorship, an experiment's success, and a document's approval are distinct.
 
-## Validate decisions before drafting
+## Enter with aligned inputs
 
-Accept from `agentic-engineering-workflow` the exact settled source, Design
-Readiness result, requirements-source references and currentness, unresolved
-list, approval state, and currentness. A valid drafting source is one of:
+Accept from `agentic-engineering-workflow` the confirmed workspace/repository
+identity, aligned working model and checkpoint result, requirements and
+specification sources with authority/currentness/scope, established constraints,
+pre-design input record, pending architectural questions, discovery evidence,
+and the Design Doc to create, revise, or reuse. Do not infer alignment from an
+artifact's existence or begin solution choices while a material input meaning
+or product choice is unresolved.
 
-- a complete living decision record whose material choices are individually
-  settled and whose readiness result is satisfied;
-- for a revision, an exact, current, approved Design Doc covering unchanged
-  durable decisions together with a living decision record covering every
-  changed or added decision and a satisfied readiness result;
-- a user-authored draft supported by an equivalent settled source and readiness
-  result.
+An exact, current, approved Design Doc can cover unchanged decisions and
+readiness dimensions. Reuse that authority without rewriting it or repeating
+approval. For a revision, retain its exact approved revision as unchanged
+authority while developing the changed slice. A user-authored Draft can be the
+editing starting point, but does not establish alignment or approve its proposals.
 
-The Design Doc is the durable output of planned Architecture Exploration.
-Receive the document to create or revise and its existing coverage from the coordinator;
-do not add a separate whether-to-document approval. Approval of the exact
-completed Design Doc remains required.
+After `Model Aligned`, create or revise a working Draft even while architecture
+is unsettled. Start with the known Context, Goals, Non-goals and a coarse
+Overview or question map. Mark the document as Draft and keep tentative
+structures and unresolved questions distinguishable from individually settled
+choices. The coordinator identifies the target; add no whether-to-document
+approval. Drafting and scoped discovery do not authorize production
+implementation, staging, publication, or a Feature Contract.
 
-An exact, current, approved Design Doc can instead remain the durable authority
-for unchanged readiness coverage without another drafting or approval pass.
+## Explore, validate, and write together
 
-The living record does not need separate holistic approval before Design Doc
-drafting. Its existence alone is not authority and does not establish Design
-Readiness.
+Read [references/exploration-guide.md](references/exploration-guide.md) for the
+collaborative architecture loop, granularity, frequent validation, artifact
+ownership, and re-entry. Read
+[references/writing-guide.md](references/writing-guide.md) for chapter purposes
+and how to explain the structure and behavior.
 
-Treat all inputs used for a revision as one complete settled source. Do not
-require its delta record to duplicate unchanged decisions from the approved
-Design Doc. Require the complete settled source to identify:
+Use a coarse complete map and then one material question at a time. Let both
+human and AI offer hypotheses, incomplete intuitions, sketches, and alternatives
+without fixing the first speaker or option count. Challenge premises and
+guarantees with the same evidence and counterexamples regardless of the
+proposal's author. The user selects material approaches and accepted burdens;
+do not substitute repeated assent to AI recommendations for exploration.
 
-- the selected approach and rationale;
-- the aligned requirements and observable specifications, with their authority
-  kept distinct from design decisions;
-- rejected alternatives and reasons;
-- scope and non-goals;
-- explicitly accepted deferrals with their intent and impact;
-- unresolved material questions, which must be empty except for those accepted
-  deferrals.
+Validate uncertain claims frequently: concrete scenarios, source/API checks,
+isolated PoCs, traces, or measurements as appropriate. Run available lightweight
+checks within authorized scope without a new approval for every routine probe.
+For consequential checks share the prediction, actual observations,
+interpretation, and limits. Support the user's own prototypes without taking
+them over. Reuse current evidence and stop repeating checks that do not reduce
+the uncertainty. A PoC is design evidence, not production acceptance or adoption
+of the proposed architecture.
 
-Investigate relevant code, tests, documentation, and history. Challenge
-assumptions and compare viable alternatives to validate the settled source. Ask
-detailed questions for factual or other non-material document clarification only
-when the answer cannot change architecture, responsibilities, public contracts,
-schemas, error models, or scope.
+Update the affected Draft sections as the design changes: selected approaches
+and reasons, alternatives, model/API relationships, invariants, evidence and
+limits, accepted deferrals, and open questions. Proposals may develop while
+writing, but cannot silently become settled contracts. Do not maintain a second
+evolving architecture in `decision-record.md`; that record retains the aligned
+inputs and their history until final approval and preservation checking.
 
-Do not settle a missing material decision or assert readiness from this skill.
-When a missing or unapproved choice could change those contracts, return the
-exact ambiguity and evidence to `agentic-engineering-workflow` for re-entry at
-the affected design branch. A changed choice also reopens dependent decisions
-whose meaning may change. Do not choose silently.
+Keep the current conceptual phase as `Architecture Exploration`,
+`Discovery Pending`, or `Design Ready` in coordinator handoffs. These are
+handoff meanings, not a new state engine. Input misunderstandings return through
+the coordinator to `Model Aligning`; new or changed required outcomes return to
+`Requirements Exploration` followed by alignment. Unresolved realization
+choices remain in this skill's architecture/Draft loop. Preserve unaffected
+decisions and the Draft on re-entry; never narrow requirements to fit a mechanism.
 
-## Draft from settled decisions
-
-After all material decisions are settled, help the user turn them into a
-reader-oriented explanation. Derive its design-specific prose from the
-complete settled source and repository evidence. Do not introduce a component,
-responsibility, contract, or trade-off that those sources do not establish.
-
-Scale detail to the design decisions and future reader's needs. A short Design
-Doc is sufficient when it preserves the relevant rationale and system overview;
-do not turn it into an implementation manual or invent alternatives to fill it.
-
-Before drafting or substantively revising the document, read
-[references/writing-guide.md](references/writing-guide.md). Use its chapter
-purposes and representation criteria to explain the architecture from overview
-to detail. Organize sections around design questions; connect the chosen
-mechanism, rationale, and material consequences in prose. Use lists, tables,
-and diagrams where their relationships help the reader rather than packing
-unrelated obligations into paragraphs or table cells.
+## Develop a reader-oriented explanation
 
 Recover the user's purpose, background, and priorities from the existing
-requirements, model-alignment, and design discussion. Use those inputs as the
-starting point; require no human-written prose or repeated explanation. Ask
-only about a specific missing fact or intended meaning that cannot be recovered.
-Do not invent a generic pain story to make the introduction sound persuasive.
+requirements, model alignment, and discussion. Require no human-written prose
+or repeated explanation. Ask about a specific unrecoverable gap rather than
+inventing a generic pain story.
 
 For a new document, normally begin with a short Context draft and a compact
-outline of what readers will learn and in what order. Let the user adjust the
-intent and explanatory flow before expanding the body. Treat this as
-collaborative editing, not chapter approval or another readiness checkpoint.
-Reuse a suitable existing draft or agreed explanatory structure without
-repeating that exchange, and honor an explicit request for a complete draft.
-Scale revisions to their affected slice rather than restarting the whole
-document. The existing approval of the exact complete Design Doc still applies.
+outline of what readers will learn and in what order. Use feedback to refine
+the explanation while exploring the design; this is editing, not chapter
+approval. Honor a suitable existing draft, agreed framing, or an explicit request
+for a complete Draft, and keep revisions focused. A complete-looking Draft
+with open choices is still unapproved and not `Design Ready`.
 
-Identify the aligned requirements, observable specifications, and established
-constraints as inputs in Context and scope, with their exact authority or
-surviving references. Reuse readable PBI items, specifications, and requirements
-documents as originals, with agreed supplements when needed. Keep design choices
-and rationale distinguishable from those inputs. Through the coordinator,
-return interpretation gaps to `Model Aligning`, new or changed requirement or
-specification choices to `Requirements Exploration` followed by alignment, and
-missing realization choices to `Architecture Exploration`. Preserve unaffected
-settled work; do not settle new choices while drafting prose.
+Scale detail to significant decisions and future readers' needs. Connect the
+mechanism, rationale, and material consequences. Identify requirements,
+observable specifications, and established constraints with their exact
+surviving authorities in Context and scope. Keep them distinct from design
+proposals and choices. Preserve the user's prose unless an edit is requested.
 
-For core or domain module APIs as well as external APIs, describe
-consumer-visible semantics and guarantees. Make important conceptual models
-and public abstractions visible through focused diagrams, tables, or short
-conceptual signatures. Distinguish explanatory names and sketches from exact
-definitions without weakening ownership, invariants, or caller guarantees.
-Include exact types, signatures, or representations only when a material
-design decision or compatibility obligation depends on them. Leave choices
-that preserve settled contracts to
-implementation; their absence is not a missing material decision.
-
-Cover both communication APIs and module/library function or type APIs, and
-both persistent data models and domain/type models, where architecturally
-significant. Explain ownership, responsibility, dependencies, invariants, and
-trade-offs at the relevant system or component scope. The concrete definition
-may live in code, an API specification, or a schema; cite it rather than copying
-an exhaustive declaration inventory into the Design Doc.
-
-If drafting reveals a material ambiguity, stop and return it to design
-discussion through the coordinator. Do not hide a new decision in polished
-prose.
-
-When the user prefers to author a draft, provide the same research, fixed
-template, ambiguity detection, critique, and explicitly requested targeted
-edits. Preserve the user's prose unless an edit is requested.
+Explain both communication APIs and module/library function or type APIs, and
+persistent and domain/type models when significant. Show conceptual models and
+major abstractions with focused diagrams, tables, or short signatures, including
+ownership, relationships, invariants, and consumer obligations. Distinguish
+explanatory names from exact declarations. Use exact types, signatures, or
+representations only when a material guarantee or compatibility obligation
+depends on them; leave representation choices that preserve the design to
+implementation. Reference maintained definitions rather than exhaustive copies.
 
 ## Template
 
@@ -157,9 +130,45 @@ appropriate to their contracts; do not impose the gRPC reference format on
 them. For detailed-design structure and review criteria, read
 [references/detailed-design-guide.md](references/detailed-design-guide.md).
 
+## Assess readiness for final approval
+
+`Design Ready` means the working design and its explanation are ready to
+finalize and submit for exact whole-document approval. It is not a prerequisite
+for creating or updating a Draft, and is not approval itself. Report it only
+when the shared model is aligned and every applicable condition holds:
+
+1. repository-discoverable facts have been investigated;
+2. purpose and observable completion conditions are settled;
+3. scope, non-goals, constraints, and invariants are settled;
+4. significant responsibility boundaries, dependency direction, model
+   relationships/ownership, and interface semantics are settled;
+5. expected behavior and its verification obligations are settled;
+6. applicable failure/recovery, migration, concurrency, authorization,
+   performance, and comparable design concerns are settled;
+7. material design branches and dependencies are resolved, with evidence
+   appropriate to consequential assumptions and its limits recorded;
+8. unavailable discovery has an explicit question, handoff, and re-entry
+   condition; unfinished material discovery still blocks readiness unless the
+   user explicitly accepts its deferral and impact;
+9. no material question remains except such explicitly accepted deferrals; and
+10. settled choices, reasons, alternatives, evidence, input sources, and accepted
+    deferrals are consolidated in the working Draft.
+
+These are applicability dimensions, not mandatory questions or a demand for a
+code PoC for every decision. Apply the exploration granularity; private
+implementation choices do not block readiness or require deferrals. Reuse exact
+current approved coverage and current applicable evidence. Do not claim a
+production performance or correctness result from a limited probe.
+
 ## Review and approval
 
-Review every draft, whether Codex-authored or user-authored. Check:
+Review the developing Draft as part of the loop. When ready to finalize, retain
+an exact pre-finalization Draft revision/checkpoint, including working decisions,
+evidence, accepted deferrals, and relevant notes, plus the aligned input record
+and references. This is a preservation source, not another edited architecture
+record or approval artifact.
+
+For both human- and AI-authored material, check:
 
 - readers without the conversation can follow the background, problem, scope,
   overall approach, and individual decisions without supplying missing links;
@@ -180,43 +189,48 @@ Review every draft, whether Codex-authored or user-authored. Check:
   rationale, and consequences are readable together;
 - diagrams or tables clarify real relationships instead of decorating prose;
 - implementation details do not obscure design decisions;
-- every material claim follows from the complete settled source and repository
-  evidence.
+- claims have source/evidence or explicit proposal/unknown status in a Draft;
+  the final design contains settled choices except explicitly accepted deferrals.
 
 Present the exact complete document for user approval as the one holistic design
-approval. Do not require holistic approval of both the temporary decision record
-and the Design Doc. Mechanical consolidation or meaning-preserving clarification
-does not add another approval gate; a new or changed material decision returns
-to design discussion.
+approval. A snapshot, editorial exchange, individual choice, or successful PoC
+does not replace it. Mechanical consolidation or meaning-preserving clarification
+before final approval adds no separate gate. A new material design question
+resumes this skill's loop and invalidates affected readiness; an input change
+returns to the appropriate activity through the coordinator.
 
 ## Transfer design authority
 
-For a new or revised Design Doc, check the exact approved document against the
-complete settled source used to draft it. For a revision, this includes both
-unchanged durable decisions from the prior approved Design Doc and every changed
-or added decision from the living record. Check:
+For a new or revised document, compare the exact approved Design Doc with the
+retained pre-finalization Draft checkpoint and its individually settled choices,
+aligned input authorities, evidence, and accepted changes. For a revision also
+check preservation of unchanged prior approved decisions. Verify:
 
 - selected approaches and rationale;
-- aligned requirements and observable specifications, or exact surviving
-  authority references, kept distinct from design decisions;
+- aligned requirements/specifications or exact surviving source references,
+  distinguishable from design decisions;
 - rejected alternatives and reasons;
-- scope and non-goals;
+- scope, non-goals, important contracts, constraints, and invariants;
+- consequential evidence and its limits;
 - explicitly accepted deferrals with their intent and impact.
 
-Delete the living record only after exact Design Doc approval and a successful
-transfer check. If the check fails, retain the record and report the exact gap;
-do not treat the Design Doc as a complete replacement. If the gap is material,
-return it through the coordinator to the affected design branch. An unchanged,
-exact, current approved Design Doc remains reusable without repeating approval
-or manufacturing a living record solely for another transfer check.
+Do not compare the final document only to itself or discard working notes before
+this check. Retire the owned temporary input record/checkpoint only after exact
+approval and successful preservation checking. If coverage is missing, retain
+the sources and report the gap; do not silently fill a new material decision.
+If repairing a preservation gap changes the final text, present the repaired
+exact version for the existing whole-document approval before completing
+transfer or deriving the Feature Contract. Do not repeat settled design choices
+or introduce another kind of approval.
+Requirements originals, agreed supplements, and relied-on experiment evidence
+must remain available. An unchanged exact approved document needs no repeated
+approval or manufactured checkpoint.
 
-Requirements originals and agreed supplements remain input authority after this
-transfer; they are not disposable working records. Verify their references and
-meaning survive before deleting the temporary record.
-
-Return the exact Design Doc approval state, transfer-check result, living-record
-lifecycle, and any re-entry gap to `agentic-engineering-workflow`; do not begin
-planning from this skill.
+Return to `agentic-engineering-workflow` the current phase, working/final Draft
+identity and status, aligned sources/currentness, pending questions/evidence,
+readiness result, exact approval state, preservation-check result, temporary
+record/checkpoint lifecycle, and any affected re-entry. This skill does not enter
+implementation planning.
 
 ## Derive the Feature Contract after approval
 

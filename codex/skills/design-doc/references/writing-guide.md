@@ -1,6 +1,7 @@
 # Design Doc writing guide
 
-Use this guide when drafting or substantively revising a Design Doc. It defines
+Use this guide while exploring architecture through a Draft and when finalizing
+or substantively revising a Design Doc. It defines
 what readers should understand and how to choose a useful representation. Keep
 the document proportional to the actual decisions; diagrams, section counts,
 paragraph lengths, and example technologies are not universal requirements.
@@ -22,11 +23,16 @@ agreed framing, honor an explicit request for the complete document, and keep
 a targeted revision focused. These choices change the editing starting point,
 not the required source authority or approval of the final exact document.
 
-Plan the explanation around what the reader needs to understand next, rather
-than the chronology or prominence of topics in the conversation. Expand from
-the refined framing using the settled decisions. If a new product or design
-choice is needed, return it through the owning workflow instead of deciding
-it while editing.
+After Model Aligning, use the evolving Draft to explore architecture; writing
+does not wait for all design choices to settle. Plan the explanation around
+what the reader needs to understand next, rather than the chronology or
+prominence of topics in the conversation. Expand the refined framing with
+settled choices and clearly provisional proposals or open questions. Develop
+realization choices with the user in the same loop; return new product choices
+or input-meaning gaps through the coordinator to the appropriate earlier phase.
+Do not silently settle a choice while editing. Use the
+[exploration guide](exploration-guide.md) for frequent, proportionate validation
+and for updating the Draft from observations.
 
 ## Chapter purposes
 
@@ -73,8 +79,11 @@ their own sections or explicit cross-references instead of appending every
 caveat to the nearest paragraph.
 
 Distinguish requirements, established constraints, observed facts, selected
-design, and unverified assumptions. A polished explanation cannot supply a
-missing decision. Return material gaps through the owning workflow.
+design, provisional proposals, and unverified assumptions. A polished
+explanation cannot supply a missing decision. Open architecture questions stay
+visible in the working Draft and the exploration loop; material input gaps
+return through the coordinator. Final approval requires settled choices except
+explicitly accepted deferrals and their impacts.
 
 Review narrative continuity and source coverage as distinct aspects of the
 same draft review. Read the explanation as someone who did not attend the
