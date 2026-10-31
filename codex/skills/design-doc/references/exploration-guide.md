@@ -4,30 +4,58 @@ Use this guide inside `design-doc` after the shared-model checkpoint. The
 working Draft is the canvas for architecture, explanation, and validation;
 Design Readiness is required for final approval, not for opening the Draft.
 
-## Start with a map and one material question
+## Develop a model the architect can use
 
-Recover the aligned requirements, observable specifications, established
-constraints, and existing decisions before proposing solutions. Build a coarse
-complete map so the user can place each question in the whole design. For a
-small change, this may be a short explanation rather than a diagram.
+Recover aligned requirements, observable specifications, constraints, and exact
+existing decisions before proposing solutions. Start with a coarse complete
+model that locates the problem, major concepts, responsibilities, and paths.
+For a small change, a short explanation or sketch can suffice.
 
-Work through one consequential question at a time. Human and AI can both offer
-hypotheses, sketches, or alternatives; fix neither the first speaker nor the
-number of options. Allow an unfinished intuition or a concrete example to
-start a branch. When the user has no initial proposal, offer a small tentative
-model and the relevant facts rather than demanding a blank-page design.
+Human and AI both help form the framing and decomposition, not just choose
+within an AI-generated menu. Either may offer an unfinished intuition, diagram,
+conceptual interface, alternative, or concrete case. When the user has no
+initial proposal, contribute a small tentative model and relevant facts rather
+than demand a blank-page design. Fix neither the first speaker nor an idea or
+option count. The user can delegate sketching, investigation, and PoC work
+while remaining involved in the architectural reasoning.
 
-Make a proposal's assumptions and intended guarantee visible. Compare viable
-alternatives against the same aligned inputs, and challenge both human and AI
-proposals with concrete counterexamples. Do not turn the interaction into a
-sequence of recommendations requiring only assent, flatter a human proposal,
-or manufacture alternatives to fill the document. The user owns material
-architecture, scope, algorithms, contracts, and trade-offs.
+Use the model to explain how requirements map to structure, why responsibilities
+and interactions establish guarantees, and what changes when conditions or
+requirements change. Trace a relevant path across boundaries; a collection of
+individually justified choices may still miss their combined behavior. A
+scenario, model edit, or experimental observation can expose that gap. Update
+the affected model and explanation, then reconnect them to the whole.
 
-Use the Draft to expose unclear responsibility, model relationships,
-dependencies, and behavior. When a choice settles, update its explanation and
-rationale in place. Re-read the affected path: a diagram, API sketch, or
-paragraph can reveal a missing premise and start the next question.
+A decision tree is a provisional aid, not proof that the problem was decomposed
+correctly or that the design is understood. Revisit concepts, boundaries, and
+dependencies when reasoning or evidence challenges them. Keep aligned inputs
+and unchanged approved decisions intact; a proposed material reframe stays
+provisional until the user chooses it. Changes to required behavior or scope
+use the input re-entry rules below.
+
+## Choose the next useful form of collaboration
+
+Work on a coherent slice with enough context to relate it to the whole. Choose
+among discussion, drawing, writing, examples, inspection, and experiments based
+on what would advance it. Questions can clarify intent or provoke a useful
+alternative; do not impose one-question-at-a-time or batched-round progression,
+require every response to end with a question, or override user pacing.
+Connected concerns may need to be examined together, and either participant can
+change the form of the work.
+
+Use grilling to expose an assumption or stress-test a concrete premise,
+interaction, or guarantee. Apply the same evidence and counterexamples to human
+and AI proposals. It can contribute while ideas are being generated; do not add
+a mandatory grilling phase or turn the architect into an interview respondent.
+Make candidate assumptions and accepted burdens visible, without manufacturing
+alternatives or making agreement with a recommendation the main activity.
+
+When the user cannot reason about a proposal yet, supply the missing context,
+walk through a concrete path, or make a small model or experiment available to
+react to. Repeated assent warrants checking what is actually settled, not
+assuming understanding. Help resolve the affected gap without grading the user,
+requiring a quiz or teach-back, or adding an understanding-approval gate. The
+purpose is shared architectural work, not proof of the user's private thoughts.
 
 ## Granularity
 
@@ -59,6 +87,9 @@ PoCs, traces, or measurements according to what would actually resolve it.
 Perform available lightweight checks within the authorized scope rather than
 collecting all validation for a late phase. Reuse current applicable evidence;
 do not repeat a successful check solely because another paragraph changed.
+When conversation cannot establish how a mechanism behaves, use something
+concrete to inspect or try instead of rephrasing the question until the user
+guesses. An observation may require revising the question or model itself.
 
 For consequential checks, make the uncertainty and expected outcome explicit,
 share the actual observations, and interpret the difference together before

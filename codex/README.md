@@ -4,6 +4,18 @@ This directory is the source of truth for the personal Codex bundle.
 
 ## Requirements and architecture
 
+The purpose of this design workflow is:
+
+> 人間がアーキテクトとして設計を組み立て、その理解を持ち続けること
+
+Human and AI jointly develop a model the engineer can use to explain the
+system, predict its behavior, and reason about changes. An interview can expose
+assumptions and align instructions, but agreeing to recommendations or covering
+a decision tree does not establish that understanding. Collaborative modeling
+is the central work; grilling is a supporting technique for scrutinizing
+premises and guarantees. Questions, sketches, writing, and experiments are
+chosen for the uncertainty at hand, without a fixed question or round format.
+
 Planned work separates requirements and shared understanding from architectural
 choices. [`design-discussion`](skills/design-discussion/SKILL.md) owns the first
 two activities; [`design-doc`](skills/design-doc/SKILL.md) owns the integrated
@@ -18,10 +30,12 @@ architecture exploration and writing loop:
   specifications, constraints, and completion conditions. Sufficient existing
   sources enter here directly; new product choices return to exploration.
 - **Architecture Exploration through a Draft Design Doc:** after Model Aligning,
-  start a coarse map and develop significant responsibility, dependency, API,
-  and model choices in the evolving Draft. Human and AI both propose and test
-  ideas. Validate uncertainties frequently with concrete scenarios, source/API
-  checks, small PoCs, or measurements as appropriate, then update the design.
+  start a coarse model and develop significant responsibility, dependency, API,
+  and model choices in the evolving Draft. Human and AI both shape and test
+  the framing and structure, including how their interactions establish the
+  required guarantees. Validate uncertainties frequently with concrete scenarios,
+  source/API checks, small PoCs, or measurements as appropriate, then update
+  the design.
   This includes communication and function/type APIs, database and domain/type
   models, at Design Doc granularity.
 

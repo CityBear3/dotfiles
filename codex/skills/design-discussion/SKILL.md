@@ -42,10 +42,12 @@ tried when repeated questions do not reduce the same material uncertainty.
 Work from the user's intent and available evidence to identify the problem,
 people or callers affected, desired outcomes, scope and non-goals, priorities,
 and observable behavior and completion conditions. The user may not yet know
-the answers. Ask one material product question at a time; propose plausible
-alternatives when useful, explain their effects on value, behavior, and scope,
-and let the user choose. Test tentative requirements against concrete usage
-scenarios. Do not invent needs, audiences, constraints, or agreed decisions.
+the answers. Develop concrete usage scenarios and a provisional account of the
+needed behavior together; ask focused questions where input is missing. Propose
+plausible alternatives when useful, explain their effects on value, behavior,
+and scope, and let the user choose. Select a useful pace rather than require
+one question per turn or a round of questions, and honor the user's preference.
+Do not invent needs, audiences, constraints, or agreed decisions.
 
 Distinguish a proposed behavior from a chosen one and an assumption from an
 established constraint. Preserve source-backed requirements and explicit
@@ -107,17 +109,20 @@ already fixed by explicit authority. Investigate current mechanisms as needed,
 but leave new algorithms, storage choices, responsibility placement, and
 recovery mechanisms for Architecture Exploration.
 
-Resolve repository-discoverable facts before asking the user. Confirm the
-meaning of established requirements and specifications against their sources,
-one material misunderstanding or hidden assumption at a time. Choose the
-clarification most likely to change the shared understanding of required
-behavior, scope, completion conditions, or constraints. An understanding question
-clarifies what is needed; do not frame it as a choice of implementation mechanism or attach design
-options, a recommendation, or an approval request. Incorporate the answer,
-identify any newly exposed contradiction or dependency, and ask the next
-material understanding question. Show only the affected model slice after
-ordinary answers; re-synthesize the complete model at a branch boundary or
-before entering design decisions.
+Resolve repository-discoverable facts before asking the user. Use the working
+model and concrete examples to confirm the meaning of established requirements
+and specifications against their sources. Clarify material misunderstandings
+and hidden assumptions with focused questions when needed. An understanding
+question clarifies required behavior, scope, completion conditions, or
+constraints; do not turn it into a choice of a new implementation mechanism,
+attach architectural recommendations, or request design approval.
+
+Incorporate corrections into the affected coherent model slice. Explain or
+illustrate a missing connection when that helps; an answer need not trigger
+another question. Do not impose a question count, fixed rounds, or an exam.
+Re-synthesize the complete model at a branch boundary or before design choices,
+giving the user enough context to challenge the account. This checkpoint aligns
+inputs; architectural model building continues in `design-doc` afterward.
 
 If answering requires a new outcome, priority, scope, or behavioral choice,
 explicitly return that slice to `Requirements Exploration`. Do not disguise a

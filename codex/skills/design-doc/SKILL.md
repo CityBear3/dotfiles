@@ -6,8 +6,13 @@ description: Explore architecture and coauthor an evolving Design Doc after mode
 # Design Doc support
 
 Keep material architecture, scope, algorithms, public contracts, and trade-offs
-under user control. Human and AI both contribute proposals and critique.
-Authorship, an experiment's success, and a document's approval are distinct.
+under user control. The purpose is for the human to construct the design as an
+architect and retain an understanding they can use to explain, predict, and
+revise it. Human and AI jointly shape the framing, models, structure, and
+experiments. Agreement with recommendations or decision-tree coverage alone
+does not establish this understanding. Grilling supports the work by challenging
+premises and guarantees; it is not the default interaction format. Authorship,
+an experiment's success, understanding, and document approval are distinct.
 
 ## Enter with aligned inputs
 
@@ -41,12 +46,17 @@ ownership, and re-entry. Read
 [references/writing-guide.md](references/writing-guide.md) for chapter purposes
 and how to explain the structure and behavior.
 
-Use a coarse complete map and then one material question at a time. Let both
-human and AI offer hypotheses, incomplete intuitions, sketches, and alternatives
-without fixing the first speaker or option count. Challenge premises and
-guarantees with the same evidence and counterexamples regardless of the
-proposal's author. The user selects material approaches and accepted burdens;
-do not substitute repeated assent to AI recommendations for exploration.
+Build a coarse complete model together, then work on a coherent slice using
+discussion, diagrams, conceptual sketches, examples, writing, or probes as
+useful. Let either participant originate and revise the decomposition and
+hypotheses. Keep framing and dependencies provisional while alternatives are
+explored; the user selects material approaches and accepted burdens. Choose
+questions when they advance the work, without a fixed one-question or round
+rule, a requirement to end each reply with a question, or a human idea quota.
+Honor the user's pacing preferences. Use the model to reason about whole paths,
+composed guarantees, and changed conditions; do not substitute repeated assent
+or a list of settled decisions for that work. Grilling can help expose a premise
+or test a claim during exploration without becoming a separate mandatory phase.
 
 Validate uncertain claims frequently: concrete scenarios, source/API checks,
 isolated PoCs, traces, or measurements as appropriate. Run available lightweight
@@ -153,6 +163,15 @@ when the shared model is aligned and every applicable condition holds:
 9. no material question remains except such explicitly accepted deferrals; and
 10. settled choices, reasons, alternatives, evidence, input sources, and accepted
     deferrals are consolidated in the working Draft.
+
+The model and explanation must connect applicable end-to-end paths,
+responsibilities, and interactions to the guarantees they establish. Address
+material inconsistencies exposed by scenarios, failure cases, or changes in
+conditions under the readiness rules above. Settled branch lists alone are
+insufficient. Use the collaborative work and evidence to assess this; add no
+user exam, score, mandatory teach-back,
+or separate approval of understanding. Do not claim to certify a private mental
+state from assent or polished prose.
 
 These are applicability dimensions, not mandatory questions or a demand for a
 code PoC for every decision. Apply the exploration granularity; private
