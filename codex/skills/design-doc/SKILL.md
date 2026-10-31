@@ -61,10 +61,10 @@ whose meaning may change. Do not choose silently.
 
 ## Draft from settled decisions
 
-After all material decisions are settled, Codex may draft the complete Design
-Doc. Derive its design-specific prose from the complete settled source and
-repository evidence. Do not introduce a component, responsibility, contract, or
-trade-off that those sources do not establish.
+After all material decisions are settled, help the user turn them into a
+reader-oriented explanation. Derive its design-specific prose from the
+complete settled source and repository evidence. Do not introduce a component,
+responsibility, contract, or trade-off that those sources do not establish.
 
 Scale detail to the design decisions and future reader's needs. A short Design
 Doc is sufficient when it preserves the relevant rationale and system overview;
@@ -77,6 +77,21 @@ to detail. Organize sections around design questions; connect the chosen
 mechanism, rationale, and material consequences in prose. Use lists, tables,
 and diagrams where their relationships help the reader rather than packing
 unrelated obligations into paragraphs or table cells.
+
+Recover the user's purpose, background, and priorities from the existing
+requirements, model-alignment, and design discussion. Use those inputs as the
+starting point; require no human-written prose or repeated explanation. Ask
+only about a specific missing fact or intended meaning that cannot be recovered.
+Do not invent a generic pain story to make the introduction sound persuasive.
+
+For a new document, normally begin with a short Context draft and a compact
+outline of what readers will learn and in what order. Let the user adjust the
+intent and explanatory flow before expanding the body. Treat this as
+collaborative editing, not chapter approval or another readiness checkpoint.
+Reuse a suitable existing draft or agreed explanatory structure without
+repeating that exchange, and honor an explicit request for a complete draft.
+Scale revisions to their affected slice rather than restarting the whole
+document. The existing approval of the exact complete Design Doc still applies.
 
 Identify the aligned requirements, observable specifications, and established
 constraints as inputs in Context and scope, with their exact authority or
@@ -146,6 +161,10 @@ them. For detailed-design structure and review criteria, read
 
 Review every draft, whether Codex-authored or user-authored. Check:
 
+- readers without the conversation can follow the background, problem, scope,
+  overall approach, and individual decisions without supplying missing links;
+- condensation and reorganization preserve material decisions, guarantees,
+  constraints, and rationale in the appropriate sections or surviving sources;
 - goals and non-goals are distinguishable;
 - terms and assumptions are defined;
 - requirements are measurable where necessary;
