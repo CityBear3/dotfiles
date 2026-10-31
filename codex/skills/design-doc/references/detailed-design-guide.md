@@ -160,7 +160,10 @@ Document:
 2. Use the relevant items as a checklist of **decisions to document** — not a template to fill in.
 3. Only describe what is architecturally significant. Skip anything that is self-evident from the code or not relevant to your design.
 4. If an important concern is not listed here, add it.
-5. Every item in the Detailed Design section should answer "**what was decided and why**" — not "how to implement it."
+5. For settled design, explain **what was decided and why** at the relevant
+   architectural level. During exploration, a Draft may instead show a candidate,
+   its assumptions, and the question or evidence needed to evaluate it. Do not
+   make a proposal settled merely by writing it here.
 
 Use the [writing guide](writing-guide.md) for chapter responsibilities,
 structural and behavioral diagrams, and short examples. These axes select

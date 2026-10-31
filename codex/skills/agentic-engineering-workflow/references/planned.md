@@ -19,18 +19,18 @@ Resolve planned-path entry in this order:
 2. Use `create-workspace` to establish or confirm the feature checkout, branch,
    and starting ref before writing the first recoverable planned-path artifact.
    An already suitable current checkout is sufficient.
-3. When a requirement, model, or design branch is unresolved and exact current
-   approved authority does not fully cover it, require `design-discussion` to
+3. When requirements or model understanding are unresolved and exact current
+   approved authority does not fully cover them, require `design-discussion` to
    create the ignored
    `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-   confirmation and before the first requirements proposal or provisional
-   model. The record must preserve repository and authority identity, current conceptual phase,
-   checkpoint and alignment result, classified model claims, and separate
-   provisional from settled state. Do not omit it because the discussion is
-   expected to be short or create a duplicate when exact current approved
-   authority already covers the work. File existence is not alignment or
-   approval. Let `design-discussion` own product exploration, model construction,
-   understanding questions, synthesis, and the shared-model checkpoint.
+   confirmation and before the first requirements proposal or provisional model.
+   This input/alignment record retains repository/source identity, phase,
+   checkpoint and alignment result, and classified input claims. Do not omit it
+   because discussion is short or duplicate exact approved coverage. File
+   existence is not alignment or approval. If inputs are already demonstrably
+   aligned and only realization choices remain, proceed to the Draft without
+   creating a parallel architecture record. Let `design-discussion` own product
+   exploration, model construction, understanding questions, and alignment.
 4. Use `Requirements Exploration` only when what to build needs choices. Let
    the user select outcomes, scope, priorities, and observable behavior through
    questions, scenarios, and alternatives. Preserve established inputs and
@@ -47,26 +47,33 @@ Resolve planned-path entry in this order:
    interpretation gaps without inventing decisions. Do not require new
    responsibility placement or implementation mechanisms for `Model Aligned`,
    or present architectural options before its shared-model checkpoint.
-6. Only after the inputs are aligned, use `Architecture Exploration` to develop
-   and challenge significant design decisions against them. Let
-   `design-discussion` follow material questions and dependencies, compare
-   alternatives when a choice remains, and keep decisions under user control.
-   Route misunderstanding of established inputs to `Model Aligning`, new
-   required outcomes or behavior to `Requirements Exploration` followed by
-   alignment, and unresolved realization choices to `Architecture Exploration`.
-   Preserve unaffected settled branches.
-7. Require `design-discussion` to report Design Readiness before advancing. Do
-   not replace the gate with an assertion that the design is probably settled.
-8. With Design Readiness, identify the Design Doc to create or revise, or the
-   exact, current, approved document to reuse for unchanged coverage, under
-   [the output policy](#deliver-the-design-doc). Pass the settled source,
-   readiness result, target document, and existing coverage to `design-doc`.
-   Do not add a separate whether-to-document confirmation.
-9. Reuse the exact approved Design Doc without repeating its completed
-   approval. For a new or revised document, the temporary record needs no
-   separate holistic approval. Require user approval of the exact new or revised
-   Design Doc as the one holistic design approval, then require a successful
-   authority-transfer check before deleting the living record.
+6. After `Model Aligned`, identify the Design Doc to create or revise, or exact
+   current approved coverage to reuse, under [the output policy](#deliver-the-design-doc).
+   Pass aligned sources, the checkpoint, input record, pending realization
+   questions/evidence, target document, and existing coverage to `design-doc`.
+   Do not wait for Design Readiness or add a whether-to-document confirmation.
+7. Let `design-doc` own Architecture Exploration and the evolving Draft as one
+   loop. Start a coarse complete map and one material question. Human and AI
+   both propose and challenge hypotheses without a fixed first speaker or option
+   count. Validate uncertainties frequently through proportionate scenarios,
+   counterexamples, source/API checks, isolated PoCs, or measurements within
+   authorized scope. Share consequential predictions, observations,
+   interpretations and limits. Reuse current evidence, preserve user-led
+   prototypes, and keep design choices under user control. A successful probe
+   is neither adoption nor production acceptance.
+8. Receive the current Draft and `design-doc`'s Design Readiness assessment.
+   `Design Ready` means ready to finalize and seek whole-document approval;
+   it does not authorize the first Draft. Keep unresolved material choices in
+   the same loop. Route misunderstanding to Model Aligning and new outcomes,
+   scope, or required behavior to Requirements Exploration then alignment,
+   preserving unaffected Draft content and settled decisions.
+9. Reuse an exact approved unchanged Design Doc without repeat approval. For a
+   new or revised document, retain a pre-finalization Draft revision/checkpoint
+   and input sources for a non-circular preservation comparison. Require user
+   approval of the exact final Design Doc as the one holistic design approval,
+   then a successful authority-transfer check before retiring owned temporary
+   input records/checkpoints. Individual choices, experiments, chapter editing,
+   and snapshots add no separate holistic approval and do not replace this one.
 10. Construct a complete Feature Contract. After an approved Design Doc and, for
     a new or revised document, its transfer check, use `design-doc` to derive it
     from that source and repository evidence.
@@ -85,79 +92,92 @@ Resolve planned-path entry in this order:
 
 ## Deliver the Design Doc
 
-For new planned work, the durable output of Architecture Exploration is an
-approved Design Doc. Create or revise one when the settled design adds or changes
-its coverage. Reuse an exact, current, approved document when it already covers the
-unchanged design; identify that coverage without manufacturing a duplicate.
+For new planned work, Architecture Exploration and Design Doc development share
+one evolving Draft after Model Aligned. The durable output is the exact approved
+Design Doc. Reuse exact, current, approved unchanged coverage without
+manufacturing another document or repeating its approval.
 
-Keep aligned requirements, observable specifications, and their authority
-distinct from design choices and rationale. Reference the requirements originals
-or agreed supplements so their content and authority survive the working record.
-Scale the document to the decisions and future reader's needs; a short Design
-Doc may be enough. Do not invent alternatives or expand scope to justify it.
+Keep aligned requirements/specifications and their authority distinct from
+architectural proposals, individually settled choices and reasons, alternatives,
+evidence/limits, accepted deferrals, and open questions. The Draft is the single
+architecture work product; the decision record retains pre-design inputs and
+alignment, not a second evolving architecture. Requirements originals, agreed
+supplements, and relied-on evidence remain independently available.
 
-The living decision record is intermediate evidence, not an alternative final
-design authority or a direct source for a new Feature Contract. `Design Ready`
-permits drafting; a new or revised Design Doc still needs exact user approval
-and a successful transfer of the settled source before the record is deleted.
-Preserve aligned inputs or their exact surviving authority references during
-that transfer. Reusing an unchanged approved document needs neither another
-approval nor a new temporary record solely for transfer.
+Scale the document to the decisions and future reader's needs. A short document
+can suffice. Do not invent alternatives or expand scope to justify it. Drafting
+starts before readiness; final approval requires Design Readiness, with no
+material unresolved questions except explicitly accepted deferrals and impacts.
 
-The Design Doc's role as the output removes the separate whether-to-document
-choice. It does not replace approval of the completed document, Feature
-Contract, or Implementation Plan. Do not require holistic approval of both the
-temporary record and its replacement Design Doc.
+Before finalization, preserve an exact working-Draft revision/checkpoint that
+retains individually settled choices, reasoning, evidence and working notes.
+This is a snapshot, not another evolving architecture document or approval
+artifact. After exact final approval, `design-doc` compares it with that
+checkpoint, aligned inputs and surviving sources, and prior exact approved
+coverage for unchanged decisions. Do not compare the final document only with
+itself or discard the source of comparison first. Require preservation of
+material choices/reasons, alternatives, guarantees, constraints, evidence/limits,
+source references and accepted deferrals before retiring owned temporary records.
+A gap retains the sources and returns the affected slice to the loop. Unchanged
+approved reuse needs no new checkpoint solely for transfer.
+
+Design Doc approval and this preservation check precede a new Feature Contract;
+its separate approval and Implementation Plan/Task/Review approvals remain
+required. Drafts, temporary records, and experiments do not authorize production
+implementation or supply an alternative final design authority.
 
 ## Assess Design Readiness
 
-Design Readiness holds only after `design-discussion` reports an aligned shared
-working model and every applicable condition is satisfied:
+`design-doc` owns the readiness assessment inside the integrated Draft loop.
+The coordinator requires an aligned shared model and every applicable condition:
 
 1. repository-discoverable facts have been investigated;
 2. purpose and observable completion conditions are settled;
 3. scope, non-goals, constraints, and invariants are settled;
-4. applicable responsibility boundaries, dependency direction, and interface
-   semantics are settled;
-5. expected behavior and its verification method are settled;
-6. failure and recovery, migration, concurrency, authorization, performance,
-   and comparable concerns are settled when applicable;
-7. material design branches and dependencies between decisions are resolved;
-8. questions requiring another discovery phase have explicit handoffs and
-   evidence-based re-entry conditions;
-9. no material question remains unresolved except an explicitly accepted
-   deferral with recorded intent and impact; and
-10. settled decisions are consolidated into the complete living record.
+4. significant responsibilities, dependency direction, model relationships and
+   ownership, and interface semantics are settled;
+5. expected behavior and its verification obligations are settled;
+6. applicable failure/recovery, migration, concurrency, authorization,
+   performance, and comparable concerns are settled;
+7. material design branches and dependencies are resolved with appropriate
+   evidence and its limits for consequential assumptions;
+8. unavailable discovery has explicit questions, handoffs, and re-entry
+   conditions; unfinished material discovery blocks readiness unless the user
+   explicitly accepts its deferral and impact;
+9. no other material question remains unresolved; and
+10. choices, rationale, alternatives, evidence, input sources, and accepted
+    deferrals are consolidated in the working Draft.
 
-Apply the [exploration granularity](../../design-discussion/SKILL.md#explore)
-when assessing readiness. Implementation details that preserve settled design
-decisions do not block readiness or need an explicitly approved deferral.
+Apply the [exploration granularity](../../design-doc/references/exploration-guide.md#granularity).
+Private implementation choices preserving the design do not block readiness or
+need approved deferrals. These are applicability dimensions, not mandatory user
+questions or code PoCs for every choice. Reuse exact current approved coverage
+and applicable evidence rather than duplicating discovery or documentation.
 
-These are applicability dimensions, not ten mandatory user questions. Do not
-promote trivial work or manufacture speculative requirements to fill irrelevant
-dimensions. Exact current approved authority may satisfy the dimensions it
-covers, including consolidation of unchanged decisions, without creating a
-duplicate record solely to repeat them.
+## Coordinate handoffs and re-entry
 
-The coordinator handoff to `design-discussion` carries the route, confirmed
-workspace, repository identity and evidence, record location, exact existing
-authority, and unresolved evidence. Receive its current conceptual phase,
-working-model alignment state, requirements-source identities and currentness,
-aligned requirements, observable specifications and established constraints,
-unresolved understanding questions, pending product and architectural choices
-kept separate, readiness result, unresolved design branches,
-discovery re-entry condition, target Design Doc or need to create one, exact
-existing coverage, and current record. The handoff to `design-doc` carries the
-settled source, readiness result, target document, and existing coverage. Receive the exact
-approval state, transfer-check result, record lifecycle, and any re-entry gap.
+To `design-discussion`, pass the route, confirmed workspace/repository, exact
+existing authority/currentness, input-record location, and unresolved input
+evidence. Receive phase, alignment/checkpoint, classified requirements,
+specifications and constraints, source identities/currentness, unresolved
+understanding and product choices separate from realization choices, accepted
+input deferrals, discovery re-entry, and Design Doc create/revise/reuse coverage.
 
-When discovery evidence arrives, classify whether it changes requirements,
-understanding, or architecture and resume the affected branch with the evidence.
-Reuse unaffected alignment. After interruption or compaction, recheck repository
-identity, authority currentness, and the recoverable record, then resume at the
-earliest phase whose exit conditions remain satisfied. Stop with the exact unresolved
-claim and evidence already tried when repeated questions do not reduce the same
-material uncertainty.
+After Model Aligned, pass those inputs and remaining architectural questions to
+`design-doc`. Receive working/final Draft identity, revision and status, pending
+questions and evidence, readiness result, exact approval state,
+preservation-check result, finalization checkpoint and temporary-record lifecycle,
+and any affected re-entry. The coordinator owns cross-phase routing; the phase
+skill owns architecture exploration, validation, writing and finalization.
+
+When evidence arrives, classify whether it changes requirements, understanding,
+or architecture and resume the affected slice with it. Reuse unaffected
+alignment, Draft content, decisions and evidence. After interruption, recheck
+repository identity, source currentness, input record, Draft revision and pending
+evidence; resume at the phase whose exit conditions remain satisfied. Neither
+a summary nor file existence establishes alignment, readiness or approval. Stop
+with the exact claim, evidence tried, and re-entry need when repeated questions
+or probes do not reduce the same material uncertainty.
 
 For a promotion with preserved unaccepted work, also give `create-plan` the
 recorded lightweight base-to-current range and evidence. Require the new plan to
