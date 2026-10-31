@@ -5,6 +5,29 @@ what readers should understand and how to choose a useful representation. Keep
 the document proportional to the actual decisions; diagrams, section counts,
 paragraph lengths, and example technologies are not universal requirements.
 
+## Develop the explanation with the user
+
+Start from what the user has already explained about the problem, background,
+and priorities. Recover it from the requirements and settled discussion before
+asking for more input. Rough notes or spoken explanations are sufficient;
+the user does not need to author polished prose. Preserve supplied prose unless
+an edit is requested, and clarify a specific unrecoverable gap rather than
+asking the user to repeat the whole story.
+
+For a new document, normally offer a small Context draft and an outline of the
+reader's progression before expanding everything. Use the user's feedback to
+refine the intended meaning and explanatory order. This is an editing exchange,
+not a request to approve each chapter. Reuse an existing suitable draft or
+agreed framing, honor an explicit request for the complete document, and keep
+a targeted revision focused. These choices change the editing starting point,
+not the required source authority or approval of the final exact document.
+
+Plan the explanation around what the reader needs to understand next, rather
+than the chronology or prominence of topics in the conversation. Expand from
+the refined framing using the settled decisions. If a new product or design
+choice is needed, return it through the owning workflow instead of deciding
+it while editing.
+
 ## Chapter purposes
 
 | Chapter | What the reader should understand |
@@ -15,6 +38,25 @@ paragraph lengths, and example technologies are not universal requirements.
 | Detailed design | The significant mechanisms, models, public contracts, invariants, and why they were chosen, including their conditions and consequences. |
 | Cross-cutting concerns | How this design addresses applicable concerns such as security, performance, operation, migration, and verification. Explain design-specific effects and responses rather than generic checklists. |
 | Alternatives considered | The viable alternatives, their benefits, and why the selected approach better serves the goals, including burdens accepted with that choice. |
+
+### Build Context toward Overview
+
+Connect the relevant background, problem, and scope so the reader understands
+why this design is being explained. Use the user's actual intent and known
+facts; do not fabricate shortcomings of existing tools or a generic motivating
+story. A stated preference can be sufficient background without an invented
+claim about the current workflow.
+
+Keep detailed mechanisms and failure/state contracts with the Overview or
+Detailed design explanation they support. A decisive technical constraint may
+still belong in Context, stated briefly with its authority. Keep requirements
+sources and scope references readable without interrupting the explanation
+with a mixture of mechanism, provenance, and administrative notes.
+
+Overview then explains the chosen structure and representative path, preparing
+readers for the detailed decisions. Introduce concepts before relying on them,
+and explain the causal link when moving to a new concern rather than expecting
+the reader to reconstruct it from the discussion.
 
 ## Organize around design questions
 
@@ -33,6 +75,13 @@ caveat to the nearest paragraph.
 Distinguish requirements, established constraints, observed facts, selected
 design, and unverified assumptions. A polished explanation cannot supply a
 missing decision. Return material gaps through the owning workflow.
+
+Review narrative continuity and source coverage as distinct aspects of the
+same draft review. Read the explanation as someone who did not attend the
+discussion, then check that material decisions, guarantees, constraints, and
+reasons survive condensation or relocation. Move detail to a relevant section
+or retain a precise source reference instead of losing it for brevity or
+packing it into the introduction for coverage.
 
 ## Choose the representation for the relationship
 
@@ -110,6 +159,42 @@ Do not invent alternatives or comparisons just to populate this section.
 These excerpts illustrate presentation of already settled decisions in a
 document-preview design. They are not a complete Design Doc or a recommendation
 to adopt its libraries, architecture, or policies in another project.
+
+### Establish the problem before explaining the mechanism
+
+Assume the settled inputs say that the user wants to review Markdown design
+documents in the editor, read text/tables/diagrams/images together, switch
+between editing and preview in the same window, and preserve source changes
+and Undo. The selected design separates rendering workers from the editor
+adapter that owns window state and display updates. No claim about shortcomings
+of the user's existing tools has been established.
+
+#### Context excerpt
+
+The plugin supports reviewing Markdown design documents inside the editor,
+including their text, tables, diagrams, and images. Readers can edit the source
+and return to the preview in the same window while retaining unsaved changes
+and Undo.
+
+This document describes the plugin's structure and the division of
+responsibilities between rendering and display. The requirements source retains
+the full supported behavior and environment constraints.
+
+#### Overview excerpt
+
+The editor adapter owns window state and display resources. It captures the
+source and display conditions, then submits them to rendering workers. The
+workers compute output independently of editor state, and the adapter checks
+completed results before applying them to the current window.
+
+This separation keeps rendering work off the editor's interaction path and
+concentrates editor operations in the adapter. The adapter therefore also
+owns result-validity checks and display-resource cleanup. The detailed sections
+explain the queue handoff, stale-result handling, and resource lifetimes.
+
+The excerpts separate the user's purpose and scope from the chosen mechanism.
+They introduce no new motivating facts and leave the technical guarantees in
+the sections that explain them, with the full source coverage still required.
 
 ### Explain component responsibilities with a flowchart
 
