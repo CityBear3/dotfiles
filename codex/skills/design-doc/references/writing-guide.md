@@ -34,6 +34,13 @@ Do not silently settle a choice while editing. Use the
 [exploration guide](exploration-guide.md) for frequent, proportionate validation
 and for updating the Draft from observations.
 
+Use the developing explanation as a model to think with. Connect requirements
+to responsibilities and interactions, show how they compose into guarantees,
+and use relevant changed or failure conditions to expose gaps. Human and AI can
+revise the framing and the model while doing this; an explanation assembled from
+approved choices alone may still lack those connections. Preserve the material
+reasoning and evidence so the model remains usable beyond the conversation.
+
 ## Chapter purposes
 
 | Chapter | What the reader should understand |

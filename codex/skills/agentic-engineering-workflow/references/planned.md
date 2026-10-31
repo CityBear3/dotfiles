@@ -53,14 +53,18 @@ Resolve planned-path entry in this order:
    questions/evidence, target document, and existing coverage to `design-doc`.
    Do not wait for Design Readiness or add a whether-to-document confirmation.
 7. Let `design-doc` own Architecture Exploration and the evolving Draft as one
-   loop. Start a coarse complete map and one material question. Human and AI
-   both propose and challenge hypotheses without a fixed first speaker or option
-   count. Validate uncertainties frequently through proportionate scenarios,
+   loop. Its purpose is for the human to construct the design as an architect
+   and retain a model they can use to explain, predict, and revise it. Both
+   participants shape the framing and structure. Work on a coherent slice using
+   discussion, diagrams, conceptual sketches, writing, or experiments as useful;
+   impose neither one-question progression nor batched rounds. Grilling is a
+   supporting way to scrutinize a premise or guarantee, not the central format.
+   Validate uncertainties frequently through proportionate scenarios,
    counterexamples, source/API checks, isolated PoCs, or measurements within
    authorized scope. Share consequential predictions, observations,
    interpretations and limits. Reuse current evidence, preserve user-led
-   prototypes, and keep design choices under user control. A successful probe
-   is neither adoption nor production acceptance.
+   prototypes, and keep material design choices under user control. A successful
+   probe is neither adoption nor production acceptance.
 8. Receive the current Draft and `design-doc`'s Design Readiness assessment.
    `Design Ready` means ready to finalize and seek whole-document approval;
    it does not authorize the first Draft. Keep unresolved material choices in
@@ -147,6 +151,13 @@ The coordinator requires an aligned shared model and every applicable condition:
 9. no other material question remains unresolved; and
 10. choices, rationale, alternatives, evidence, input sources, and accepted
     deferrals are consolidated in the working Draft.
+
+Also require a coherent model and explanation connecting applicable whole paths,
+responsibilities and interactions to their guarantees. Address material gaps
+exposed by scenarios, failures, or changed conditions under the readiness rules,
+including explicitly accepted deferrals and their impacts. Agreement and branch
+coverage alone are insufficient. Use the collaborative work and evidence;
+require no user exam, teach-back, score, or separate understanding approval.
 
 Apply the [exploration granularity](../../design-doc/references/exploration-guide.md#granularity).
 Private implementation choices preserving the design do not block readiness or
