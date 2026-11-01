@@ -168,11 +168,11 @@ to start or resume those independent Herdr sessions. Within each session,
 agents. The shared check dispatcher handles role/model binding, handoffs and
 restart safety; verification and review retain their own decision criteria.
 
-New Task workspaces open the engineer's normal Neovim on the left and the Task
-Lead on the right, both in the same Task worktree. Coordinate manual saves with
-the Task Lead. If Neovim fails to start, report the failure and leave its shell;
-the available right Task Lead pane can still begin work. Workspace preparation
-retains the two pane roles explicitly for dispatch and later reuse.
+New Task workspaces use their initial pane for the Task Lead after verifying
+the Task worktree and shell readiness. Preparation does not open an editor or
+create an editor-only pane. Open and rearrange an editor manually when needed,
+coordinating saves with the Task Lead. Dispatch and re-entry use the recorded
+Task Lead pane ID rather than its screen position or current focus.
 
 ~~~text
 Feature Lead (session defaults)

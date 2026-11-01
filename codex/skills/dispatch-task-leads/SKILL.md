@@ -29,13 +29,12 @@ ambiguous ownership, or overlapping writers prevents dispatch.
 
 Read the installed Herdr Skill before controlling it and respect its environment,
 pane identity, readiness and permission rules. `create-workspace` returns a
-Git-validated Task worktree with separate editor and Task Lead pane identities.
-For a new Task, launch in the verified right Task Lead shell; the initial left
-pane belongs to the engineer's Neovim. Use the returned Task Lead pane ID, not
-the initial or UI-focused pane. An editor startup failure does not block this
-available shell. Do not start Codex over an editor, lazygit, another agent, an
-approval dialog, or an unidentified pane occupant. Resolve the explicit pane
-and agent mapping; do not use focus or names as guessed identity.
+Git-validated Task worktree and a verified Task Lead pane. A new workspace uses
+its initial pane for that role. Launch in the explicitly returned Task Lead
+shell; no editor pane or editor startup result is required. Do not start Codex
+over an editor, lazygit, another agent, an approval dialog, or an unidentified
+pane occupant. Resolve the explicit pane and agent mapping; do not use focus,
+left/right position or names as guessed identity.
 
 Pass native Codex arguments after Herdr's `--`. For an approved GPT-6.1 Sol/xhigh Task
 the argument shape is:
@@ -81,16 +80,16 @@ a new file-report protocol or replay the implementation prompt.
 ## Resume and return
 
 Do not replace a possibly active writer. Resolve the existing session and its
-recorded Task Lead pane separately from the editor pane; preserve existing
-running layouts and resume the matching session without creating another pane.
+recorded Task Lead pane; preserve existing running layouts and manually opened
+editors, and resume the matching session without creating another pane.
 Resolve its leaves, attribute branch/base/head/status/commits/diff, confirm no
 competing writer or old-head checks, and revalidate authority and allocation. Resume a
 safely idle matching session with a current handoff; a replacement starts with
 no inherited conversation at the same approved model/effort. Never clean,
 reset, rebase, amend, discard, or silently restart uncertain work.
 
-Return Task-to-Herdr-session-to-workspace mapping with distinct Task Lead and
-editor pane identities, allocation, pending order, startup/resume observations,
+Return Task-to-Herdr-session-to-workspace mapping with the Task Lead pane
+identity, allocation, pending order, startup/resume observations,
 result and evidence references, and gaps to
 `execute-plan`. Feature Lead directly validates Git and gate evidence before
 dependency release. This adapter does not issue acceptance or remove sessions,
