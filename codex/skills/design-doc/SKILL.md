@@ -46,6 +46,19 @@ ownership, and re-entry. Read
 [references/writing-guide.md](references/writing-guide.md) for chapter purposes
 and how to explain the structure and behavior.
 
+For every new document or substantive revision, use
+[Design docs — A design doc](https://www.industrialempathy.com/posts/design-doc-a-design-doc/)
+as the presentation reference and apply the writing guide's local rules and
+readability checks. Read the article when its contents are not already available
+in this conversation; reuse an earlier reading rather than fetch it for every
+edit. If access is unavailable, continue with the local guide and identify that
+reference limitation in the handoff. Do not claim a fresh reading. The article
+guides presentation; this skill retains authority, approval, and lifecycle rules.
+For Japanese drafting, read the
+[complete Japanese example](references/example-design-doc-ja.md) for the
+progression from overview through a detailed-design roadmap to connected prose
+and lists. Its assumed design choices are illustrative, not project authority.
+
 Build a coarse complete model together, then work on a coherent slice using
 discussion, diagrams, conceptual sketches, examples, writing, or probes as
 useful. Let either participant originate and revise the decomposition and
@@ -191,6 +204,10 @@ For both human- and AI-authored material, check:
 
 - readers without the conversation can follow the background, problem, scope,
   overall approach, and individual decisions without supplying missing links;
+- skimming headings and opening sentences reveals the central approach and
+  major decisions before the reader has to reconstruct implementation details;
+- Detailed design introduces its focus and main decisions before expanding
+  them; prose explains connections and lists expose genuinely parallel items;
 - condensation and reorganization preserve material decisions, guarantees,
   constraints, and rationale in the appropriate sections or surviving sources;
 - goals and non-goals are distinguishable;
