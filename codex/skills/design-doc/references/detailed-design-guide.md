@@ -166,7 +166,10 @@ Document:
    make a proposal settled merely by writing it here.
 
 Use the [writing guide](writing-guide.md) for chapter responsibilities,
-structural and behavioral diagrams, and short examples. These axes select
-relevant design content; they are not mandatory output subsections. Within the
-selected content, organize sections around coherent design questions and keep
-the mechanism, rationale, and material consequences close together.
+structural and behavioral diagrams, and examples. Open a substantial Detailed
+Design chapter with a brief framing paragraph and a concise roadmap of its main
+decisions or still-open questions, then explain them in connected sections.
+These axes select relevant content; they are not mandatory output subsections
+or a checklist to serialize into prose. Keep the mechanism, rationale, and
+material consequences close together. The
+[Japanese example](example-design-doc-ja.md) demonstrates that progression.

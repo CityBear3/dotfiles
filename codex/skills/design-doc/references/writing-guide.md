@@ -6,6 +6,13 @@ what readers should understand and how to choose a useful representation. Keep
 the document proportional to the actual decisions; diagrams, section counts,
 paragraph lengths, and example technologies are not universal requirements.
 
+Use [Design docs — A design doc](https://www.industrialempathy.com/posts/design-doc-a-design-doc/)
+as the presentation reference. Its useful pattern is an early central idea,
+progressive detail, and prose that introduces and interprets lists. Apply the
+rules below on each new document or substantive revision, then check both
+readability and preservation. These are local writing rules derived from the
+approved discussion, not a requirement to copy the article's text or workflow.
+
 ## Develop the explanation with the user
 
 Start from what the user has already explained about the problem, background,
@@ -47,8 +54,8 @@ reasoning and evidence so the model remains usable beyond the conversation.
 | --- | --- |
 | Context and scope | The problem, relevant background, scope, and requirements/specifications/established constraints that inform the design. Link to their originals and summarize the inputs needed to judge this design. |
 | Goals and Non-goals | The outcomes this design serves and plausible adjacent outcomes explicitly outside its scope. Keep these lists short. |
-| Overview | The chosen overall approach, major responsibilities and boundaries, relationships to surrounding systems, and representative processing flow. Readers can locate later decisions within the architecture. |
-| Detailed design | The significant mechanisms, models, public contracts, invariants, and why they were chosen, including their conditions and consequences. |
+| Overview | The central approach first, followed by its reason, major boundaries, and a representative path. Readers can place later decisions without first reconstructing implementation details. |
+| Detailed design | A brief framing paragraph and a concise map of the main decisions, followed by sections explaining mechanisms, models, contracts, invariants, reasons, conditions, and consequences. |
 | Cross-cutting concerns | How this design addresses applicable concerns such as security, performance, operation, migration, and verification. Explain design-specific effects and responses rather than generic checklists. |
 | Alternatives considered | The viable alternatives, their benefits, and why the selected approach better serves the goals, including burdens accepted with that choice. |
 
@@ -70,6 +77,34 @@ Overview then explains the chosen structure and representative path, preparing
 readers for the detailed decisions. Introduce concepts before relying on them,
 and explain the causal link when moving to a new concern rather than expecting
 the reader to reconstruct it from the discussion.
+
+### Let readers choose how deeply to read
+
+Make headings and paragraph openings useful to a reader skimming for purpose,
+the central approach, and major decisions. A heading can state a decision or
+name a topic; an informative opening sentence can orient the reader in either
+case. Do not require answer-shaped headings everywhere.
+
+Develop the overall mechanism before zooming into library names, callbacks,
+type representations, or multiple structural views. Keep details that establish
+a significant guarantee, but explain their role before their mechanics. A
+diagram supplements this explanation; it should not be the only way to discover
+how the system works. Link prerequisites or supporting detail rather than
+expand every chapter into a complete specification.
+
+### Orient the Detailed design chapter
+
+Normally start with a short paragraph stating what this chapter explains,
+followed by a concise bullet roadmap of its main decisions. Let the items carry
+meaning, such as keeping layout independent of image generation, rather than
+generic labels such as "API" and "Data". Match them to the sections that follow.
+In an evolving Draft, identify unresolved approaches as questions or proposals,
+not decisions. A very small section may need only the framing paragraph.
+
+Then develop the reasons, mechanisms, and consequences in prose. The roadmap
+helps readers choose where to read; it does not replace explanation or repeat
+all requirements. Do not impose this opening on every subsection, fix an item
+count, or create a new approval exchange for the roadmap.
 
 ## Organize around design questions
 
@@ -99,6 +134,28 @@ reasons survive condensation or relocation. Move detail to a relevant section
 or retain a precise source reference instead of losing it for brevity or
 packing it into the introduction for coverage.
 
+## Write connected prose
+
+Give a paragraph a recognizable point, then let its sentences develop that
+point with actions, reasons, consequences, or a concrete case. Carry established
+concepts into the next sentence before adding another responsibility or
+condition. Start another paragraph when the point changes. Short sentences
+alone do not create this continuity.
+
+Make the actor and action recoverable. Explain what a component does and why
+before compressing it into abstractions such as "validity", "ownership", or
+"separation". Those terms remain useful once grounded. Avoid stacking nominal
+phrases or joining different logical levels with an unexplained "and".
+Introduce project-specific names by role, retain exact identifiers where useful,
+and keep terminology stable. Japanese can omit a repeated subject when the
+actor remains clear; it need not repeat a subject mechanically in every sentence.
+
+Describe the selected behavior before its qualifications where possible.
+Preserve material exclusions, failure cases, and negative requirements beside
+the mechanism they constrain. Clarify them rather than remove them for flow.
+Use natural prose in the requested language; English is not a readability fix
+for Japanese, and foreign identifiers do not justify unrelated language fragments.
+
 ## Choose the representation for the relationship
 
 - Use prose for causality, rationale, trade-offs, and the connection between
@@ -111,6 +168,20 @@ packing it into the introduction for coverage.
 - Use diagrams when structure, relationships, state, or interaction would
   otherwise have to be reconstructed from scattered statements. Explain why
   the depicted structure or behavior was chosen in nearby prose.
+
+Introduce what a list enumerates. Keep its items parallel in meaning and
+abstraction level, so readers can compare or check them independently. If a
+sentence contains many separate rules, expose that structure as a list instead
+of hiding it behind commas or slashes. Continue in prose when the relationship,
+trade-off, or consequence needs interpretation. Do not replace causal explanation
+with bullet fragments, prescribe a prose/list ratio, or repeat an introduction,
+list, and conclusion mechanically when they add no meaning.
+
+Before final presentation, skim headings and paragraph openings for the design's
+outline, then read continuously for missing actors and causal links. Separately
+compare with the settled source for lost guarantees, rationale, conditions, and
+evidence limits. A smoother or shorter draft has not passed that second check
+merely because it reads well. This is editorial review, not an extra user gate.
 
 ### Architecture and behavioral views
 
@@ -171,6 +242,13 @@ each explanation in one place instead of repeating it in both table and prose.
 Do not invent alternatives or comparisons just to populate this section.
 
 ## Short examples
+
+For the complete progression in Japanese, read
+[example-design-doc-ja.md](example-design-doc-ja.md). It demonstrates a focused
+document's framing, overview, detailed-design roadmap, prose/list handoffs,
+conceptual model/API, and interaction view. Keep its architecture scoped to the
+example; use these excerpts for additional views rather than copying every view
+into every document.
 
 These excerpts illustrate presentation of already settled decisions in a
 document-preview design. They are not a complete Design Doc or a recommendation
