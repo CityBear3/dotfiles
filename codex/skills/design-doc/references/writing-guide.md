@@ -142,6 +142,17 @@ concepts into the next sentence before adding another responsibility or
 condition. Start another paragraph when the point changes. Short sentences
 alone do not create this continuity.
 
+Prefer compact paragraphs that readers can take in at a glance. Even within
+one topic, separate paragraphs when the explanatory role changes, such as from
+the basic mechanism to an exception or from a concrete case to a different
+guarantee.
+
+Expose independently checkable operations, conditions, or
+responsibilities in a list when they accumulate in prose. Keep the connecting
+reasoning nearby so the reader can understand why the items belong together.
+Use these relationships and the size of the reading block to choose breaks;
+do not impose a sentence, character, or rendered-line limit.
+
 Make the actor and action recoverable. Explain what a component does and why
 before compressing it into abstractions such as "validity", "ownership", or
 "separation". Those terms remain useful once grounded. Avoid stacking nominal
@@ -177,9 +188,13 @@ trade-off, or consequence needs interpretation. Do not replace causal explanatio
 with bullet fragments, prescribe a prose/list ratio, or repeat an introduction,
 list, and conclusion mechanically when they add no meaning.
 
-Before final presentation, skim headings and paragraph openings for the design's
-outline, then read continuously for missing actors and causal links. Separately
-compare with the settled source for lost guarantees, rationale, conditions, and
+Before final presentation, skim headings, paragraph openings, and list items
+for the design's outline and main decisions. Check whether readers can tell
+what a paragraph covers before reading it closely and find a particular
+operation or condition without rereading a dense block. Then read continuously
+for missing actors and causal links.
+
+Separately compare with the settled source for lost guarantees, rationale, conditions, and
 evidence limits. A smoother or shorter draft has not passed that second check
 merely because it reads well. This is editorial review, not an extra user gate.
 

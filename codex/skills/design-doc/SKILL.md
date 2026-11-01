@@ -204,8 +204,11 @@ For both human- and AI-authored material, check:
 
 - readers without the conversation can follow the background, problem, scope,
   overall approach, and individual decisions without supplying missing links;
-- skimming headings and opening sentences reveals the central approach and
-  major decisions before the reader has to reconstruct implementation details;
+- skimming headings, opening sentences, and list items reveals the central
+  approach and major decisions before the reader has to reconstruct
+  implementation details;
+- paragraphs are compact enough to scan; separate operations and conditions
+  are easy to locate, with reasons and causal links preserved nearby;
 - Detailed design introduces its focus and main decisions before expanding
   them; prose explains connections and lists expose genuinely parallel items;
 - condensation and reorganization preserve material decisions, guarantees,
