@@ -167,9 +167,13 @@ Document:
 
 Use the [writing guide](writing-guide.md) for chapter responsibilities,
 structural and behavioral diagrams, and examples. Open a substantial Detailed
-Design chapter with a brief framing paragraph and a concise roadmap of its main
-decisions or still-open questions, then explain them in connected sections.
+Design chapter by orienting readers to the approach and what the explanation
+will establish. Use a decision roadmap when it helps navigation, or develop
+relevant criteria, constraints, or a real trade-off when that better motivates
+the mechanisms. Keep proposals and still-open questions distinguishable from
+decisions, then build the explanation through connected sections.
 These axes select relevant content; they are not mandatory output subsections
 or a checklist to serialize into prose. Keep the mechanism, rationale, and
-material consequences close together. The
+material consequences close together, and check that each significant
+transition builds on understanding already established. The
 [Japanese example](example-design-doc-ja.md) demonstrates that progression.
