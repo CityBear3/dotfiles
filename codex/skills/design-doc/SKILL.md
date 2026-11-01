@@ -56,8 +56,9 @@ reference limitation in the handoff. Do not claim a fresh reading. The article
 guides presentation; this skill retains authority, approval, and lifecycle rules.
 For Japanese drafting, read the
 [complete Japanese example](references/example-design-doc-ja.md) for the
-progression from overview through a detailed-design roadmap to connected prose
-and lists. Its assumed design choices are illustrative, not project authority.
+progression from overview through a purposeful detailed-design opening to
+connected prose and lists. Its assumed design choices are illustrative, not
+project authority.
 
 Build a coarse complete model together, then work on a coherent slice using
 discussion, diagrams, conceptual sketches, examples, writing, or probes as
@@ -114,6 +115,12 @@ mechanism, rationale, and material consequences. Identify requirements,
 observable specifications, and established constraints with their exact
 surviving authorities in Context and scope. Keep them distinct from design
 proposals and choices. Preserve the user's prose unless an edit is requested.
+
+Build each substantial explanation from what the reader already understands
+to the understanding the next passage needs. Apply the writing guide's
+continuous-reading check to actual transitions and revise missing links;
+formatting compliance alone does not establish this continuity. Use that
+diagnostic without per-paragraph role labels or another human approval step.
 
 Explain both communication APIs and module/library function or type APIs, and
 persistent and domain/type models when significant. Show conceptual models and
@@ -209,8 +216,10 @@ For both human- and AI-authored material, check:
   implementation details;
 - paragraphs are compact enough to scan; separate operations and conditions
   are easy to locate, with reasons and causal links preserved nearby;
-- Detailed design introduces its focus and main decisions before expanding
-  them; prose explains connections and lists expose genuinely parallel items;
+- the explanation builds on established understanding at significant
+  transitions, with actual premises, referents, and causal or other links;
+- Detailed design has a purposeful opening; lists serve their explanatory or
+  navigation role, with needed interpretation in nearby prose;
 - condensation and reorganization preserve material decisions, guarantees,
   constraints, and rationale in the appropriate sections or surviving sources;
 - goals and non-goals are distinguishable;

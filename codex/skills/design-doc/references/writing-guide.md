@@ -8,8 +8,10 @@ paragraph lengths, and example technologies are not universal requirements.
 
 Use [Design docs — A design doc](https://www.industrialempathy.com/posts/design-doc-a-design-doc/)
 as the presentation reference. Its useful pattern is an early central idea,
-progressive detail, and prose that introduces and interprets lists. Apply the
-rules below on each new document or substantive revision, then check both
+progressive detail, and passages that build on an understanding already
+established for the reader. Lists contribute to that explanation rather than
+determine its form. Apply the rules below on each new document or substantive
+revision, then check both
 readability and preservation. These are local writing rules derived from the
 approved discussion, not a requirement to copy the article's text or workflow.
 
@@ -55,7 +57,7 @@ reasoning and evidence so the model remains usable beyond the conversation.
 | Context and scope | The problem, relevant background, scope, and requirements/specifications/established constraints that inform the design. Link to their originals and summarize the inputs needed to judge this design. |
 | Goals and Non-goals | The outcomes this design serves and plausible adjacent outcomes explicitly outside its scope. Keep these lists short. |
 | Overview | The central approach first, followed by its reason, major boundaries, and a representative path. Readers can place later decisions without first reconstructing implementation details. |
-| Detailed design | A brief framing paragraph and a concise map of the main decisions, followed by sections explaining mechanisms, models, contracts, invariants, reasons, conditions, and consequences. |
+| Detailed design | An opening that orients the reader to the design question and approach, followed by connected explanations of mechanisms, models, contracts, invariants, reasons, conditions, and consequences. Use a decision map when it helps navigation. |
 | Cross-cutting concerns | How this design addresses applicable concerns such as security, performance, operation, migration, and verification. Explain design-specific effects and responses rather than generic checklists. |
 | Alternatives considered | The viable alternatives, their benefits, and why the selected approach better serves the goals, including burdens accepted with that choice. |
 
@@ -94,17 +96,24 @@ expand every chapter into a complete specification.
 
 ### Orient the Detailed design chapter
 
-Normally start with a short paragraph stating what this chapter explains,
-followed by a concise bullet roadmap of its main decisions. Let the items carry
-meaning, such as keeping layout independent of image generation, rather than
-generic labels such as "API" and "Data". Match them to the sections that follow.
-In an evolving Draft, identify unresolved approaches as questions or proposals,
-not decisions. A very small section may need only the framing paragraph.
+Start with a brief explanation of what readers will understand and how it
+relates to the approach already introduced in Overview. Choose an opening that
+helps develop that understanding: a concise decision roadmap can aid
+navigation, while relevant constraints, criteria, or a real trade-off can
+explain why the mechanisms that follow are needed. Do not invent a conflict to
+fit a rhetorical pattern or withhold the central approach to build suspense.
 
-Then develop the reasons, mechanisms, and consequences in prose. The roadmap
-helps readers choose where to read; it does not replace explanation or repeat
-all requirements. Do not impose this opening on every subsection, fix an item
-count, or create a new approval exchange for the roadmap.
+Make a list's role clear. A roadmap points to later decisions; a set of criteria
+needs interpretation before it can justify a choice. The reference article's
+initial list establishes desired properties and their tension, rather than a
+universal roadmap template. When using a roadmap, give its items meaningful
+decisions rather than labels such as "API" and "Data", and match the sections
+that follow. In a Draft, identify unresolved approaches as proposals or
+questions. A small chapter may need only a framing paragraph.
+
+Develop reasons, mechanisms, and consequences from that opening. Neither a
+roadmap nor another opening pattern is required in every subsection. Add no
+fixed item count or approval exchange for the choice of presentation.
 
 ## Organize around design questions
 
@@ -136,11 +145,21 @@ packing it into the introduction for coverage.
 
 ## Write connected prose
 
-Give a paragraph a recognizable point, then let its sentences develop that
-point with actions, reasons, consequences, or a concrete case. Carry established
-concepts into the next sentence before adding another responsibility or
-condition. Start another paragraph when the point changes. Short sentences
-alone do not create this continuity.
+Give a paragraph a recognizable point and an explanatory role, such as
+grounding a concept, explaining a reason, or interpreting conditions. Let its
+sentences develop that point. Start another paragraph when the point changes;
+short sentences alone do not create continuity.
+
+Carry forward the understanding established in the preceding passage when
+introducing a new mechanism or condition. Make the relevant causal,
+contrastive, or other relationship recoverable. When changing concerns, orient
+the reader to why the new concern matters to this design. Adding "therefore"
+or "however" cannot supply a missing premise or make unrelated facts causal.
+
+Retain useful repetition when an established concept anchors a new implication.
+Stable terms and a brief reminder can help readers keep their place; removing
+every recurrence as redundancy can break that connection. This does not
+require repeating a subject or connective in every sentence.
 
 Prefer compact paragraphs that readers can take in at a glance. Even within
 one topic, separate paragraphs when the explanatory role changes, such as from
@@ -180,10 +199,12 @@ for Japanese, and foreign identifiers do not justify unrelated language fragment
   otherwise have to be reconstructed from scattered statements. Explain why
   the depicted structure or behavior was chosen in nearby prose.
 
-Introduce what a list enumerates. Keep its items parallel in meaning and
-abstraction level, so readers can compare or check them independently. If a
-sentence contains many separate rules, expose that structure as a list instead
-of hiding it behind commas or slashes. Continue in prose when the relationship,
+Introduce what a list enumerates and what readers should do with it, such as
+locate a decision, check conditions, or compare criteria. Keep its items parallel
+in meaning and abstraction level. Where their relationship or implication
+matters, interpret it in nearby prose rather than leave readers to infer it.
+If a sentence contains many separate rules, expose that structure as a list
+instead of hiding it behind commas or slashes. Continue in prose when the relationship,
 trade-off, or consequence needs interpretation. Do not replace causal explanation
 with bullet fragments, prescribe a prose/list ratio, or repeat an introduction,
 list, and conclusion mechanically when they add no meaning.
@@ -191,12 +212,23 @@ list, and conclusion mechanically when they add no meaning.
 Before final presentation, skim headings, paragraph openings, and list items
 for the design's outline and main decisions. Check whether readers can tell
 what a paragraph covers before reading it closely and find a particular
-operation or condition without rereading a dense block. Then read continuously
-for missing actors and causal links.
+operation or condition without rereading a dense block.
 
-Separately compare with the settled source for lost guarantees, rationale, conditions, and
-evidence limits. A smoother or shorter draft has not passed that second check
-merely because it reads well. This is editorial review, not an extra user gate.
+Then read a substantive section continuously, checking what the reader already
+understands at a transition, what the current passage adds, and what the next
+explanation relies on. Ground that check in the actual passages. If readers
+must invent a premise, resolve an unexplained topic change, or reconstruct the
+connection between a list and its conclusion, revise the explanation or order.
+A claim that the prose is coherent or the presence of connectives is not enough.
+
+Use this as an editorial diagnostic at meaningful transitions, not mandatory
+per-paragraph annotations, output labels, a repeated three-part template, or
+an extra user comprehension test. It adds no document or approval gate.
+
+Separately compare with the settled source for lost guarantees, rationale,
+conditions, and evidence limits. A smoother or shorter draft has not passed
+that second check merely because it reads well. This is editorial review, not
+an extra user gate.
 
 ### Architecture and behavioral views
 
@@ -260,8 +292,8 @@ Do not invent alternatives or comparisons just to populate this section.
 
 For the complete progression in Japanese, read
 [example-design-doc-ja.md](example-design-doc-ja.md). It demonstrates a focused
-document's framing, overview, detailed-design roadmap, prose/list handoffs,
-conceptual model/API, and interaction view. Keep its architecture scoped to the
+document's framing, overview, purposeful detailed-design opening, prose/list
+handoffs, conceptual model/API, and interaction view. Keep its architecture scoped to the
 example; use these excerpts for additional views rather than copying every view
 into every document.
 
