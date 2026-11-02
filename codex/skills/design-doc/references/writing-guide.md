@@ -260,6 +260,25 @@ significant interactions, failure, and recovery. Select the meaningful paths
 rather than drawing every operation or exception. Static structure alone does
 not establish runtime ordering or progress.
 
+### Module structure and API ownership
+
+Show the major module/package hierarchy at the design scope with a tree or
+equivalent structural view, and map the relevant boundaries to source files
+and directories. Make parent/child relationships explicit. A directory listing
+alone does not establish which file defines a parent module or owns its API.
+
+Identify each major boundary's responsibilities and API owner, its consumers,
+visibility, and supported access paths, including re-exports. An API may be
+public to another module without being public outside its crate or package;
+name that audience. Distinguish the owner of the supported API surface from
+the location of internal definitions. Locate important traits and interfaces
+in this structure rather than presenting their declarations in isolation.
+
+Explain source dependency direction and the reason for the chosen boundaries
+near the structural view. Keep it distinct from runtime messages, notifications,
+and data flow. State which relationships or source paths are design constraints
+and which names or local helper details remain explanatory or flexible.
+
 ### Conceptual models and public APIs
 
 Show important concepts, their relationships and states, who owns them, and
@@ -269,6 +288,13 @@ abstraction and principal operations visible: input/output meaning, ownership,
 side effects, errors, synchronous/asynchronous behavior, and caller obligations
 where significant. Explain the role of a trait, interface, callback, or
 associated type rather than listing its name alone.
+
+Describe each major API in the form selected by the design. In Rust, show the
+significant part of the trait declaration when a trait defines the boundary.
+For APIs provided by concrete types or modules, show their public operations
+or function signatures. Do not introduce a trait solely to express a contract
+in the document. Map each API to its owning module, visibility, and supported
+access path in the module structure.
 
 Use a small diagram, table, or short conceptual signature to expose that
 structure. Label explanatory names and sketches as such. A conceptual
@@ -360,6 +386,32 @@ asset metadata, while the asset provider owns image-generation details. This
 separation lets layout remain independent of the image implementation; the
 renderer takes responsibility for connecting the two stages.
 
+### Locate API owners in the module structure
+
+The component view describes responsibilities. For this example, the selected
+source structure places those boundaries as follows; only the relevant files
+are shown.
+
+```text
+src/
+├── renderer.rs         # Owns rendering orchestration
+├── assets.rs           # Owns the asset API and common metadata
+├── assets/
+│   └── provider.rs     # Internal image-provider implementation
+└── layout.rs           # Owns the layout API
+```
+
+`assets.rs` defines the parent module `crate::assets`;
+`assets/provider.rs` defines its child `crate::assets::provider`. The parent
+owns the supported API surface, including child declarations and any
+re-exports. The child implements provider-specific behavior behind it.
+
+The renderer uses the asset and layout APIs through `crate::assets` and
+`crate::layout`. Layout uses `AssetMetadata` through `crate::assets`, so it
+can consume common dimensions without importing the provider implementation.
+These are crate-internal boundaries; the provider child is internal to
+`assets`. These source dependencies do not establish runtime order.
+
 ### Explain a module boundary and its model
 
 Image preparation returns common metadata and a provider-specific prepared
@@ -367,16 +419,18 @@ value. Layout needs dimensions but does not need the image library's internal
 state. Keeping that state behind the provider lets layout remain independent
 of the image-generation implementation.
 
-The following conceptual signatures expose the significant boundary. Names
-and declaration syntax are illustrative.
+In this Rust example, `AssetProvider` and `LayoutEngine` are trait boundaries
+owned by `assets` and `layout`, respectively. The following conceptual trait
+sketches show their principal operations. Names and declaration syntax are
+illustrative, not binding Rust declarations.
 
 ```text
-AssetProvider
+trait AssetProvider
     associated type Prepared
     prepare(AssetInput) -> Result<(AssetMetadata, Prepared), AssetError>
     materialize(Prepared, ImageSize) -> Result<PNG, AssetError>
 
-LayoutEngine
+trait LayoutEngine
     layout(Document, DisplayConditions, AssetMetadata[])
         -> Result<LayoutOutput, LayoutError>
 ```

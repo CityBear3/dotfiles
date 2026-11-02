@@ -41,7 +41,10 @@ Identify where your design falls on each axis before writing. The combination sh
 Sketch the major abstractions and operations, including important traits,
 interfaces, callbacks, or associated types. Explain input/output meaning,
 ownership, side effects, synchronization, and caller obligations where material.
-An operation inventory alone does not explain why the boundary exists.
+Use the API form selected by the design: a trait/interface when it defines the
+boundary, or the public operations of a concrete type/module otherwise. Locate
+it in the module structure with its owner and supported access path. An operation
+inventory alone does not explain why the boundary exists.
 
 ### Data Model
 
@@ -60,6 +63,10 @@ conceptual model from its concrete storage or language representation.
 
 ### Architecture / Component Structure
 
+- Module structure: what is the major module/package hierarchy, and how does
+  it map to the relevant source files and directories?
+- API ownership: which module owns each public boundary, who consumes it,
+  and through which visibility and access/re-export paths?
 - Responsibility boundaries: why are components divided this way?
 - Communication patterns: why synchronous vs. asynchronous? Push vs. pull?
 - Dependency direction: what depends on what, and why is this direction chosen?
