@@ -19,18 +19,29 @@ approved discussion, not a requirement to copy the article's text or workflow.
 
 Start from what the user has already explained about the problem, background,
 and priorities. Recover it from the requirements and settled discussion before
-asking for more input. Rough notes or spoken explanations are sufficient;
-the user does not need to author polished prose. Preserve supplied prose unless
-an edit is requested, and clarify a specific unrecoverable gap rather than
-asking the user to repeat the whole story.
+asking for more input. AI may prepare that known foundation. Rough notes,
+diagrams or spoken explanations are sufficient; polished human prose is not a
+prerequisite. Edit within the agreed scope while preserving the user's meaning
+and reasons, honoring requests to keep wording verbatim. Clarify a specific
+unrecoverable gap rather than asking the user to repeat the whole story.
 
-For a new document, normally offer a small Context draft and an outline of the
-reader's progression before expanding everything. Use the user's feedback to
-refine the intended meaning and explanatory order. This is an editing exchange,
-not a request to approve each chapter. Reuse an existing suitable draft or
-agreed framing, honor an explicit request for the complete document, and keep
-a targeted revision focused. These choices change the editing starting point,
-not the required source authority or approval of the final exact document.
+For a new document, adapt the
+[guided Japanese template](../assets/design-doc-template-ja.md), including its
+what-to-write and how-to-start guidance. Translate it when another language is
+requested. Normally begin with known Context and a tentative whole-system view
+and outline; leave unexamined decisions open. Reuse an existing suitable Draft
+or agreed framing. The template is an output scaffold, not another instruction
+manual, mandatory concern list or fixed project architecture.
+
+Work by heading, subheading or connected group of sections. The engineer may
+write bullets, diagrams, pseudocode or unfinished prose while investigating,
+comparing and trying approaches; AI may prepare foundations and edit from that
+work. Refine wording and structure in the affected sections, presenting those
+sections or a useful diff by default. Do not make rereading a complete generated
+document the normal editing interaction. Connect changes back to the whole;
+split, merge or reorder headings when helpful. This adds no chapter approval,
+fixed writing round or requirement that the engineer draft before AI can help.
+Honor an explicit request for the complete document, including final approval.
 
 After Model Aligning, use the evolving Draft to explore architecture; writing
 does not wait for all design choices to settle. Plan the explanation around
@@ -39,7 +50,9 @@ prominence of topics in the conversation. Expand the refined framing with
 settled choices and clearly provisional proposals or open questions. Develop
 realization choices with the user in the same loop; return new product choices
 or input-meaning gaps through the coordinator to the appropriate earlier phase.
-Do not silently settle a choice while editing. Use the
+Do not silently settle a choice while editing or invent a reason to complete a
+template field. Questions exposed by writing or editing return to exploration.
+Use the
 [exploration guide](exploration-guide.md) for frequent, proportionate validation
 and for updating the Draft from observations.
 
@@ -49,6 +62,12 @@ and use relevant changed or failure conditions to expose gaps. Human and AI can
 revise the framing and the model while doing this; an explanation assembled from
 approved choices alone may still lack those connections. Preserve the material
 reasoning and evidence so the model remains usable beyond the conversation.
+
+Template guidance can remain visible while working on a section. Before final
+presentation, remove superseded prompts and empty scaffolding, consolidating
+useful notes into the explanation or surviving evidence references. Preserve
+material reasons, constraints, evidence limits and accepted deferrals rather
+than treating cleanup as permission to discard unfinished or inconvenient work.
 
 ## Chapter purposes
 
@@ -238,6 +257,12 @@ dedicated `C4Context`, `C4Container`, `C4Component`, or other `C4*` syntax.
 This is the presentation convention for this workflow, not a requirement of
 the C4 model itself.
 
+Keep process/exploration flows easy to follow. When Mermaid's automatic routing
+makes their branches or return edges hard to read, use a simple ASCII flow with
+explicit return conditions. An equivalent ASCII structural view may also be
+used when it communicates the selected C4 level and boundaries more clearly;
+retain the relationship meanings rather than forcing a renderer or layout.
+
 Select only levels that help explain this design: context for surrounding
 systems, containers for applications/data stores and runtime boundaries, and
 components for responsibility boundaries inside a container. Preserve those
@@ -304,6 +329,39 @@ signatures, or representations belong here when a material design decision or
 compatibility obligation depends on them. Reference exhaustive maintained
 definitions rather than reproducing every field or method. Implementation
 choices that preserve the settled design remain with implementation.
+
+### Explain a module API from the caller's perspective
+
+Keep the API's role, declarations and observable contract in one coherent
+explanation rather than making readers reconstruct them from scattered prose.
+A useful progression is:
+
+1. Establish the module's responsibility, API owner, consumers and supported
+   access path. Make clear which decisions remain with the caller.
+2. Show representative values and operations with short declarations in the
+   selected language when helpful. Explain what important types identify,
+   contain or own; omit exhaustive fields, helpers and implementation bodies.
+3. Explain operation outcomes beside the declarations: what success, absence or
+   failure means, the relevant ownership/lifetime effects, and obligations on
+   each side. Distinguish failure stages only where they matter to callers.
+4. Show a representative use sequence or small usage example that explains how
+   operations compose. Include ordering, retry or cleanup responsibilities when
+   material; skip trivial examples that merely repeat a signature.
+5. Connect the API shape to the design's goals and accepted burdens. Explain why
+   the boundary and operations have this form, with alternatives linked where
+   their comparison is already maintained.
+
+This is an explanatory progression, not five mandatory headings per API or
+method. Share module-wide rules and explain only material operation-specific
+differences. Preserve the actual chosen trait, concrete type or module-function
+form; do not copy the example's types, error layering or return shapes into
+unrelated designs.
+
+When state ownership, initialization/termination, failure recovery or returned
+ownership is unsettled, identify the open choice in the Draft. Do not make an
+invented error type or a plausible signature stand in for deciding its semantics.
+The Japanese example's module API section illustrates this presentation with
+explicitly open lifecycle and error questions, not an approved API to implement.
 
 ### Alternatives
 

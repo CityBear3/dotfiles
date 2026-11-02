@@ -4,58 +4,119 @@ Use this guide inside `design-doc` after the shared-model checkpoint. The
 working Draft is the canvas for architecture, explanation, and validation;
 Design Readiness is required for final approval, not for opening the Draft.
 
-## Develop a model the architect can use
+## Start from a provisional whole-system view
 
-Recover aligned requirements, observable specifications, constraints, and exact
-existing decisions before proposing solutions. Start with a coarse complete
-model that locates the problem, major concepts, responsibilities, and paths.
-For a small change, a short explanation or sketch can suffice.
+Recover aligned requirements, observable specifications, constraints and exact
+existing decisions. Open the one working Draft with a coarse view of the whole
+design, a tentative outline and unresolved architectural questions. Adapt the
+[guided Japanese template](../assets/design-doc-template-ja.md) for a new Draft;
+reuse a suitable existing document without imposing another scaffold.
 
-Human and AI both help form the framing and decomposition, not just choose
-within an AI-generated menu. Either may offer an unfinished intuition, diagram,
-conceptual interface, alternative, or concrete case. When the user has no
-initial proposal, contribute a small tentative model and relevant facts rather
-than demand a blank-page design. Fix neither the first speaker nor an idea or
-option count. The user can delegate sketching, investigation, and PoC work
-while remaining involved in the architectural reasoning.
+AI may populate known Context, Goals, Non-goals and constraints from aligned
+sources, and offer tentative structures or candidate sketches. Keep unexamined
+choices open instead of producing a complete narrative ahead of the engineer's
+exploration. Do not require the engineer to supply a blank-page design. Neither
+the first speaker nor the number of ideas is fixed.
 
-Use the model to explain how requirements map to structure, why responsibilities
-and interactions establish guarantees, and what changes when conditions or
-requirements change. Trace a relevant path across boundaries; a collection of
-individually justified choices may still miss their combined behavior. A
-scenario, model edit, or experimental observation can expose that gap. Update
-the affected model and explanation, then reconnect them to the whole.
+The overall design scope stays visible throughout section work. Revisit the
+framing and decomposition when evidence changes them; a decision tree or an
+outline is a navigation aid, not proof of shared understanding.
 
-A decision tree is a provisional aid, not proof that the problem was decomposed
-correctly or that the design is understood. Revisit concepts, boundaries, and
-dependencies when reasoning or evidence challenges them. Keep aligned inputs
-and unchanged approved decisions intact; a proposed material reframe stays
-provisional until the user chooses it. Changes to required behavior or scope
-use the input re-entry rules below.
+## Explore and draft by heading or subheading
 
-## Choose the next useful form of collaboration
+Use a heading, subheading or related group of sections as the normal work unit.
+Pick a coherent design question with enough context to connect it to the whole.
+Split, merge, rename or reorder headings as the design develops; do not make
+template sections a fixed sequence or require each to be finished before the
+next can be explored.
 
-Work on a coherent slice with enough context to relate it to the whole. Choose
-among discussion, drawing, writing, examples, inspection, and experiments based
-on what would advance it. Questions can clarify intent or provoke a useful
-alternative; do not impose one-question-at-a-time or batched-round progression,
-require every response to end with a question, or override user pacing.
-Connected concerns may need to be examined together, and either participant can
-change the form of the work.
+The normal flow is:
 
-Use grilling to expose an assumption or stress-test a concrete premise,
-interaction, or guarantee. Apply the same evidence and counterexamples to human
-and AI proposals. It can contribute while ideas are being generated; do not add
-a mandatory grilling phase or turn the architect into an interview respondent.
-Make candidate assumptions and accepted burdens visible, without manufacturing
-alternatives or making agreement with a recommendation the main activity.
+```text
+Model Aligned
+    |
+    v
+Provisional whole-system view and outline in the Draft
+    |
+    v
+Choose a heading, subheading or connected group
+    |
+    v
+Investigate, compare and prototype; write rough notes while doing so
+    |
+    v
+AI edits the affected sections and checks consequences
+    |   Return to exploration or rough writing for new questions
+    v
+Reconnect changes to the whole view, major paths and related sections
+    |   Return to section work for remaining questions or inconsistencies
+    v
+Design Ready, final editing and exact whole-document approval
+```
 
-When the user cannot reason about a proposal yet, supply the missing context,
-walk through a concrete path, or make a small model or experiment available to
-react to. Repeated assent warrants checking what is actually settled, not
-assuming understanding. Help resolve the affected gap without grading the user,
-requiring a quiz or teach-back, or adding an understanding-approval gate. The
-purpose is shared architectural work, not proof of the user's private thoughts.
+### Investigate, compare and prototype
+
+Either participant may originate an approach. AI can inspect sources, gather
+comparison material, prepare base code, or build and run an isolated probe.
+Either participant may write or modify its code; switch authors as useful.
+Preserve engineer-led experiments rather than taking them over. The engineer
+can change conditions, try a competing approach or revise a model, then use
+the observations to shape the design. No manual-coding quota establishes
+understanding, and code generation does not by itself replace that reasoning.
+
+Return the observations, relevant evidence and limits needed for the current
+question, with sources available for inspection. Do not make a long AI research
+report a prerequisite for further work. Use the proportional validation rules
+below; not every design decision requires a code experiment.
+
+### Write rough notes during exploration
+
+Use the affected Draft sections for candidate approaches, comparison criteria,
+observations, reasons, uncertainties and changes to the current design. Bullets,
+diagrams, pseudocode or unfinished prose are enough. Writing may precede a probe,
+continue during it or expose the next question; these are not serial phases.
+
+AI can prepare the document foundation and help capture or extend notes within
+the agreed scope. Support the engineer's own drafting and trial-and-error as
+normal design work without requiring polished human prose, a submission before
+each edit, or repeated explanations of aligned inputs. If the engineer has no
+starting point, offer a focused tentative sketch or relevant facts to work with.
+The main activity should not become reading and assenting to AI explanations.
+
+### Edit the affected sections together
+
+AI organizes and refines the rough material, improving wording, structure,
+diagrams and references while preserving intent, uncertainty and reasons.
+Consolidate chosen mechanisms in Detailed design and real rejected alternatives
+with their reasons in Alternatives considered; avoid duplicating their evolving
+explanations. Do not invent a rationale or settle a material assumption to make
+the prose look complete. Bring such questions back to exploration.
+
+Normally present the changed sections or a useful diff. Do not regenerate or
+require rereading the entire document after each local edit. Full-document
+presentation still applies at final approval. Guide text is a writing aid, not
+a questionnaire or evidence that every prompted concern applies to the project.
+
+### Reconnect the result to the whole
+
+Update the whole-system view, module/API ownership, source dependencies, major
+end-to-end paths and affected sections. Trace how responsibilities and
+interactions compose into guarantees, including changed or failing conditions.
+Individually plausible sections may still conflict when combined; use those
+conflicts to choose the next investigation or edit. Tentative sections can remain
+open while related work proceeds. Only resolved material questions or explicitly
+accepted deferrals support Design Readiness under the skill's existing rules.
+
+Discussion and questions support this loop. Honor the user's pacing; impose no
+one-question progression, mandatory writing round, per-chapter approval or
+requirement to end each reply with a question. Grilling may scrutinize a premise
+or guarantee, without making the engineer an interview respondent. Repeated
+assent does not prove understanding. Offer relevant context, a concrete path or
+an experiment when needed, without quizzes, scores or a teach-back gate.
+
+Keep aligned inputs and unchanged approved decisions intact. Proposed material
+reframing remains provisional until the engineer chooses it; changes to required
+behavior or scope use the re-entry rules below.
 
 ## Granularity
 
@@ -98,12 +159,12 @@ or change an input; do not require a prediction or approval before every routine
 lookup or probe. A validated hypothesis can justify retaining the current
 design as well as changing it.
 
-AI may research, create, and run a scoped PoC while the human shapes the
+AI may research, create, modify and run a scoped PoC, or support one written by
+the engineer. Code authorship remains flexible while the engineer shapes the
 question and interprets results. When the user is using code or a visual model
-to think, support their investigation and critique without taking over their
-prototype. Frequent validation does not require a code PoC for each naming or
-private-helper choice, and it does not create a formal `verify`/review gate
-for each experiment.
+to think, support that work without taking over. Frequent validation does not
+require a code PoC for each naming or private-helper choice, and it does not
+create a formal `verify`/review gate for each experiment.
 
 Record what was tested, relevant conditions, observed result, implications, and
 limits in the affected Draft section or a precise supporting reference. A

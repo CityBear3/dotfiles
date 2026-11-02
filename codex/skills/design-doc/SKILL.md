@@ -54,23 +54,37 @@ in this conversation; reuse an earlier reading rather than fetch it for every
 edit. If access is unavailable, continue with the local guide and identify that
 reference limitation in the handoff. Do not claim a fresh reading. The article
 guides presentation; this skill retains authority, approval, and lifecycle rules.
-For Japanese drafting, read the
-[complete Japanese example](references/example-design-doc-ja.md) for the
-progression from overview through a purposeful detailed-design opening to
-connected prose and lists. Its assumed design choices are illustrative, not
-project authority.
+For a new Japanese Draft, adapt the
+[guided Japanese template](assets/design-doc-template-ja.md). Its chapter and
+subheading prompts explain what to consider and how to start writing. Reuse a
+suitable existing Draft instead of replacing it. Consult the
+[complete Japanese example](references/example-design-doc-ja.md) when a finished
+explanation would help; its assumed design choices are illustrative, not project
+authority or a starting architecture to copy.
 
-Build a coarse complete model together, then work on a coherent slice using
-discussion, diagrams, conceptual sketches, examples, writing, or probes as
-useful. Let either participant originate and revise the decomposition and
-hypotheses. Keep framing and dependencies provisional while alternatives are
-explored; the user selects material approaches and accepted burdens. Choose
-questions when they advance the work, without a fixed one-question or round
-rule, a requirement to end each reply with a question, or a human idea quota.
-Honor the user's pacing preferences. Use the model to reason about whole paths,
-composed guarantees, and changed conditions; do not substitute repeated assent
-or a list of settled decisions for that work. Grilling can help expose a premise
-or test a claim during exploration without becoming a separate mandatory phase.
+Build a provisional whole-system view, then use a heading, subheading, or related
+group of sections as the normal work unit. Investigate, compare approaches and
+prototype while the engineer develops rough notes, diagrams or pseudocode in
+the same Draft. AI may prepare known background, a tentative outline, candidate
+sketches and prototype code; either participant may write or modify experiments.
+Support the engineer's trial and revision rather than making reading and
+approving AI-generated prose the main exploration activity. Do not require a
+blank-page draft, polished human prose, a coding quota, or a fixed first speaker.
+
+Edit the affected sections from that work, preserving intent, rationale and
+uncertainty. Return new assumptions or material design choices to exploration;
+do not fill them in as settled decisions while polishing. Show the changed
+sections or a useful diff by default instead of regenerating the whole document
+each turn. Reconnect changes to the whole-system view, major paths and related
+sections. Headings may split, merge or move; a section can remain tentative while
+related work proceeds. This adds no chapter approval or mandatory writing round.
+
+Let either participant originate and revise the framing and hypotheses; the user
+selects material approaches and accepted burdens. Use discussion and questions
+to support this work, honoring the user's pacing without a one-question rule,
+an idea quota, or a requirement to end every reply with a question. Reason about
+whole paths, composed guarantees and changed conditions, not just assent or
+settled branch lists. Grilling is a supporting tool, not the central format.
 
 Validate uncertain claims frequently: concrete scenarios, source/API checks,
 isolated PoCs, traces, or measurements as appropriate. Run available lightweight
@@ -99,9 +113,10 @@ decisions and the Draft on re-entry; never narrow requirements to fit a mechanis
 ## Develop a reader-oriented explanation
 
 Recover the user's purpose, background, and priorities from the existing
-requirements, model alignment, and discussion. Require no human-written prose
-or repeated explanation. Ask about a specific unrecoverable gap rather than
-inventing a generic pain story.
+requirements, model alignment, and discussion. AI can write that known foundation;
+do not ask the user to repeat it. Accept rough human drafting as part of design
+work without requiring polished prose or a separate submission. Ask about a
+specific unrecoverable gap rather than inventing a generic pain story.
 
 For a new document, normally begin with a short Context draft and a compact
 outline of what readers will learn and in what order. Use feedback to refine
@@ -114,7 +129,9 @@ Scale detail to significant decisions and future readers' needs. Connect the
 mechanism, rationale, and material consequences. Identify requirements,
 observable specifications, and established constraints with their exact
 surviving authorities in Context and scope. Keep them distinct from design
-proposals and choices. Preserve the user's prose unless an edit is requested.
+proposals and choices. Within the agreed editing scope, polish the user's notes
+and prose while preserving their meaning and reasons; honor any request to keep
+wording verbatim. Editorial fluency does not authorize new design decisions.
 
 Build each substantial explanation from what the reader already understands
 to the understanding the next passage needs. Apply the writing guide's
@@ -143,25 +160,22 @@ signatures, or representations only when a material guarantee or compatibility
 obligation depends on them; leave representation choices that preserve the design to
 implementation. Reference maintained definitions rather than exhaustive copies.
 
+Explain module APIs as a coherent caller-facing boundary: role and consumers,
+representative types and operations, meaningful usage, guarantees and caller
+obligations, and the reasons for that shape. Keep the declarations and their
+semantics close enough to read together. Use this explanatory progression
+without imposing a fixed subsection set; leave unsettled lifecycle or failure
+choices visible instead of filling them in with plausible type names.
+
 ## Template
 
-```markdown
-# [Design Doc] Title
-
-## Context and scope
-
-### Goals
-
-### Non-goals
-
-## Overview
-
-## Detailed design
-
-## Cross-cutting concerns
-
-## Alternatives considered
-```
+Use [assets/design-doc-template-ja.md](assets/design-doc-template-ja.md) as an
+output scaffold, adapting its language and headings to the project. Keep useful
+guidance visible while drafting a section; it is not a questionnaire to complete
+before work can start. Rough writing and open questions belong in the affected
+sections. Consolidate them as decisions develop, and remove superseded drafting
+prompts and empty placeholders before final presentation without losing reasons,
+evidence or accepted deferrals. Do not copy the finished example's decisions.
 
 The detailed design should explain architecture, state transitions, invariants, public interfaces, schemas, error models, and trade-offs when those are part of the contract. Leave private helper structure and step-by-step implementation to code and the implementation plan.
 

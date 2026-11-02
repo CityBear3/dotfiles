@@ -55,10 +55,17 @@ Resolve planned-path entry in this order:
 7. Let `design-doc` own Architecture Exploration and the evolving Draft as one
    loop. Its purpose is for the human to construct the design as an architect
    and retain a model they can use to explain, predict, and revise it. Both
-   participants shape the framing and structure. Work on a coherent slice using
-   discussion, diagrams, conceptual sketches, writing, or experiments as useful;
-   impose neither one-question progression nor batched rounds. Grilling is a
-   supporting way to scrutinize a premise or guarantee, not the central format.
+   participants shape the framing and structure. Normally work by heading,
+   subheading or connected group of sections, using the guided template for a
+   new Draft when suitable. Investigate, compare and prototype while the
+   engineer develops rough notes, diagrams or pseudocode; AI may prepare the
+   foundation and either participant may write or modify prototype code. AI
+   edits the affected sections and returns new material choices to exploration.
+   Reconnect changes to the whole-system view and major paths; the outline stays
+   provisional. Do not make reading and assenting to generated prose the main
+   activity, impose human-writing/coding quotas, or add chapter approval. Use
+   discussion and questions as support without fixed rounds. Grilling may
+   scrutinize a premise or guarantee, not become the central format.
    Validate uncertainties frequently through proportionate scenarios,
    counterexamples, source/API checks, isolated PoCs, or measurements within
    authorized scope. Share consequential predictions, observations,
