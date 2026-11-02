@@ -122,13 +122,25 @@ continuous-reading check to actual transitions and revise missing links;
 formatting compliance alone does not establish this continuity. Use that
 diagnostic without per-paragraph role labels or another human approval step.
 
+Show the major module/package hierarchy at the design scope with a tree or
+equivalent structural view, mapped to the relevant source files/directories.
+Identify each boundary's responsibilities, API owner, consumers, visibility,
+supported access/re-export paths, and source dependency direction. Distinguish
+a parent module file from its child files, and API ownership from the location
+of underlying definitions. Explain the chosen boundaries and which structural
+relationships or paths the design fixes; leave local helper structure flexible.
+
 Explain both communication APIs and module/library function or type APIs, and
 persistent and domain/type models when significant. Show conceptual models and
 major abstractions with focused diagrams, tables, or short signatures, including
-ownership, relationships, invariants, and consumer obligations. Distinguish
-explanatory names from exact declarations. Use exact types, signatures, or
-representations only when a material guarantee or compatibility obligation
-depends on them; leave representation choices that preserve the design to
+ownership, relationships, invariants, and consumer obligations. Describe each
+major API in the form selected by the design. For Rust, show the significant
+part of a trait declaration when a trait defines the boundary; otherwise show
+function signatures or the type's public operations. Do not introduce a trait
+solely to document a contract. Distinguish conceptual sketches and explanatory
+names from declarations the implementation must follow. Use exact types,
+signatures, or representations only when a material guarantee or compatibility
+obligation depends on them; leave representation choices that preserve the design to
 implementation. Reference maintained definitions rather than exhaustive copies.
 
 ## Template
@@ -229,6 +241,9 @@ For both human- and AI-authored material, check:
 - alternatives include the reason they were rejected;
 - the overview establishes the system's major responsibilities, boundaries,
   and relationships so readers can place the detailed decisions;
+- the major module hierarchy, relevant source mapping, API owners, supported
+  access paths, and source dependencies are explicit and consistent with
+  the interface descriptions;
 - important models and module/API contracts can be reconstructed from the
   document, with ownership, invariants, and caller obligations explicit;
 - ordering, asynchronous handoffs, and concurrency important to the design are
