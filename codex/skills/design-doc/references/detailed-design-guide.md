@@ -46,6 +46,11 @@ boundary, or the public operations of a concrete type/module otherwise. Locate
 it in the module structure with its owner and supported access path. An operation
 inventory alone does not explain why the boundary exists.
 
+Keep the module's role, representative type/operation declarations, use sequence,
+guarantees, caller responsibilities and rationale connected. Follow the
+[caller-oriented API explanation](writing-guide.md#explain-a-module-api-from-the-callers-perspective)
+for presentation without imposing a fixed subsection set on every operation.
+
 ### Data Model
 
 - Distinguish persistent models (such as database entities and schemas) from
