@@ -73,11 +73,16 @@ blank-page draft, polished human prose, a coding quota, or a fixed first speaker
 
 Edit the affected sections from that work, preserving intent, rationale and
 uncertainty. Return new assumptions or material design choices to exploration;
-do not fill them in as settled decisions while polishing. Show the changed
-sections or a useful diff by default instead of regenerating the whole document
-each turn. Reconnect changes to the whole-system view, major paths and related
-sections. Headings may split, merge or move; a section can remain tentative while
-related work proceeds. This adds no chapter approval or mandatory writing round.
+do not fill them in as settled decisions while polishing. Before AI creates or
+edits a Design Doc, show the proposed sections or a useful diff in the
+conversation and wait for the user's confirmation to write. Reuse confirmation
+already given for that exact text or edit without asking again. This authorizes
+the presented edit; holistic design approval remains the exact whole-document
+approval below. Keep previews focused on the affected sections rather than
+regenerating the whole document each turn. Reconnect changes to the whole-system
+view, major paths and related sections. Headings may split, merge or move; a
+section can remain tentative while related work proceeds. This adds no
+chapter-level design approval or fixed writing round.
 
 Let either participant originate and revise the framing and hypotheses; the user
 selects material approaches and accepted burdens. Use discussion and questions
@@ -171,11 +176,14 @@ choices visible instead of filling them in with plausible type names.
 
 Use [assets/design-doc-template-ja.md](assets/design-doc-template-ja.md) as an
 output scaffold, adapting its language and headings to the project. Keep useful
-guidance visible while drafting a section; it is not a questionnaire to complete
-before work can start. Rough writing and open questions belong in the affected
-sections. Consolidate them as decisions develop, and remove superseded drafting
-prompts and empty placeholders before final presentation without losing reasons,
-evidence or accepted deferrals. Do not copy the finished example's decisions.
+guidance visible while drafting a section, using labeled blockquotes or another
+clearly distinct annotation for temporary writing aids. Follow the writing
+guide's distinction between these aids and design content. The guidance is not
+a questionnaire to complete before work can start. Rough writing and open
+questions belong in the affected sections. Consolidate them as decisions
+develop, and remove superseded drafting prompts and empty placeholders before
+final presentation without losing reasons, evidence or accepted deferrals. Do
+not copy the finished example's decisions.
 
 The detailed design should explain architecture, state transitions, invariants, public interfaces, schemas, error models, and trade-offs when those are part of the contract. Leave private helper structure and step-by-step implementation to code and the implementation plan.
 
@@ -272,9 +280,10 @@ For both human- and AI-authored material, check:
 Present the exact complete document for user approval as the one holistic design
 approval. A snapshot, editorial exchange, individual choice, or successful PoC
 does not replace it. Mechanical consolidation or meaning-preserving clarification
-before final approval adds no separate gate. A new material design question
-resumes this skill's loop and invalidates affected readiness; an input change
-returns to the appropriate activity through the coordinator.
+follows the same preview and write-confirmation rule and adds no further design
+approval. A new material design question resumes this skill's loop and
+invalidates affected readiness; an input change returns to the appropriate
+activity through the coordinator.
 
 ## Transfer design authority
 

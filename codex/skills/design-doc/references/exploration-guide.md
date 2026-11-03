@@ -3,6 +3,8 @@
 Use this guide inside `design-doc` after the shared-model checkpoint. The
 working Draft is the canvas for architecture, explanation, and validation;
 Design Readiness is required for final approval, not for opening the Draft.
+Before AI writes its foundation, rough notes or revisions, follow the skill's
+[preview and write-confirmation rule](../SKILL.md#explore-validate-and-write-together).
 
 ## Start from a provisional whole-system view
 
@@ -45,7 +47,7 @@ Choose a heading, subheading or connected group
 Investigate, compare and prototype; write rough notes while doing so
     |
     v
-AI edits the affected sections and checks consequences
+AI previews edits; writes after confirmation and checks consequences
     |   Return to exploration or rough writing for new questions
     v
 Reconnect changes to the whole view, major paths and related sections
@@ -92,10 +94,13 @@ with their reasons in Alternatives considered; avoid duplicating their evolving
 explanations. Do not invent a rationale or settle a material assumption to make
 the prose look complete. Bring such questions back to exploration.
 
-Normally present the changed sections or a useful diff. Do not regenerate or
-require rereading the entire document after each local edit. Full-document
-presentation still applies at final approval. Guide text is a writing aid, not
-a questionnaire or evidence that every prompted concern applies to the project.
+Present the proposed sections or a useful diff before writing under the skill's
+write-confirmation rule. Do not regenerate or require rereading the entire
+document after each local edit. Full-document presentation still applies at
+final approval. Keep temporary writing aids visually distinct as described in
+the [writing guide](writing-guide.md#develop-the-explanation-with-the-user).
+Guide text is a writing aid, not a questionnaire or evidence that every prompted
+concern applies to the project.
 
 ### Reconnect the result to the whole
 
