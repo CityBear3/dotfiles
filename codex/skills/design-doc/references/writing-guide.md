@@ -36,12 +36,14 @@ manual, mandatory concern list or fixed project architecture.
 Work by heading, subheading or connected group of sections. The engineer may
 write bullets, diagrams, pseudocode or unfinished prose while investigating,
 comparing and trying approaches; AI may prepare foundations and edit from that
-work. Refine wording and structure in the affected sections, presenting those
-sections or a useful diff by default. Do not make rereading a complete generated
-document the normal editing interaction. Connect changes back to the whole;
-split, merge or reorder headings when helpful. This adds no chapter approval,
-fixed writing round or requirement that the engineer draft before AI can help.
-Honor an explicit request for the complete document, including final approval.
+work. Preview the proposed wording and structure as affected sections or a
+useful diff before writing, following the skill's
+[preview and write-confirmation rule](../SKILL.md#explore-validate-and-write-together).
+Do not make rereading a complete generated document the normal editing
+interaction. Connect changes back to the whole; split, merge or reorder headings
+when helpful. Write confirmation adds no chapter-level design approval, fixed
+writing round or requirement that the engineer draft before AI can help. Honor
+an explicit request for the complete document, including final approval.
 
 After Model Aligning, use the evolving Draft to explore architecture; writing
 does not wait for all design choices to settle. Plan the explanation around
@@ -63,11 +65,16 @@ revise the framing and the model while doing this; an explanation assembled from
 approved choices alone may still lack those connections. Preserve the material
 reasoning and evidence so the model remains usable beyond the conversation.
 
-Template guidance can remain visible while working on a section. Before final
-presentation, remove superseded prompts and empty scaffolding, consolidating
-useful notes into the explanation or surviving evidence references. Preserve
-material reasons, constraints, evidence limits and accepted deferrals rather
-than treating cleanup as permission to discard unfinished or inconvenient work.
+Template guidance can remain visible while working on a section. Put temporary
+writing aids, such as section prompts or reminders to write something after a
+discussion, in labeled Markdown blockquotes (for example, `> **執筆メモ**: ...`)
+or another clearly separated annotation. Keep this authoring guidance visually
+distinct from design prose, including tentative proposals, open design questions
+and evidence. Before final presentation, remove superseded prompts and empty
+scaffolding, consolidating useful notes into the explanation or surviving
+evidence references. Preserve material reasons, constraints, evidence limits and
+accepted deferrals rather than treating cleanup as permission to discard
+unfinished or inconvenient work.
 
 ## Chapter purposes
 

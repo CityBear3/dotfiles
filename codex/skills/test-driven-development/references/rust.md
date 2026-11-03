@@ -4,32 +4,38 @@ Use this reference when writing or restructuring Rust tests.
 
 ## Choose the test boundary
 
-- Keep module or component behavior in unit tests, including behavior that creates files or inspects filesystem side effects.
-- Place unit tests in an inline `#[cfg(test)] mod tests` within the implementation
-  file or in a descriptive sibling file such as `parser_tests.rs`. Choose the
-  layout that makes the implementation and tests easiest to read together,
-  respecting repository guidance and the existing layout. Do not require
-  extraction into a separate file or use a fixed line-count threshold.
-- When using a separate test file, connect it explicitly:
+Follow repository guidance and the approved design before these personal
+defaults. Choose placement by the behavior being verified:
+
+| Test boundary | Placement |
+| --- | --- |
+| Behavior through a module's public API | Corresponding `<module>_test.rs` |
+| Internal implementation responsibilities and detailed conditions | Inline in the implementation file, or corresponding `<file_name>_test.rs` |
+| Composed components or a real binary/process journey | Cargo `tests/` targets |
+
+Public API tests verify the module's public contract without depending on its
+internal helpers or representation. Keep internal unit tests near the
+implementation that owns their responsibility. Filesystem use or calling a
+public API alone does not make a test an integration test. Do not widen
+production visibility solely for tests or migrate unrelated existing layouts.
+
+When using a separate sibling test file, connect it from the owning module:
 
 ```rust
 #[cfg(test)]
-#[path = "parser_tests.rs"]
+#[path = "parser_test.rs"]
 mod tests;
 ```
 
-- Exercise the unit through its meaningful public or `pub(crate)` component API. Do not expose private implementation solely for tests.
-- Use Cargo `tests/` targets for a crate's public API, multiple composed components, or a real binary/process journey.
 - Use doctests for concise public API examples. Use `examples/` for representative whole-API usage, and ensure CI runs them when they carry behavior expectations.
 
 ## Write the case
 
-- Give the test a behavioral name that states the condition and expected result.
-- Make Arrange, Act, and Assert visible in the test body.
-- Keep one behavioral viewpoint per test.
-- Prefer DAMP setup in the case over generic fixtures that hide why values matter.
+Use the [shared TDD guidance](../SKILL.md) for Arrange/Act/Assert, one viewpoint
+per test and DAMP setup.
+
+- Give each case a behavioral name stating the condition and expected result.
 - Compare the complete returned value when practical. Add side-effect assertions when the side effect is the viewpoint.
-- For bug fixes, first observe the regression test failing against the unfixed behavior.
 - Do not test facts already guaranteed by Rust's type system.
 
 ## Filesystem and process state

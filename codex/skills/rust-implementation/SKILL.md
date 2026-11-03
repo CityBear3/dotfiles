@@ -21,6 +21,18 @@ Feature Contract, Task Contract, or Implementation Plan.
 - Stop for clarification when applicable authorities conflict and the choice
   would change a public or shared interface, compatibility, or failure behavior.
 
+## Use idiomatic Rust and Effective Rust
+
+Write idiomatic Rust, using [Effective Rust](https://effective-rust.com/) as the
+reference for design and implementation guidance. Consult the items relevant to
+the current decision; reading the entire book for each task is unnecessary.
+Keep the reference and its intent rather than copying its recommendations or
+code examples into a separate rule collection.
+
+For language, standard-library, and version-dependent behavior, consult official
+documentation matching the project's toolchain. Apply the personal conventions
+below within the repository authority established above.
+
 ## Separate definitions visibly
 
 - Put one blank line between adjacent function, struct, enum, trait, and `impl`
@@ -34,27 +46,6 @@ Feature Contract, Task Contract, or Implementation Plan.
 
 One blank line between definitions is this skill's readability default; the
 [Rust Style Guide](https://doc.rust-lang.org/style-guide/) permits zero or one.
-For example:
-
-```rust
-/// Owns a document's original text.
-#[derive(Debug)]
-pub struct Document {
-    text: String,
-}
-
-impl Document {
-    /// Stores text without normalizing whitespace or line endings.
-    pub fn new(text: String) -> Self {
-        Self { text }
-    }
-
-    /// Borrows the original text, including whitespace.
-    pub fn text(&self) -> &str {
-        &self.text
-    }
-}
-```
 
 ## Keep error contracts accurate
 
@@ -90,11 +81,13 @@ abstraction and compatibility requirements.
 - For a new module `foo` with children, prefer `src/foo.rs` plus
   `src/foo/*.rs`. Do not introduce `src/foo/mod.rs` or mix both layouts in the
   same module tree unless repository guidance requires it.
-- Let `foo.rs` own the module boundary: outward-facing types and operations,
-  public errors, child declarations and re-exports, and high-level coordination.
+- Define the module's outward-facing types, traits, operations and errors in
+  `foo.rs` by default, with child declarations and high-level coordination there.
+  This applies to intra-crate module APIs as well as externally visible APIs.
 - Let each `foo/*.rs` child own one cohesive internal responsibility with the
-  narrowest useful visibility. Narrow local failures at the parent operation
-  boundary when required by the selected error contract.
+  narrowest useful visibility, such as `pub(super)` for access by its parent.
+  Narrow local failures at the parent operation boundary when required by the
+  selected error contract.
 - Keep `main.rs` a thin entry adapter, including in binary-only crates. When a
   library exists, keep `lib.rs` focused on top-level declarations and necessary
   stable re-exports. This does not require extracting a library from a binary.
@@ -102,21 +95,33 @@ abstraction and compatibility requirements.
   file-count thresholds or one file per type/function, and do not reorganize
   unrelated existing modules.
 
-For example, a snapshot subsystem can own its reader and writer below a named
-parent, while configuration remains an independent top-level responsibility:
+### Re-export through the parent when justified
 
-```text
-src/
-  main.rs
-  config.rs
-  snapshot.rs
-  snapshot/
-    reader.rs
-    writer.rs
-```
+Definitions may live in a private child and be re-exported by the parent when
+either of these benefits applies:
+
+- Keeping a type, its implementation and internal helpers together improves
+  cohesion and makes changes or invariants easier to follow.
+- It avoids forwarding functions, equivalent duplicate types or value repacking
+  introduced solely to place the public definition in the parent.
+
+Keep the parent as the public entry point and re-export only items appropriate
+to that module's public contract. Internal file splitting should not require
+callers to traverse the child module. Reusing an internal type requires checking
+that exposing it is appropriate; preserve wrappers and conversions that enforce
+validation, meaning or representation hiding. Judge concrete cohesion and
+duplication benefits rather than file or line counts. API additions or changes
+remain separate design decisions from definition placement.
 
 See [Separating Modules into Different Files](https://doc.rust-lang.org/book/ch07-05-separating-modules-into-different-files.html)
-for how module declarations map to this hierarchy.
+for module file layout and [Effective Rust's visibility guidance](https://effective-rust.com/visibility.html)
+for the consequences of exposing implementation details.
+
+## Place tests by their boundary
+
+Before writing or restructuring Rust tests, read the
+[Rust testing guidance](../test-driven-development/references/rust.md) for the
+canonical module API, internal unit-test and integration-test placement rules.
 
 ## Write documentation for readers of the code
 

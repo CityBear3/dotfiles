@@ -11,6 +11,9 @@ This skill explains; it does not edit, approve, or execute the plan.
 
 Resolve the requested plan path. If none is supplied, inspect `docs/plans` and select the clearly current plan; ask only when multiple plausible plans remain.
 
+If the requested file does not exist, or no plan is found, say
+`プランが見つかりません` and stop.
+
 Require coordinator evidence that identifies the exact approved content and
 confirms repository currentness before calling any artifact or task current and
 approved. A `Status: Approved` field, file existence, Git history, or conversation

@@ -4,14 +4,14 @@ Language-specific idioms and pitfalls to inform reviewer hunts. Use these as sta
 
 ## Robustness
 
-- Bare `except:` or `except Exception:` — catches too much, including `KeyboardInterrupt`, `SystemExit`; prefer specific types
+- Bare `except:` catches all exceptions, including `KeyboardInterrupt` and `SystemExit`. `except Exception:` catches ordinary exceptions but excludes those direct `BaseException` subclasses; prefer specific types when the recovery contract allows.
 - Mutable default arguments — `def f(x=[]):` shares the list across calls; canonical bug
 - Missing `await` on a coroutine — `asyncio.run(f())` works but `f()` alone returns a coroutine object silently
 - Type hints vs runtime — `def f(x: int) -> str:` is not enforced at runtime; consider `pydantic` / `mypy --strict` on boundaries
 - File / connection leaks — use `with` statements; `open(...)` without `with` lasts until GC
 - Context manager `__exit__` swallowing exceptions — `return True` from `__exit__` silently suppresses
 - `dict.get(k)` returns `None` for missing keys — vs `dict[k]` raising `KeyError`; pick the right one
-- Iterator exhaustion: `list(map(f, xs))` after `for x in map(f, xs):` — the second iteration is empty
+- Iterator exhaustion: consuming the same `map` object again yields no values. A fresh `map(f, xs)` can iterate a reusable source such as a list again; an already exhausted source iterator remains empty.
 
 ## Function/type API contracts
 
