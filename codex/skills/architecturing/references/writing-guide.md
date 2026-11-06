@@ -32,8 +32,12 @@ requested. Normally begin with known Context, Goals, Non-goals, an outline and
 clearly separated writing prompts. Do not populate a new Draft with provisional
 designs or unorganized opinions; work through them in the design loop and
 consolidate organized findings. Leave unexamined decisions open. Reuse an
-existing suitable Draft or agreed framing. The template is an output scaffold, not another instruction
-manual, mandatory concern list or fixed project architecture.
+existing suitable Draft or agreed framing. Initially Detailed design contains
+only its chapter heading and a short writing guide. Add its subsections from
+the actual questions that emerge in exploration; keep module/API, state and flow
+coverage dimensions in the skill's references as applicable checks. The template
+is an output scaffold, not another instruction manual, mandatory concern list
+or fixed project architecture.
 
 Work by heading, subheading or connected group of sections. The engineer may
 use bullets, diagrams, pseudocode or unfinished prose while investigating,
@@ -86,7 +90,7 @@ unfinished or inconvenient work.
 | Context and scope | The problem, relevant background, scope, and requirements/specifications/established constraints that inform the design. Link to their originals and summarize the inputs needed to judge this design. |
 | Goals and Non-goals | The outcomes this design serves and plausible adjacent outcomes explicitly outside its scope. Keep these lists short. |
 | Overview | The central approach first, followed by its reason, major boundaries, and a representative path. Readers can place later decisions without first reconstructing implementation details. |
-| Detailed design | An opening that orients the reader to the design question and approach, followed by connected explanations of mechanisms, models, contracts, invariants, reasons, conditions, and consequences. Use a decision map when it helps navigation. |
+| Detailed design | Important properties or decision criteria, what makes them difficult to achieve, and the central approach; then how the mechanisms address those difficulties, with reasons, contracts and accepted constraints. |
 | Cross-cutting concerns | How this design addresses applicable concerns such as security, performance, operation, migration, and verification. Explain design-specific effects and responses rather than generic checklists. |
 | Alternatives considered | The viable alternatives, their benefits, and why the selected approach better serves the goals, including burdens accepted with that choice. |
 
@@ -125,24 +129,27 @@ expand every chapter into a complete specification.
 
 ### Orient the Detailed design chapter
 
-Start with a brief explanation of what readers will understand and how it
-relates to the approach already introduced in Overview. Choose an opening that
-helps develop that understanding: a concise decision roadmap can aid
-navigation, while relevant constraints, criteria, or a real trade-off can
-explain why the mechanisms that follow are needed. Do not invent a conflict to
-fit a rhetorical pattern or withhold the central approach to build suspense.
+Establish the properties or decision criteria that matter to this design, then
+explain which constraints, interactions or trade-offs make them difficult to
+achieve. Introduce the central approach, connected to Overview, before developing
+its mechanisms in the sections that follow. Each section should make clear which
+part of the problem it addresses, how its mechanism works, why it was chosen and
+what constraints or consequences it carries.
 
-Make a list's role clear. A roadmap points to later decisions; a set of criteria
-needs interpretation before it can justify a choice. The reference article's
-initial list establishes desired properties and their tension, rather than a
-universal roadmap template. When using a roadmap, give its items meaningful
-decisions rather than labels such as "API" and "Data", and match the sections
-that follow. In a Draft, identify unresolved approaches as proposals or
-questions. A small chapter may need only a framing paragraph.
+The reference article demonstrates this progression by establishing desired
+properties, explaining their tension and showing how the approach helps. Use
+natural prose, lists or diagrams to develop the same connection; do not require
+headings called "important properties" or "difficulties", a fixed list length,
+or a roadmap in every subsection. A small chapter may establish the connection
+in one framing paragraph. Make lists' roles and their implications explicit.
 
-Develop reasons, mechanisms, and consequences from that opening. Neither a
-roadmap nor another opening pattern is required in every subsection. Add no
-fixed item count or approval exchange for the choice of presentation.
+Ground the difficulty in actual requirements, constraints or evidence. Do not
+invent a conflict or withhold the central approach to build suspense. A Draft
+keeps unknown difficulties and unresolved approaches as open questions or
+proposals. Add subsections as real design questions emerge rather than starting
+from a generic module/API/data/flow outline. The coverage dimensions remain
+applicable checks, not mandatory output headings. Add no presentation approval
+gate or fixed paragraph count.
 
 ## Organize around design questions
 

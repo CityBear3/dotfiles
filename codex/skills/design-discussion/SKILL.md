@@ -11,7 +11,7 @@ under user control. Act as an investigator and sounding board.
 ## Establish inputs and select the phase
 
 Accept from `agentic-engineering-workflow` the planned route, confirmed
-workspace, repository identity and evidence, input/alignment-record location, exact
+workspace, repository identity and evidence, resume-checkpoint location, exact
 existing authority and its currentness, and unresolved evidence. Do not persist
 a material decision until the coordinator has confirmed the checkout, branch,
 and starting ref.
@@ -60,7 +60,7 @@ Consolidate newly defined requirements and observable specifications in
 requirements location. When creating one, read
 [requirements-format.md](references/requirements-format.md). Use a durable,
 feature-scoped source when no project convention exists; do not make the ignored
-decision record the only surviving requirements source. Drafting does not
+checkpoint the only surviving requirements source. Drafting does not
 authorize staging, publication, or updates to an external PBI or specification.
 
 Reuse readable existing PBI items and specifications as originals. Do not
@@ -149,36 +149,44 @@ Reopen only a missing or changed branch and the settled decisions whose meaning
 depends on it. For already-approved work governed by an earlier workflow,
 retain its exact design authority under the coordinator's continuation rules.
 
-## Preserve pre-design inputs and alignment
+## Save the current input/alignment checkpoint
 
 For planned discussion with unresolved requirements or model understanding not
-fully covered by exact current approved authority, create the ignored workspace
-artifact `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-confirmation and before presenting a requirements proposal or provisional model.
-Do not omit it because the discussion is expected to be short or duplicate exact
-approved coverage solely for ceremony.
+fully covered by exact current approved authority, save the ignored workspace
+artifact `docs/plans/YYYY-MM-DD-<feature>/checkpoint.md` after workspace
+confirmation. Create or refresh it at alignment completion, phase handoffs and
+planned interruptions; do not require it before the first requirements proposal
+or provisional model. Reuse current approved coverage without manufacturing a
+duplicate checkpoint.
 
-Use this record for repository and authority identity, current conceptual phase,
-checkpoint and alignment result, user-stated intent, and material input claims
-classified as confirmed, evidence-backed, inferred, or unresolved. Keep
-requirements, observable specifications, established constraints, current-system
-facts, pending product choices, and pending realization choices distinct. Retain
-source references, revisions/currentness, applicable scope, rationale for
-user-selected input changes, and accepted input deferrals with intent and impact.
-An Agent proposal is not a selected input, and file existence is not approval.
+Keep only the current state needed to resume:
+
+- repository/workspace identity, current phase and aligned scope/result;
+- exact requirements/specification/constraint sources, their revisions or
+  observation points, applicable scope and currentness;
+- unresolved understanding questions, pending product choices separate from
+  realization choices, and references to accepted deferrals and their impacts;
+- the next action, evidence or user decision needed to advance.
+
+Refresh this state rather than append a conversation or decision history. Keep
+requirements and user-selected changes with their rationale in their originals
+or agreed supplements, and refer to them here. Distinguish facts, inference,
+proposals and settled inputs in discussion and the relevant sources; do not
+duplicate their full contents in the checkpoint. File existence is not approval.
 
 Newly defined requirements/specifications need a durable original or supplement;
-the ignored record is not their only surviving source. Keep metadata for
+the ignored checkpoint is not their only surviving source. Keep metadata for
 read-only existing sources without editing the originals.
 
 After Model Aligned, keep evolving architecture, alternatives, design rationale,
 experiment evidence, and design questions in the Draft owned by `architecturing`, not
-in a second architecture section here. The input record remains available through
-final Design Doc approval and the preservation check. On input re-entry, update
-only affected input claims and alignment, then return them to the same Draft
-loop. Preserve unaffected alignment and settled design coverage.
+in the checkpoint. Refer to the Draft from its handoff. Keep the checkpoint
+available through final Design Doc approval and the preservation check. On input
+re-entry, update affected originals/supplements and the checkpoint's alignment
+state, then return them to the same Draft loop. Preserve unaffected alignment
+and settled design coverage.
 
-After interruption, recheck repository identity, source currentness, record, and
+After interruption, recheck repository identity, source currentness, checkpoint, and
 any existing Draft handoff. Resume at the phase whose exit conditions remain
 satisfied; a summary or file presence cannot establish alignment or approval.
 
@@ -196,7 +204,7 @@ Reuse exact, current, approved coverage without repeating its decisions or
 approval. A short Design Doc can suffice; do not expand scope to fill it. The
 coordinator's [output policy](../agentic-engineering-workflow/references/planned.md#deliver-the-design-doc)
 owns final approval, preservation, and subsequent Feature Contract approval.
-This skill does not derive a contract from the input record or enter planning.
+This skill does not derive a contract from the checkpoint or enter planning.
 
 Scale alignment to the problem: a small change may take one exchange; a broad
 system needs a coarse complete input map, focused questions, and a checkpoint
@@ -206,7 +214,7 @@ implement from this skill.
 ## Handoff
 
 Return the current conceptual phase, confirmed repository/workspace and exact
-source identities/currentness, input-record location, working-model alignment
+source identities/currentness, resume-checkpoint location, working-model alignment
 state, aligned requirements/specifications/constraints and their sources,
 unresolved understanding questions, pending product choices separate from
 realization choices, accepted input deferrals and impacts, relevant discovery

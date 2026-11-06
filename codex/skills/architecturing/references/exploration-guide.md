@@ -198,10 +198,10 @@ without requiring a state engine or a label on every sentence. Only an explicit
 user choice settles a material decision; a polished explanation or passing PoC
 does not. A deferral requires the user's acceptance of its intent and impact.
 
-The pre-design `decision-record.md` retains input/alignment history and exact
-source identities. Do not maintain a second evolving architecture there. Link
-its aligned inputs into the Draft; requirements originals and agreed
-supplements remain independent input authority. Keep the record until the
+The input/alignment `checkpoint.md` retains the latest resume state and exact
+source references. Keep requirements in their originals or agreed supplements,
+and evolving architecture in the Draft. Link those sources rather than copy
+their contents into the checkpoint. Keep the checkpoint until the
 final approval and preservation check, even though architecture updates now
 live in the Draft.
 
@@ -220,6 +220,6 @@ and design slices after re-alignment.
 
 Do not redefine the required result or narrow scope to make a preferred
 mechanism succeed. After interruption, recheck repository/authority identity,
-the working Draft, input record, and pending evidence. Resume from the earliest
+the working Draft, resume checkpoint, and pending evidence. Resume from the earliest
 activity whose conditions still hold. Draft existence is not alignment,
 readiness, approval, or authorization to implement.

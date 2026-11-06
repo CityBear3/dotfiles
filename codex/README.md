@@ -45,7 +45,11 @@ architecture exploration and writing loop:
   sources enter here directly; new product choices return to exploration.
 - **Architecture Exploration through a Draft Design Doc:** after Model Aligning,
   create the Draft from known context and an outline, without provisional
-  designs or unorganized opinions. Explore these in the design loop and write
+  designs or unorganized opinions. Detailed design initially has only its heading
+  and a short guide; its subsections emerge from actual design questions. Explain
+  important properties, what makes them difficult to achieve, and the central
+  approach, then develop the mechanisms and reasons in those sections.
+  Explore proposals in the design loop and write
   organized results into the evolving Draft, developing significant responsibility,
   dependency, API, and model choices. Human and AI both shape and test
   the framing and structure, including how their interactions establish the
@@ -58,10 +62,12 @@ architecture exploration and writing loop:
 The Draft is the single architecture work product, distinguishing proposals,
 settled choices, evidence and limits, and open questions. `Design Ready` means
 ready for final whole-document approval, not permission to start drafting.
-The temporary decision record retains pre-design inputs and model alignment;
-requirements originals, supplements, and relied-on evidence survive its
-retirement after approval and a preservation check. Feature Contracts and
-Implementation Plans turn the design into authorized execution, followed by
+The temporary `checkpoint.md` retains the current input/alignment resume state
+and source references at alignment completion, handoffs and planned interruptions.
+Requirements originals, supplements, and relied-on evidence survive its
+retirement after approval and a preservation check. An exact pre-finalization
+Draft snapshot separately supports that preservation comparison. Feature Contracts
+and Implementation Plans turn the design into authorized execution, followed by
 the autonomous implementation, verification, review, and correction loops.
 See the [planned workflow](skills/agentic-engineering-workflow/references/planned.md)
 for transitions and approvals.
