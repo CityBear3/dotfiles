@@ -28,16 +28,18 @@ unrecoverable gap rather than asking the user to repeat the whole story.
 For a new document, adapt the
 [guided Japanese template](../assets/design-doc-template-ja.md), including its
 what-to-write and how-to-start guidance. Translate it when another language is
-requested. Normally begin with known Context and a tentative whole-system view
-and outline; leave unexamined decisions open. Reuse an existing suitable Draft
-or agreed framing. The template is an output scaffold, not another instruction
+requested. Normally begin with known Context, Goals, Non-goals, an outline and
+clearly separated writing prompts. Do not populate a new Draft with provisional
+designs or unorganized opinions; work through them in the design loop and
+consolidate organized findings. Leave unexamined decisions open. Reuse an
+existing suitable Draft or agreed framing. The template is an output scaffold, not another instruction
 manual, mandatory concern list or fixed project architecture.
 
 Work by heading, subheading or connected group of sections. The engineer may
-write bullets, diagrams, pseudocode or unfinished prose while investigating,
-comparing and trying approaches; AI may prepare foundations and edit from that
-work. Preview the proposed wording and structure as affected sections or a
-useful diff before writing, following the skill's
+use bullets, diagrams, pseudocode or unfinished prose while investigating,
+comparing and trying approaches; AI may prepare foundations and organize that
+material before adding it to the Draft. Preview the proposed wording and
+structure as affected sections or a useful diff before writing, following the skill's
 [preview and write-confirmation rule](../SKILL.md#explore-validate-and-write-together).
 Do not make rereading a complete generated document the normal editing
 interaction. Connect changes back to the whole; split, merge or reorder headings
@@ -49,7 +51,8 @@ After Model Aligning, use the evolving Draft to explore architecture; writing
 does not wait for all design choices to settle. Plan the explanation around
 what the reader needs to understand next, rather than the chronology or
 prominence of topics in the conversation. Expand the refined framing with
-settled choices and clearly provisional proposals or open questions. Develop
+organized exploration results, settled choices, considered alternatives and
+open questions. Develop
 realization choices with the user in the same loop; return new product choices
 or input-meaning gaps through the coordinator to the appropriate earlier phase.
 Do not silently settle a choice while editing or invent a reason to complete a

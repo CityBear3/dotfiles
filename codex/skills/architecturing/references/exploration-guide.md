@@ -1,24 +1,27 @@
 # Explore architecture through the Design Doc
 
-Use this guide inside `design-doc` after the shared-model checkpoint. The
+Use this guide inside `architecturing` after the shared-model checkpoint. The
 working Draft is the canvas for architecture, explanation, and validation;
 Design Readiness is required for final approval, not for opening the Draft.
-Before AI writes its foundation, rough notes or revisions, follow the skill's
+Before AI writes its foundation, organized findings or revisions, follow the
+skill's
 [preview and write-confirmation rule](../SKILL.md#explore-validate-and-write-together).
 
-## Start from a provisional whole-system view
+## Start from known inputs and a document outline
 
 Recover aligned requirements, observable specifications, constraints and exact
-existing decisions. Open the one working Draft with a coarse view of the whole
-design, a tentative outline and unresolved architectural questions. Adapt the
+existing decisions. Open the one working Draft with known Context, Goals,
+Non-goals, an outline and clearly separated writing prompts. Do not pre-fill
+it with provisional designs or unorganized opinions. Adapt the
 [guided Japanese template](../assets/design-doc-template-ja.md) for a new Draft;
 reuse a suitable existing document without imposing another scaffold.
 
 AI may populate known Context, Goals, Non-goals and constraints from aligned
-sources, and offer tentative structures or candidate sketches. Keep unexamined
-choices open instead of producing a complete narrative ahead of the engineer's
-exploration. Do not require the engineer to supply a blank-page design. Neither
-the first speaker nor the number of ideas is fixed.
+sources. Develop a whole-system view and compare candidate structures in the
+design loop, then write organized findings into the affected sections. Keep
+unexamined choices open instead of producing a complete narrative ahead of the
+engineer's exploration. Do not require the engineer to supply a blank-page
+design. Neither the first speaker nor the number of ideas is fixed.
 
 The overall design scope stays visible throughout section work. Revisit the
 framing and decomposition when evidence changes them; a decision tree or an
@@ -38,17 +41,17 @@ The normal flow is:
 Model Aligned
     |
     v
-Provisional whole-system view and outline in the Draft
+Known inputs, outline and writing prompts in the Draft
     |
     v
 Choose a heading, subheading or connected group
     |
     v
-Investigate, compare and prototype; write rough notes while doing so
+Explore the whole view and section questions; compare and prototype
     |
     v
-AI previews edits; writes after confirmation and checks consequences
-    |   Return to exploration or rough writing for new questions
+AI previews organized results; writes after confirmation and checks consequences
+    |   Return to exploration for new questions
     v
 Reconnect changes to the whole view, major paths and related sections
     |   Return to section work for remaining questions or inconsistencies
@@ -71,14 +74,16 @@ question, with sources available for inspection. Do not make a long AI research
 report a prerequisite for further work. Use the proportional validation rules
 below; not every design decision requires a code experiment.
 
-### Write rough notes during exploration
+### Consolidate exploration results
 
-Use the affected Draft sections for candidate approaches, comparison criteria,
-observations, reasons, uncertainties and changes to the current design. Bullets,
-diagrams, pseudocode or unfinished prose are enough. Writing may precede a probe,
-continue during it or expose the next question; these are not serial phases.
+Use the design loop for provisional ideas and unorganized opinions. Rough notes,
+diagrams and pseudocode can support discussion and experiments without becoming
+initial Draft content. Organize the considered approaches, comparison criteria,
+observations, reasons, uncertainties and resulting changes before adding them
+to the affected Draft sections. Writing may expose the next question; it does
+not wait for every architectural choice to settle.
 
-AI can prepare the document foundation and help capture or extend notes within
+AI can prepare the document foundation and help organize findings within
 the agreed scope. Support the engineer's own drafting and trial-and-error as
 normal design work without requiring polished human prose, a submission before
 each edit, or repeated explanations of aligned inputs. If the engineer has no

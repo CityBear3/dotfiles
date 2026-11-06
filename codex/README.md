@@ -8,6 +8,13 @@ The purpose of this design workflow is:
 
 > 人間がアーキテクトとして設計を組み立て、その理解を持ち続けること
 
+We call this approach **Architecturing**: engineer and AI jointly build the
+system's structure through a Design Doc. The spelling is intentional. Compared
+with `Architecting`, we chose `Architecturing`, including `turing`, to express
+the sense of structure taking shape together. Architecturing names the method,
+`architecturing` names the skill, and Design Doc remains the design artifact.
+Existing phase names, including `Architecture Exploration`, remain unchanged.
+
 Human and AI jointly develop a model the engineer can use to explain the
 system, predict its behavior, and reason about changes. An interview can expose
 assumptions and align instructions, but agreeing to recommendations or covering
@@ -16,9 +23,16 @@ is the central work; grilling is a supporting technique for scrutinizing
 premises and guarantees. Questions, sketches, writing, and experiments are
 chosen for the uncertainty at hand, without a fixed question or round format.
 
+The engineer can bring their own hypotheses, reasons, doubts, alternative
+approaches, and views on both system and document structure. AI supports that
+participation with relevant facts and, when useful, questions. It evaluates
+premises and proposals independently rather than accommodating the engineer's
+opinion. Questions on every turn, advance submission of views, and a fixed first
+speaker are not required.
+
 Planned work separates requirements and shared understanding from architectural
 choices. [`design-discussion`](skills/design-discussion/SKILL.md) owns the first
-two activities; [`design-doc`](skills/design-doc/SKILL.md) owns the integrated
+two activities; [`architecturing`](skills/architecturing/SKILL.md) owns the integrated
 architecture exploration and writing loop:
 
 - **Requirements Exploration:** when what to build is unsettled, explore the
@@ -30,8 +44,10 @@ architecture exploration and writing loop:
   specifications, constraints, and completion conditions. Sufficient existing
   sources enter here directly; new product choices return to exploration.
 - **Architecture Exploration through a Draft Design Doc:** after Model Aligning,
-  start a coarse model and develop significant responsibility, dependency, API,
-  and model choices in the evolving Draft. Human and AI both shape and test
+  create the Draft from known context and an outline, without provisional
+  designs or unorganized opinions. Explore these in the design loop and write
+  organized results into the evolving Draft, developing significant responsibility,
+  dependency, API, and model choices. Human and AI both shape and test
   the framing and structure, including how their interactions establish the
   required guarantees. Validate uncertainties frequently with concrete scenarios,
   source/API checks, small PoCs, or measurements as appropriate, then update
