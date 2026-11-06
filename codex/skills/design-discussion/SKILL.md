@@ -25,7 +25,7 @@ Use `Requirements Exploration` when what to build still needs choices. Skip it
 when existing sources already establish the needed outcomes and behavior;
 partial sources require exploration only of the missing or conflicting slice.
 Use `Model Aligning` to confirm shared understanding of those inputs. After
-`Model Aligned`, hand off through the coordinator to `design-doc` for architecture
+`Model Aligned`, hand off through the coordinator to `architecturing` for architecture
 exploration and Draft coauthoring, even while realization choices remain open.
 Keep the input activities distinct from architectural choices in questions,
 summaries, and records.
@@ -122,7 +122,7 @@ illustrate a missing connection when that helps; an answer need not trigger
 another question. Do not impose a question count, fixed rounds, or an exam.
 Re-synthesize the complete model at a branch boundary or before design choices,
 giving the user enough context to challenge the account. This checkpoint aligns
-inputs; architectural model building continues in `design-doc` afterward.
+inputs; architectural model building continues in `architecturing` afterward.
 
 If answering requires a new outcome, priority, scope, or behavioral choice,
 explicitly return that slice to `Requirements Exploration`. Do not disguise a
@@ -172,7 +172,7 @@ the ignored record is not their only surviving source. Keep metadata for
 read-only existing sources without editing the originals.
 
 After Model Aligned, keep evolving architecture, alternatives, design rationale,
-experiment evidence, and design questions in the Draft owned by `design-doc`, not
+experiment evidence, and design questions in the Draft owned by `architecturing`, not
 in a second architecture section here. The input record remains available through
 final Design Doc approval and the preservation check. On input re-entry, update
 only affected input claims and alignment, then return them to the same Draft
@@ -185,7 +185,7 @@ satisfied; a summary or file presence cannot establish alignment or approval.
 ## Hand off to collaborative design
 
 After the shared-model checkpoint, return the aligned inputs and remaining
-realization questions through `agentic-engineering-workflow` to `design-doc`.
+realization questions through `agentic-engineering-workflow` to `architecturing`.
 Architecture Exploration and Draft writing are one activity owned there; do not
 require settled architecture or Design Readiness before drafting. The Draft
 will carry proposals, selected choices and reasons, alternatives, evidence and
@@ -212,5 +212,5 @@ unresolved understanding questions, pending product choices separate from
 realization choices, accepted input deferrals and impacts, relevant discovery
 evidence/re-entry condition, and target Design Doc create/revise/reuse coverage.
 Do not label remaining realization choices as input gaps or readiness failures.
-Let the coordinator own transitions to the integrated `design-doc` loop and its
+Let the coordinator own transitions to the integrated `architecturing` loop and its
 final approval, preservation, and separate Feature Contract approval.

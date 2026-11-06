@@ -1,9 +1,9 @@
 ---
-name: design-doc
+name: architecturing
 description: Explore architecture and coauthor an evolving Design Doc after model alignment, finalize its approval, then derive the Feature Contract.
 ---
 
-# Design Doc support
+# Architecturing
 
 Keep material architecture, scope, algorithms, public contracts, and trade-offs
 under user control. The purpose is for the human to construct the design as an
@@ -31,11 +31,12 @@ authority while developing the changed slice. A user-authored Draft can be the
 editing starting point, but does not establish alignment or approve its proposals.
 
 After `Model Aligned`, create or revise a working Draft even while architecture
-is unsettled. Start with the known Context, Goals, Non-goals and a coarse
-Overview or question map. Mark the document as Draft and keep tentative
-structures and unresolved questions distinguishable from individually settled
-choices. The coordinator identifies the target; add no whether-to-document
-approval. Drafting and scoped discovery do not authorize production
+is unsettled. Start with known Context, Goals, Non-goals and a useful outline or
+clearly separated writing prompts. Do not put provisional designs or unorganized
+opinions into a new Draft. Explore them in the design loop, then consolidate
+organized findings in the document. Mark it as Draft and distinguish unresolved
+questions from individually settled choices. The coordinator identifies the
+target; add no whether-to-document approval. Drafting and scoped discovery do not authorize production
 implementation, staging, publication, or a Feature Contract.
 
 ## Explore, validate, and write together
@@ -62,11 +63,24 @@ suitable existing Draft instead of replacing it. Consult the
 explanation would help; its assumed design choices are illustrative, not project
 authority or a starting architecture to copy.
 
-Build a provisional whole-system view, then use a heading, subheading, or related
-group of sections as the normal work unit. Investigate, compare approaches and
-prototype while the engineer develops rough notes, diagrams or pseudocode in
-the same Draft. AI may prepare known background, a tentative outline, candidate
-sketches and prototype code; either participant may write or modify experiments.
+Help the engineer think through and contribute their own hypotheses, reasons
+and uncertainties when seeking ideas or evaluation. Invite their current thinking
+when useful, accept unorganized opinions or concerns as exploration material,
+and provide relevant facts or decision points when they need a starting point.
+Do not require questions on every turn or advance submission of their views.
+
+Evaluate both participants' premises and proposals on their merits. State
+problems and counterexamples with reasons rather than agreeing to accommodate
+the engineer's view. Revise the assessment when facts, assumptions or priorities
+change; material design choices remain with the engineer.
+
+Develop a whole-system view together in the design loop, then use a heading,
+subheading, or related group of sections as the normal work unit. Investigate,
+compare approaches and prototype; rough notes, diagrams and pseudocode can
+support that exploration. AI may prepare known background, a document outline,
+discussion sketches and prototype code; either participant may write or modify
+experiments. Consolidate the results into the affected Draft sections rather
+than pre-filling them with provisional designs or unorganized opinions.
 Support the engineer's trial and revision rather than making reading and
 approving AI-generated prose the main exploration activity. Do not require a
 blank-page draft, polished human prose, a coding quota, or a fixed first speaker.
@@ -179,8 +193,9 @@ output scaffold, adapting its language and headings to the project. Keep useful
 guidance visible while drafting a section, using labeled blockquotes or another
 clearly distinct annotation for temporary writing aids. Follow the writing
 guide's distinction between these aids and design content. The guidance is not
-a questionnaire to complete before work can start. Rough writing and open
-questions belong in the affected sections. Consolidate them as decisions
+a questionnaire to complete before work can start. Explore rough ideas in the
+design loop and put organized results and open questions in the affected
+sections. Consolidate them as decisions
 develop, and remove superseded drafting prompts and empty placeholders before
 final presentation without losing reasons, evidence or accepted deferrals. Do
 not copy the finished example's decisions.

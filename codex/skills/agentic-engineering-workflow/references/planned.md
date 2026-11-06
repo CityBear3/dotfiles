@@ -50,17 +50,20 @@ Resolve planned-path entry in this order:
 6. After `Model Aligned`, identify the Design Doc to create or revise, or exact
    current approved coverage to reuse, under [the output policy](#deliver-the-design-doc).
    Pass aligned sources, the checkpoint, input record, pending realization
-   questions/evidence, target document, and existing coverage to `design-doc`.
+   questions/evidence, target document, and existing coverage to `architecturing`.
    Do not wait for Design Readiness or add a whether-to-document confirmation.
-7. Let `design-doc` own Architecture Exploration and the evolving Draft as one
+7. Let `architecturing` own Architecture Exploration and the evolving Draft as one
    loop. Its purpose is for the human to construct the design as an architect
    and retain a model they can use to explain, predict, and revise it. Both
    participants shape the framing and structure. Normally work by heading,
    subheading or connected group of sections, using the guided template for a
    new Draft when suitable. Investigate, compare and prototype while the
-   engineer develops rough notes, diagrams or pseudocode; AI may prepare the
-   foundation and either participant may write or modify prototype code. AI
-   edits the affected sections and returns new material choices to exploration.
+   engineer develops ideas, diagrams or pseudocode in the design loop; AI may
+   prepare the known foundation and either participant may write or modify
+   prototype code. A new Draft contains known inputs, an outline and writing
+   prompts, not provisional designs or unorganized opinions. AI consolidates
+   organized exploration results into the affected sections and returns new
+   material choices to exploration.
    Reconnect changes to the whole-system view and major paths; the outline stays
    provisional. Do not make reading and assenting to generated prose the main
    activity, impose human-writing/coding quotas, or add chapter approval. Use
@@ -72,7 +75,7 @@ Resolve planned-path entry in this order:
    interpretations and limits. Reuse current evidence, preserve user-led
    prototypes, and keep material design choices under user control. A successful
    probe is neither adoption nor production acceptance.
-8. Receive the current Draft and `design-doc`'s Design Readiness assessment.
+8. Receive the current Draft and `architecturing`'s Design Readiness assessment.
    `Design Ready` means ready to finalize and seek whole-document approval;
    it does not authorize the first Draft. Keep unresolved material choices in
    the same loop. Route misunderstanding to Model Aligning and new outcomes,
@@ -86,7 +89,7 @@ Resolve planned-path entry in this order:
    input records/checkpoints. Individual choices, experiments, chapter editing,
    and snapshots add no separate holistic approval and do not replace this one.
 10. Construct a complete Feature Contract. After an approved Design Doc and, for
-    a new or revised document, its transfer check, use `design-doc` to derive it
+    a new or revised document, its transfer check, use `architecturing` to derive it
     from that source and repository evidence.
 11. Write the Feature Contract at
     `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
@@ -123,7 +126,7 @@ material unresolved questions except explicitly accepted deferrals and impacts.
 Before finalization, preserve an exact working-Draft revision/checkpoint that
 retains individually settled choices, reasoning, evidence and working notes.
 This is a snapshot, not another evolving architecture document or approval
-artifact. After exact final approval, `design-doc` compares it with that
+artifact. After exact final approval, `architecturing` compares it with that
 checkpoint, aligned inputs and surviving sources, and prior exact approved
 coverage for unchanged decisions. Do not compare the final document only with
 itself or discard the source of comparison first. Require preservation of
@@ -139,7 +142,7 @@ implementation or supply an alternative final design authority.
 
 ## Assess Design Readiness
 
-`design-doc` owns the readiness assessment inside the integrated Draft loop.
+`architecturing` owns the readiness assessment inside the integrated Draft loop.
 The coordinator requires an aligned shared model and every applicable condition:
 
 1. repository-discoverable facts have been investigated;
@@ -166,7 +169,7 @@ including explicitly accepted deferrals and their impacts. Agreement and branch
 coverage alone are insufficient. Use the collaborative work and evidence;
 require no user exam, teach-back, score, or separate understanding approval.
 
-Apply the [exploration granularity](../../design-doc/references/exploration-guide.md#granularity).
+Apply the [exploration granularity](../../architecturing/references/exploration-guide.md#granularity).
 Private implementation choices preserving the design do not block readiness or
 need approved deferrals. These are applicability dimensions, not mandatory user
 questions or code PoCs for every choice. Reuse exact current approved coverage
@@ -182,7 +185,7 @@ understanding and product choices separate from realization choices, accepted
 input deferrals, discovery re-entry, and Design Doc create/revise/reuse coverage.
 
 After Model Aligned, pass those inputs and remaining architectural questions to
-`design-doc`. Receive working/final Draft identity, revision and status, pending
+`architecturing`. Receive working/final Draft identity, revision and status, pending
 questions and evidence, readiness result, exact approval state,
 preservation-check result, finalization checkpoint and temporary-record lifecycle,
 and any affected re-entry. The coordinator owns cross-phase routing; the phase
