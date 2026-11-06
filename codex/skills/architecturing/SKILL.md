@@ -19,8 +19,8 @@ an experiment's success, understanding, and document approval are distinct.
 Accept from `agentic-engineering-workflow` the confirmed workspace/repository
 identity, aligned working model and checkpoint result, requirements and
 specification sources with authority/currentness/scope, established constraints,
-pre-design input record, pending architectural questions, discovery evidence,
-and the Design Doc to create, revise, or reuse. Do not infer alignment from an
+input/alignment resume checkpoint, pending architectural questions, discovery
+evidence, and the Design Doc to create, revise, or reuse. Do not infer alignment from an
 artifact's existence or begin solution choices while a material input meaning
 or product choice is unresolved.
 
@@ -33,7 +33,9 @@ editing starting point, but does not establish alignment or approve its proposal
 After `Model Aligned`, create or revise a working Draft even while architecture
 is unsettled. Start with known Context, Goals, Non-goals and a useful outline or
 clearly separated writing prompts. Do not put provisional designs or unorganized
-opinions into a new Draft. Explore them in the design loop, then consolidate
+opinions into a new Draft. Initially keep Detailed design to its chapter heading
+and a short writing guide; add subsections from the actual design questions
+that emerge in exploration. Explore proposals in the design loop, then consolidate
 organized findings in the document. Mark it as Draft and distinguish unresolved
 questions from individually settled choices. The coordinator identifies the
 target; add no whether-to-document approval. Drafting and scoped discovery do not authorize production
@@ -117,9 +119,9 @@ of the proposed architecture.
 Update the affected Draft sections as the design changes: selected approaches
 and reasons, alternatives, model/API relationships, invariants, evidence and
 limits, accepted deferrals, and open questions. Proposals may develop while
-writing, but cannot silently become settled contracts. Do not maintain a second
-evolving architecture in `decision-record.md`; that record retains the aligned
-inputs and their history until final approval and preservation checking.
+writing, but cannot silently become settled contracts. Keep the resume checkpoint
+focused on current input/alignment state and source references until final
+approval and preservation checking; the Draft holds the evolving architecture.
 
 Keep the current conceptual phase as `Architecture Exploration`,
 `Discovery Pending`, or `Design Ready` in coordinator handoffs. These are
@@ -192,15 +194,25 @@ Use [assets/design-doc-template-ja.md](assets/design-doc-template-ja.md) as an
 output scaffold, adapting its language and headings to the project. Keep useful
 guidance visible while drafting a section, using labeled blockquotes or another
 clearly distinct annotation for temporary writing aids. Follow the writing
-guide's distinction between these aids and design content. The guidance is not
-a questionnaire to complete before work can start. Explore rough ideas in the
+guide's distinction between these aids and design content. For Detailed design,
+include only its chapter heading and a short guide initially. Keep module/API,
+state, flow and other coverage dimensions in the skill's references as applicable
+checks; let the actual questions determine output subsections. The guidance is
+not a questionnaire to complete before work can start. Explore rough ideas in the
 design loop and put organized results and open questions in the affected
 sections. Consolidate them as decisions
 develop, and remove superseded drafting prompts and empty placeholders before
 final presentation without losing reasons, evidence or accepted deferrals. Do
 not copy the finished example's decisions.
 
-The detailed design should explain architecture, state transitions, invariants, public interfaces, schemas, error models, and trade-offs when those are part of the contract. Leave private helper structure and step-by-step implementation to code and the implementation plan.
+Open Detailed design with the important properties or decision criteria, the
+conditions that make them difficult to achieve, and the central approach. Build
+the following sections around how the mechanisms address those difficulties,
+including reasons and accepted constraints. Use natural prose, lists or diagrams;
+do not require fixed headings or invent a difficulty. Keep unknowns explicit in
+a Draft. Explain architecture, state transitions, invariants, public interfaces,
+schemas, error models and trade-offs when they are part of the contract. Leave
+private helper structure and step-by-step implementation to code and the plan.
 
 For gRPC API sections meeting its applicability conditions, read
 [references/api-section-format.md](references/api-section-format.md). Describe
@@ -251,9 +263,9 @@ production performance or correctness result from a limited probe.
 ## Review and approval
 
 Review the developing Draft as part of the loop. When ready to finalize, retain
-an exact pre-finalization Draft revision/checkpoint, including working decisions,
-evidence, accepted deferrals, and relevant notes, plus the aligned input record
-and references. This is a preservation source, not another edited architecture
+an exact pre-finalization Draft snapshot, including working decisions, evidence,
+accepted deferrals and relevant notes, plus aligned source references and the
+resume checkpoint. This is a preservation source, not another edited architecture
 record or approval artifact.
 
 For both human- and AI-authored material, check:
@@ -267,8 +279,9 @@ For both human- and AI-authored material, check:
   are easy to locate, with reasons and causal links preserved nearby;
 - the explanation builds on established understanding at significant
   transitions, with actual premises, referents, and causal or other links;
-- Detailed design has a purposeful opening; lists serve their explanatory or
-  navigation role, with needed interpretation in nearby prose;
+- Detailed design connects important properties, actual difficulties and the
+  central approach to the mechanisms, reasons and constraints in its sections;
+  lists serve their explanatory or navigation role, with needed interpretation;
 - condensation and reorganization preserve material decisions, guarantees,
   constraints, and rationale in the appropriate sections or surviving sources;
 - goals and non-goals are distinguishable;
@@ -303,7 +316,7 @@ activity through the coordinator.
 ## Transfer design authority
 
 For a new or revised document, compare the exact approved Design Doc with the
-retained pre-finalization Draft checkpoint and its individually settled choices,
+retained pre-finalization Draft snapshot and its individually settled choices,
 aligned input authorities, evidence, and accepted changes. For a revision also
 check preservation of unchanged prior approved decisions. Verify:
 
@@ -316,7 +329,7 @@ check preservation of unchanged prior approved decisions. Verify:
 - explicitly accepted deferrals with their intent and impact.
 
 Do not compare the final document only to itself or discard working notes before
-this check. Retire the owned temporary input record/checkpoint only after exact
+this check. Retire the owned resume checkpoint and Draft snapshot only after exact
 approval and successful preservation checking. If coverage is missing, retain
 the sources and report the gap; do not silently fill a new material decision.
 If repairing a preservation gap changes the final text, present the repaired
@@ -325,12 +338,12 @@ transfer or deriving the Feature Contract. Do not repeat settled design choices
 or introduce another kind of approval.
 Requirements originals, agreed supplements, and relied-on experiment evidence
 must remain available. An unchanged exact approved document needs no repeated
-approval or manufactured checkpoint.
+approval or manufactured snapshot.
 
 Return to `agentic-engineering-workflow` the current phase, working/final Draft
 identity and status, aligned sources/currentness, pending questions/evidence,
 readiness result, exact approval state, preservation-check result, temporary
-record/checkpoint lifecycle, and any affected re-entry. This skill does not enter
+checkpoint/snapshot lifecycle, and any affected re-entry. This skill does not enter
 implementation planning.
 
 ## Derive the Feature Contract after approval

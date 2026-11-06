@@ -21,16 +21,17 @@ Resolve planned-path entry in this order:
    An already suitable current checkout is sufficient.
 3. When requirements or model understanding are unresolved and exact current
    approved authority does not fully cover them, require `design-discussion` to
-   create the ignored
-   `docs/plans/YYYY-MM-DD-<feature>/decision-record.md` after workspace
-   confirmation and before the first requirements proposal or provisional model.
-   This input/alignment record retains repository/source identity, phase,
-   checkpoint and alignment result, and classified input claims. Do not omit it
-   because discussion is short or duplicate exact approved coverage. File
-   existence is not alignment or approval. If inputs are already demonstrably
-   aligned and only realization choices remain, proceed to the Draft without
-   creating a parallel architecture record. Let `design-discussion` own product
-   exploration, model construction, understanding questions, and alignment.
+   retain a concise resume checkpoint in the ignored
+   `docs/plans/YYYY-MM-DD-<feature>/checkpoint.md` after workspace confirmation.
+   Save the current phase, aligned scope, exact source references, unresolved
+   questions and next action at alignment completion, phase handoffs and planned
+   interruptions. The first proposal or provisional model does not require a
+   checkpoint file in advance. Refer to requirements originals and supplements;
+   do not duplicate their contents or keep a decision history here. File existence
+   is not alignment or approval. If inputs are already demonstrably aligned and
+   only realization choices remain, proceed to the Draft without manufacturing
+   a checkpoint for unchanged approved coverage. Let `design-discussion` own
+   product exploration, model construction, understanding questions, and alignment.
 4. Use `Requirements Exploration` only when what to build needs choices. Let
    the user select outcomes, scope, priorities, and observable behavior through
    questions, scenarios, and alternatives. Preserve established inputs and
@@ -49,8 +50,8 @@ Resolve planned-path entry in this order:
    or present architectural options before its shared-model checkpoint.
 6. After `Model Aligned`, identify the Design Doc to create or revise, or exact
    current approved coverage to reuse, under [the output policy](#deliver-the-design-doc).
-   Pass aligned sources, the checkpoint, input record, pending realization
-   questions/evidence, target document, and existing coverage to `architecturing`.
+   Pass aligned sources, the alignment result, resume checkpoint, pending
+   realization questions/evidence, target document, and existing coverage to `architecturing`.
    Do not wait for Design Readiness or add a whether-to-document confirmation.
 7. Let `architecturing` own Architecture Exploration and the evolving Draft as one
    loop. Its purpose is for the human to construct the design as an architect
@@ -61,7 +62,9 @@ Resolve planned-path entry in this order:
    engineer develops ideas, diagrams or pseudocode in the design loop; AI may
    prepare the known foundation and either participant may write or modify
    prototype code. A new Draft contains known inputs, an outline and writing
-   prompts, not provisional designs or unorganized opinions. AI consolidates
+   prompts, not provisional designs or unorganized opinions. Initially Detailed
+   design contains only its chapter heading and a short guide; its subsections
+   emerge from actual design questions. AI consolidates
    organized exploration results into the affected sections and returns new
    material choices to exploration.
    Reconnect changes to the whole-system view and major paths; the outline stays
@@ -82,12 +85,13 @@ Resolve planned-path entry in this order:
    scope, or required behavior to Requirements Exploration then alignment,
    preserving unaffected Draft content and settled decisions.
 9. Reuse an exact approved unchanged Design Doc without repeat approval. For a
-   new or revised document, retain a pre-finalization Draft revision/checkpoint
+   new or revised document, retain an exact pre-finalization Draft snapshot
    and input sources for a non-circular preservation comparison. Require user
    approval of the exact final Design Doc as the one holistic design approval,
    then a successful authority-transfer check before retiring owned temporary
-   input records/checkpoints. Individual choices, experiments, chapter editing,
-   and snapshots add no separate holistic approval and do not replace this one.
+   resume checkpoints and Draft snapshots. Individual choices, experiments,
+   chapter editing and snapshots add no separate holistic approval and do not
+   replace this one.
 10. Construct a complete Feature Contract. After an approved Design Doc and, for
     a new or revised document, its transfer check, use `architecturing` to derive it
     from that source and repository evidence.
@@ -114,31 +118,31 @@ manufacturing another document or repeating its approval.
 Keep aligned requirements/specifications and their authority distinct from
 architectural proposals, individually settled choices and reasons, alternatives,
 evidence/limits, accepted deferrals, and open questions. The Draft is the single
-architecture work product; the decision record retains pre-design inputs and
-alignment, not a second evolving architecture. Requirements originals, agreed
-supplements, and relied-on evidence remain independently available.
+architecture work product; the checkpoint retains the current input/alignment
+resume state and references. Requirements originals, agreed supplements, and
+relied-on evidence remain independently available.
 
 Scale the document to the decisions and future reader's needs. A short document
 can suffice. Do not invent alternatives or expand scope to justify it. Drafting
 starts before readiness; final approval requires Design Readiness, with no
 material unresolved questions except explicitly accepted deferrals and impacts.
 
-Before finalization, preserve an exact working-Draft revision/checkpoint that
+Before finalization, preserve an exact working-Draft snapshot that
 retains individually settled choices, reasoning, evidence and working notes.
 This is a snapshot, not another evolving architecture document or approval
 artifact. After exact final approval, `architecturing` compares it with that
-checkpoint, aligned inputs and surviving sources, and prior exact approved
+snapshot, aligned inputs and surviving sources, and prior exact approved
 coverage for unchanged decisions. Do not compare the final document only with
 itself or discard the source of comparison first. Require preservation of
 material choices/reasons, alternatives, guarantees, constraints, evidence/limits,
-source references and accepted deferrals before retiring owned temporary records.
-A gap retains the sources and returns the affected slice to the loop. Unchanged
-approved reuse needs no new checkpoint solely for transfer.
+source references and accepted deferrals before retiring owned resume checkpoints
+and Draft snapshots. A gap retains the sources and returns the affected slice to the loop. Unchanged
+approved reuse needs no new Draft snapshot solely for transfer.
 
 Design Doc approval and this preservation check precede a new Feature Contract;
 its separate approval and Implementation Plan/Task/Review approvals remain
-required. Drafts, temporary records, and experiments do not authorize production
-implementation or supply an alternative final design authority.
+required. Drafts, resume checkpoints, snapshots, and experiments do not authorize
+production implementation or supply an alternative final design authority.
 
 ## Assess Design Readiness
 
@@ -178,7 +182,7 @@ and applicable evidence rather than duplicating discovery or documentation.
 ## Coordinate handoffs and re-entry
 
 To `design-discussion`, pass the route, confirmed workspace/repository, exact
-existing authority/currentness, input-record location, and unresolved input
+existing authority/currentness, resume-checkpoint location, and unresolved input
 evidence. Receive phase, alignment/checkpoint, classified requirements,
 specifications and constraints, source identities/currentness, unresolved
 understanding and product choices separate from realization choices, accepted
@@ -187,15 +191,15 @@ input deferrals, discovery re-entry, and Design Doc create/revise/reuse coverage
 After Model Aligned, pass those inputs and remaining architectural questions to
 `architecturing`. Receive working/final Draft identity, revision and status, pending
 questions and evidence, readiness result, exact approval state,
-preservation-check result, finalization checkpoint and temporary-record lifecycle,
-and any affected re-entry. The coordinator owns cross-phase routing; the phase
+preservation-check result, finalization Draft snapshot and temporary-artifact
+lifecycle, and any affected re-entry. The coordinator owns cross-phase routing; the phase
 skill owns architecture exploration, validation, writing and finalization.
 
 When evidence arrives, classify whether it changes requirements, understanding,
 or architecture and resume the affected slice with it. Reuse unaffected
 alignment, Draft content, decisions and evidence. After interruption, recheck
-repository identity, source currentness, input record, Draft revision and pending
-evidence; resume at the phase whose exit conditions remain satisfied. Neither
+repository identity, source currentness, resume checkpoint, Draft revision and
+pending evidence; resume at the phase whose exit conditions remain satisfied. Neither
 a summary nor file existence establishes alignment, readiness or approval. Stop
 with the exact claim, evidence tried, and re-entry need when repeated questions
 or probes do not reduce the same material uncertainty.

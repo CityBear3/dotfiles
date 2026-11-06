@@ -20,7 +20,7 @@ shows that the requested change does not alter that contract.
 
 When the explicit request and repository evidence unambiguously establish the
 goal, expected behavior, scope, and constraints, retain the request's exact
-explicit content as the approved alignment source. Add no decision-record file
+explicit content as the approved alignment source. Add no planned-path checkpoint file
 or separate alignment approval gate. If only non-material omissions remain,
 derive one concise alignment record, present it, and ask once for confirmation;
 an unpresented or unconfirmed Agent summary is not shared authority. A material
