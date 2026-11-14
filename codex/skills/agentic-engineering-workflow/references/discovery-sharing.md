@@ -3,7 +3,7 @@
 ## Share costly discovery across independent sessions when useful
 
 For new-format planned work, the Feature Lead may create
-`docs/plans/YYYY-MM-DD-<feature>/search-cache.md` when another independent Task
+`.work/YYYY-MM-DD-<feature>/search-cache.md` when another independent Task
 Lead or session is likely to reuse a finding that would be costly to rediscover.
 It is an optional shared discovery memo, not a same-session memory log or a
 record of every search. Use the Task handoff directly for one-off sharing;

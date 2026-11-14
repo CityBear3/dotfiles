@@ -22,7 +22,7 @@ Resolve planned-path entry in this order:
 3. When requirements or model understanding are unresolved and exact current
    approved authority does not fully cover them, require `design-discussion` to
    retain a concise resume checkpoint in the ignored
-   `docs/plans/YYYY-MM-DD-<feature>/checkpoint.md` after workspace confirmation.
+   `.work/YYYY-MM-DD-<feature>/checkpoint.md` after workspace confirmation.
    Save the current phase, aligned scope, exact source references, unresolved
    questions and next action at alignment completion, phase handoffs and planned
    interruptions. The first proposal or provisional model does not require a
@@ -96,7 +96,7 @@ Resolve planned-path entry in this order:
     a new or revised document, its transfer check, use `architecturing` to derive it
     from that source and repository evidence.
 11. Write the Feature Contract at
-    `docs/plans/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
+    `.work/YYYY-MM-DD-<feature>/feature-contract.md` as an ignored,
     workspace-only execution artifact and require its separate user approval.
     Do not force-add, stage, or commit it unless the user explicitly chooses
     archival. Do not treat Design Doc approval, artifact existence, or a
@@ -109,6 +109,11 @@ Resolve planned-path entry in this order:
     chooses archival.
 
 ## Deliver the Design Doc
+
+Apply [artifact storage](artifact-storage.md): a new Design Doc starts in
+`design/` as the canonical editable document, while `.work/` holds references
+and any required immutable comparison snapshot. Keep existing authoritative
+paths when revising or reusing a document; do not add a copy/promotion step.
 
 For new planned work, Architecture Exploration and Design Doc development share
 one evolving Draft after Model Aligned. The durable output is the exact approved

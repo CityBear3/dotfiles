@@ -22,6 +22,10 @@ Use `requirements.md` as the default name when a new source is needed, following
 the project's documentation layout. Keep its identity feature-scoped and its
 location available to downstream sessions. A surviving requirements source must
 not depend solely on the temporary ignored checkpoint or its lifetime.
+Apply the [artifact storage policy](../../agentic-engineering-workflow/references/artifact-storage.md):
+keep existing durable originals in place, and do not make `.work/` their only
+surviving location. Capturing requirements does not itself authorize a new
+public usage guide.
 
 The following is a reference structure, not a mandatory schema. Concise documents
 with purpose, requirements, initial non-goals, non-functional requirements,

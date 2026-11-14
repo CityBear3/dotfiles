@@ -72,6 +72,16 @@ the autonomous implementation, verification, review, and correction loops.
 See the [planned workflow](skills/agentic-engineering-workflow/references/planned.md)
 for transitions and approvals.
 
+New Design Docs start in `design/YYYY-MM-DD-<feature>.md` and remain the same
+canonical document through Draft, approval and later revisions. Checkpoints,
+contracts, plans, optional search caches and required immutable Draft snapshots
+use the Git-ignored `.work/YYYY-MM-DD-<feature>/` directory. Existing documents
+and in-flight paths retain their identities, and requirements originals remain
+at durable sources. There is no copy-to-publish step or automatic generation of
+extra design-and-usage documentation. See the
+[artifact storage policy](skills/agentic-engineering-workflow/references/artifact-storage.md)
+for authority, retention and document-generation boundaries.
+
 ## Understand a PR through dialogue
 
 Use [`walkthrough-pr`](skills/walkthrough-pr/SKILL.md) to build an understanding
@@ -232,9 +242,13 @@ profiles:
 | design-alignment-reviewer | GPT-6.1 Sol/xhigh | Composed/shared-boundary authority |
 
 Risk review distinguishes communication API contracts, function/type API
-contracts (including module boundaries), and behavioral responsibilities/guarantees.
-The last perspective traces who guarantees an operation's meaning, invariants
-and state transitions in business applications or infrastructure. Each selected
+contracts (including module boundaries), behavioral responsibilities/guarantees,
+and security/trust boundaries. Behavioral review traces who guarantees an
+operation's meaning, invariants and state transitions in business applications
+or infrastructure. Security review traces realistic threats across protection
+boundaries in code the user owns or is authorized to have reviewed; it is
+read-only, does not require exploitation proof or Daybreak merely to select the
+perspective, and reports any restricted or unverified coverage. Each selected
 perspective uses a separate invocation of the same `risk-reviewer`; these are
 not additional native profiles or mandatory reviews for every change. See
 [risk perspective guidance](skills/review/references/risk-perspectives.md).

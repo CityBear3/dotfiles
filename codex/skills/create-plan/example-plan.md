@@ -6,7 +6,7 @@
 
 Add an approved library input form and expose it through the existing CLI.
 
-1. `docs/plans/YYYY-MM-DD-input-form/feature-contract.md`
+1. `.work/YYYY-MM-DD-input-form/feature-contract.md`
 2. This approved Implementation Plan and its Task Contracts
 3. Repository guidance
 

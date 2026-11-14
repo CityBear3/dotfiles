@@ -106,6 +106,8 @@ Use `risk-reviewer` for one selected perspective per invocation:
   ownership, side effects, errors, call ordering and compatibility;
 - behavioral responsibilities/guarantees: operation meaning, invariants and state
   transitions guaranteed at the approved component boundaries;
+- security/trust boundaries: authorized defensive source review of reachable
+  threats to assets across input, identity, privilege and data boundaries;
 - performance: demonstrable repeated-path cost or growth;
 - robustness/recovery: reachable failure, concurrency and partial state;
 - tests/faults: concrete escaping defects, mocks, isolation and required proof.
@@ -115,16 +117,24 @@ model, expected evidence and stop condition. Preserve independent invocations
 when multiple perspectives need independence. A triggered risk role alone does
 not require an integrator.
 
-For the API or behavioral perspectives, read
+For the API, behavioral or security perspectives, read
 [risk perspective guidance](references/risk-perspectives.md) when selecting
 coverage and pass its path to the selected reviewer. Distinguish communication
 from function/type contracts rather than external/internal visibility. Select
 behavioral responsibilities/guarantees when operation meaning, invariants,
 state transitions or responsibility boundaries change. These are independently
-selected perspectives, not three mandatory passes for every change. Derive
+selected perspectives, not mandatory passes for every change. Derive
 guarantees and responsibility placement from applicable authority; do not invent
 requirements. Consolidate overlapping findings without claiming one invocation
 covered another selected perspective.
+
+For security coverage, ground the handoff in actual review authorization, the
+bounded code surface, protected assets, entry points, trust boundaries and
+realistic attacker capabilities. Select it when the change affects those
+boundaries; retain read-only source investigation and the security reference's
+evidence and stop conditions. Do not make Daybreak a prerequisite solely because
+this perspective is selected, or claim that a bounded clean result proves the
+absence of security risks.
 
 `design-alignment-reviewer` primarily checks integration/shared boundaries.
 Run it on a Task only when explicitly selected for that boundary, not every
