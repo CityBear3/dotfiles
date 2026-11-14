@@ -21,6 +21,22 @@ Feature Contract, Task Contract, or Implementation Plan.
 - Stop for clarification when applicable authorities conflict and the choice
   would change a public or shared interface, compatibility, or failure behavior.
 
+## Preserve the Cargo environment
+
+- Keep the existing `CARGO_HOME` and project Cargo configuration; leave
+  `CARGO_HOME` unset when it is already unset. Do not preemptively move it to
+  `/tmp` or `/private/tmp`, copy registry or Git caches, or enable `--offline` or
+  `CARGO_NET_OFFLINE` to anticipate sandbox restrictions.
+- When a command actually fails because of sandbox filesystem or network
+  restrictions, use the available approval or permission-escalation mechanism
+  to retry the same scoped command with the existing environment, within the
+  task's authorization and applicable permissions.
+- Honor explicitly requested offline or isolated workflows. If escalation is
+  unavailable or denied, report the restriction and evaluate authorized
+  alternatives; do not silently switch Cargo homes, duplicate caches or force
+  offline mode. Explain any necessary environment change and its validation
+  limits.
+
 ## Use idiomatic Rust and Effective Rust
 
 Write idiomatic Rust, using [Effective Rust](https://effective-rust.com/) as the

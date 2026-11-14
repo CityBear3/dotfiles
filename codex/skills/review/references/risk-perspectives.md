@@ -1,4 +1,4 @@
-# API contracts and behavioral responsibilities
+# Risk perspective guidance
 
 Use this guidance for the selected `risk-reviewer` perspective. Run one
 perspective per invocation, with its exact trigger, authority, surface,
@@ -63,6 +63,55 @@ Expected defect evidence identifies the approved guarantee/responsibility, actua
 execution path, reachable leak/bypass/inconsistency and material consequence.
 Do not invent a domain layer, new state machine or ideal responsibility placement.
 
+## Security/trust boundaries — セキュリティと信頼境界
+
+Select this perspective when the change affects authentication, authorization,
+untrusted inputs, secrets or sensitive data, process permissions, dependencies,
+or memory-safety boundaries such as `unsafe` and FFI. Select from the actual
+surface and threat model, not merely because an API or dependency exists.
+
+The handoff identifies the code the user owns or is authorized to have reviewed,
+the bounded target and relevant surrounding sources, protected assets, entry
+points, trust boundaries, realistic attacker capabilities and assumptions.
+Resolve these from the request and available project authority; do not invent
+authorization, threats or guarantees. Disclose assumptions and return essential
+authorization or threat-model gaps to the owner under the common review
+boundaries.
+
+Perform read-only defensive source analysis. Trace attacker-controlled inputs
+to sensitive operations and check relevant validation, identity, authorization,
+isolation and data handling along the actual path. Follow relevant callers and
+dependencies, and check controls in other layers before retaining a finding.
+Use existing tests, static-analysis results and permitted non-mutating checks
+when useful. Keep the assigned source-review depth and common finding threshold.
+
+Expected defect evidence identifies file/line, the attacker's required control
+and preconditions, a reachable code path, absent or ineffective controls, and
+material impact. Include a proportionate correction and confidence. Distinguish
+source-established evidence, observed validation and unverified assumptions.
+A concrete source path can establish a defect without executable reproduction;
+do not require exploit code or successful exploitation to report it. Preserve
+the common Should Improve criteria for grounded security improvements.
+
+External scanning, interaction with live systems, exploitation and exploit-code
+generation are outside this source-review contract. If a conclusion needs
+dynamic validation outside the permitted checks, report the precise evidence
+gap for a separately authorized workflow; do not expand this review's actions.
+Keep secrets out of reports. A clean result covers only the inspected scope and
+stated threat model, not a guarantee that the software has no vulnerabilities.
+
+State the actual defensive purpose, authorization, scope and methods clearly.
+OpenAI's [access overview](https://help.openai.com/en/articles/20001258-openai-daybreak-trusted-access-for-cyber-overview)
+includes secure code review among standard mainline-model uses; this perspective
+alone does not require Daybreak. Clear scope does not guarantee that safeguards
+will accept every request. If a safeguard restricts an action, record the
+available notice and affected coverage, continue only independently permitted
+analysis, and return the gap to the owner. Do not automatically enable Daybreak,
+switch models, or disguise or repeatedly retry the blocked operation. Follow
+[Codex's false-positive guidance](https://developers.openai.com/codex/cyber-safety/#false-positives),
+including `/feedback` when available. Apply the common partial-coverage and
+BLOCKED rules; restricted coverage cannot satisfy a required review gate.
+
 ## Boundaries with other perspectives
 
 | Perspective | Primary question |
@@ -71,6 +120,7 @@ Do not invent a domain layer, new state machine or ideal responsibility placemen
 | API contracts | Can the consumer correctly use and interpret the interface? |
 | Architecture/dependencies | Does responsibility placement and dependency structure follow the approved design? |
 | Behavioral responsibilities/guarantees | Along a concrete execution path, who actually guarantees the promised meaning, invariants and transitions? |
+| Security/trust boundaries | Can an actor with realistic untrusted inputs or privileges cross a protection boundary and harm an asset? |
 | Robustness/recovery | Do guarantees survive reachable failure, concurrency, partial state, recovery and termination? |
 
 These perspectives can observe the same defect. Keep selected coverage separate

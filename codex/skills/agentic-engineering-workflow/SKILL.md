@@ -72,6 +72,10 @@ Read only the references needed for the current decision. The rules in these
 references belong to this coordinator; phase skills retain their own mechanics.
 Do not load all routes or references at entry.
 
+- **Artifact placement, creation or retirement:** read
+  [artifact-storage.md](references/artifact-storage.md) for the canonical Design
+  Doc in `design/`, ignored execution artifacts in `.work/`, existing-path
+  continuity and the approved scope of document generation.
 - **Read-only explanation, diagnosis, or planning:** investigate and report
   within the requested scope. No execution or acceptance reference is needed
   solely for an explanation. For an explicit verification or independent review,

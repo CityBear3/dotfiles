@@ -47,6 +47,10 @@ it does not automatically enter verification or correction review here.
 
 ## Write and inspect the exact target
 
+Apply the [artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md)
+before creating or expanding documentation. Keep lightweight authority in memory;
+this policy does not require a Design Doc, contract file or plan for this route.
+
 The Feature Lead implements directly and retains all Task state. For internal
 implementation choices, read the shared
 [implementation quality guidance](../execute-task/references/implementation-quality.md)

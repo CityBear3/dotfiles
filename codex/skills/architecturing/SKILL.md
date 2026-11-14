@@ -30,6 +30,12 @@ approval. For a revision, retain its exact approved revision as unchanged
 authority while developing the changed slice. A user-authored Draft can be the
 editing starting point, but does not establish alignment or approve its proposals.
 
+Apply the [artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md).
+Start a new Design Doc directly in `design/YYYY-MM-DD-<feature>.md` and edit that
+same canonical document from Draft through approval and later revisions.
+Preserve an existing authoritative path for revision or reuse. `.work/` holds
+references and required immutable snapshots, not a second editable Design Doc.
+
 After `Model Aligned`, create or revise a working Draft even while architecture
 is unsettled. Start with known Context, Goals, Non-goals and a useful outline or
 clearly separated writing prompts. Do not put provisional designs or unorganized
@@ -377,7 +383,7 @@ Doc during contract drafting.
 
 Return the complete Feature Contract for separate user approval and
 workspace-only storage at
-`docs/plans/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
+`.work/YYYY-MM-DD-<feature>/feature-contract.md`. Keep it ignored and do not
 force-add, stage, or commit it unless the user explicitly chooses archival.
 Design Doc approval does not approve this artifact, and this skill does not
 enter planning.

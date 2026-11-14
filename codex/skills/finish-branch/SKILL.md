@@ -107,6 +107,10 @@ contract requires; do not impose the new planned-feature lifecycle.
 
 ## Keep workspace-only artifacts with their worktree
 
+Apply the [artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md).
+New execution artifacts use `.work/`; retain existing authoritative paths and
+the canonical Design Doc without creating a publication copy or extra guide.
+
 This section applies only to new-format planned Task and Feature modes.
 Eligible legacy mode follows its original completion and retention contract,
 does not require `search-cache.md`, and does not manufacture new-format

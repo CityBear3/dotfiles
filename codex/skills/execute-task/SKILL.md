@@ -93,6 +93,10 @@ is not a deviation by itself. Astra provides no extra design authority.
 
 ## Implement and commit locally
 
+Apply the [artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md)
+before creating or expanding documentation. Task completion does not authorize
+extra design or usage documents outside the approved scope.
+
 Keep this Task Lead through ordinary implementation and correction turns.
 Batch independent initial reads/searches/Git observations when every result is
 attributable; stop before a result-dependent decision. Use supplied applicable

@@ -16,6 +16,10 @@ existing authority and its currentness, and unresolved evidence. Do not persist
 a material decision until the coordinator has confirmed the checkout, branch,
 and starting ref.
 
+Before creating sources or checkpoints, apply the
+[artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md).
+Keep durable requirements originals at their established source locations.
+
 In `Investigating`, resolve repository facts and inspect existing PBI items,
 requirements, specifications, and prior decisions before asking the user.
 Identify each source's exact reference, revision or observation point, applicable
@@ -153,7 +157,7 @@ retain its exact design authority under the coordinator's continuation rules.
 
 For planned discussion with unresolved requirements or model understanding not
 fully covered by exact current approved authority, save the ignored workspace
-artifact `docs/plans/YYYY-MM-DD-<feature>/checkpoint.md` after workspace
+artifact `.work/YYYY-MM-DD-<feature>/checkpoint.md` after workspace
 confirmation. Create or refresh it at alignment completion, phase handoffs and
 planned interruptions; do not require it before the first requirements proposal
 or provisional model. Reuse current approved coverage without manufacturing a
@@ -180,8 +184,9 @@ read-only existing sources without editing the originals.
 
 After Model Aligned, keep evolving architecture, alternatives, design rationale,
 experiment evidence, and design questions in the Draft owned by `architecturing`, not
-in the checkpoint. Refer to the Draft from its handoff. Keep the checkpoint
-available through final Design Doc approval and the preservation check. On input
+in the checkpoint. Refer to the canonical Draft's path, revision and state from
+the checkpoint or handoff; do not keep another editable design there. Keep the
+checkpoint available through final Design Doc approval and the preservation check. On input
 re-entry, update affected originals/supplements and the checkpoint's alignment
 state, then return them to the same Draft loop. Preserve unaffected alignment
 and settled design coverage.

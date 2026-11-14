@@ -109,8 +109,10 @@ the preserved current head an unreviewed baseline.
 
 ## Plan structure
 
+Apply the [artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md)
+when selecting or writing artifacts; retain exact existing authority paths.
 Store the plan beside its Feature Contract at
-`docs/plans/YYYY-MM-DD-<feature>/implementation-plan.md` unless stricter
+`.work/YYYY-MM-DD-<feature>/implementation-plan.md` unless stricter
 repository guidance specifies another location. Reference the approved contract;
 do not copy or mutate its meaning. Treat both files as ignored, workspace-only
 execution artifacts. Do not force-add, stage, or commit either file unless the
@@ -280,6 +282,12 @@ consider behavioral responsibilities/guarantees when operation meaning,
 invariants, state transitions or responsibility boundaries change. Use the
 [risk perspective guidance](../review/references/risk-perspectives.md) for
 selection and boundaries with specification, architecture and robustness.
+Consider security/trust boundaries when the change affects authentication,
+authorization, untrusted input, sensitive data, privileges, dependencies or
+memory safety. Bind the actual review authorization, protected assets, entry
+points, trust boundaries and realistic attacker capabilities, with read-only
+source-review evidence and stop conditions from that same reference. This
+perspective alone requires neither Daybreak nor executable exploitation proof.
 Record the applicable authority and concrete risk for each selected perspective;
 none is a mandatory extra pass solely because an API exists.
 

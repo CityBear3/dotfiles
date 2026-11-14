@@ -52,8 +52,11 @@ Return `Escalate` to the owning approval gate. Any
 resulting push, restack, retarget, or PR update remains separately authorized.
 
 After Feature Accepted, pass the complete topology and feature evidence to
-`finish-branch` feature mode. Keep ignored plan artifacts and any existing
-`search-cache.md` in the coordination worktree; let an explicitly authorized
+`finish-branch` feature mode. Apply [artifact storage](artifact-storage.md).
+Keep the canonical Design Doc in place; completion adds no publication copy or
+new design-and-usage document. Keep ignored plan artifacts and any existing
+`search-cache.md` in their feature directory in the coordination worktree
+(by default under `.work/`); let an explicitly authorized
 later removal of that worktree clean them up with the workspace. Preserve
 durable Design Docs and present remaining publication or branch-disposition
 choices. Archive plan artifacts only when the

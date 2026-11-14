@@ -9,7 +9,12 @@ This skill explains; it does not edit, approve, or execute the plan.
 
 ## Start
 
-Resolve the requested plan path. If none is supplied, inspect `docs/plans` and select the clearly current plan; ask only when multiple plausible plans remain.
+Resolve the supplied or active-handoff plan path unchanged. Otherwise inspect
+`.work/` under the [artifact storage policy](../agentic-engineering-workflow/references/artifact-storage.md)
+first. If it contains no plausible plan, check established legacy locations,
+including `docs/plans/`, and existing plan references without moving artifacts.
+Select the clearly current plan; ask when multiple plausible plans remain.
+Discovery does not establish approval or currentness.
 
 If the requested file does not exist, or no plan is found, say
 `プランが見つかりません` and stop.
