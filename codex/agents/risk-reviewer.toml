@@ -1,6 +1,6 @@
 name = "risk-reviewer"
 description = "Read-only review of one selected scope, architecture, communication API, function/type API, behavioral responsibility, security/trust boundary, performance, robustness, or test-risk perspective."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
