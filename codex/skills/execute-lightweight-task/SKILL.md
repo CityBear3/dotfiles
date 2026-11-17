@@ -23,8 +23,8 @@ untracked state; commit intent and message authority; verification obligations;
 and any attributable prior commits, reports, pending leaves, findings and
 re-entry state. Fix exact files/commands only when contractually significant.
 
-The runner is GPT-6 Luna/low, focused-reviewer GPT-6.1 Sol/xhigh, and conditional
-finding-integrator GPT-6.1 Sol/xhigh. Resolve effective bindings before the first edit.
+The runner is GPT-6 Luna/low, focused-reviewer GPT-6.2 Sol/xhigh, and conditional
+finding-integrator GPT-6.2 Sol/xhigh. Resolve effective bindings before the first edit.
 Feature Lead remains on its session defaults. No runtime promotion or fallback.
 
 Hold phase entry for planned-only authority, unexplained state, missing or

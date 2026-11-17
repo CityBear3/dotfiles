@@ -36,12 +36,12 @@ over an editor, lazygit, another agent, an approval dialog, or an unidentified
 pane occupant. Resolve the explicit pane and agent mapping; do not use focus,
 left/right position or names as guessed identity.
 
-Pass native Codex arguments after Herdr's `--`. For an approved GPT-6.1 Sol/xhigh Task
+Pass native Codex arguments after Herdr's `--`. For an approved GPT-6.2 Sol/xhigh Task
 the argument shape is:
 
 ~~~sh
 herdr agent start <task-agent-name> --kind codex --pane <validated-task-lead-pane> -- \
-  --cd <absolute-task-worktree> --model gpt-6.1-sol \
+  --cd <absolute-task-worktree> --model gpt-6.2-sol \
   -c 'model_reasoning_effort="xhigh"' \
   -c 'plan_mode_reasoning_effort="xhigh"'
 ~~~

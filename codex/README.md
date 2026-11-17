@@ -223,23 +223,23 @@ native verification-runner and focused-reviewer gates. Feature integration and
 standalone checks are also native leaves of the Feature session. Every new
 native leaf has empty inherited history and no descendants.
 
-The tracked session defaults are GPT-6.1 Sol/xhigh for both normal and Plan
+The tracked session defaults are GPT-6.2 Sol/xhigh for both normal and Plan
 mode, supporting the Feature Lead's design discussions and coordination.
-Task Leads use explicit GPT-6.1 Sol/xhigh startup settings, and native reviewers
-and finding integration use their GPT-6.1 Sol/xhigh profiles; they do not inherit
+Task Leads use explicit GPT-6.2 Sol/xhigh startup settings, and native reviewers
+and finding integration use their GPT-6.2 Sol/xhigh profiles; they do not inherit
 the Feature Lead's effort. There are eight logical roles, but only seven native
 profiles:
 
 | Role | Model / effort | Boundary |
 | --- | --- | --- |
-| Task Lead | GPT-6.1 Sol/xhigh; Astra/xhigh when justified in the approved plan | Independent Herdr session; sole Task writer |
+| Task Lead | GPT-6.2 Sol/xhigh; Astra/xhigh when justified in the approved plan | Independent Herdr session; sole Task writer |
 | verification-runner | GPT-6 Luna/low | Declared commands/observations only |
-| focused-reviewer | GPT-6.1 Sol/xhigh | Lightweight spec, implementation and tests |
-| spec-reviewer | GPT-6.1 Sol/xhigh | Planned contract compliance |
-| implementation-quality-reviewer | GPT-6.1 Sol/xhigh | Implementation and test quality |
-| risk-reviewer | GPT-6.1 Sol/xhigh | One selected risk perspective per invocation |
-| finding-integrator | GPT-6.1 Sol/xhigh | Conditional complex/conflicting findings |
-| design-alignment-reviewer | GPT-6.1 Sol/xhigh | Composed/shared-boundary authority |
+| focused-reviewer | GPT-6.2 Sol/xhigh | Lightweight spec, implementation and tests |
+| spec-reviewer | GPT-6.2 Sol/xhigh | Planned contract compliance |
+| implementation-quality-reviewer | GPT-6.2 Sol/xhigh | Implementation and test quality |
+| risk-reviewer | GPT-6.2 Sol/xhigh | One selected risk perspective per invocation |
+| finding-integrator | GPT-6.2 Sol/xhigh | Conditional complex/conflicting findings |
+| design-alignment-reviewer | GPT-6.2 Sol/xhigh | Composed/shared-boundary authority |
 
 Risk review distinguishes communication API contracts, function/type API
 contracts (including module boundaries), behavioral responsibilities/guarantees,
@@ -253,7 +253,7 @@ perspective uses a separate invocation of the same `risk-reviewer`; these are
 not additional native profiles or mandatory reviews for every change. See
 [risk perspective guidance](skills/review/references/risk-perspectives.md).
 
-For new Task Leads, assess the whole Task before confirming the GPT-6.1 Sol/xhigh
+For new Task Leads, assess the whole Task before confirming the GPT-6.2 Sol/xhigh
 default. Select Astra/xhigh when concrete unresolved implementation or evidence
 interpretation difficulty supports that choice, not from the Task category alone. Record
 the concrete Task evidence and expected quality/total completion cost; follow the
